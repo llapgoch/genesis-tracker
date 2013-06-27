@@ -22,18 +22,33 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
 */
+
 require_once('includes.php');
+
 
 register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
 
+add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
+add_action('wp', array('GenesisTracker', 'addHeaderElements'));
+
+
+/* TODO: Change this so that it uses an optionified key */
+add_action('wp_ajax_moose', 'test');
+
+
+
+
+function test() {
+	var_dump('moooo');
+
+}
 
 function genesis_user_graph(){
 	ob_start();
-	
+
 	include('user-graph.php');
 	
 	$output = ob_get_contents();
