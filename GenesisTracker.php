@@ -96,8 +96,9 @@ class GenesisTracker{
 		 // Creates the page which displays the graph information
 		 $current_user = wp_get_current_user();
 
-		 $pageData = array(
+		 $pageData = array
 			'post_title' => 'Progress',
+ 			'comment_status' => 'closed'
  		 	'post_content' => '[' . self::getOptionKey(self::userPageId) . ']',
  		 	'post_status' => 'publish',
  		 	'post_type' => 'page',

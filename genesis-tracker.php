@@ -35,6 +35,7 @@ add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
 add_action('wp', array('GenesisTracker', 'addHeaderElements'));
 
 
+
 /* TODO: Change this so that it uses an optionified key */
 add_action('wp_ajax_moose', 'test');
 
@@ -43,7 +44,6 @@ add_action('wp_ajax_moose', 'test');
 
 function test() {
 	var_dump('moooo');
-
 }
 
 function genesis_user_graph(){
