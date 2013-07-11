@@ -30,17 +30,14 @@ require_once('includes.php');
 register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgresPageId), 'genesis_user_input_page');
 
 add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
 add_action('wp', array('GenesisTracker', 'addHeaderElements'));
-
-
+add_action('wp', array('GenesisTracker', 'doActions'));
 
 /* TODO: Change this so that it uses an optionified key */
 add_action('wp_ajax_moose', 'test');
-
-
-
 
 function test() {
 	var_dump('moooo');
@@ -50,9 +47,19 @@ function genesis_user_graph(){
 	ob_start();
 
 	include('user-graph.php');
-	
 	$output = ob_get_contents();
-	ob_end_clean();
 	
+	ob_end_clean();
+	return $output;
+}
+
+function genesis_user_input_page(){
+	ob_start();
+	
+	$form = DP_HelperForm::getForm('user-input');
+	require('user-input-page.php');
+	$output = ob_get_contents();
+	
+	ob_end_clean();
 	return $output;
 }

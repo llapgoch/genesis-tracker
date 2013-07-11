@@ -3,6 +3,7 @@ class GenesisTracker{
 	const version = "0.1";
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
+	const inputProgresPageId = "progress_page";
 	
 	public static function install(){
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -25,11 +26,47 @@ class GenesisTracker{
 		 
 		 // Create the user page if it's not already there		 
  		 self::createUserPage();
+		 self::createInputPage();
 	 }
 	 
 	 public static function getTableName(){
 		 global $wpdb;
 		 return $wpdb->base_prefix . "genesis_tracker";
+	 }
+	 
+	 // For saving, updating etc
+	 public static function doActions(){
+		
+		 if(self::isOnUserInputPage()){
+			 $form = DP_HelperForm::createForm('user-input');
+			 
+			 if(!DP_HelperForm::wasPosted()){
+				 return;
+		 	 }
+			 
+			 $form->setData($_POST);
+			 $action = $form->getRawValue('action');
+			 
+			 // Actions for the user input page
+			 switch($action){
+				 case "savemeasurement" :
+					 self::saveMeasurement($_POST);
+				break;
+			 }
+		 }
+		 
+	 }
+	 
+	 public static function saveMeasurement($data){
+		 $rules = array(
+			 'measure_date' => array('R'),
+			 'weight' => array('N', 'R'),
+			 'calories' => array('N', 'R'),
+		 	 'exercise_minutes' => array('N', 'R')
+		 );
+			 
+		 var_dump(LlapgochUtils::validateData($data, $rules));
+		 
 	 }
 	 
 	 public static function getOptionKey($option){
@@ -58,12 +95,24 @@ class GenesisTracker{
 		return false;
 	 }
 	 
-	 public static function addHeaderElements(){
-		 wp_register_script('jquery-1.10.1', '//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js');
-		 
-		 if(self::isOnUserPage()){	
-			    wp_register_script( "progress", plugins_url('js/user-page.js', __FILE__), array( 
-		 			'jquery-1.10.1'  
+	 public function isOnUserInputPage(){
+ 		global $post;
+
+ 		if(!$post){
+ 			return false;
+ 		}
+		
+ 		if(GenesisTracker::getOption(GenesisTracker::inputProgresPageId) == $post->ID){
+ 			return true;
+ 		}
+		
+ 		return false;
+	 }
+	 
+	 public static function addHeaderElements(){		 
+		 if(self::isOnUserPage() || self::isOnUserInputPage()){	
+			    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
+		 			'jquery'  
 				));
 			    
 				wp_localize_script( 'progress', 'myAjax', array( 
@@ -79,11 +128,11 @@ class GenesisTracker{
 			 return false;
 		 }
 		 
-		 if(self::isOnUserPage()){
-			 if($page = get_page(GenesisTracker::getOption(GenesisTracker::userPageId))){
+		 if(self::isOnUserPage() || self::isOnUserInputPage()){
 				auth_redirect();
-			 }
+			
 		 }
+
 	 }
 	 
 	 public static function ajaxRequest($data){
@@ -113,6 +162,29 @@ class GenesisTracker{
 		 
 		  $post_id = wp_insert_post($pageData);
 		  self::updateOption(self::userPageId, $post_id);
+	 }
+	 
+	 public static function createInputPage(){
+		 // Creates the page which displays the graph information
+		 $current_user = wp_get_current_user();
+
+		 $pageData = array(
+			'post_title' => 'Input Your Progress',
+ 			'comment_status' => 'closed',
+ 		 	'post_content' => '[' . self::getOptionKey(self::inputProgresPageId) . ']',
+ 		 	'post_status' => 'publish',
+ 		 	'post_type' => 'page',
+ 		 	'post_author' => $current_user->ID
+ 		 );
+		 
+		 $pageID = self::getOption(self::inputProgresPageId);
+
+		 if($pageID){
+			 wp_delete_post($pageID, true);
+		 }
+		 
+		  $post_id = wp_insert_post($pageData);
+		  self::updateOption(self::inputProgresPageId, $post_id);
 	 }
 	 
 
