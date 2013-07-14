@@ -1,11 +1,25 @@
 (function($){
 	$(document).ready(function(){
-		// User Input Page
 		
+		// User Input Page
 		$(document).ready(function(){
-			$('.date-measure').datepicker({
-				dateFormat: "dd-mm-yy"
-			});
+			if($('.user-tracking-input').size()){
+				$('.date-measure').datepicker({
+					dateFormat: "dd-mm-yy"
+				});
+			}
+			
+			$('.changeunits').hide();
+			
+			$('.weight-unit').on('change', function(){
+				if($(this).val() == 1){
+					$('.metric').addClass('hidden');
+					$('.imperial').removeClass('hidden');
+				}else{
+					$('.metric').removeClass('hidden');
+					$('.imperial').addClass('hidden');
+				}
+			})
 		});
 		
 		

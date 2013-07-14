@@ -46,7 +46,7 @@ function test() {
 function genesis_user_graph(){
 	ob_start();
 
-	include('user-graph.php');
+	include('page/user-graph.php');
 	$output = ob_get_contents();
 	
 	ob_end_clean();
@@ -55,11 +55,28 @@ function genesis_user_graph(){
 
 function genesis_user_input_page(){
 	ob_start();
-	
 	$form = DP_HelperForm::getForm('user-input');
-	require('user-input-page.php');
-	$output = ob_get_contents();
+	$outputBody = false;
+	$userGraphPage = GenesisTracker::getUserPagePermalink();
+	$userInputPage = GenesisTracker::getUserInputPagePermalink();
 	
+	if(GenesisTracker::getPageData('user-input-save') == true){
+		require('page/user-input-success.php');
+		$outputBody = true;
+	}
+	
+	if(GenesisTracker::getPageData('user-input-duplicate') == true){
+		require('page/user-input-duplicate.php');
+		$outputBody = true;
+	}
+	
+	// Default form output
+	if(!$outputBody){
+		$metricUnits = $form->getRawValue('weight_unit') == 2;
+		require('page/user-input-page.php');
+	}
+	
+	$output = ob_get_contents();
 	ob_end_clean();
 	return $output;
 }
