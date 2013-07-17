@@ -4,7 +4,7 @@
 		// User Input Page
 		$(document).ready(function(){
 			if($('.user-tracking-input').size()){
-				$('.date-measure').datepicker({
+				$('.date-input').datepicker({
 					dateFormat: "dd-mm-yy"
 				});
 			}

@@ -1,4 +1,7 @@
-<section class="reading-box main-accent clearfix"><h2>Track your weight, calorie intake and minutes exercised</h2><p>Select the date you would like to track from the calendar field, then enter your weight in imperial or metric, your calories consumed, and the minutes of exercise you have done. If you would like to overwrite a previously saved entry, you will be asked if you would like to overwrite it.</p><div class="tagline-shadow"></div></section>
+<section class="reading-box main-accent clearfix">
+	<h2>Track your weight, calorie intake and minutes exercised</h2>
+	<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your calories consumed, and the minutes of exercise you have done. If you would like to overwrite a previously saved entry, you will be asked if you would like to overwrite it.</p>
+	<div class="tagline-shadow"></div></section>
 <form class="input-form user-tracking-input" action="" method="post" name="input-form">
 	<div class="question-container">
 		<div class="title">
@@ -8,7 +11,7 @@
 		<p class="form-explanation"><?php _e('The date when you took this measurement.  Click the calendar button below to select the date on a calendar');?></p>
 		<?php
 		echo $form->input('measure_date', 'text', array(
-			'class' => 'general-input date-measure'
+			'class' => 'general-input date-input'
 		));
 		?>
 	</div>

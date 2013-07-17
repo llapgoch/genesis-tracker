@@ -30,7 +30,8 @@ require_once('includes.php');
 register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
-add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgresPageId), 'genesis_user_input_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId), 'genesis_user_input_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::trackerPageId), 'genesis_tracker_page');
 
 add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
 add_action('wp', array('GenesisTracker', 'addHeaderElements'));
@@ -73,7 +74,23 @@ function genesis_user_input_page(){
 	// Default form output
 	if(!$outputBody){
 		$metricUnits = $form->getRawValue('weight_unit') == 2;
-		require('page/user-input-page.php');
+		require('page/user-input.php');
+	}
+	
+	$output = ob_get_contents();
+	ob_end_clean();
+	return $output;
+}
+
+function genesis_tracker_page(){
+	ob_start();
+	
+	$form = DP_HelperForm::getForm('tracker');
+	
+	// Default form output
+	if(!$outputBody){
+		$metricUnits = $form->getRawValue('weight_unit') == 2;
+		require('page/tracker-input.php');
 	}
 	
 	$output = ob_get_contents();

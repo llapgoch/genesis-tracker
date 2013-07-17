@@ -3,7 +3,8 @@ class GenesisTracker{
 	const version = "0.1";
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
-	const inputProgresPageId = "progress_page";
+	const inputProgressPageId = "progress_page";
+	const trackerPageId = "tracker_page";
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	public static $pageData = array();
@@ -13,7 +14,7 @@ class GenesisTracker{
 		global $wpdb;
 		
 		// Because the makers of this are dicks, you have to have two spaces after "PRIMARY KEY"
-		$sql = "CREATE TABLE " . self::getTrackerTableName() . " (
+		dbDelta($sql = "CREATE TABLE " . self::getTrackerTableName() . " (
 		  tracker_id int(11) unsigned NOT NULL AUTO_INCREMENT,
 		  user_id int(11) DEFAULT NULL,
 		  date_tracked datetime DEFAULT NULL,
@@ -22,14 +23,23 @@ class GenesisTracker{
 		  exercise_minutes int(11) DEFAULT NULL,
 		  PRIMARY KEY  (tracker_id),
 		  KEY user_id (user_id)
-		)";
+		)");
 		
-		dbDelta($sql);
+		// Create the target table
+		dbDelta($sql = "CREATE TABLE " . self::getTargetTableName() . " (
+		  target_id int(11) unsigned NOT NULL AUTO_INCREMENT,
+		  user_id int(11) unsigned NOT NULL,
+		  target decimal(10,6) unsigned DEFAULT NULL,
+		  target_date datetime DEFAULT NULL,
+		  PRIMARY KEY  (target_id)
+		)");
+		
 		self::updateOption("version", self::version);
 		 
 		 // Create the user page if it's not already there		 
  		 self::createUserPage();
 		 self::createInputPage();
+		 self::createTargetInputPage();
 	 }
 	 
 	 public static function getTrackerTableName(){
@@ -37,9 +47,13 @@ class GenesisTracker{
 		 return $wpdb->base_prefix . "genesis_tracker";
 	 }
 	 
+	 public static function getTargetTableName(){
+		 global $wpdb;
+		 return $wpdb->base_prefix . "genesis_user_target";
+	 }
+	 
 	 // For saving, updating etc
 	 public static function doActions(){
-		
 		 if(self::isOnUserInputPage()){
 			 $form = DP_HelperForm::createForm('user-input');
 			 $form->fieldError = self::defaultFieldError;
@@ -61,11 +75,35 @@ class GenesisTracker{
 			 }
 		 }
 		 
+		 
+		 if(self::isOnTrackerPage()){
+	 	    $form = DP_HelperForm::createForm('tracker');
+			$form->fieldError = self::defaultFieldError;
+			
+			 if(!DP_HelperForm::wasPosted()){
+			 	return;
+			 }
+			 
+			 $form->setData($_POST);
+			 $action = $form->getRawValue('action');
+			 
+			 switch($action){
+				 case "savetarget" :
+				 	self::saveTarget($form);
+					break;
+			 }
+		 }
 	 }
 	 
 	 public static function stoneToKg($stone, $pounds = 0){
 		 return (($stone * 14) + $pounds) * 0.453592;
 	 }
+	 
+	 public static function saveTrackerTarget(DP_HelperForm $form){
+		 global $wpdb;
+		 // TO DO;
+	 }
+	 
 	 
 	 public static function saveMeasurement(DP_HelperForm $form){
 		 global $wpdb;
@@ -150,7 +188,7 @@ class GenesisTracker{
 		 return get_permalink(self::getOption(self::userPageId));
 	 }
 	 public static function getUserInputPagePermalink(){
-	 	return get_permalink(self::getOption(self::inputProgresPageId));
+	 	return get_permalink(self::getOption(self::inputProgressPageId));
 	 }
 	 
 	 public static function isOnUserPage(){
@@ -167,14 +205,28 @@ class GenesisTracker{
 		return false;
 	 }
 	 
-	 public function isOnUserInputPage(){
+	 public static function isOnTrackerPage(){
+  		global $post;
+
+  		if(!$post){
+  			return false;
+  		}
+		
+  		if(self::getOption(self::trackerPageId) == $post->ID){
+  			return true;
+  		}
+		
+  		return false;
+	 }
+	 
+	 public static function isOnUserInputPage(){
  		global $post;
 
  		if(!$post){
  			return false;
  		}
 		
- 		if(self::getOption(self::inputProgresPageId) == $post->ID){
+ 		if(self::getOption(self::inputProgressPageId) == $post->ID){
  			return true;
  		}
 		
@@ -190,7 +242,7 @@ class GenesisTracker{
 	 }
 	 
 	 public static function addHeaderElements(){		 
-		 if(self::isOnUserPage() || self::isOnUserInputPage()){	
+		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTrackerPage()){	
 		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
 	 			'jquery'  
 			));
@@ -208,7 +260,7 @@ class GenesisTracker{
 			 return false;
 		 }
 		 
-		 if(self::isOnUserPage() || self::isOnUserInputPage()){
+		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTrackerPage()){
 			auth_redirect();	
 		 }
 	 }
@@ -249,19 +301,42 @@ class GenesisTracker{
 		 $pageData = array(
 			'post_title' => 'Input Your Progress',
  			'comment_status' => 'closed',
- 		 	'post_content' => '[' . self::getOptionKey(self::inputProgresPageId) . ']',
+ 		 	'post_content' => '[' . self::getOptionKey(self::inputProgressPageId) . ']',
  		 	'post_status' => 'publish',
  		 	'post_type' => 'page',
  		 	'post_author' => $current_user->ID
  		 );
 		 
-		 $pageID = self::getOption(self::inputProgresPageId);
+		 $pageID = self::getOption(self::inputProgressPageId);
 
 		 if($pageID){
 			 wp_delete_post($pageID, true);
 		 }
 		 
 		  $post_id = wp_insert_post($pageData);
-		  self::updateOption(self::inputProgresPageId, $post_id);
+		  self::updateOption(self::inputProgressPageId, $post_id);
 	 }
+	 
+	 public static function createTargetInputPage(){
+		 // Create the page which allows users to enter a target weight and date
+		 $current_user = wp_get_current_user();
+
+		 $pageData = array(
+			'post_title' => 'Set a weight target',
+ 			'comment_status' => 'closed',
+ 		 	'post_content' => '[' . self::getOptionKey(self::trackerPageId) . ']',
+ 		 	'post_status' => 'publish',
+ 		 	'post_type' => 'page',
+ 		 	'post_author' => $current_user->ID
+ 		 );
+		 
+		 $pageID = self::getOption(self::trackerPageId);
+
+		 if($pageID){
+			 wp_delete_post($pageID, true);
+		 }
+		 
+		  $post_id = wp_insert_post($pageData);
+		  self::updateOption(self::trackerPageId, $post_id);
+	 } 
 }
