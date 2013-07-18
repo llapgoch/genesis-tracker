@@ -3,7 +3,18 @@
 	<p>Enter a target and the date you would like to obtain your target by</p>
 	<div class="tagline-shadow"></div></section>
 
+	<?php
+	if(isset(GenesisTracker::$pageData['errors'])){
+		?>
+		<div class="alert error spaced"><div class="msg">
+			<?php echo implode("<br />", GenesisTracker::$pageData['errors']);?>
+		</div></div>
+		<?php
+	}
+	?>
+
 	<form class="input-form user-tracking-input" action="" method="post" name="input-form">
+		
 		<div class="question-container">
 			<div class="title">
 				<label><?php _e('Date of Target');?></label>
@@ -61,6 +72,10 @@
 		
 				<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('pounds');?></p>
 			</div>
+			
 		</div>
+		<div class="button-c-container">
+				<button type="submit" name="action" value="savetarget" class="button large green saveform">Save your target</button>
+			</div>
 	</form>
 </div>

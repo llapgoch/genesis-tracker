@@ -31,7 +31,7 @@ register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId), 'genesis_user_input_page');
-add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::trackerPageId), 'genesis_tracker_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genesis_tracker_page');
 
 add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
 add_action('wp', array('GenesisTracker', 'addHeaderElements'));
@@ -84,8 +84,17 @@ function genesis_user_input_page(){
 
 function genesis_tracker_page(){
 	ob_start();
-	
 	$form = DP_HelperForm::getForm('tracker');
+	$outputBody = false;
+	$userGraphPage = GenesisTracker::getUserPagePermalink();
+	$userInputPage = GenesisTracker::getUserInputPagePermalink();
+
+	
+	if(GenesisTracker::getPageData('target-save') == true){
+		require('page/target-save-success.php');
+		$outputBody = true;
+	}
+	
 	
 	// Default form output
 	if(!$outputBody){

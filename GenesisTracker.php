@@ -1,10 +1,12 @@
 <?php
 class GenesisTracker{
+	const UNIT_IMPERIAL = 1;
+	const UNIT_METRIC = 2;
 	const version = "0.1";
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
-	const trackerPageId = "tracker_page";
+	const targetPageId = "tracker_page";
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	public static $pageData = array();
@@ -52,8 +54,34 @@ class GenesisTracker{
 		 return $wpdb->base_prefix . "genesis_user_target";
 	 }
 	 
+	 public static function stoneToKg($stone, $pounds = 0){
+		 return (($stone * 14) + $pounds) * 0.453592;
+	 }
+	 
+	 public static function kgToStone($kg){
+		 $pounds = (float) $kg / 0.453592;
+		 
+		 $stone = floor($pounds / 14);
+		 $pounds = $pounds - ($stone * 14);
+		 
+		 return array(
+			 'stone' => $stone,
+			 'pounds' => $pounds
+		 );
+	 }
+	 
+	 public static function convertFormDate($formDate){
+		 preg_match("/(\d+)-(\d+)-(\d+)/", $formDate, $matches);
+		 return $matches[3] . "-" . $matches[2] . "-" . $matches[1];
+	 }
+	 
+	 public static function convertDBDate($dbDate){
+		 return date("d-m-Y", strtotime($dbDate));
+	 }
+	 
 	 // For saving, updating etc
 	 public static function doActions(){
+		 global $wpdb;
 		 if(self::isOnUserInputPage()){
 			 $form = DP_HelperForm::createForm('user-input');
 			 $form->fieldError = self::defaultFieldError;
@@ -76,9 +104,29 @@ class GenesisTracker{
 		 }
 		 
 		 
-		 if(self::isOnTrackerPage()){
+		 if(self::isOnTargetPage()){
 	 	    $form = DP_HelperForm::createForm('tracker');
 			$form->fieldError = self::defaultFieldError;
+			
+			// Get the previously saved target
+			$result = $wpdb->get_row($wpdb->prepare($sql = 'SELECT * FROM ' . self::getTargetTableName() . '
+					WHERE user_id=%s', get_current_user_id())); 
+			
+			if($result){
+				$savedData = array(
+					'target_date' => self::convertDBDate($result->target_date),
+					'weight_main' => (float)$result->target,
+					'weight_unit' => $result->unit
+				);
+			
+				if((int)$result->unit == self::UNIT_IMPERIAL){
+					$imperialWeight = self::kgToStone($result->target);
+					$savedData['weight_main'] = $imperialWeight['stone'];
+					$savedData['weight_pounds'] = $imperialWeight['pounds'];
+				}
+				
+				$form->setData($savedData);
+			}
 			
 			 if(!DP_HelperForm::wasPosted()){
 			 	return;
@@ -94,16 +142,64 @@ class GenesisTracker{
 			 }
 		 }
 	 }
+	
 	 
-	 public static function stoneToKg($stone, $pounds = 0){
-		 return (($stone * 14) + $pounds) * 0.453592;
-	 }
-	 
-	 public static function saveTrackerTarget(DP_HelperForm $form){
+	 public static function saveTarget(DP_HelperForm $form){
 		 global $wpdb;
 		 // TO DO;
+		 $rules = array(
+			 'weight_main' => array('N', 'R'),
+			 'target_date' => array("R", "DATE")
+		 );
+		 
+		 
+		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
+		 
+		 // If we're doing imperial, validate pounds too.
+		 if($imperial){
+			 $rules['weight_pounds'] = array("N");
+		 }
+		 
+		 $form->validate($rules);
+		 
+		 if(!$form->hasErrors()){
+		 	 $date = self::convertFormDate($form->getRawValue('target_date'));
+			
+			 // Extra validation
+			 // Validate the date is greater than now
+			 if(strtotime($date) <= time()){
+				$form->setError('target_date', array(
+					'general' => 'Your target date must be in the future',
+					'main' => 'Target Date must be in the future'
+				));
+				return;
+			 }
+			 
+			  $weight = (float)$form->getRawValue('weight_main');
+			  
+ 			 if($imperial){
+ 				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
+ 			 }
+			 
+			 $data = array(
+				 'target' => (float)$weight,
+				 'target_date' => $date,
+				 'unit' => $imperial ? self::UNIT_IMPERIAL : self::UNIT_METRIC,
+				 'user_id' => get_current_user_id()
+			 );
+			 
+			 // Remove any current targets
+			 $wpdb->query($wpdb->prepare("DELETE FROM " . self::getTargetTableName() . " WHERE user_id=%d", get_current_user_id()));
+			
+			 if(!($wpdb->insert(self::getTargetTableName(), $data))){
+				 self::$pageData['errors'] = array(
+					 'An error occurred in saving your target'
+				 );
+			 }else{
+				 self::$pageData['target-save'] = true;
+			 }
+		 }
 	 }
-	 
 	 
 	 public static function saveMeasurement(DP_HelperForm $form){
 		 global $wpdb;
@@ -115,7 +211,7 @@ class GenesisTracker{
 			 'measure_date' => array("R", "DATE")
 		 );
 		 
-		 $imperial = $form->getRawValue('weight_unit') == 1;
+		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
 		 
 		 // If we're doing imperial, validate pounds too.
 		 if($imperial){
@@ -126,9 +222,7 @@ class GenesisTracker{
 		 
 		 if(!$form->hasErrors()){
 			 // Prepare the data
-			 preg_match("/(\d+)-(\d+)-(\d+)/", $form->getRawValue('measure_date'), $matches);
-			 
-			 $date = $matches[3] . "-" . $matches[2] . "-" . $matches[1];
+			 $date = self::convertFormDate($form->getRawValue('measure_date'));
 			 $weight = (float)$form->getRawValue('weight_main');
 			 
 			 if($form->getRawValue('action') !== 'duplicate-overwrite'){
@@ -143,7 +237,7 @@ class GenesisTracker{
 			 }
 			 
 			 $data = array(
-				 'weight' => $weight, // convert this
+				 'weight' => $weight,
 				 'calories' => (float)$form->getRawValue('calories'),
 				 'exercise_minutes' => (float)$form->getRawValue('exercise_minutes'),
 				 'measure_date' => $date,
@@ -205,14 +299,14 @@ class GenesisTracker{
 		return false;
 	 }
 	 
-	 public static function isOnTrackerPage(){
+	 public static function isOnTargetPage(){
   		global $post;
 
   		if(!$post){
   			return false;
   		}
 		
-  		if(self::getOption(self::trackerPageId) == $post->ID){
+  		if(self::getOption(self::targetPageId) == $post->ID){
   			return true;
   		}
 		
@@ -242,7 +336,7 @@ class GenesisTracker{
 	 }
 	 
 	 public static function addHeaderElements(){		 
-		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTrackerPage()){	
+		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage()){	
 		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
 	 			'jquery'  
 			));
@@ -260,7 +354,7 @@ class GenesisTracker{
 			 return false;
 		 }
 		 
-		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTrackerPage()){
+		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage()){
 			auth_redirect();	
 		 }
 	 }
@@ -324,19 +418,19 @@ class GenesisTracker{
 		 $pageData = array(
 			'post_title' => 'Set a weight target',
  			'comment_status' => 'closed',
- 		 	'post_content' => '[' . self::getOptionKey(self::trackerPageId) . ']',
+ 		 	'post_content' => '[' . self::getOptionKey(self::targetPageId) . ']',
  		 	'post_status' => 'publish',
  		 	'post_type' => 'page',
  		 	'post_author' => $current_user->ID
  		 );
 		 
-		 $pageID = self::getOption(self::trackerPageId);
+		 $pageID = self::getOption(self::targetPageId);
 
 		 if($pageID){
 			 wp_delete_post($pageID, true);
 		 }
 		 
 		  $post_id = wp_insert_post($pageData);
-		  self::updateOption(self::trackerPageId, $post_id);
+		  self::updateOption(self::targetPageId, $post_id);
 	 } 
 }

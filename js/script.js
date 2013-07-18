@@ -11,6 +11,9 @@
 			
 			$('.changeunits').hide();
 			
+			// So the error gets turned off when we switch
+			$('.error-weight_pounds').addClass('imperial');
+			
 			$('.weight-unit').on('change', function(){
 				if($(this).val() == 1){
 					$('.metric').addClass('hidden');
