@@ -2,6 +2,17 @@
 	<h2>Track your weight, calorie intake and minutes exercised</h2>
 	<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your calories consumed, and the minutes of exercise you have done. If you would like to overwrite a previously saved entry, you will be asked if you would like to overwrite it.</p>
 	<div class="tagline-shadow"></div></section>
+	
+	<?php
+	if(isset(GenesisTracker::$pageData['errors'])){
+		?>
+		<div class="alert error spaced"><div class="msg">
+			<?php echo implode("<br />", GenesisTracker::$pageData['errors']);?>
+		</div></div>
+		<?php
+	}
+	?>
+	
 <form class="input-form user-tracking-input" action="" method="post" name="input-form">
 	<div class="question-container">
 		<div class="title">

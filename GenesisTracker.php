@@ -79,67 +79,100 @@ class GenesisTracker{
 		 return date("d-m-Y", strtotime($dbDate));
 	 }
 	 
+	 public static function userInputPageAction(){
+		 $form = DP_HelperForm::createForm('user-input');
+		 $form->fieldError = self::defaultFieldError;
+
+		 if(!DP_HelperForm::wasPosted()){
+			 return;
+	 	 }
+		 
+		 $form->setData($_POST);
+		 $action = $form->getRawValue('action');
+		 
+		 // Actions for the user input page
+		 
+		 switch($action){
+			 case "duplicate-overwrite" :
+			 case "savemeasurement" :
+				 self::saveMeasurement($form);
+			break;
+		 }
+	 }
+	 
+	 public static function getUserLastEnteredWeight($user_id){
+		 global $wpdb;
+		 $result = $wpdb->get_row($wpdb->prepare($sql = "SELECT * FROM  ". self::getTrackerTableName() . "
+		 WHERE user_id=%d" . " ORDER BY measure_date", $user_id));
+		 
+		 if(!$result){
+			 return null;
+		 }
+		 
+		 return $result->weight;
+	 }
+	 
+	 public static function targetPageAction(){
+		global $wpdb;
+		
+ 	    $form = DP_HelperForm::createForm('tracker');
+		$form->fieldError = self::defaultFieldError;
+		
+		// Get the previously saved target
+		$result = $wpdb->get_row($wpdb->prepare($sql = 'SELECT * FROM ' . self::getTargetTableName() . '
+				WHERE user_id=%s', get_current_user_id())); 
+		
+		if($result){
+			$savedData = array(
+				'target_date' => self::convertDBDate($result->target_date),
+				'weight_main' => (float)$result->target,
+				'weight_unit' => $result->unit
+			);
+		
+			if((int)$result->unit == self::UNIT_IMPERIAL){
+				$imperialWeight = self::kgToStone($result->target);
+				$savedData['weight_main'] = $imperialWeight['stone'];
+				$savedData['weight_pounds'] = $imperialWeight['pounds'];
+			}
+			
+			$form->setData($savedData);
+		}
+		
+		 if(!DP_HelperForm::wasPosted()){
+		 	return;
+		 }
+		 
+		 $form->setData($_POST);
+		 $action = $form->getRawValue('action');
+		 
+		 switch($action){
+			 case "savetarget" :
+			 	self::saveTarget($form);
+				break;
+		 }
+	 }
+	 
 	 // For saving, updating etc
 	 public static function doActions(){
 		 global $wpdb;
+		 
+		 $formName = null;
+		 
 		 if(self::isOnUserInputPage()){
-			 $form = DP_HelperForm::createForm('user-input');
-			 $form->fieldError = self::defaultFieldError;
-
-			 if(!DP_HelperForm::wasPosted()){
-				 return;
-		 	 }
-			 
-			 $form->setData($_POST);
-			 $action = $form->getRawValue('action');
-			 
-			 // Actions for the user input page
-			 
-			 switch($action){
-				 case "duplicate-overwrite" :
-				 case "savemeasurement" :
-					 self::saveMeasurement($form);
-				break;
-			 }
+			 $formName = 'user-input';
+			 self::userInputPageAction();
 		 }
 		 
 		 
 		 if(self::isOnTargetPage()){
-	 	    $form = DP_HelperForm::createForm('tracker');
-			$form->fieldError = self::defaultFieldError;
-			
-			// Get the previously saved target
-			$result = $wpdb->get_row($wpdb->prepare($sql = 'SELECT * FROM ' . self::getTargetTableName() . '
-					WHERE user_id=%s', get_current_user_id())); 
-			
-			if($result){
-				$savedData = array(
-					'target_date' => self::convertDBDate($result->target_date),
-					'weight_main' => (float)$result->target,
-					'weight_unit' => $result->unit
-				);
-			
-				if((int)$result->unit == self::UNIT_IMPERIAL){
-					$imperialWeight = self::kgToStone($result->target);
-					$savedData['weight_main'] = $imperialWeight['stone'];
-					$savedData['weight_pounds'] = $imperialWeight['pounds'];
-				}
-				
-				$form->setData($savedData);
-			}
-			
-			 if(!DP_HelperForm::wasPosted()){
-			 	return;
-			 }
-			 
-			 $form->setData($_POST);
-			 $action = $form->getRawValue('action');
-			 
-			 switch($action){
-				 case "savetarget" :
-				 	self::saveTarget($form);
-					break;
-			 }
+			 $formName = 'tracker';
+			 self::targetPageAction();
+		 }
+		 
+		 if($formName &&  $form = DP_HelperForm::getForm($formName)){
+			 if($form->hasErrors()){
+				 self::$pageData['errors'][] = 'Please fix the errors on the form and try again.';
+		 	}
 		 }
 	 }
 	
@@ -223,6 +256,16 @@ class GenesisTracker{
 		 if(!$form->hasErrors()){
 			 // Prepare the data
 			 $date = self::convertFormDate($form->getRawValue('measure_date'));
+			 
+			 
+			 // Validate the date is in the past or today
+			 if(strtotime($date) >= mktime(0, 0, 0, date("m"), date("d")+1, date("Y"))){
+				 $form->setError('measure_date', array(
+					 'general' => 'You can only add measurements for today\'s date or past days',
+					 'main' => 'Your measurement date needs to be in the past or for today'
+				 ));
+				 return;
+			 }
 			 $weight = (float)$form->getRawValue('weight_main');
 			 
 			 if($form->getRawValue('action') !== 'duplicate-overwrite'){

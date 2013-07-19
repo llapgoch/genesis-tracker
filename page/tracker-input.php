@@ -50,7 +50,20 @@
 				<label for="weight"><?php _e('Weight');?></label>
 				<div class="title-sep-container"><div class="title-sep"></div></div>
 			</div>
-			<p class="form-explanation"><?php _e('Enter your weight for the day you are recording');?></p>
+			<p class="form-explanation"><?php _e('Enter your weight for the day you are recording');?>
+				<?php
+				if(isset($weight) && $weight){
+					?>
+					<em>
+						<?php
+					echo _e('Your last entered weight is') . ' <span class="metric">' . $weight['metric'] . "</span><span class='js-hide'> / </span><span class='imperial'>" . $weight['imperial'] . "</span>";
+					?>
+					</em> 
+					<?php
+				}
+				?>
+			</p>
+			
 		
 			<div class="input-wrapper">
 				<?php

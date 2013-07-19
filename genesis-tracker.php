@@ -99,6 +99,15 @@ function genesis_tracker_page(){
 	// Default form output
 	if(!$outputBody){
 		$metricUnits = $form->getRawValue('weight_unit') == 2;
+		if($currentWeight = GenesisTracker::getUserLastEnteredWeight(get_current_user_id())){
+			$imperial = GenesisTracker::kgToStone($currentWeight);
+			$weight = array(
+				'metric' => round($currentWeight, 2) . ' kilograms',
+				'imperial' => $imperial['stone'] . " stones" . ($imperial['pounds'] ? ", " . $imperial['pounds'] . " pounds" : "")
+			);
+		}
+		
+		
 		require('page/tracker-input.php');
 	}
 	

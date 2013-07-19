@@ -1,6 +1,8 @@
 (function($){
 	$(document).ready(function(){
 		
+		$('.js-hide').hide();
+		
 		// User Input Page
 		$(document).ready(function(){
 			if($('.user-tracking-input').size()){
@@ -15,14 +17,10 @@
 			$('.error-weight_pounds').addClass('imperial');
 			
 			$('.weight-unit').on('change', function(){
-				if($(this).val() == 1){
-					$('.metric').addClass('hidden');
-					$('.imperial').removeClass('hidden');
-				}else{
-					$('.metric').removeClass('hidden');
-					$('.imperial').addClass('hidden');
-				}
+				updateWeightVisibilities(this);
 			})
+			
+			updateWeightVisibilities($('.weight-unit'));
 		});
 		
 		
@@ -41,5 +39,16 @@
 				}
 			});
 		});
+		
+		function updateWeightVisibilities(formElement){
+			// possibly change this so it only acts upon the form the dropdown is in.
+			if($(formElement).val() == 1){
+				$('.metric').addClass('hidden');
+				$('.imperial').removeClass('hidden');
+			}else{
+				$('.metric').removeClass('hidden');
+				$('.imperial').addClass('hidden');
+			}
+		}
 	});
 })(jQuery);
