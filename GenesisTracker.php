@@ -103,7 +103,7 @@ class GenesisTracker{
 	 public static function getUserLastEnteredWeight($user_id){
 		 global $wpdb;
 		 $result = $wpdb->get_row($wpdb->prepare($sql = "SELECT * FROM  ". self::getTrackerTableName() . "
-		 WHERE user_id=%d" . " ORDER BY measure_date", $user_id));
+		 WHERE user_id=%d" . " ORDER BY measure_date DESC", $user_id));
 		 
 		 if(!$result){
 			 return null;
@@ -185,7 +185,6 @@ class GenesisTracker{
 			 'target_date' => array("R", "DATE")
 		 );
 		 
-		 
 		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
 		 
 		 // If we're doing imperial, validate pounds too.
@@ -208,11 +207,27 @@ class GenesisTracker{
 				return;
 			 }
 			 
-			  $weight = (float)$form->getRawValue('weight_main');
-			  
+			 $weight = (float)$form->getRawValue('weight_main');
+			 
  			 if($imperial){
  				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
  			 }
+			
+			 if(($lastWeight = (float)self::getUserLastEnteredWeight(get_current_user_id())) > 0){
+				 // Check the weight entered is lower than the last weight the user entered on their tracker
+
+				 if($lastWeight <= $weight){
+					 $form->setError('weight_main', array(
+						 'general' => 'Your target weight must be lower than the last weight you tracked',
+						 'main' => 'Please make sure your target weight is lower than the last weight you tracked'
+					 ));
+					 return;
+				 }
+			 }
+			
+			
+			  
+ 			 
 			 
 			 $data = array(
 				 'target' => (float)$weight,
@@ -220,6 +235,10 @@ class GenesisTracker{
 				 'unit' => $imperial ? self::UNIT_IMPERIAL : self::UNIT_METRIC,
 				 'user_id' => get_current_user_id()
 			 );
+			 
+			 $wpdb->query($wpdb->prepare(
+				 "DELETE FROM " . self::getTargetTableName() . " WHERE user_id=%d ", get_current_user_id()
+			 ));
 			 
 			 // Remove any current targets
 			 $wpdb->query($wpdb->prepare("DELETE FROM " . self::getTargetTableName() . " WHERE user_id=%d", get_current_user_id()));
@@ -239,7 +258,7 @@ class GenesisTracker{
 		 
 		 $rules = array(
 			 'weight_main' => array('N', 'R'),
-			 'calories' => array('N', 'R'),
+			 'calories' => array('N', 'R', 'VALUE-GREATER-EQ[0]'),
 		 	 'exercise_minutes' => array('N', 'R'),
 			 'measure_date' => array("R", "DATE")
 		 );

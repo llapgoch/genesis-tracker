@@ -56,7 +56,7 @@
 					?>
 					<em>
 						<?php
-					echo _e('Your last entered weight is') . ' <span class="metric">' . $weight['metric'] . "</span><span class='js-hide'> / </span><span class='imperial'>" . $weight['imperial'] . "</span>";
+					echo _e('The last weight you recorded for yourself was') . ' <span class="metric">' . $weight['metric'] . "</span><span class='js-hide'> / </span><span class='imperial'>" . $weight['imperial'] . "</span>";
 					?>
 					</em> 
 					<?php
@@ -73,7 +73,7 @@
 					));
 				?>
 				<p class="input-suffix metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
-				<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('stones');?></p>
+				<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('stone');?></p>
 			</div>
 			<div class="input-wrapper">
 				<?php

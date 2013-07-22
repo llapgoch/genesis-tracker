@@ -59,7 +59,7 @@
 				));
 			?>
 			<p class="input-suffix metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
-			<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('stones');?></p>
+			<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('stone');?></p>
 		</div>
 		<div class="input-wrapper">
 			<?php

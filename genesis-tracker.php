@@ -73,7 +73,7 @@ function genesis_user_input_page(){
 	
 	// Default form output
 	if(!$outputBody){
-		$metricUnits = $form->getRawValue('weight_unit') == 2;
+		$metricUnits = $form->getRawValue('weight_unit') == GenesisTracker::UNIT_METRIC;
 		require('page/user-input.php');
 	}
 	
@@ -98,12 +98,12 @@ function genesis_tracker_page(){
 	
 	// Default form output
 	if(!$outputBody){
-		$metricUnits = $form->getRawValue('weight_unit') == 2;
+		$metricUnits = $form->getRawValue('weight_unit') == GenesisTracker::UNIT_METRIC;
 		if($currentWeight = GenesisTracker::getUserLastEnteredWeight(get_current_user_id())){
 			$imperial = GenesisTracker::kgToStone($currentWeight);
 			$weight = array(
 				'metric' => round($currentWeight, 2) . ' kilograms',
-				'imperial' => $imperial['stone'] . " stones" . ($imperial['pounds'] ? ", " . $imperial['pounds'] . " pounds" : "")
+				'imperial' => $imperial['stone'] . " stone" . ($imperial['pounds'] ? ", " . $imperial['pounds'] . " pounds" : "")
 			);
 		}
 		
