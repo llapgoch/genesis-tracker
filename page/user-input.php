@@ -19,7 +19,7 @@
 			<label><?php _e('Date of Measurement');?></label>
 			<div class="title-sep-container"><div class="title-sep"></div></div>
 		</div>
-		<p class="form-explanation"><?php _e('The date when you took this measurement.  Click the calendar button below to select the date on a calendar');?></p>
+		<p class="form-explanation"><span class='js-show'><?php _e('The date when you took this measurement.  Click the field below to select the date on a calendar');?></span><span class="js-hide"><?php echo _e('Enter the date you took this measurement in the format DD-MM-YYYY');?></span></p>
 		<?php
 		echo $form->input('measure_date', 'text', array(
 			'class' => 'general-input date-input'

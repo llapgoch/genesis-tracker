@@ -50,7 +50,7 @@
 				<label for="weight"><?php _e('Weight');?></label>
 				<div class="title-sep-container"><div class="title-sep"></div></div>
 			</div>
-			<p class="form-explanation"><?php _e('Enter your weight for the day you are recording');?>
+			<p class="form-explanation"><?php _e('Enter the target weight you\'d like to be on the date you\'ve chosen');?>
 				<?php
 				if(isset($weight) && $weight){
 					?>

@@ -58,9 +58,12 @@ class GenesisTracker{
 		 return (($stone * 14) + $pounds) * 0.453592;
 	 }
 	 
-	 public static function kgToStone($kg){
-		 $pounds = (float) $kg / 0.453592;
-		 
+	 public static function kgToPounds($kg){
+		 return  (float) $kg / 0.453592;
+	 }
+	 
+	 public static function kgToStone($kg){		 
+		 $pounds = self::kgtoPounds($kg);
 		 $stone = floor($pounds / 14);
 		 $pounds = $pounds - ($stone * 14);
 		 
@@ -181,7 +184,7 @@ class GenesisTracker{
 		 global $wpdb;
 		 // TO DO;
 		 $rules = array(
-			 'weight_main' => array('N', 'R'),
+			 'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
 			 'target_date' => array("R", "DATE")
 		 );
 		 
@@ -218,16 +221,13 @@ class GenesisTracker{
 
 				 if($lastWeight <= $weight){
 					 $form->setError('weight_main', array(
-						 'general' => 'Your target weight must be lower than the last weight you tracked',
-						 'main' => 'Please make sure your target weight is lower than the last weight you tracked'
+						 'general' => 'Your target weight must be lower than the last weight you recorded',
+						 'main' => 'Please make sure your target weight is lower than the last weight you recorded'
 					 ));
 					 return;
 				 }
 			 }
 			
-			
-			  
- 			 
 			 
 			 $data = array(
 				 'target' => (float)$weight,
@@ -240,8 +240,6 @@ class GenesisTracker{
 				 "DELETE FROM " . self::getTargetTableName() . " WHERE user_id=%d ", get_current_user_id()
 			 ));
 			 
-			 // Remove any current targets
-			 $wpdb->query($wpdb->prepare("DELETE FROM " . self::getTargetTableName() . " WHERE user_id=%d", get_current_user_id()));
 			
 			 if(!($wpdb->insert(self::getTargetTableName(), $data))){
 				 self::$pageData['errors'] = array(
@@ -259,7 +257,7 @@ class GenesisTracker{
 		 $rules = array(
 			 'weight_main' => array('N', 'R'),
 			 'calories' => array('N', 'R', 'VALUE-GREATER-EQ[0]'),
-		 	 'exercise_minutes' => array('N', 'R'),
+		 	 'exercise_minutes' => array('N', 'R', 'VALUE-GREATER-EQ[0]'),
 			 'measure_date' => array("R", "DATE")
 		 );
 		 
@@ -304,6 +302,10 @@ class GenesisTracker{
 				 'exercise_minutes' => (float)$form->getRawValue('exercise_minutes'),
 				 'measure_date' => $date,
 				 'user_id' => get_current_user_id()
+			 );
+			 
+			 $wpdb->query(
+			 	$wpdb->prepare('DELETE FROM ' . self::getTrackerTableName() . ' WHERE user_id=%d AND measure_date=%s', get_current_user_id(), $date)
 			 );
 			
 			 if(!($wpdb->insert(self::getTrackerTableName(), $data))){
@@ -397,7 +399,114 @@ class GenesisTracker{
 		 return null;
 	 }
 	 
-	 public static function addHeaderElements(){		 
+	 public static function getAllUserLogs($user_id){
+		 global $wpdb;
+		 return $wpdb->get_results($wpdb->prepare(
+		 'SELECT *  FROM ' . self::getTrackerTableName() . '
+		 WHERE user_id=%d ORDER BY measure_date', $user_id
+		 ));
+	 }
+	 
+	 public static function getUserGraphData($user_id, $fillAverages = false){
+		 $userData = self::getAllUserLogs($user_id);
+		 
+		 $collated = array(
+			 'weight-metric' => array(), 
+			 'weight-imperial' => array()
+		 );
+		 
+		 $allDates = array();
+		 
+		 foreach($userData as $log){
+			 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
+			 
+			 if(!$collated['weight-metric']['yMin'] || $collated['weight-metric']['yMin'] > $log->weight){
+			 	$collated['weight-metric']['yMin'] = $log->weight;
+			 }
+			 
+			 if(!$collated['weight-metric']['yMax'] || $collated['weight-metric']['yMax'] < $log->weight){
+			 	$collated['weight-metric']['yMax'] = $log->weight;
+			 }
+			 
+			 $collated['weight-metric']['data'][] = array(
+				 $timestamp, $log->weight
+			 );
+			 
+			 $collated['weight-imperial']['data'][] = array(
+				 $timestamp, self::kgToPounds($log->weight)
+			 );
+			 
+			 $allDates[] = ($timestamp);
+		 }
+		 
+		 if($fillAverages){
+			 $avgVals = array('weight-metric');
+			 $newCollated = array();
+			 
+			 foreach($avgVals as $avgVal){
+				 $newCollated = array();
+				 
+				 foreach($collated[$avgVal]['data'] as $data){
+					 // First loop
+					 if(!$newCollated){
+						 $newCollated[] = $data;
+						 continue;
+				 	}
+					
+					// Subsequent loops, calculate the differences
+					$last =  end($newCollated);
+					// Day Length *= 1000 
+					$dayLength = 86400000;
+					// One day less to fill the gaps in
+					$daysBetween = max(1, floor(($data[0] - $last[0]) / $dayLength));
+					
+					if($daysBetween > 1){
+						$valDivisor = ($data[1] - $last[1]) / ($daysBetween - 1);
+					
+						// Calculate the averages
+						for($i = 1; $i < $daysBetween; $i++){
+							$date = $last[0] + ($i * $dayLength);
+
+							$newCollated[] = array(
+								$date,  $last[1] + ($valDivisor * $i)
+							);
+						}
+					}
+					
+					// Push the actual value in
+					$newCollated[] = $data;
+					
+					var_dump($daysBetween);
+					
+				 }
+				 
+				 $collated[$avgVal]['data'] = $newCollated;
+		 	}
+		 }
+		 
+		 $yMargin = 20;
+		 
+		 $collated['weight-metric']['yMax'] += $yMargin;
+		 $collated['weight-metric']['yMin'] -= $yMargin;
+		 
+		 if($userData){
+ 			 $collated['minDate'] = $allDates[0];
+			 $collated['maxDate'] = $allDates[count($allDates) - 1];
+	 	 }
+		 
+		 $collated['allDates'] = $allDates;
+		 
+		 return $collated;
+	 }
+	 
+	 public static function addHeaderElements(){
+		 if(self::isOnUserPage()){
+			  wp_enqueue_script('flot', plugins_url('js/jquery.flot.min.js', __FILE__), array('jquery'));
+			  wp_enqueue_script('flot-time', plugins_url('js/jquery.flot.time.min.js', __FILE__), array('flot'));
+			  wp_enqueue_script('flot-navigate', plugins_url('js/jquery.flot.navigate.min.js', __FILE__), array('flot'));
+			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
+		 }
+		 	 
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage()){	
 		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
 	 			'jquery'  

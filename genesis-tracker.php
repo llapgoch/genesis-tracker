@@ -103,7 +103,7 @@ function genesis_tracker_page(){
 			$imperial = GenesisTracker::kgToStone($currentWeight);
 			$weight = array(
 				'metric' => round($currentWeight, 2) . ' kilograms',
-				'imperial' => $imperial['stone'] . " stone" . ($imperial['pounds'] ? ", " . $imperial['pounds'] . " pounds" : "")
+				'imperial' => round($imperial['stone'], 2) . " stone" . ($imperial['pounds'] ? ", " . round($imperial['pounds'], 2) . " pounds" : "")
 			);
 		}
 		

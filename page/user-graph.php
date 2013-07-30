@@ -1,1 +1,7 @@
-<h2>User Graph</h2>
+<div class="genesis-progress-graph">
+</div>
+
+<?php
+	
+//var_dump(GenesisTracker::getUserGraphData(get_current_user_id()));
+?>
