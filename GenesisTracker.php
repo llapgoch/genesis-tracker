@@ -7,6 +7,7 @@ class GenesisTracker{
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
 	const targetPageId = "tracker_page";
+	const userStartWeightKey = "start_weight";
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	public static $pageData = array();
@@ -401,46 +402,95 @@ class GenesisTracker{
 	 
 	 public static function getAllUserLogs($user_id){
 		 global $wpdb;
-		 return $wpdb->get_results($wpdb->prepare(
-		 'SELECT *  FROM ' . self::getTrackerTableName() . '
-		 WHERE user_id=%d ORDER BY measure_date', $user_id
+		 
+		 $weightQ = '';
+		 
+		 add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), 100, true);
+		 
+		 if($startWeight = get_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), true)){
+			 $weightQ = ", round( $startWeight - weight) as weight_loss ";
+		 }
+		 
+		 $results = $wpdb->get_results($wpdb->prepare(
+		 $select = "SELECT * $weightQ FROM " . self::getTrackerTableName() . "
+		 WHERE user_id=%d ORDER BY measure_date", $user_id
 		 ));
+		 
+		 var_dump($select);
+		 
+		 return $results;
 	 }
 	 
 	 public static function getUserGraphData($user_id, $fillAverages = false){
 		 $userData = self::getAllUserLogs($user_id);
 		 
-		 $collated = array(
-			 'weight-metric' => array(), 
-			 'weight-imperial' => array()
+		 $allDates = array();
+		 
+		 $valsToCollate = array(
+			 'weight',
+			 'calories',
+			 'exercise_minutes',
+			 'weight_loss'
 		 );
 		 
-		 $allDates = array();
+		 $yMargin = 10;
+		 $collated['weight-imperial'] = array();
 		 
 		 foreach($userData as $log){
 			 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
 			 
-			 if(!$collated['weight-metric']['yMin'] || $collated['weight-metric']['yMin'] > $log->weight){
-			 	$collated['weight-metric']['yMin'] = $log->weight;
+			 foreach($valsToCollate as $valToCollate){
+				 if(!isset($collated[$valToCollate])){
+					 $collated[$valToCollate] = array();
+				 }
+				 
+				 $isWeight = $valToCollate == 'weight';
+				 $isWeightLoss = $valToCollate == 'weight_loss';
+				 
+				 // Only collate weight if it's been entered this time
+				 if(($isWeight || $isWeightLoss) &! $log->weight){
+					 continue;
+				 }
+				 
+				 if(!isset($collated[$valToCollate]['yMin']) || $collated[$valToCollate]['yMin'] - $yMargin > $log->$valToCollate - $yMargin){
+				 	
+					 // If we're in weight loss mode, make the min zero unless we actually go below zero in weight loss
+					if($isWeightLoss && $log->$valToCollate <= $yMargin){
+						$collated[$valToCollate]['yMin'] = min($log->$valToCollate, $collated[$valToCollate]['yMin']);
+					}else{
+						$collated[$valToCollate]['yMin'] = $log->$valToCollate - $yMargin;
+					}
+				 }
+		 
+				 if(!isset($collated[$valToCollate]['yMax']) || $collated[$valToCollate]['yMax'] + $yMargin < $log->$valToCollate + $yMargin){
+				 	$collated[$valToCollate]['yMax'] = $log->$valToCollate + $yMargin;
+				 }
+		 		
+				
+				 $collated[$valToCollate]['data'][] = array(
+					 $timestamp, $log->$valToCollate
+				 );
+				 
+				  if($isWeight){
+					 $collated['weight-imperial']['data'][] = array(
+						 $timestamp, self::kgToPounds($log->$valToCollate)
+					 );
+				 }
+			 
+				 
 			 }
-			 
-			 if(!$collated['weight-metric']['yMax'] || $collated['weight-metric']['yMax'] < $log->weight){
-			 	$collated['weight-metric']['yMax'] = $log->weight;
-			 }
-			 
-			 $collated['weight-metric']['data'][] = array(
-				 $timestamp, $log->weight
-			 );
-			 
-			 $collated['weight-imperial']['data'][] = array(
-				 $timestamp, self::kgToPounds($log->weight)
-			 );
 			 
 			 $allDates[] = ($timestamp);
 		 }
 		 
+		 
+		 $collated['weight-imperial']['yMin'] = self::kgToPounds($collated['weight']['yMin']);
+		 $collated['weight-imperial']['yMax'] = self::kgToPounds($collated['weight']['yMax']);
+		 
+		 
+		 
 		 if($fillAverages){
-			 $avgVals = array('weight-metric');
+			 $avgVals = array('calories', 'exercise_minutes', 'weight_loss');
 			 $newCollated = array();
 			 
 			 foreach($avgVals as $avgVal){
@@ -483,11 +533,6 @@ class GenesisTracker{
 				 $collated[$avgVal]['data'] = $newCollated;
 		 	}
 		 }
-		 
-		 $yMargin = 20;
-		 
-		 $collated['weight-metric']['yMax'] += $yMargin;
-		 $collated['weight-metric']['yMin'] -= $yMargin;
 		 
 		 if($userData){
  			 $collated['minDate'] = $allDates[0];

@@ -25,6 +25,11 @@
 			
 			// User graph page
 			if($('.genesis-progress-graph').size()){
+				// Add events
+				$('.graph-switcher a').on('click', function(e){
+					e.preventDefault();
+					alert($(this).data('mode'));
+				});
 				initialiseUserGraph();
 			}
 		});
@@ -59,7 +64,7 @@
 		
 		function initialiseUserGraph(mode) {
 			if(!mode){
-				mode = 'weight-metric';
+				mode = 'weight_loss';
 			}
 		
 		if (!window.userGraphData) {
@@ -72,6 +77,28 @@
 			xTicks.push(userGraphData.allDates[i], userGraphData.allDates[i]);
 		}
 		
+		var settings = {
+			'weight':{
+				'tickSize':20,
+				'label':'Your Weight'
+			},
+			'weight-imperial':{
+				'tickSize':14,
+				'label':'Your Weight'
+			},
+			'calories':{
+				'tickSize':200,
+				'label':'Calories burned'
+			},
+			'exercise_minutes':{
+				'tickSize':50,
+				'label':'Minutes Exercised'
+			},
+			'weight_loss':{
+				'tickSize':2,
+				'label':'Weight lost'
+			}
+		};
 		
 		
 		var options = {
@@ -97,11 +124,18 @@
 				min: userGraphData[mode].yMin,
 				max:userGraphData[mode].yMax,
 				panRange: [userGraphData[mode].yMin, userGraphData[mode].yMax],
+				tickSize:settings[mode].tickSize,
 				tickLength: null,
 				tickFormatter:function(val){
 					switch(mode){
-						case 'weight-metric' : 
+						case 'weight_loss' :
+						case 'weight' : 
 						return val + " kg";
+						
+						case 'weight-imperial' :
+							var st = Math.floor(val / 14);
+							var p = val - (st * 14);
+							return st + " st " + (p ? p + " lb" : ""); 
 					}
 					
 					return val;
@@ -136,7 +170,7 @@
 		}
 
 		data = [{
-			"label": "Your Weight",
+			"label":settings[mode].label,
 			"data": userGraphData[mode]['data'],
 			"color": "rgb(231,5,144)"
 		}
