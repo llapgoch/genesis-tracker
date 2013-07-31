@@ -416,8 +416,6 @@ class GenesisTracker{
 		 WHERE user_id=%d ORDER BY measure_date", $user_id
 		 ));
 		 
-		 var_dump($select);
-		 
 		 return $results;
 	 }
 	 
@@ -525,8 +523,6 @@ class GenesisTracker{
 					
 					// Push the actual value in
 					$newCollated[] = $data;
-					
-					var_dump($daysBetween);
 					
 				 }
 				 
