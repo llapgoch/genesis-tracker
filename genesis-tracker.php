@@ -46,7 +46,8 @@ function test() {
 
 function genesis_user_graph(){
 	ob_start();
-
+	GenesisTracker::getAverageUsersGraphData(false);
+	
 	include('page/user-graph.php');
 	$output = ob_get_contents();
 	
@@ -88,7 +89,6 @@ function genesis_tracker_page(){
 	$outputBody = false;
 	$userGraphPage = GenesisTracker::getUserPagePermalink();
 	$userInputPage = GenesisTracker::getUserInputPagePermalink();
-
 	
 	if(GenesisTracker::getPageData('target-save') == true){
 		require('page/target-save-success.php');

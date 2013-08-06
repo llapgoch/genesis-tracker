@@ -1,4 +1,6 @@
 (function($){
+	var $plot = null;
+	
 	$(document).ready(function(){
 		
 		$('.js-hide').hide();
@@ -28,10 +30,12 @@
 				// Add events
 				$('.graph-switcher a').on('click', function(e){
 					e.preventDefault();
-					alert($(this).data('mode'));
+//					alert($(this).data('mode'));
+					initialiseUserGraph($(this).data('mode'));
 				});
 				initialiseUserGraph();
 			}
+			
 		});
 		
 		
@@ -64,11 +68,16 @@
 		
 		function initialiseUserGraph(mode) {
 			if(!mode){
-				mode = 'weight_loss';
+				mode = 'weight';
 			}
 		
-		if (!window.userGraphData) {
+		if (!window.userGraphData |! window.userGraphData[mode]) {
 			return;
+		}
+		
+		if($plot){
+			$plot.shutdown();
+			$(".genesis-progress-graph").empty();
 		}
 		
 		var xTicks = [];
@@ -77,26 +86,51 @@
 			xTicks.push(userGraphData.allDates[i], userGraphData.allDates[i]);
 		}
 		
+		var yMin = parseFloat(userGraphData[mode].yMin);
+		var yMax = parseFloat(userGraphData[mode].yMax);
+		var minDate = parseFloat(userGraphData.minDate);
+		var maxDate = parseFloat(userGraphData.maxDate);
+		
+		if(window.averageUserGraphData[mode]){
+			yMin = Math.min(yMin, parseFloat(window.averageUserGraphData[mode].yMin));
+			yMax = Math.max(yMax, parseFloat(window.averageUserGraphData[mode].yMax));
+			
+			minDate = Math.min(minDate, window.averageUserGraphData.minDate);
+			maxDate = Math.max(maxDate, window.averageUserGraphData.maxDate);
+		}
+		
+		
+		var yDiff = yMax - yMin;
+		yTick = Math.round(yDiff / 10);
+		
+		yMax += yTick;
+		
+		
 		var settings = {
 			'weight':{
-				'tickSize':20,
-				'label':'Your Weight'
+				'tickSize':yTick,
+				'label':'Your Weight (metric)',
+				'avgLabel':'Average User Weight'
 			},
 			'weight-imperial':{
-				'tickSize':14,
-				'label':'Your Weight'
+				'tickSize':yTick,
+				'label':'Your Weight (imperial)',
+				'avgLabel':'Average User Weight'
 			},
 			'calories':{
-				'tickSize':200,
-				'label':'Calories burned'
+				'tickSize':yTick,
+				'label':'Calories You\'ve Consumed',
+				'avgLabel':'Average Calories Consumed'
 			},
 			'exercise_minutes':{
-				'tickSize':50,
-				'label':'Minutes Exercised'
+				'tickSize':yTick,
+				'label':'Minutes You\'ve Exercised',
+				'avgLabel':'Average Minutes Exercised'
 			},
 			'weight_loss':{
-				'tickSize':2,
-				'label':'Weight lost'
+				'tickSize':yTick,
+				'label':'Your Weight loss',
+				'avgLabel':'Average Weight Loss'
 			}
 		};
 		
@@ -112,18 +146,18 @@
 			},
 			xaxis: {
 				mode: 'time',
-				timeformat: "%d/%m/%Y",
+				timeformat: "%b %d",
 				tickSize: [1, "day"],
 				tickLength: 10,
-				panRange:[userGraphData.minDate, userGraphData.maxDate],
+				panRange:[minDate, maxDate],
 				ticks:xTicks
 		
 			},
 			yaxis: {
 				autoscaleMargin: 0.5,
-				min: userGraphData[mode].yMin,
-				max:userGraphData[mode].yMax,
-				panRange: [userGraphData[mode].yMin, userGraphData[mode].yMax],
+				min: yMin,
+				max:yMax,
+				panRange: [yMin, yMax],
 				tickSize:settings[mode].tickSize,
 				tickLength: null,
 				tickFormatter:function(val){
@@ -136,6 +170,11 @@
 							var st = Math.floor(val / 14);
 							var p = val - (st * 14);
 							return st + " st " + (p ? p + " lb" : ""); 
+							
+						case 'exercise_minutes' :
+							return val + " minutes";
+						case 'calories' :
+							return val + " kcals";
 					}
 					
 					return val;
@@ -161,23 +200,33 @@
 			 if(!item){
 				 return;
 			}
-			console.log(item);
 		 });
 		
-		if(parseFloat(userGraphData.maxDate) - parseFloat(userGraphData.minDate) >=	1000000000){
+		
+		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
 			options.xaxis.min = 0;
 			options.xaxis.max = 1000000000;
 		}
 
-		data = [{
+		var data = [{
 			"label":settings[mode].label,
 			"data": userGraphData[mode]['data'],
 			"color": "rgb(231,5,144)"
+		}];
+		
+		
+		if(window.averageUserGraphData && window.averageUserGraphData[mode] !== undefined){			
+			data.push({
+				"label":settings[mode].avgLabel,
+				"data":window.averageUserGraphData[mode].data,
+				"color":"rgb(214,252,180)"
+			});
+			
+			
 		}
+		
 
-		];
-
-		window.plot = $.plot($('.genesis-progress-graph'), data, options);
+		window.plot = $plot = $.plot($('.genesis-progress-graph'), data, options);
 		
 		plot.pan({'left':1000000000});
 

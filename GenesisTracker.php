@@ -419,8 +419,13 @@ class GenesisTracker{
 		 return $results;
 	 }
 	 
-	 public static function getUserGraphData($user_id, $fillAverages = false){
+	 // Pass in an array of keys to average in $avgVals
+	 public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false){
 		 $userData = self::getAllUserLogs($user_id);
+		 
+		 if(!$userData){
+			return;
+		 }
 		 
 		 $allDates = array();
 		 
@@ -431,7 +436,6 @@ class GenesisTracker{
 			 'weight_loss'
 		 );
 		 
-		 $yMargin = 10;
 		 $collated['weight-imperial'] = array();
 		 
 		 foreach($userData as $log){
@@ -450,27 +454,29 @@ class GenesisTracker{
 					 continue;
 				 }
 				 
-				 if(!isset($collated[$valToCollate]['yMin']) || $collated[$valToCollate]['yMin'] - $yMargin > $log->$valToCollate - $yMargin){
+				 if(!isset($collated[$valToCollate]['yMin']) || $collated[$valToCollate]['yMin'] > $log->$valToCollate){
 				 	
 					 // If we're in weight loss mode, make the min zero unless we actually go below zero in weight loss
-					if($isWeightLoss && $log->$valToCollate <= $yMargin){
+					if($isWeightLoss && $log->$valToCollate <= 0){
 						$collated[$valToCollate]['yMin'] = min($log->$valToCollate, $collated[$valToCollate]['yMin']);
 					}else{
-						$collated[$valToCollate]['yMin'] = $log->$valToCollate - $yMargin;
+						$collated[$valToCollate]['yMin'] = $log->$valToCollate;
 					}
 				 }
 		 
-				 if(!isset($collated[$valToCollate]['yMax']) || $collated[$valToCollate]['yMax'] + $yMargin < $log->$valToCollate + $yMargin){
-				 	$collated[$valToCollate]['yMax'] = $log->$valToCollate + $yMargin;
+				 if(!isset($collated[$valToCollate]['yMax']) || $collated[$valToCollate]['yMax'] < $log->$valToCollate){
+				 	$collated[$valToCollate]['yMax'] = $log->$valToCollate;
 				 }
 		 		
+				
 				
 				 $collated[$valToCollate]['data'][] = array(
 					 $timestamp, $log->$valToCollate
 				 );
+			 	
 				 
-				  if($isWeight){
-					 $collated['weight-imperial']['data'][] = array(
+				  if($isWeight){  
+					  $collated['weight-imperial']['data'][] = array(
 						 $timestamp, self::kgToPounds($log->$valToCollate)
 					 );
 				 }
@@ -488,12 +494,16 @@ class GenesisTracker{
 		 
 		 
 		 if($fillAverages){
-			 $avgVals = array('calories', 'exercise_minutes', 'weight_loss');
 			 $newCollated = array();
 			 
 			 foreach($avgVals as $avgVal){
 				 $newCollated = array();
-				 
+
+
+				if(!isset($collated[$avgVal])){
+					continue;
+				}
+
 				 foreach($collated[$avgVal]['data'] as $data){
 					 // First loop
 					 if(!$newCollated){
@@ -530,14 +540,127 @@ class GenesisTracker{
 		 	}
 		 }
 		 
-		 if($userData){
+		 if($allDates){
  			 $collated['minDate'] = $allDates[0];
 			 $collated['maxDate'] = $allDates[count($allDates) - 1];
 	 	 }
+			 
+	 	 
+		 
+		 if($keyAsDate){
+			 foreach($collated as $key => &$collate){
+				 $newData = array();
+				 
+				 if(!isset($collate['data'])){
+					 continue;
+				 }
+				 
+				 foreach($collate['data'] as $data){
+					 $newData[$data[0]] = $data[1];
+				 }
+				 
+				 $collate['data'] = $newData;
+			 }
+		 }
 		 
 		 $collated['allDates'] = $allDates;
 		 
 		 return $collated;
+	 }
+	 
+	 /*
+	 	This needs testing on large datasets
+	 	First, we get all user data and fill in the averages for each day inbetween, this could be expensive on its own.
+	 	Then we key that data by date, then merge it into an array of all values using the date as key.  
+	 	Then we average each value for the date.
+	 */
+	 public static function getAverageUsersGraphData($onlySubscribers = true){
+		 
+		 $limit = $onlySubscribers ? 'role=subscriber' : '';
+		 $users = get_users($limit);
+		 
+		 $results = array();
+		 $structure = array();
+		 
+		 // No need to average weight or weight-imperial
+		 $averageValues = array(
+			'weight_loss', 'exercise_minutes', 'calories'
+		 );
+		 
+		 $minDate = null;
+		 $maxDate = null;
+		 
+		 // Get all of the values in an array with the timestamp as key so se can easily loop over them
+		 foreach($users as $user){
+			 $graphData = self::getUserGraphData($user->ID, true, $averageValues, true);
+			  
+			 if(!$graphData){
+				 continue;
+			 }
+			 
+			 foreach($graphData as $key => &$measurementSet){
+				 
+				 if(!isset($measurementSet['data']) || !in_array($key, $averageValues)){
+					 continue;
+				 }
+				 if(!isset($structure[$key])){
+					 $structure[$key] = array();
+					 $minDate = $measurementSet['minDate'];
+					 $maxDate = $measurementSet['maxDate'];
+				 }
+				 
+				 $minDate = min($measurementSet['minDate'], $minDate);
+				 $maxDate = max($measurementSet['maxDate'], $maxDate);
+				 
+				 
+				 foreach($measurementSet['data'] as $date => $measurement){
+					 if(!isset($structure[$key][$date])){
+						 $structure[$key][$date] = array();
+					 }
+					 $structure[$key][$date][] = $measurement;
+				 }
+				 
+			 }
+		 }
+		 
+		 // Now average them!
+		 $averages = array();
+		 
+		 foreach($structure as $key => $dates){
+			 foreach($dates as $date => $measurements){
+				 
+				 $avg = array_sum($measurements) / count($measurements);
+				 
+				 if(isset($averages[$key]['yMin'])){
+					 $averages[$key]['yMin'] = min($averages[$key]['yMin'], $avg);
+					 $averages[$key]['yMax'] = max($averages[$key]['yMax'], $avg);
+				 }else{
+					 $averages[$key]['yMin'] = $avg;
+					 $averages[$key]['yMax'] = $avg;
+				 }
+				 
+				 $averages[$key]['data'][] = array($date, $avg);
+			 }
+			 
+			 // Sort by date
+			 usort($averages[$key]['data'], function($a, $b){
+				 if($a[0] == $b[0]){
+					 return 0;
+				 }
+				 
+				 if($a[0] > $b[0]){
+					 return -1;
+				 }
+				 
+				 return 1;
+			 });
+		 }
+		 
+		 $averages['minDate'] = $minDate;
+		 $averages['maxDate'] = $maxDate;
+		 
+		 return $averages;
+		
 	 }
 	 
 	 public static function addHeaderElements(){
@@ -546,6 +669,7 @@ class GenesisTracker{
 			  wp_enqueue_script('flot-time', plugins_url('js/jquery.flot.time.min.js', __FILE__), array('flot'));
 			  wp_enqueue_script('flot-navigate', plugins_url('js/jquery.flot.navigate.min.js', __FILE__), array('flot'));
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
+			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false));
 		 }
 		 	 
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage()){	
