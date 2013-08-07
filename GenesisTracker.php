@@ -436,7 +436,8 @@ class GenesisTracker{
 			 'weight_loss'
 		 );
 		 
-		 $collated['weight-imperial'] = array();
+		 $collated['weight_imperial'] = array();
+		 $collated['weight_loss_imperial'] = array();
 		 
 		 foreach($userData as $log){
 			 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
@@ -476,7 +477,13 @@ class GenesisTracker{
 			 	
 				 
 				  if($isWeight){  
-					  $collated['weight-imperial']['data'][] = array(
+					  $collated['weight_imperial']['data'][] = array(
+						 $timestamp, self::kgToPounds($log->$valToCollate)
+					 );
+				 }
+				 
+				 if($isWeightLoss){
+					 $collated['weight_loss_imperial']['data'][] = array(
 						 $timestamp, self::kgToPounds($log->$valToCollate)
 					 );
 				 }
@@ -488,9 +495,11 @@ class GenesisTracker{
 		 }
 		 
 		 
-		 $collated['weight-imperial']['yMin'] = self::kgToPounds($collated['weight']['yMin']);
-		 $collated['weight-imperial']['yMax'] = self::kgToPounds($collated['weight']['yMax']);
+		 $collated['weight_imperial']['yMin'] = self::kgToPounds($collated['weight']['yMin']);
+		 $collated['weight_imperial']['yMax'] = self::kgToPounds($collated['weight']['yMax']);
 		 
+		 $collated['weight_loss_imperial']['yMin'] = self::kgToPounds($collated['weight_loss']['yMin']);
+		 $collated['weight_loss_imperial']['yMax'] = self::kgToPounds($collated['weight_loss']['yMax']);
 		 
 		 
 		 if($fillAverages){
@@ -584,7 +593,10 @@ class GenesisTracker{
 		 
 		 // No need to average weight or weight-imperial
 		 $averageValues = array(
-			'weight_loss', 'exercise_minutes', 'calories'
+			'weight_loss', 
+			'exercise_minutes', 
+			'calories',
+			'weight_loss_imperial'
 		 );
 		 
 		 $minDate = null;

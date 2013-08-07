@@ -28,15 +28,24 @@
 			// User graph page
 			if($('.genesis-progress-graph').size()){
 				// Add events
-				$('.graph-switcher a').on('click', function(e){
+				$('.progress-graph-switcher > button').on('click', function(e){
 					e.preventDefault();
-//					alert($(this).data('mode'));
-					initialiseUserGraph($(this).data('mode'));
+					var mode = $(this).data('mode');
+					
+					initialiseUserGraph(mode);
+					selectModeButton(mode);
 				});
-				initialiseUserGraph();
 			}
 			
+			initialiseUserGraph('weight_' + $('.mode-switcher').val());
+			selectModeButton('weight');
 		});
+		
+		function selectModeButton(mode){
+			$('.progress-graph-switcher > button').removeClass('selected');
+			$('.progress-graph-switcher > button[data-mode="' + mode + '"]').addClass('selected');
+			console.log('.progress-graph-switcher > button[data-mode="' + mode + '"]');
+		}
 		
 		
 		// $('#add-progress').on('submit', function(ev){
@@ -110,27 +119,38 @@
 			'weight':{
 				'tickSize':yTick,
 				'label':'Your Weight (metric)',
-				'avgLabel':'Average User Weight'
+				'avgLabel':'Average User Weight',
+				'color':'rgb(231,5,144)'
 			},
-			'weight-imperial':{
-				'tickSize':yTick,
+			'weight_imperial':{
+				'tickSize':7,
 				'label':'Your Weight (imperial)',
-				'avgLabel':'Average User Weight'
+				'avgLabel':'Average User Weight',
+				'color':'rgb(231,5,144)'
 			},
 			'calories':{
 				'tickSize':yTick,
 				'label':'Calories You\'ve Consumed',
-				'avgLabel':'Average Calories Consumed'
+				'avgLabel':'Average Calories Consumed',
+				'color':'rgb(92,178,208)'
 			},
 			'exercise_minutes':{
 				'tickSize':yTick,
 				'label':'Minutes You\'ve Exercised',
-				'avgLabel':'Average Minutes Exercised'
+				'avgLabel':'Average Minutes Exercised',
+				'color':'rgb(255,201,107)'
 			},
 			'weight_loss':{
 				'tickSize':yTick,
-				'label':'Your Weight loss',
-				'avgLabel':'Average Weight Loss'
+				'label':'Your Weight Loss (metric)',
+				'avgLabel':'Average Weight Loss',
+				'color':'rgb(255,134,134)'
+			},
+			'weight_loss_imperial':{
+				'tickSize':7,
+				'label':'Your Weight Loss (imperial)',
+				'avgLabel':'Average Weight Loss',
+				'color':'rgb(255,134,134)'
 			}
 		};
 		
@@ -149,8 +169,7 @@
 				timeformat: "%b %d",
 				tickSize: [1, "day"],
 				tickLength: 10,
-				panRange:[minDate, maxDate],
-				ticks:xTicks
+				panRange:[minDate, maxDate]
 		
 			},
 			yaxis: {
@@ -166,11 +185,12 @@
 						case 'weight' : 
 						return val + " kg";
 						
-						case 'weight-imperial' :
+						case 'weight_loss_imperial' :
+						case 'weight_imperial' :
 							var st = Math.floor(val / 14);
 							var p = val - (st * 14);
 							return st + " st " + (p ? p + " lb" : ""); 
-							
+
 						case 'exercise_minutes' :
 							return val + " minutes";
 						case 'calories' :
@@ -207,23 +227,25 @@
 			options.xaxis.min = 0;
 			options.xaxis.max = 1000000000;
 		}
+		
+		var data = [];
+		
+		
 
-		var data = [{
+		data.push({
 			"label":settings[mode].label,
 			"data": userGraphData[mode]['data'],
-			"color": "rgb(231,5,144)"
-		}];
-		
-		
+			"color": settings[mode].color
+		});
 		if(window.averageUserGraphData && window.averageUserGraphData[mode] !== undefined){			
 			data.push({
 				"label":settings[mode].avgLabel,
 				"data":window.averageUserGraphData[mode].data,
-				"color":"rgb(214,252,180)"
-			});
-			
-			
+				"color":'rgb(207,207,207)'
+			});	
 		}
+		
+		
 		
 
 		window.plot = $plot = $.plot($('.genesis-progress-graph'), data, options);
