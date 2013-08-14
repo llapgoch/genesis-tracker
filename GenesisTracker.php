@@ -6,6 +6,8 @@ class GenesisTracker{
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
+	const initialWeightPageId = "initial_weight_page";
+	const weightEnterSessionKey = "___WEIGHT_ENTER___";
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
@@ -43,6 +45,7 @@ class GenesisTracker{
  		 self::createUserPage();
 		 self::createInputPage();
 		 self::createTargetInputPage();
+		 self::createInitialWeightPage();
 	 }
 	 
 	 public static function getTrackerTableName(){
@@ -104,6 +107,44 @@ class GenesisTracker{
 		 }
 	 }
 	 
+	 public function checkLoginWeightEntered($userLogin, $user){
+	 	if(!GenesisTracker::getInitialUserWeight($user->ID)){
+	 		$_SESSION[GenesisTracker::weightEnterSessionKey] = true;
+	 	}
+	 }
+
+	 public function checkWeightEntered(){
+		 global $post;
+		 
+		 if(!is_user_logged_in()){
+			 unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
+			 return;
+		 }
+		 
+		 $pageID = self::getOption(self::initialWeightPageId);
+		 $weightPost = get_post($pageID);
+		 
+		 if(!$weightPost || $weightPost->post_status !== 'publish'){
+			 return;
+		 }
+		 
+		 if(!isset($_SESSION[self::weightEnterSessionKey]) && self::getPageData('weight-save') !== true){
+			 // If we're on the enter initial weight page, redirect the user
+			  if($post && $pageID == $post->ID){
+				  wp_redirect(GenesisTracker::getUserPagePermalink());
+			  }
+			 
+			 return;
+		 }
+		
+		 
+		 if($post && $pageID == $post->ID){
+			 return;
+		 }
+		
+		 wp_redirect(get_permalink($pageID));
+	 }
+	 
 	 public static function getUserLastEnteredWeight($user_id){
 		 global $wpdb;
 		 $result = $wpdb->get_row($wpdb->prepare($sql = "SELECT * FROM  ". self::getTrackerTableName() . "
@@ -115,7 +156,57 @@ class GenesisTracker{
 		 
 		 return $result->weight;
 	 }
+	
+	 public static function enterWeightPageAction(){
+		 global $wpdb;
+		 
+   	     $form = DP_HelperForm::createForm('initial-weight');
+		 $form->fieldError = self::defaultFieldError;
+
+		 if(!DP_HelperForm::wasPosted()){
+			 return;
+	 	 }
+		 
+		 $form->setData($_POST);
+		 $action = $form->getRawValue('action');
+		 
+		 // Actions for the user input page
+		 
+		 switch($action){
+			 case "saveinitialweight" :
+				 self::saveInitialWeight($form, get_current_user_id());
+			break;
+		 }
+	 }
 	 
+	 public static function saveInitialWeight($form, $user_id){
+		 $rules = array(
+			 'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
+		 );
+		 
+		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
+		 
+		 // If we're doing imperial, validate pounds too.
+		 if($imperial){
+			 $rules['weight_pounds'] = array("N");
+		 }
+		 
+		 $form->validate($rules);
+		 
+		 if(!$form->hasErrors()){
+			 $weight = (float)$form->getRawValue('weight_main');
+			 
+			 if($imperial){
+				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
+			 }
+			 
+		 	 add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), $weight, true);
+			 
+			 self::$pageData['weight-save'] = true;
+ 	 		 unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
+		 }
+	 }
+	
 	 public static function targetPageAction(){
 		global $wpdb;
 		
@@ -171,6 +262,11 @@ class GenesisTracker{
 		 if(self::isOnTargetPage()){
 			 $formName = 'tracker';
 			 self::targetPageAction();
+		 }
+		 
+		 if(self::isOnEnterWeightPage()){
+			 $formName = 'initial-weight';
+			 self::enterWeightPageAction();
 		 }
 		 
 		 if($formName &&  $form = DP_HelperForm::getForm($formName)){
@@ -350,6 +446,21 @@ class GenesisTracker{
 	 	return get_permalink(self::getOption(self::inputProgressPageId));
 	 }
 	 
+	 public static function isOnEnterWeightPage(){
+		global $post;
+
+		if(!$post){
+			return false;
+		}
+		
+		if(self::getOption(self::initialWeightPageId) == $post->ID){
+			return true;
+		}
+		
+		return false;
+	 }
+	 
+	 
 	 public static function isOnUserPage(){
 		global $post;
 
@@ -400,22 +511,24 @@ class GenesisTracker{
 		 return null;
 	 }
 	 
+	 public static function getInitialUserWeight($user_id){
+		 return get_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), true);
+	 }
+	 
 	 public static function getAllUserLogs($user_id){
 		 global $wpdb;
 		 
 		 $weightQ = '';
 		 
-		 add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), 100, true);
-		 
-		 if($startWeight = get_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), true)){
-			 $weightQ = ", round( $startWeight - weight) as weight_loss ";
+		 if($startWeight = self::getInitialUserWeight($user_id)){
+			 $weightQ = ", round($startWeight - weight) as weight_loss ";
 		 }
 		 
 		 $results = $wpdb->get_results($wpdb->prepare(
 		 $select = "SELECT * $weightQ FROM " . self::getTrackerTableName() . "
 		 WHERE user_id=%d ORDER BY measure_date", $user_id
 		 ));
-		 
+				 	 
 		 return $results;
 	 }
 	 
@@ -495,6 +608,18 @@ class GenesisTracker{
 		 }
 		 
 		 
+		 $weightInitial = array();
+		 // Get the user's start weight in imperial and metric
+		 $weightInitial['initial_weight'] = self::getInitialUserWeight($user_id);
+		 $weightInitial['initial_weight_imperial'] = self::kgToPounds($weightInitial['initial_weight']);
+		 
+		 if(isset($collated['weight'])){
+			 // Update the min and max vals using the initial entered user weight
+			 $collated['weight']['yMin'] = min($collated['weight']['yMin'], $weightInitial['initial_weight']);
+			 $collated['weight']['yMax'] = max($collated['weight']['yMax'], $weightInitial['initial_weight']);
+		 }
+		 
+		 
 		 $collated['weight_imperial']['yMin'] = self::kgToPounds($collated['weight']['yMin']);
 		 $collated['weight_imperial']['yMax'] = self::kgToPounds($collated['weight']['yMax']);
 		 
@@ -528,7 +653,7 @@ class GenesisTracker{
 					$daysBetween = max(1, floor(($data[0] - $last[0]) / $dayLength));
 					
 					if($daysBetween > 1){
-						$valDivisor = ($data[1] - $last[1]) / ($daysBetween - 1);
+						$valDivisor = ($data[1] - $last[1]) / ($daysBetween);
 					
 						// Calculate the averages
 						for($i = 1; $i < $daysBetween; $i++){
@@ -574,6 +699,8 @@ class GenesisTracker{
 		 
 		 $collated['allDates'] = $allDates;
 		 
+		 $collated['initial_weights'] = $weightInitial;
+		
 		 return $collated;
 	 }
 	 
@@ -599,8 +726,9 @@ class GenesisTracker{
 			'weight_loss_imperial'
 		 );
 		 
-		 $minDate = null;
-		 $maxDate = null;
+		 $minDate = 10000000000000;
+		 $maxDate = 0;
+
 		 
 		 // Get all of the values in an array with the timestamp as key so se can easily loop over them
 		 foreach($users as $user){
@@ -610,20 +738,16 @@ class GenesisTracker{
 				 continue;
 			 }
 			 
-			 foreach($graphData as $key => &$measurementSet){
-				 
+			 $minDate = min($graphData['minDate'], $minDate);
+			 $maxDate = max($graphData['maxDate'], $maxDate);
+			 
+			 foreach($graphData as $key => &$measurementSet){ 
 				 if(!isset($measurementSet['data']) || !in_array($key, $averageValues)){
 					 continue;
 				 }
 				 if(!isset($structure[$key])){
 					 $structure[$key] = array();
-					 $minDate = $measurementSet['minDate'];
-					 $maxDate = $measurementSet['maxDate'];
-				 }
-				 
-				 $minDate = min($measurementSet['minDate'], $minDate);
-				 $maxDate = max($measurementSet['maxDate'], $maxDate);
-				 
+				 }				 
 				 
 				 foreach($measurementSet['data'] as $date => $measurement){
 					 if(!isset($structure[$key][$date])){
@@ -684,7 +808,7 @@ class GenesisTracker{
 			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false));
 		 }
 		 	 
-		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage()){	
+		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage()){	
 		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
 	 			'jquery'  
 			));
@@ -713,7 +837,14 @@ class GenesisTracker{
 	 }
 	 
 	 // Part of the set up.  Adds the user page into the database
-	 public static function createUserPage(){
+	 public static function createUserPage($overwrite = false){
+		 $pageID = self::getOption(self::userPageId);
+		 $post = get_post($pageID);
+			 
+		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+		 
 		 // Creates the page which displays the graph information
 		 $current_user = wp_get_current_user();
 
@@ -725,8 +856,7 @@ class GenesisTracker{
  		 	'post_type' => 'page',
  		 	'post_author' => $current_user->ID
  		 );
-		 
-		 $pageID = self::getOption(self::userPageId);
+		
 
 		 if($pageID){
 			 wp_delete_post( $pageID, true);
@@ -736,8 +866,15 @@ class GenesisTracker{
 		  self::updateOption(self::userPageId, $post_id);
 	 }
 	 
-	 public static function createInputPage(){
+	 public static function createInputPage($overwrite = false){
 		 // Creates the page which displays the graph information
+ 		 $pageID = self::getOption(self::inputProgressPageId);
+		 $post = get_post($pageID);
+		 
+ 		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+		 
 		 $current_user = wp_get_current_user();
 
 		 $pageData = array(
@@ -759,8 +896,15 @@ class GenesisTracker{
 		  self::updateOption(self::inputProgressPageId, $post_id);
 	 }
 	 
-	 public static function createTargetInputPage(){
+	 public static function createTargetInputPage($overwrite = false){
 		 // Create the page which allows users to enter a target weight and date
+		 $pageID = self::getOption(self::targetPageId);
+		 $post = get_post($pageID);
+		 
+		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+		 
 		 $current_user = wp_get_current_user();
 
 		 $pageData = array(
@@ -772,7 +916,6 @@ class GenesisTracker{
  		 	'post_author' => $current_user->ID
  		 );
 		 
-		 $pageID = self::getOption(self::targetPageId);
 
 		 if($pageID){
 			 wp_delete_post($pageID, true);
@@ -781,4 +924,32 @@ class GenesisTracker{
 		  $post_id = wp_insert_post($pageData);
 		  self::updateOption(self::targetPageId, $post_id);
 	 } 
+	 
+	 public static function createInitialWeightPage($overwrite = false){
+		 // Create the page which allows users to enter a target weight and date
+		 $pageID = self::getOption(self::initialWeightPageId);
+	 	 $post = get_post($pageID);
+		
+		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+		 
+		 $current_user = wp_get_current_user();
+
+		 $pageData = array(
+			'post_title' => 'Enter Your Initial Weight',
+ 			'comment_status' => 'closed',
+ 		 	'post_content' => '[' . self::getOptionKey(self::initialWeightPageId) . ']',
+ 		 	'post_status' => 'publish',
+ 		 	'post_type' => 'page',
+ 		 	'post_author' => $current_user->ID
+ 		 );
+
+		 if($pageID){
+			 wp_delete_post($pageID, true);
+		 }
+		 
+		  $post_id = wp_insert_post($pageData);
+		  self::updateOption(self::initialWeightPageId, $post_id);
+	 }
 }

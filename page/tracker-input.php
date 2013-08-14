@@ -1,7 +1,8 @@
 <section class="reading-box main-accent clearfix">
 	<h2>Choose a weight target to aim for</h2>
 	<p>Enter a target and the date you would like to obtain your target by</p>
-	<div class="tagline-shadow"></div></section>
+	<div class="tagline-shadow"></div>
+</section>
 
 	<?php
 	if(isset(GenesisTracker::$pageData['errors'])){

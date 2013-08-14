@@ -1,5 +1,7 @@
 (function($){
 	var $plot = null;
+	var setMode = null;
+	
 	
 	$(document).ready(function(){
 		
@@ -27,17 +29,33 @@
 			
 			// User graph page
 			if($('.genesis-progress-graph').size()){
+				var switcherCompat = ['weight', 'weight_imperial', 'weight_loss', 'weight_loss_imperial'];
+				
 				// Add events
 				$('.progress-graph-switcher > button').on('click', function(e){
 					e.preventDefault();
 					var mode = $(this).data('mode');
 					
-					initialiseUserGraph(mode);
+					initialiseUserGraph(mode, $('.mode-switcher').val());
 					selectModeButton(mode);
+					
+					$('.mode-switcher').attr('disabled', 'disabled');
+					
+					if(mode == 'weight' || mode == 'weight_loss'){
+						$('.mode-switcher').removeAttr('disabled');
+					}
+				});
+				
+				$('.mode-switcher').on('change', function(){
+					if(!$.inArray(switcherCompat, setMode)){
+						return;
+					}
+					
+					initialiseUserGraph(setMode, $(this).val());
 				});
 			}
 			
-			initialiseUserGraph('weight_' + $('.mode-switcher').val());
+			initialiseUserGraph('weight', $('.mode-switcher').val());
 			selectModeButton('weight');
 		});
 		
@@ -75,12 +93,22 @@
 			}
 		}
 		
-		function initialiseUserGraph(mode) {
+		function initialiseUserGraph(mode, unit) {
 			if(!mode){
 				mode = 'weight';
 			}
+			
+			setMode = mode;
+			
+			if(unit && (mode == 'weight' || mode == 'weight_loss')){
+				mode = mode + "_" + unit;
+			}
+			
+		if (window.userGraphData == null){
+			return;
+		}
 		
-		if (!window.userGraphData |! window.userGraphData[mode]) {
+		if(!window.userGraphData[mode]) {
 			return;
 		}
 		
@@ -108,6 +136,7 @@
 			maxDate = Math.max(maxDate, window.averageUserGraphData.maxDate);
 		}
 		
+		console.log(minDate, maxDate);
 		
 		var yDiff = yMax - yMin;
 		yTick = Math.round(yDiff / 10);
@@ -229,25 +258,48 @@
 		}
 		
 		var data = [];
-		
-		
 
 		data.push({
 			"label":settings[mode].label,
 			"data": userGraphData[mode]['data'],
 			"color": settings[mode].color
 		});
+		
+		// Plot the average user data for everyone on the site along side the user's data
 		if(window.averageUserGraphData && window.averageUserGraphData[mode] !== undefined){			
 			data.push({
 				"label":settings[mode].avgLabel,
 				"data":window.averageUserGraphData[mode].data,
-				"color":'rgb(207,207,207)'
+				"color":'rgb(207,207,207)',
+				"points":{
+					"show":false
+				},
+				"lines":{
+					"fill":false
+				}
 			});	
 		}
 		
-		
-		
+		if(mode == 'weight' || mode == 'weight_imperial' && userGraphData['initial_weights']){
+			// Plot the user's start date
 
+			data.push({
+				"label":"Your initial Weight",
+				"data":[
+					[userGraphData.minDate, userGraphData['initial_weights']['initial_' + mode]],
+					[userGraphData.maxDate, userGraphData['initial_weights']['initial_' + mode]]
+				],
+				"color":'rgb(0,0,0)',
+				"fill":false,
+				"lines":{
+					fill:false
+				},
+				"points":{
+					"show":false
+				}
+			});
+		}
+		
 		window.plot = $plot = $.plot($('.genesis-progress-graph'), data, options);
 		
 		plot.pan({'left':1000000000});

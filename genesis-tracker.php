@@ -32,10 +32,15 @@ register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId), 'genesis_user_input_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genesis_tracker_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
 
-add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
-add_action('wp', array('GenesisTracker', 'addHeaderElements'));
-add_action('wp', array('GenesisTracker', 'doActions'));
+if(!is_admin()){
+	add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
+	add_action('wp', array('GenesisTracker', 'addHeaderElements'));
+	add_action('wp', array('GenesisTracker', 'doActions'));
+	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
+	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
+}
 
 /* TODO: Change this so that it uses an optionified key */
 add_action('wp_ajax_moose', 'test');
@@ -55,6 +60,7 @@ function genesis_user_graph(){
 	return $output;
 }
 
+// PAGES
 function genesis_user_input_page(){
 	ob_start();
 	$form = DP_HelperForm::getForm('user-input');
@@ -109,6 +115,25 @@ function genesis_tracker_page(){
 		
 		
 		require('page/tracker-input.php');
+	}
+	
+	$output = ob_get_contents();
+	ob_end_clean();
+	return $output;
+}
+
+function genesis_initial_weight_page(){
+	ob_start();
+	$form = DP_HelperForm::getForm('initial-weight');
+	$outputBody = false;
+	
+	if(GenesisTracker::getPageData('weight-save') == true){
+		require('page/initial-weight-success.php');
+		$outputBody = true;
+	}
+	
+	if(!$outputBody){
+		require('page/initial-weight.php');
 	}
 	
 	$output = ob_get_contents();
