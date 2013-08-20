@@ -1,6 +1,6 @@
 <section class="reading-box main-accent clearfix">
 	<h2>Thank you for participating in Genesis' clinical trial</h2>
-	<p>Before we can get you up and running we just need to know what you're current weight is.</p>
+	<p>Before we can get you up and running we just need to know what your current weight is.</p>
 	<div class="tagline-shadow"></div>
 </section>
 

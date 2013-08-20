@@ -804,6 +804,8 @@ class GenesisTracker{
 			  wp_enqueue_script('flot', plugins_url('js/jquery.flot.min.js', __FILE__), array('jquery'));
 			  wp_enqueue_script('flot-time', plugins_url('js/jquery.flot.time.min.js', __FILE__), array('flot'));
 			  wp_enqueue_script('flot-navigate', plugins_url('js/jquery.flot.navigate.min.js', __FILE__), array('flot'));
+			  wp_enqueue_script('user-graph', plugins_url('js/UserGraph.js', __FILE__), array('flot-navigate'));
+			  
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
 			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false));
 		 }
