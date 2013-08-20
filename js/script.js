@@ -24,7 +24,7 @@
 			
 			// User graph page
 			if($('.genesis-progress-graph').size()){
-				var userGraph = new UserGraph();
+				var userGraph = window.userGraph = new UserGraph();
 				userGraph.userGraphData = window.userGraphData;
 				userGraph.averageUserGraphData = window.averageUserGraphData;
 
@@ -51,6 +51,14 @@
 					}
 					
 					userGraph.changeUnits($(this).val());
+				});
+				
+				$('.zoomer .in').on('click', function(e){
+					userGraph.zoomIn();
+				});
+				
+				$('.zoomer .out').on('click', function(e){
+					userGraph.zoomOut();
 				});
 			}
 			

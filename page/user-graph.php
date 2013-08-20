@@ -9,3 +9,8 @@
 	</select>
 </div>
 <div class="genesis-progress-graph"></div>
+
+<div class="zoomer">
+	<button class="in">Zoom In</button>
+	<button class="out">Zoom Out</button>
+</div>

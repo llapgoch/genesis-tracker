@@ -1,16 +1,29 @@
+/* TODO
+
+$plot.getOptions().xaxes[0].tickSize = [7, "day"]; $plot.setupGrid(); $plot.draw();
+
+*/
+
 function UserGraph(){
 	var $plot = null;
-	var mode = null;
+	this.mode = null;
+	this.unit = null;
 	
 	this.userGraphData = null;
 	this.averageUserGraphData = null;
 	
-	this.initialise = function(mode, unit) {
+	this.replot = function(){
+		this.initialise(this.mode, this.unit, true);
+	}
+	
+	this.initialise = function(mode, unit, moveToEnd) {
 		if(!mode){
 			mode = 'weight';
 		}
+		moveToEnd = moveToEnd == false ? false : true;
 		
 		this.mode = mode;
+		this.unit = unit;
 		
 		if(unit && (mode == 'weight' || mode == 'weight_loss')){
 			mode = mode + "_" + unit;
@@ -24,7 +37,7 @@ function UserGraph(){
 			return;
 		}
 	
-		if($plot){
+		if($plot && moveToEnd){
 			$plot.shutdown();
 			$(".genesis-progress-graph").empty();
 		}
@@ -117,6 +130,7 @@ function UserGraph(){
 				min: yMin - 2,
 				max:yMax,
 				panRange: [yMin, yMax],
+				zoomRange: [yMin, yMax],
 				tickSize:settings[mode].tickSize,
 				tickLength: null,
 				tickFormatter:function(val){
@@ -152,7 +166,8 @@ function UserGraph(){
 				interactive: false
 			},
 			pan: {
-				interactive: true
+				interactive: true,
+				cursor:"move"
 			}
 		};
 	
@@ -211,9 +226,28 @@ function UserGraph(){
 			});
 		}
 	
-		window.plot = $plot = $.plot($('.genesis-progress-graph'), data, options);
+		this.$plot = window.$plot = $.plot($('.genesis-progress-graph'), data, options);
+		
+		if(moveToEnd){
+			this.$plot.pan({'left':1374534660788});
+		}
+	}
 	
-		plot.pan({'left':1000000000});
+	
+	this.zoomIn = function(){
+		if(!this.$plot){
+			return;
+		}
+		
+		this.$plot.zoom();
+	}
+	
+	this.zoomOut = function(){
+		if(!this.$plot){
+			return;
+		}
+		
+		this.$plot.zoomOut();
 	}
 	
 	this.getMode = function(){
