@@ -26,6 +26,7 @@
 			if($('.genesis-progress-graph').size()){
 				var userGraph = new UserGraph();
 				userGraph.userGraphData = window.userGraphData;
+				userGraph.averageUserGraphData = window.averageUserGraphData;
 
 				var switcherCompat = ['weight', 'weight_imperial', 'weight_loss', 'weight_loss_imperial'];
 				
@@ -45,11 +46,11 @@
 				});
 				
 				$('.mode-switcher').on('change', function(){
-					if(!$.inArray(switcherCompat, setMode)){
+					if(!$.inArray(switcherCompat, userGraph.getMode())){
 						return;
 					}
 					
-					userGraph.initialise(setMode, $(this).val());
+					userGraph.changeUnits($(this).val());
 				});
 			}
 			

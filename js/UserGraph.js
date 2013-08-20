@@ -1,6 +1,6 @@
 function UserGraph(){
 	var $plot = null;
-	var setMode = null;
+	var mode = null;
 	
 	this.userGraphData = null;
 	this.averageUserGraphData = null;
@@ -10,7 +10,7 @@ function UserGraph(){
 			mode = 'weight';
 		}
 		
-		setMode = mode;
+		this.mode = mode;
 		
 		if(unit && (mode == 'weight' || mode == 'weight_loss')){
 			mode = mode + "_" + unit;
@@ -214,5 +214,13 @@ function UserGraph(){
 		window.plot = $plot = $.plot($('.genesis-progress-graph'), data, options);
 	
 		plot.pan({'left':1000000000});
+	}
+	
+	this.getMode = function(){
+		return mode;
+	}
+	
+	this.changeUnits = function(unit){
+		this.initialise(this.mode, unit);
 	}
 }
