@@ -156,7 +156,7 @@ function UserGraph(){
 							var st = Math.floor(val / 14);
 							var p = val - (st * 14);
 							
-							p = Math.round(p * 100) / 100; 
+							p = Math.round(p * 10) / 10; 
 							return (st ? (st + " st ") : "") + (p ? p + " lb" : ""); 
 
 						case 'exercise_minutes' :
