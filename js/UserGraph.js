@@ -1,8 +1,4 @@
-/* TODO
 
-$plot.getOptions().xaxes[0].tickSize = [7, "day"]; $plot.setupGrid(); $plot.draw();
-
-*/
 
 function UserGraph(){
 	var $plot = null;
@@ -52,6 +48,16 @@ function UserGraph(){
 		var yMax = parseFloat(this.userGraphData[mode].yMax);
 		var minDate = parseFloat(this.userGraphData.minDate);
 		var maxDate = parseFloat(this.userGraphData.maxDate);
+		
+		
+		switch(mode){
+			case 'weight' :
+			case 'weight_imperial' : 
+			 yMin = Math.min(yMin, this.userGraphData['initial_weights']['initial_' + mode]);
+			 yMax = Math.max(yMax, this.userGraphData['initial_weights']['initial_' + mode]);
+		}
+		
+	
 	
 		if(this.averageUserGraphData && this.averageUserGraphData[mode]){
 			yMin = Math.min(yMin, parseFloat(this.averageUserGraphData[mode].yMin));
@@ -63,10 +69,16 @@ function UserGraph(){
 	
 	
 		var yDiff = yMax - yMin;
-		yTick = Math.round(yDiff / 10);
-	
-		yMax += yTick;
-	
+		yTick = (yDiff / 10);
+		
+		// Round the tick
+		yTick = Math.round(yTick * 100) / 100;
+		
+		yMax = (yMax + yTick);
+		yMin = (yMin - yTick);
+		
+		this.yMin = yMin;
+		this.yMax = yMax;
 	
 		var settings = {
 			'weight':{
@@ -76,7 +88,7 @@ function UserGraph(){
 				'color':'rgb(231,5,144)'
 			},
 			'weight_imperial':{
-				'tickSize':7,
+				'tickSize':yTick,
 				'label':'Your Weight (imperial)',
 				'avgLabel':'Average User Weight',
 				'color':'rgb(231,5,144)'
@@ -100,14 +112,13 @@ function UserGraph(){
 				'color':'rgb(255,134,134)'
 			},
 			'weight_loss_imperial':{
-				'tickSize':7,
+				'tickSize':yTick,
 				'label':'Your Weight Loss (imperial)',
 				'avgLabel':'Average Weight Loss',
 				'color':'rgb(255,134,134)'
 			}
 		};
-	
-	
+		
 		var options = {
 			lines: {
 				show: true,
@@ -127,13 +138,14 @@ function UserGraph(){
 			},
 			yaxis: {
 				autoscaleMargin: 0.5,
-				min: yMin - 2,
+				min:yMin,
 				max:yMax,
 				panRange: [yMin, yMax],
 				zoomRange: [yMin, yMax],
 				tickSize:settings[mode].tickSize,
 				tickLength: null,
 				tickFormatter:function(val){
+					val = Math.round(val * 100) / 100;
 					switch(mode){
 						case 'weight_loss' :
 						case 'weight' : 
@@ -143,7 +155,9 @@ function UserGraph(){
 						case 'weight_imperial' :
 							var st = Math.floor(val / 14);
 							var p = val - (st * 14);
-							return st + " st " + (p ? p + " lb" : ""); 
+							
+							p = Math.round(p * 100) / 100; 
+							return (st ? (st + " st ") : "") + (p ? p + " lb" : ""); 
 
 						case 'exercise_minutes' :
 							return val + " minutes";
@@ -205,7 +219,7 @@ function UserGraph(){
 				}
 			});	
 		}
-	
+		
 		if(mode == 'weight' || mode == 'weight_imperial' && this.userGraphData['initial_weights']){
 			// Plot the user's start date
 
@@ -223,6 +237,7 @@ function UserGraph(){
 				"points":{
 					"show":false
 				}
+				
 			});
 		}
 	
@@ -231,6 +246,8 @@ function UserGraph(){
 		if(moveToEnd){
 			this.$plot.pan({'left':1374534660788});
 		}
+		
+		this.updateXAxis();
 	}
 	
 	
@@ -240,6 +257,7 @@ function UserGraph(){
 		}
 		
 		this.$plot.zoom();
+		this.updateXAxis();
 	}
 	
 	this.zoomOut = function(){
@@ -248,10 +266,27 @@ function UserGraph(){
 		}
 		
 		this.$plot.zoomOut();
+		this.updateXAxis();
+	}
+	
+	this.updateXAxis = function(){
+		if(!this.$plot){
+			return;
+		}
+		
+		var timeframe = this.$plot.getData()[0].xaxis.max - this.$plot.getData()[0].xaxis.min;
+		var days = Math.ceil(timeframe / 500000000);
+		
+		this.$plot.getOptions().xaxes[0].tickSize = [days, "day"]; 
+		this.$plot.getOptions().yaxes[0].min = this.yMin;
+		this.$plot.getOptions().yaxes[0].max = this.yMax;
+		
+		this.$plot.setupGrid();
+		this.$plot.draw();
 	}
 	
 	this.getMode = function(){
-		return mode;
+		return this.mode;
 	}
 	
 	this.changeUnits = function(unit){
