@@ -4,6 +4,7 @@ function UserGraph(){
 	var $plot = null;
 	this.mode = null;
 	this.unit = null;
+	this.savePositions = {};
 	
 	this.userGraphData = null;
 	this.averageUserGraphData = null;
@@ -17,6 +18,9 @@ function UserGraph(){
 			mode = 'weight';
 		}
 		moveToEnd = moveToEnd == false ? false : true;
+		
+		// Save previous plot's settings
+		this.updateSavePositions();
 		
 		this.mode = mode;
 		this.unit = unit;
@@ -191,12 +195,14 @@ function UserGraph(){
 			}
 		 });
 	
-	
+ 		
+		
+ 		
 		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
 			options.xaxis.min = 0;
 			options.xaxis.max = 1000000000;
 		}
-	
+		
 		var data = [];
 
 		data.push({
@@ -247,9 +253,24 @@ function UserGraph(){
 			this.$plot.pan({'left':1374534660788});
 		}
 		
+		if(this.savePositions[this.mode]){
+			this.$plot.getOptions().xaxes[0].min = this.savePositions[this.mode].xmin;
+			this.$plot.getOptions().xaxes[0].max = this.savePositions[this.mode].xmax;
+		}
+
+		
 		this.updateXAxis();
 	}
 	
+	this.updateSavePositions = function(){
+		if(!this.$plot){
+			return;
+		}
+		
+		this.savePositions[this.mode] = {};
+		this.savePositions[this.mode].xmin = this.$plot.getOptions().xaxes[0].min;
+		this.savePositions[this.mode].xmax = this.$plot.getOptions().xaxes[0].max;
+	}
 	
 	this.zoomIn = function(){
 		if(!this.$plot){
@@ -257,6 +278,7 @@ function UserGraph(){
 		}
 		
 		this.$plot.zoom();
+		this.updateSavePositions();
 		this.updateXAxis();
 	}
 	
@@ -266,6 +288,7 @@ function UserGraph(){
 		}
 		
 		this.$plot.zoomOut();
+		this.updateSavePositions();
 		this.updateXAxis();
 	}
 	
@@ -274,7 +297,14 @@ function UserGraph(){
 			return;
 		}
 		
-		var timeframe = this.$plot.getData()[0].xaxis.max - this.$plot.getData()[0].xaxis.min;
+		var timeframe;
+		
+		if(this.savePositions[this.mode]){
+			timeframe = this.savePositions[this.mode].xmax - this.savePositions[this.mode].xmin;
+		}else{
+			timeframe = this.$plot.getData()[0].xaxis.max - this.$plot.getData()[0].xaxis.min;
+		}
+		
 		var days = Math.ceil(timeframe / 500000000);
 		
 		this.$plot.getOptions().xaxes[0].tickSize = [days, "day"]; 

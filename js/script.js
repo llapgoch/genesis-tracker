@@ -80,7 +80,6 @@
 		function selectModeButton(mode){
 			$('.progress-graph-switcher > button').removeClass('selected');
 			$('.progress-graph-switcher > button[data-mode="' + mode + '"]').addClass('selected');
-			console.log('.progress-graph-switcher > button[data-mode="' + mode + '"]');
 		}
 		
 		
