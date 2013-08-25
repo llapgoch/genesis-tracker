@@ -5,6 +5,8 @@ function UserGraph(){
 	this.mode = null;
 	this.unit = null;
 	this.savePositions = {};
+	this.previousPoint = null;
+	this.overlayTooltip = null;
 	
 	this.userGraphData = null;
 	this.averageUserGraphData = null;
@@ -14,9 +16,12 @@ function UserGraph(){
 	}
 	
 	this.initialise = function(mode, unit, moveToEnd) {
+		var host = this;
+		
 		if(!mode){
 			mode = 'weight';
 		}
+		
 		moveToEnd = moveToEnd == false ? false : true;
 		
 		// Save previous plot's settings
@@ -37,7 +42,7 @@ function UserGraph(){
 			return;
 		}
 	
-		if($plot && moveToEnd){
+		if($plot){
 			$plot.shutdown();
 			$(".genesis-progress-graph").empty();
 		}
@@ -149,27 +154,7 @@ function UserGraph(){
 				tickSize:settings[mode].tickSize,
 				tickLength: null,
 				tickFormatter:function(val){
-					val = Math.round(val * 100) / 100;
-					switch(mode){
-						case 'weight_loss' :
-						case 'weight' : 
-						return val + " kg";
-					
-						case 'weight_loss_imperial' :
-						case 'weight_imperial' :
-							var st = Math.floor(val / 14);
-							var p = val - (st * 14);
-							
-							p = Math.round(p * 10) / 10; 
-							return (st ? (st + " st ") : "") + (p ? p + " lb" : ""); 
-
-						case 'exercise_minutes' :
-							return val + " minutes";
-						case 'calories' :
-							return val + " kcals";
-					}
-				
-					return val;
+					return host.formatYVal(val, mode);
 				}
 			},
 			grid: {
@@ -187,16 +172,7 @@ function UserGraph(){
 				interactive: true,
 				cursor:"move"
 			}
-		};
-	
-		 $(".genesis-progress-graph").bind("plothover", function (event, pos, item) {
-			 if(!item){
-				 return;
-			}
-		 });
-	
- 		
-		
+		};	
  		
 		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
 			options.xaxis.min = 0;
@@ -248,8 +224,47 @@ function UserGraph(){
 		}
 	
 		this.$plot = window.$plot = $.plot($('.genesis-progress-graph'), data, options);
+		$('.genesis-progress-graph').off('plothover');
+		$('.genesis-progress-graph').on('plothover', function(e, pos, item){
+			if(!item){
+				host.removeOverlayTooltip();
+				host.previousPoint = null;
+				return;
+			}
+			
+			if(host.previousPoint == item.dataIndex){
+				return;
+			}
+		    
+			host.removeOverlayTooltip();
+			
+		    var x = item.datapoint[0].toFixed(2);
+		    var y = item.datapoint[1].toFixed(2);
+			
+			var content = host.formatYVal(y, mode);
+			
+		    host.$overlayTooltip = $('<div id="tooltip">' + content + '</div>').css( {
+	               position: 'absolute',
+	               border: '1px solid #fdd',
+	               padding: '2px',
+	               'background-color': '#fee',
+	               opacity: 0.80
+		    });
+			
+			
+			$(document.body).append(host.$overlayTooltip);
+			
+			host.$overlayTooltip.css({
+				top: item.pageY + 5,
+	            left: (item.pageX - 5) - host.$overlayTooltip.outerWidth(),
+			})
+			
+			// Plot the point
+			host.previousPoint = item.dataIndex;
+		});
 		
 		if(moveToEnd){
+			// This should probably be the max time we've got in our dataset - not sure where this came from
 			this.$plot.pan({'left':1374534660788});
 		}
 		
@@ -259,7 +274,35 @@ function UserGraph(){
 		}
 
 		
-		this.updateXAxis();
+		this.updateAxes();
+	}
+	
+	this.formatYVal = function(val, mode){
+		val = Math.round(val * 100) / 100;
+		switch(mode){
+			case 'weight_loss' :
+			case 'weight' : 
+			return val + " kg";
+		
+			case 'weight_loss_imperial' :
+			case 'weight_imperial' :
+				var st = Math.floor(val / 14);
+				var p = val - (st * 14);
+				
+				p = Math.round(p * 10) / 10; 
+				return (st ? (st + " st ") : "") + (p ? p + " lb" : ""); 
+
+			case 'exercise_minutes' :
+				return val + " minutes";
+			case 'calories' :
+				return val + " kcals";
+		}
+	}
+	
+	this.removeOverlayTooltip = function(){
+		if(this.$overlayTooltip){
+			this.$overlayTooltip.remove();
+		}
 	}
 	
 	this.updateSavePositions = function(){
@@ -279,7 +322,7 @@ function UserGraph(){
 		
 		this.$plot.zoom();
 		this.updateSavePositions();
-		this.updateXAxis();
+		this.updateAxes();
 	}
 	
 	this.zoomOut = function(){
@@ -289,10 +332,10 @@ function UserGraph(){
 		
 		this.$plot.zoomOut();
 		this.updateSavePositions();
-		this.updateXAxis();
+		this.updateAxes();
 	}
 	
-	this.updateXAxis = function(){
+	this.updateAxes = function(){
 		if(!this.$plot){
 			return;
 		}

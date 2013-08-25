@@ -11,6 +11,6 @@
 <div class="genesis-progress-graph"></div>
 
 <div class="zoomer">
-	<button class="in">Zoom In</button>
-	<button class="out">Zoom Out</button>
+	<button class="button blue in">Zoom In</button>
+	<button class="button blue out">Zoom Out</button>
 </div>
