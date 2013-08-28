@@ -22,8 +22,16 @@
 			
 			updateWeightVisibilities($('.weight-unit'));
 			
+			$('.question-chooser').on('click', function(e){
+				if($(this).is(':checked')){
+					$(this).parent().find('.inner-question-container').show();
+				}else{
+					$(this).parent().find('.inner-question-container').hide();
+				}
+			});
+			
 			// User graph page
-			if($('.genesis-progress-graph').size()){
+			if($('.genesis-progress-graph').size() > 0){
 				var userGraph = window.userGraph = new UserGraph();
 				userGraph.userGraphData = window.userGraphData;
 				userGraph.averageUserGraphData = window.averageUserGraphData;
@@ -60,10 +68,12 @@
 				$('.zoomer .out').on('click', function(e){
 					userGraph.zoomOut();
 				});
+				
+				userGraph.initialise('weight', $('.mode-switcher').val());
+				selectModeButton('weight');
 			}
 			
-			userGraph.initialise('weight', $('.mode-switcher').val());
-			selectModeButton('weight');
+			
 		});
 		
 		function updateWeightVisibilities(formElement){
