@@ -410,12 +410,23 @@ class GenesisTracker{
 			 }
 			 
 			 $data = array(
-				 'weight' => $weight,
-				 'calories' => (float)$form->getRawValue('calories'),
-				 'exercise_minutes' => (float)$form->getRawValue('exercise_minutes'),
 				 'measure_date' => $date,
 				 'user_id' => get_current_user_id()
 			 );
+			 
+			 if($form->hasValue('record-weight')){
+				 $data['weight'] = $weight;
+			 }
+			 
+			 if($form->hasValue('record-calories')){
+				 $data['calories'] = (float)$form->getRawValue('calories');
+			 }
+			 
+			 if($form->hasValue('record-exercise')){
+				 $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
+			 }
+			 
+			 
 			 
 			 $wpdb->query(
 			 	$wpdb->prepare('DELETE FROM ' . self::getTrackerTableName() . ' WHERE user_id=%d AND measure_date=%s', get_current_user_id(), $date)
@@ -576,6 +587,7 @@ class GenesisTracker{
 					 $collated[$valToCollate] = array();
 				 }
 				 
+				 
 				 $isWeight = $valToCollate == 'weight';
 				 $isWeightLoss = $valToCollate == 'weight_loss';
 				 
@@ -650,7 +662,7 @@ class GenesisTracker{
 				 $newCollated = array();
 
 
-				if(!isset($collated[$avgVal])){
+				if(!isset($collated[$avgVal]) || !isset($collated[$avgVal]['data'])){
 					continue;
 				}
 
