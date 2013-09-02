@@ -22,6 +22,12 @@
 			
 			updateWeightVisibilities($('.weight-unit'));
 			
+			$('.question-chooser').each(function(){
+				if($(this).is(':checked')){
+					$(this).parent().find('.inner-question-container').show();
+				}
+			});
+			
 			$('.question-chooser').on('click', function(e){
 				if($(this).is(':checked')){
 					$(this).parent().find('.inner-question-container').show();

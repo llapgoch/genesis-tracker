@@ -352,11 +352,20 @@ class GenesisTracker{
 		 global $wpdb;
 		 
 		 $rules = array(
-			 'weight_main' => array('N', 'R'),
-			 'calories' => array('N', 'R', 'VALUE-GREATER-EQ[0]'),
-		 	 'exercise_minutes' => array('N', 'R', 'VALUE-GREATER-EQ[0]'),
 			 'measure_date' => array("R", "DATE")
 		 );
+		 
+		 if($form->getRawValue('record-weight')){
+			 $rules['weight_main'] = array('N', 'R');
+		 }
+		 
+		 if($form->getRawValue('record-calories')){
+			 $rules['calories'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+		 }
+		 
+		 if($form->getRawValue('record-exercise')){
+			 $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+		 }
 		 
 		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
 		 
@@ -373,13 +382,20 @@ class GenesisTracker{
 			 
 			 
 			 // Validate the date is in the past or today
-			 if(strtotime($date) >= mktime(0, 0, 0, date("m"), date("d")+1, date("Y"))){
+			 if(strtotime($date) >= mktime(0, 0, 0, date("m"), date("d") + 1, date("Y"))){
 				 $form->setError('measure_date', array(
 					 'general' => 'You can only add measurements for today\'s date or past days',
 					 'main' => 'Your measurement date needs to be in the past or for today'
 				 ));
 				 return;
 			 }
+			 
+			 // Check at least one entry type has been checked
+			 if(!$form->hasValue('record-weight') &! $form->hasValue('record-calories') &! $form->hasValue('record-exercise')){
+				 self::$pageData['errors'][] = 'Please select at least one measurement type to take';
+				 return;
+			 }
+			 
 			 $weight = (float)$form->getRawValue('weight_main');
 			 
 			 if($form->getRawValue('action') !== 'duplicate-overwrite'){

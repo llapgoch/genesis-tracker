@@ -34,7 +34,11 @@
 			<h3 class="general-label"><?php _e('Weight');?></h3>
 			<div class="title-sep-container"><div class="title-sep"></div></div>
 		</div>
-		<input type="checkbox" name="record-weight" id="record-weight" value="1" class="question-chooser" /><label for="record-weight">I would like to record my weight on this occasion</label>
+		<?php echo $form->checkbox('record-weight', 1, array(
+			'class' => 'question-chooser',
+			'id' => 'record-weight'
+		));?>
+		<label for="record-weight">I would like to record my weight on this occasion</label>
 		<div class="inner-question-container weight-container js-hide">
 			<div class="question-container">
 				<div class="title">
@@ -90,7 +94,11 @@
 			<h3 class="general-label"><?php _e('Calories');?></h3>
 			<div class="title-sep-container"><div class="title-sep"></div></div>
 		</div>
-		<input type="checkbox" name="record-calories" id="record-calories" value="1" class="question-chooser" /><label for="record-calories">I would like to record my calories on this occasion</label>
+		<?php echo $form->checkbox('record-calories', 1, array(
+			'class' => 'question-chooser',
+			'id' => 'record-calories'
+		));?>
+		<label for="record-calories">I would like to record my calories on this occasion</label>
 		<div class="inner-question-container calories-container js-hide">
 			<div class="question-container">
 				<div class="title">
@@ -113,7 +121,11 @@
 			<h3 class="general-label"><?php _e('Exercise');?></h3>
 			<div class="title-sep-container"><div class="title-sep"></div></div>
 		</div>
-		<input type="checkbox" name="record-exercise" class="question-chooser" id="record-exercise" value="1" /><label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
+		<?php echo $form->checkbox('record-exercise', 1, array(
+			'class' => 'question-chooser',
+			'id' => 'record-exercise'
+		));?>
+		<label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
 		<div class="inner-question-container calories-container js-hide">
 			<div class="question-container">
 				<div class="title">
