@@ -1,5 +1,3 @@
-
-
 function UserGraph(){
 	var $plot = null;
 	this.mode = null;
@@ -49,14 +47,14 @@ function UserGraph(){
 	
 		var xTicks = [];
 	
-		for(var i = 0; i < this.userGraphData.allDates.length; i++){
-			xTicks.push(this.userGraphData.allDates[i], this.userGraphData.allDates[i]);
+		for(var i = 0; i < this.userGraphData[mode].timestamps.length; i++){
+			xTicks.push(this.userGraphData[mode].timestamps[i], this.userGraphData[mode].timestamps[i]);
 		}
 	
 		var yMin = parseFloat(this.userGraphData[mode].yMin);
 		var yMax = parseFloat(this.userGraphData[mode].yMax);
-		var minDate = parseFloat(this.userGraphData.minDate);
-		var maxDate = parseFloat(this.userGraphData.maxDate);
+		var minDate = parseFloat(xTicks[0]);
+		var maxDate = parseFloat(xTicks[xTicks.length - 1]);
 		
 		
 		switch(mode){
@@ -67,14 +65,11 @@ function UserGraph(){
 		}
 		
 	
-	
+		// Show the min max y values for all users
 		if(this.averageUserGraphData && this.averageUserGraphData[mode]){
 			yMin = Math.min(yMin, parseFloat(this.averageUserGraphData[mode].yMin));
 			yMax = Math.max(yMax, parseFloat(this.averageUserGraphData[mode].yMax));
-		
-			minDate = Math.min(minDate, this.averageUserGraphData.minDate);
-			maxDate = Math.max(maxDate, this.averageUserGraphData.maxDate);
-		}
+		 }
 	
 	
 		var yDiff = yMax - yMin;
@@ -84,10 +79,18 @@ function UserGraph(){
 		yTick = Math.round(yTick * 100) / 100;
 		
 		yMax = (yMax + yTick);
-		yMin = (yMin - yTick);
+		
+		// Give a y margin lower than zero if the bottom is already lower than zero (otherwise a negative)
+		// y margin with all positive results looks odd.
+		if(yMin >= 0){
+			yMin = Math.max(yMin - yTick, 0);
+		}else{
+			yMin = yMin - yTick;
+		}
 		
 		this.yMin = yMin;
 		this.yMax = yMax;
+		
 	
 		var settings = {
 			'weight':{

@@ -567,8 +567,6 @@ class GenesisTracker{
 			return;
 		 }
 		 
-		 $allDates = array();
-		 
 		 $valsToCollate = array(
 			 'weight',
 			 'calories',
@@ -578,6 +576,11 @@ class GenesisTracker{
 		 
 		 $collated['weight_imperial'] = array();
 		 $collated['weight_loss_imperial'] = array();
+		 $collated['weight_imperial']['data'] = array();
+		 $collated['weight_loss_imperial']['data'] = array();
+		 
+		 $collated['weight_imperial']['timestamps'] = array();
+		 $collated['weight_loss_imperial']['timestamps'] = array();		 
 		 
 		 foreach($userData as $log){
 			 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
@@ -585,6 +588,8 @@ class GenesisTracker{
 			 foreach($valsToCollate as $valToCollate){
 				 if(!isset($collated[$valToCollate])){
 					 $collated[$valToCollate] = array();
+					 $collated[$valToCollate]['data'] = array();
+					 $collated[$valToCollate]['timestamps'] = array();
 				 }
 				 
 				 
@@ -592,25 +597,20 @@ class GenesisTracker{
 				 $isWeightLoss = $valToCollate == 'weight_loss';
 				 
 				 // Only collate weight if it's been entered this time
-				 if(($isWeight || $isWeightLoss) &! $log->weight){
+				 if($log->$valToCollate == null){
 					 continue;
 				 }
 				 
+				 
 				 if(!isset($collated[$valToCollate]['yMin']) || $collated[$valToCollate]['yMin'] > $log->$valToCollate){
-				 	
-					 // If we're in weight loss mode, make the min zero unless we actually go below zero in weight loss
-					if($isWeightLoss && $log->$valToCollate <= 0){
-						$collated[$valToCollate]['yMin'] = min($log->$valToCollate, $collated[$valToCollate]['yMin']);
-					}else{
-						$collated[$valToCollate]['yMin'] = $log->$valToCollate;
-					}
+					 $collated[$valToCollate]['yMin'] = $log->$valToCollate;
 				 }
 		 
 				 if(!isset($collated[$valToCollate]['yMax']) || $collated[$valToCollate]['yMax'] < $log->$valToCollate){
 				 	$collated[$valToCollate]['yMax'] = $log->$valToCollate;
 				 }
 		 		
-				
+				 $collated[$valToCollate]['timestamps'][] = $timestamp;
 				
 				 $collated[$valToCollate]['data'][] = array(
 					 $timestamp, $log->$valToCollate
@@ -621,18 +621,18 @@ class GenesisTracker{
 					  $collated['weight_imperial']['data'][] = array(
 						 $timestamp, self::kgToPounds($log->$valToCollate)
 					 );
+					 
+					 $collated['weight_imperial']['timestamps'][] = $timestamp;
 				 }
 				 
 				 if($isWeightLoss){
 					 $collated['weight_loss_imperial']['data'][] = array(
 						 $timestamp, self::kgToPounds($log->$valToCollate)
 					 );
-				 }
-			 
-				 
+					 
+					 $collated['weight_loss_imperial']['timestamps'][] = $timestamp;
+				 }	 
 			 }
-			 
-			 $allDates[] = ($timestamp);
 		 }
 		 
 		 
@@ -702,13 +702,6 @@ class GenesisTracker{
 		 	}
 		 }
 		 
-		 if($allDates){
- 			 $collated['minDate'] = $allDates[0];
-			 $collated['maxDate'] = $allDates[count($allDates) - 1];
-	 	 }
-			 
-	 	 
-		 
 		 if($keyAsDate){
 			 foreach($collated as $key => &$collate){
 				 $newData = array();
@@ -724,8 +717,6 @@ class GenesisTracker{
 				 $collate['data'] = $newData;
 			 }
 		 }
-		 
-		 $collated['allDates'] = $allDates;
 		 
 		 $collated['initial_weights'] = $weightInitial;
 		
@@ -753,9 +744,6 @@ class GenesisTracker{
 			'calories',
 			'weight_loss_imperial'
 		 );
-		 
-		 $minDate = 10000000000000;
-		 $maxDate = 0;
 
 		 
 		 // Get all of the values in an array with the timestamp as key so se can easily loop over them
@@ -765,9 +753,6 @@ class GenesisTracker{
 			 if(!$graphData){
 				 continue;
 			 }
-			 
-			 $minDate = min($graphData['minDate'], $minDate);
-			 $maxDate = max($graphData['maxDate'], $maxDate);
 			 
 			 foreach($graphData as $key => &$measurementSet){ 
 				 if(!isset($measurementSet['data']) || !in_array($key, $averageValues)){
@@ -819,12 +804,8 @@ class GenesisTracker{
 				 return 1;
 			 });
 		 }
-		 
-		 $averages['minDate'] = $minDate;
-		 $averages['maxDate'] = $maxDate;
-		 
+		 		 
 		 return $averages;
-		
 	 }
 	 
 	 public static function addHeaderElements(){
