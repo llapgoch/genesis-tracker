@@ -9,6 +9,10 @@
 				$('.date-input').datepicker({
 					dateFormat: "dd-mm-yy"
 				});
+				
+				$('.date-input').on('change', function(){
+					updateDateList($(this));
+				});
 			}
 			
 			$('.changeunits').hide();
@@ -82,6 +86,37 @@
 			
 		});
 		
+		function showPreloader(){
+			removePreloader();
+			$(document.body).append('<div class="preload-cover"><div class="preload-bg"></div><div class="loader"></div></div>')
+		}
+		
+		function removePreloader(){
+			$('.preload-cover').remove();
+		}
+		
+		function updateDateList(pickField){
+			var selDate = pickField.datepicker('getDate');
+			showPreloader();
+			
+			$.ajax(myAjax.ajaxurl, {
+				'type':'post',
+				'dataType':'html',
+				'complete':function(){
+					removePreloader();
+				},
+				'success':function(data){
+					$('.diet-days').html(data);
+				},
+				'data':{
+					'action':'genesis_getdatepicker',
+					'day':selDate.getDate(),
+					'month':selDate.getMonth(),
+					'year':selDate.getFullYear()
+				}
+			});
+		}
+		
 		function updateWeightVisibilities(formElement){
 			// possibly change this so it only acts upon the form the dropdown is in.
 			if($(formElement).val() == 1){
@@ -99,21 +134,23 @@
 		}
 		
 		
-		// $('#add-progress').on('submit', function(ev){
-// 			ev.preventDefault();
-// 			
-// 			$.ajax(myAjax.ajaxurl, {
-// 				'method':'post',
-// 				'dataType':'xml',
-// 				'complete':function(){
-// 					alert('done');
-// 				},
-// 				'data':{
-// 					'action':'moose',
-// 					'chimp':'bobble'
-// 				}
-// 			});
-// 		});
+		window.ajaxTest = function(){
+			
+			
+			$.ajax(myAjax.ajaxurl, {
+				'method':'post',
+				'dataType':'xml',
+				'complete':function(){
+					alert('done');
+				},
+				'data':{
+					'action':'genesis_getdatepicker',
+					'day':1,
+					'month':6,
+					'year':2013
+				}
+			});
+		};
 		
 	
 		

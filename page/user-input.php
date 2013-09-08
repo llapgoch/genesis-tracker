@@ -85,7 +85,18 @@
 		
 					<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('pounds');?></p>
 				</div>
+				
 			</div> 
+			<div class="question-container">
+				<div class="title">
+					<label for="weight" class="general-label"><?php _e('Diet Days');?></label>
+					<div class="title-sep-container"><div class="title-sep"></div></div>
+				</div>
+				<p class="form-explanation"><?php _e('Please mark any diet days you have done in the last week');?></p>
+				<div class="diet-days">
+					<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your diet days');?>
+				</div>
+			</div>
 		</div>
 	</div>
 	
@@ -125,7 +136,7 @@
 			'class' => 'question-chooser',
 			'id' => 'record-exercise'
 		));?>
-		<label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
+			<label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
 		<div class="inner-question-container calories-container js-hide">
 			<div class="question-container">
 				<div class="title">

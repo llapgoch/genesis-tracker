@@ -43,10 +43,15 @@ if(!is_admin()){
 }
 
 /* TODO: Change this so that it uses an optionified key */
-add_action('wp_ajax_moose', 'test');
+add_action('wp_ajax_genesis_getdatepicker', 'genesis_post_date_picker');
 
-function test() {
-	var_dump('moooo');
+// Because the ajax functionality doesn't pass parameters, we get them here
+function genesis_post_date_picker(){
+	$day = $_POST['day'];
+	$month = $_POST['month'];
+	$year = $_POST['year'];
+	
+	die(GenesisTracker::getDateListPicker($day, $month, $year));
 }
 
 function genesis_user_graph(){

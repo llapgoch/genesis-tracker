@@ -808,6 +808,23 @@ class GenesisTracker{
 		 return $averages;
 	 }
 	 
+	 public static function getDateListPicker($day, $month, $year, $days = 7){
+		 // return html for the last five days
+		 $list = "";
+		 $month = $month + 1;
+		 
+		 for($i = $days; $i >= 0; $i--){
+			 $time = mktime(0, 0, 0, $month, $day - $i, $year);
+			 $dateKey = date("j-n-Y", $time);
+			 $cl = $i == 0 ? 'last' : '';
+			 
+			 $list .= "<li class='$cl'><input type='checkbox' name='diet-days[]' value='$dateKey' id='$dateKey' />
+				 <label for='$dateKey'><span class='line-1'>" . date('l', $time) . "</span><span class='line-2'>" . date("jS F", $time). "</span></label></li>";				 
+		 }
+		 
+		 return "<ul>" . $list . "</ul>";
+	 }
+	 
 	 public static function addHeaderElements(){
 		 if(self::isOnUserPage()){
 			  wp_enqueue_script('flot', plugins_url('js/jquery.flot.min.js', __FILE__), array('jquery'));
