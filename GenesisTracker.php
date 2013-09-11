@@ -13,6 +13,7 @@ class GenesisTracker{
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	public static $pageData = array();
+	public static $dietDaysToDisplay = 7;
 	
 	public static function install(){
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -39,6 +40,14 @@ class GenesisTracker{
 		  PRIMARY KEY  (target_id)
 		)");
 		
+		
+		dbDelta($sql = "CREATE TABLE " . self::getDietDayTableName() . " (
+		  diet_day_id int(11) unsigned NOT NULL AUTO_INCREMENT,
+		  user_id int(11) DEFAULT NULL,
+		  day date DEFAULT NULL,
+		  PRIMARY KEY  (diet_day_id)
+		)");
+		
 		self::updateOption("version", self::version);
 		 
 		 // Create the user page if it's not already there		 
@@ -51,6 +60,11 @@ class GenesisTracker{
 	 public static function getTrackerTableName(){
 		 global $wpdb;
 		 return $wpdb->base_prefix . "genesis_tracker";
+	 }
+	 
+	 public static function getDietDayTableName(){
+		 global $wpdb;
+		 return $wpdb->base_prefix . "genesis_diet_day";
 	 }
 	 
 	 public static function getTargetTableName(){
@@ -379,10 +393,11 @@ class GenesisTracker{
 		 if(!$form->hasErrors()){
 			 // Prepare the data
 			 $date = self::convertFormDate($form->getRawValue('measure_date'));
-			 
+			 $logDate = strtotime($date);
+			 $dateParsed = date_parse($date);
 			 
 			 // Validate the date is in the past or today
-			 if(strtotime($date) >= mktime(0, 0, 0, date("m"), date("d") + 1, date("Y"))){
+			 if($logDate >= mktime(0, 0, 0, date("m"), date("d") + 1, date("Y"))){
 				 $form->setError('measure_date', array(
 					 'general' => 'You can only add measurements for today\'s date or past days',
 					 'main' => 'Your measurement date needs to be in the past or for today'
@@ -436,9 +451,48 @@ class GenesisTracker{
 				 $this->pageData['errors'] = array(
 					 'An error occurred in saving your measurement'
 				 );
+				 return;
 			 }else{
 				 self::$pageData['user-input-save'] = true;
 			 }
+			 
+			 $removeDates = array();
+			 
+			 // Remove the diet days
+			 for($i = 0; $i < self::$dietDaysToDisplay; $i++){
+				 // Create as timestamp to overflow
+				 $time = mktime(0,0,0, $dateParsed['month'] , $dateParsed['day'] - $i, $dateParsed['year']);
+				 
+				 $removeDates[] = "'" . date('Y-m-d', $time) . "'";
+			 }
+			 
+			 if($removeDates){
+				 $wpdb->query(
+				 	$sql = $wpdb->prepare($sql = 'DELETE FROM ' . self::getDietDayTableName() . ' 
+						WHERE day IN (' . implode(',', $removeDates) . ')
+						AND user_id=%d', get_current_user_id()
+					)
+			 	 );
+			}
+			
+			// Add diet days
+			
+			if($dietDays = $form->getRawValue('diet_days')){
+				foreach($dietDays as $dietDay){
+					if(!mktime($dietDay)){
+						continue;
+					}
+					
+					$wpdb->insert(self::getDietDayTableName(),
+						array(
+							'user_id' => get_current_user_id(),
+							'day' => $dietDay
+						)
+					);
+				}
+			}
+			 
+			 
 		 }
 		 
 	 }
@@ -808,17 +862,35 @@ class GenesisTracker{
 		 return $averages;
 	 }
 	 
-	 public static function getDateListPicker($day, $month, $year, $days = 7){
+	 public static function getDateListPicker($day, $month, $year, $forUser = true, $selected = array()){
+		 global $wpdb;
 		 // return html for the last five days
 		 $list = "";
 		 $month = $month + 1;
 		 
-		 for($i = $days; $i >= 0; $i--){
+		 for($i = self::$dietDaysToDisplay; $i > 0; $i--){
 			 $time = mktime(0, 0, 0, $month, $day - $i, $year);
-			 $dateKey = date("j-n-Y", $time);
+			 $dateKey = date("Y-m-d", $time);
 			 $cl = $i == 0 ? 'last' : '';
 			 
-			 $list .= "<li class='$cl'><input type='checkbox' name='diet-days[]' value='$dateKey' id='$dateKey' />
+			 if($forUser){
+				 $res = $wpdb->query(
+					 $sql = $wpdb->prepare('SELECT * FROM ' . self::getDietDayTableName() . ' 
+					 	WHERE user_id=%d AND day=%s ', get_current_user_id(), $dateKey
+					)   
+				 );
+			 
+				 if($res){
+					 $selected[] = $dateKey;
+				 }
+		 	}
+			 
+			 $inputHTML = DP_HelperForm::createInput('diet_days[]', 'checkbox', array(
+				 'id' => $dateKey,
+				 'value' => $dateKey
+			 ), $selected);
+			 
+			 $list .= "<li class='$cl'>" . $inputHTML . "
 				 <label for='$dateKey'><span class='line-1'>" . date('l', $time) . "</span><span class='line-2'>" . date("jS F", $time). "</span></label></li>";				 
 		 }
 		 

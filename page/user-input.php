@@ -94,7 +94,15 @@
 				</div>
 				<p class="form-explanation"><?php _e('Please mark any diet days you have done in the last week');?></p>
 				<div class="diet-days">
+					<?php 
+					if($dateListPicker) :
+						echo $dateListPicker;
+						else :
+						?>
 					<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your diet days');?>
+					<?php
+					endif;
+					?>
 				</div>
 			</div>
 		</div>

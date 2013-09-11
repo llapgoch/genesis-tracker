@@ -73,6 +73,17 @@ function genesis_user_input_page(){
 	$userGraphPage = GenesisTracker::getUserPagePermalink();
 	$userInputPage = GenesisTracker::getUserInputPagePermalink();
 	
+	$dateListPicker = '';
+	
+	if($form->wasPosted()){
+		// Get the date list picker html with selected post values
+		$date = GenesisTracker::convertFormDate($form->getRawValue('measure_date'));
+
+		$dateParts = date_parse($date);
+		$selectedDates = is_array($form->getRawValue('diet_days')) ? $form->getRawValue('diet_days') : array();
+		$dateListPicker = GenesisTracker::getDateListPicker($dateParts['day'], $dateParts['month'] - 1, $dateParts['year'], false, $selectedDates);
+	}
+	
 	if(GenesisTracker::getPageData('user-input-save') == true){
 		require('page/user-input-success.php');
 		$outputBody = true;
