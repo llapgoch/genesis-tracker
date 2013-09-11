@@ -7,7 +7,8 @@
 		$(document).ready(function(){
 			if($('.user-tracking-input').size()){
 				$('.date-input').datepicker({
-					dateFormat: "dd-mm-yy"
+					dateFormat: "dd-mm-yy",
+					maxDate:0
 				});
 				
 				$('.date-input').on('change', function(){
