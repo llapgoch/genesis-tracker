@@ -8,7 +8,16 @@
 		<option value="">Kilograms</option>
 	</select>
 </div>
-<div class="genesis-progress-graph"></div>
+<div class="genesis-graph-container">
+	<div class="no-results alert notice">
+		<div class="msg">
+			<h2>There are no results available for your selection</h2>
+			<a href="<?php echo $userInputPage;?>">Record a measurement now</a>
+		</div>
+	</div>
+	<div class="genesis-progress-graph">
+	</div>
+</div>
 
 <div class="zoomer">
 	<button class="button blue in">Zoom In</button>

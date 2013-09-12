@@ -56,6 +56,9 @@ function genesis_post_date_picker(){
 
 function genesis_user_graph(){
 	ob_start();
+	
+	$userGraphPage = GenesisTracker::getUserPagePermalink();
+	$userInputPage = GenesisTracker::getUserInputPagePermalink();
 	GenesisTracker::getAverageUsersGraphData(false);
 	
 	include('page/user-graph.php');

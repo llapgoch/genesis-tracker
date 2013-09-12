@@ -16,6 +16,45 @@ function UserGraph(){
 	this.initialise = function(mode, unit, moveToEnd) {
 		var host = this;
 		
+		var settings = {
+			'weight':{
+				'noresults':"You haven't made any weight measurements yet.",
+				'label':'Your Weight (metric)',
+				'avgLabel':'Average User Weight',
+				'color':'rgb(231,5,144)'
+			},
+			'weight_imperial':{
+				'noresults':"You haven't made any weight measurements yet.",
+				'label':'Your Weight (imperial)',
+				'avgLabel':'Average User Weight',
+				'color':'rgb(231,5,144)'
+			},
+			'calories':{
+				'noresults':"You haven't made any calorie measurements yet.",
+				'label':'Calories You\'ve Consumed',
+				'avgLabel':'Average Calories Consumed',
+				'color':'rgb(92,178,208)'
+			},
+			'exercise_minutes':{
+				'noresults':"You haven't made any measurements for minutes exercised yet.",
+				'label':'Minutes You\'ve Exercised',
+				'avgLabel':'Average Minutes Exercised',
+				'color':'rgb(255,201,107)'
+			},
+			'weight_loss':{
+				'noresults':"You haven't made any weight measurements yet.",
+				'label':'Your Weight Loss (metric)',
+				'avgLabel':'Average Weight Loss',
+				'color':'rgb(255,134,134)'
+			},
+			'weight_loss_imperial':{
+				'noresults':"You haven't made any weight measurements yet.",
+				'label':'Your Weight Loss (imperial)',
+				'avgLabel':'Average Weight Loss',
+				'color':'rgb(255,134,134)'
+			}
+		};
+		
 		if(!mode){
 			mode = 'weight';
 		}
@@ -39,11 +78,24 @@ function UserGraph(){
 		if(!this.userGraphData[mode]) {
 			return;
 		}
-	
+		
 		if($plot){
 			$plot.shutdown();
 			$(".genesis-progress-graph").empty();
 		}
+		
+		
+		if(!this.userGraphData[mode]['data'] || !this.userGraphData[mode]['data'].length){
+			$(".no-results h2").html(settings[mode].noresults);
+			$(".genesis-progress-graph").hide();
+			$(".genesis-graph-container").addClass('empty');
+			$('.genesis-graph-container .no-results').show();
+			return;
+		}
+	
+		$(".genesis-progress-graph").show();
+		$(".genesis-graph-container").removeClass('empty');
+		$('.genesis-graph-container .no-results').hide();
 	
 		var xTicks = [];
 	
@@ -75,15 +127,17 @@ function UserGraph(){
 		var yDiff = yMax - yMin;
 		yTick = (yDiff / 10);
 		
+		console.log(yMin, Math.max(5,yMax));
+		
 		// Round the tick
 		yTick = Math.round(yTick * 100) / 100;
 		
-		yMax = (yMax + yTick);
+		yMax = (yMax + Math.max(5, yTick));
 		
 		// Give a y margin lower than zero if the bottom is already lower than zero (otherwise a negative)
 		// y margin with all positive results looks odd.
 		if(yMin >= 0){
-			yMin = Math.max(yMin - yTick, 0);
+			yMin = Math.max(yMin - Math.max(5,yTick), 0);
 		}else{
 			yMin = yMin - yTick;
 		}
@@ -92,44 +146,7 @@ function UserGraph(){
 		this.yMax = yMax;
 		
 	
-		var settings = {
-			'weight':{
-				'tickSize':yTick,
-				'label':'Your Weight (metric)',
-				'avgLabel':'Average User Weight',
-				'color':'rgb(231,5,144)'
-			},
-			'weight_imperial':{
-				'tickSize':yTick,
-				'label':'Your Weight (imperial)',
-				'avgLabel':'Average User Weight',
-				'color':'rgb(231,5,144)'
-			},
-			'calories':{
-				'tickSize':yTick,
-				'label':'Calories You\'ve Consumed',
-				'avgLabel':'Average Calories Consumed',
-				'color':'rgb(92,178,208)'
-			},
-			'exercise_minutes':{
-				'tickSize':yTick,
-				'label':'Minutes You\'ve Exercised',
-				'avgLabel':'Average Minutes Exercised',
-				'color':'rgb(255,201,107)'
-			},
-			'weight_loss':{
-				'tickSize':yTick,
-				'label':'Your Weight Loss (metric)',
-				'avgLabel':'Average Weight Loss',
-				'color':'rgb(255,134,134)'
-			},
-			'weight_loss_imperial':{
-				'tickSize':yTick,
-				'label':'Your Weight Loss (imperial)',
-				'avgLabel':'Average Weight Loss',
-				'color':'rgb(255,134,134)'
-			}
-		};
+		
 		
 		var options = {
 			lines: {
@@ -154,7 +171,7 @@ function UserGraph(){
 				max:yMax,
 				panRange: [yMin, yMax],
 				zoomRange: [yMin, yMax],
-				tickSize:settings[mode].tickSize,
+				tickSize:yTick,
 				tickLength: null,
 				tickFormatter:function(val){
 					return host.formatYVal(val, mode);
