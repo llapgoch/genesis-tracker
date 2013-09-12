@@ -176,10 +176,13 @@ function UserGraph(){
 				cursor:"move"
 			}
 		};	
- 		
+		
 		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
 			options.xaxis.min = 0;
 			options.xaxis.max = 1000000000;
+		}else{
+			options.xaxis.min = minDate;
+			options.xaxis.max = maxDate;
 		}
 		
 		var data = [];
@@ -352,6 +355,7 @@ function UserGraph(){
 		}
 		
 		var days = Math.ceil(timeframe / 500000000);
+		
 		
 		this.$plot.getOptions().xaxes[0].tickSize = [days, "day"]; 
 		this.$plot.getOptions().yaxes[0].min = this.yMin;
