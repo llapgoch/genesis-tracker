@@ -126,8 +126,7 @@ function UserGraph(){
 	
 		var yDiff = yMax - yMin;
 		yTick = (yDiff / 10);
-		
-		console.log(yMin, Math.max(5,yMax));
+	
 		
 		// Round the tick
 		yTick = Math.round(yTick * 100) / 100;
@@ -175,7 +174,7 @@ function UserGraph(){
 				tickLength: null,
 				tickFormatter:function(val){
 					return host.formatYVal(val, mode);
-				}
+				},
 			},
 			grid: {
 				show: true,
@@ -193,6 +192,16 @@ function UserGraph(){
 				cursor:"move"
 			}
 		};	
+		
+		if(this.mode == 'weight_loss'){
+			options.yaxis.transform = function(v) {
+				return -v;
+    		};
+    		
+			options.yaxis.inverseTransform = function(v) {
+        		return -v;
+			}
+		}
 		
 		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
 			options.xaxis.min = 0;
