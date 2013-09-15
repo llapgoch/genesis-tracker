@@ -15,7 +15,7 @@ endif;
 <form class="input-form user-tracking-input" action="" method="post" name="input-form">
 	<div class="question-container">
 		<div class="title">
-			<label for="weight_unit"><?php _e('Weight Units');?></label>
+			<h3 class="general-label"><?php _e('Weight Units');?></h3>
 			<div class="title-sep-container"><div class="title-sep"></div></div>
 		</div>
 		<p class="form-explanation"><?php _e('Whether you would like your weight to be saved as metric or imperial units');?></p>
@@ -32,7 +32,7 @@ endif;
 	
 	<div class="question-container">
 		<div class="title">
-			<label for="weight"><?php _e('Your Starting Weight');?></label>
+			<h3 class="general-label"><?php _e('Your Starting Weight');?></h3>
 			<div class="title-sep-container"><div class="title-sep"></div></div>
 		</div>
 		<p class="form-explanation"><?php _e('Enter what your weight is at the start of the trial');?></p>

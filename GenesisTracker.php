@@ -23,7 +23,7 @@ class GenesisTracker{
 		dbDelta($sql = "CREATE TABLE " . self::getTrackerTableName() . " (
 		  tracker_id int(11) unsigned NOT NULL AUTO_INCREMENT,
 		  user_id int(11) DEFAULT NULL,
-		  date_tracked datetime DEFAULT NULL,
+		  measure_date datetime DEFAULT NULL,
 		  weight decimal(10,6) unsigned DEFAULT NULL,
 		  calories int(11) unsigned DEFAULT NULL,
 		  exercise_minutes int(11) DEFAULT NULL,
@@ -122,6 +122,7 @@ class GenesisTracker{
 	 }
 	 
 	 public function checkLoginWeightEntered($userLogin, $user){
+		
 	 	if(!GenesisTracker::getInitialUserWeight($user->ID)){
 	 		$_SESSION[GenesisTracker::weightEnterSessionKey] = true;
 	 	}
@@ -448,7 +449,7 @@ class GenesisTracker{
 			 );
 			
 			 if(!($wpdb->insert(self::getTrackerTableName(), $data))){
-				 $this->pageData['errors'] = array(
+				 self::$pageData['errors'] = array(
 					 'An error occurred in saving your measurement'
 				 );
 				 return;
@@ -602,10 +603,10 @@ class GenesisTracker{
 		 $weightQ = '';
 		 
 		 if($startWeight = self::getInitialUserWeight($user_id)){
-			 $weightQ = ", round($startWeight - weight) as weight_loss ";
+			 $weightQ = ", ($startWeight - weight) as weight_loss ";
 		 }
 		 
-		 $results = $wpdb->get_results($wpdb->prepare(
+		 $results = $wpdb->get_results($sql = $wpdb->prepare(
 		 $select = "SELECT * $weightQ FROM " . self::getTrackerTableName() . "
 		 WHERE user_id=%d ORDER BY measure_date", $user_id
 		 ));

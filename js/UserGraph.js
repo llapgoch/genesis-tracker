@@ -71,6 +71,14 @@ function UserGraph(){
 			mode = mode + "_" + unit;
 		}
 		
+		$(".genesis-progress-graph").hide();
+		$(".genesis-graph-container").addClass('empty');
+		$('.genesis-graph-container .no-results').show();
+		
+		if(settings[mode]){
+			$(".no-results h2").html(settings[mode].noresults);
+		}
+		
 		if (this.userGraphData == null){
 			return;
 		}
@@ -79,19 +87,16 @@ function UserGraph(){
 			return;
 		}
 		
+		if(!this.userGraphData[mode]['data'] || !this.userGraphData[mode]['data'].length){
+			return;
+		}
+		
 		if($plot){
 			$plot.shutdown();
 			$(".genesis-progress-graph").empty();
 		}
 		
-		
-		if(!this.userGraphData[mode]['data'] || !this.userGraphData[mode]['data'].length){
-			$(".no-results h2").html(settings[mode].noresults);
-			$(".genesis-progress-graph").hide();
-			$(".genesis-graph-container").addClass('empty');
-			$('.genesis-graph-container .no-results').show();
-			return;
-		}
+	
 	
 		$(".genesis-progress-graph").show();
 		$(".genesis-graph-container").removeClass('empty');
@@ -129,14 +134,13 @@ function UserGraph(){
 	
 		
 		// Round the tick
-		yTick = Math.round(yTick * 100) / 100;
-		
-		yMax = (yMax + Math.max(5, yTick));
+		yTick = Math.max(1, Math.ceil(yTick * 10) / 10);
+		yMax = (yMax + yTick);
 		
 		// Give a y margin lower than zero if the bottom is already lower than zero (otherwise a negative)
 		// y margin with all positive results looks odd.
 		if(yMin >= 0){
-			yMin = Math.max(yMin - Math.max(5,yTick), 0);
+			yMin = Math.max(yMin - yTick, 0);
 		}else{
 			yMin = yMin - yTick;
 		}
@@ -322,7 +326,7 @@ function UserGraph(){
 				var p = val - (st * 14);
 				
 				p = Math.round(p * 10) / 10; 
-				return (st ? (st + " st ") : "") + (p ? p + " lb" : ""); 
+				return (st ? (st + " st ") : "") + (p + " lb"); 
 
 			case 'exercise_minutes' :
 				return val + " minutes";
