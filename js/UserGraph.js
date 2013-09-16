@@ -79,24 +79,29 @@ function UserGraph(){
 			$(".no-results h2").html(settings[mode].noresults);
 		}
 		
-		if (this.userGraphData == null){
-			return;
-		}
-	
-		if(!this.userGraphData[mode]) {
-			return;
-		}
-		
-		if(!this.userGraphData[mode]['data'] || !this.userGraphData[mode]['data'].length){
-			return;
-		}
-		
 		if($plot){
 			$plot.shutdown();
 			$(".genesis-progress-graph").empty();
 		}
+			
+		if (this.userGraphData == null){
+			return;
+		}
 		
-	
+		if(!this.userGraphData[mode]) {
+			return;
+		}
+		
+		
+		// If we're in weight mode, require a start weight to be present
+		if(!this.userGraphData[mode]['data']){
+			return;
+		}
+		
+		if(this.mode != 'weight' && this.userGraphData[mode]['data'].length == 0){
+			return;
+		}
+
 	
 		$(".genesis-progress-graph").show();
 		$(".genesis-graph-container").removeClass('empty');
@@ -104,15 +109,32 @@ function UserGraph(){
 	
 		var xTicks = [];
 	
-		for(var i = 0; i < this.userGraphData[mode].timestamps.length; i++){
-			xTicks.push(this.userGraphData[mode].timestamps[i], this.userGraphData[mode].timestamps[i]);
+		if(this.userGraphData[mode].timestamps){
+			for(var i = 0; i < this.userGraphData[mode].timestamps.length; i++){
+				xTicks.push(this.userGraphData[mode].timestamps[i], this.userGraphData[mode].timestamps[i]);
+			}
 		}
 	
 		var yMin = parseFloat(this.userGraphData[mode].yMin);
 		var yMax = parseFloat(this.userGraphData[mode].yMax);
 		var minDate = parseFloat(xTicks[0]);
 		var maxDate = parseFloat(xTicks[xTicks.length - 1]);
+		var showTicks = true;
 		
+		// Falsify the min and max date if we have no results
+		if(isNaN(minDate)){
+			minDate = 0;
+			showTicks = false;
+		}
+		
+		if(isNaN(maxDate)){
+			maxDate = 1;
+		}
+		// So the single value is in the middle
+		if(minDate == maxDate){
+			minDate -=1;
+			maxDate +=1;
+		}
 		
 		switch(mode){
 			case 'weight' :
@@ -165,8 +187,7 @@ function UserGraph(){
 				timeformat: "%b %d",
 				tickSize: [1, "day"],
 				tickLength: 10,
-				panRange:[minDate, maxDate]
-	
+				panRange:[minDate, maxDate],
 			},
 			yaxis: {
 				autoscaleMargin: 0.5,
@@ -207,6 +228,11 @@ function UserGraph(){
 			}
 		}
 		
+		if(!showTicks){
+			options.xaxis.ticks = false;
+		}
+		
+		
 		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
 			options.xaxis.min = 0;
 			options.xaxis.max = 1000000000;
@@ -240,12 +266,11 @@ function UserGraph(){
 		
 		if(mode == 'weight' || mode == 'weight_imperial' && this.userGraphData['initial_weights']){
 			// Plot the user's start date
-
 			data.push({
 				"label":"Your initial Weight",
 				"data":[
-					[this.userGraphData.minDate, this.userGraphData['initial_weights']['initial_' + mode]],
-					[this.userGraphData.maxDate, this.userGraphData['initial_weights']['initial_' + mode]]
+					[minDate, this.userGraphData['initial_weights']['initial_' + mode]],
+					[maxDate, this.userGraphData['initial_weights']['initial_' + mode]]
 				],
 				"color":'rgb(0,0,0)',
 				"fill":false,

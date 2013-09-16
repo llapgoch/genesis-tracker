@@ -649,9 +649,10 @@ class GenesisTracker{
 	 public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
 		 $userData = self::getAllUserLogs($user_id, $startDate, $endDate);
 		 
-		 if(!$userData){
-			return;
-		 }
+		 $weightInitial = array();
+		 // Get the user's start weight in imperial and metric
+		 $weightInitial['initial_weight'] = self::getInitialUserWeight($user_id);
+		 $weightInitial['initial_weight_imperial'] = self::kgToPounds($weightInitial['initial_weight']);
 		 
 		 $valsToCollate = array(
 			 'weight',
@@ -668,64 +669,62 @@ class GenesisTracker{
 		 $collated['weight_imperial']['timestamps'] = array();
 		 $collated['weight_loss_imperial']['timestamps'] = array();		 
 		 
-		 foreach($userData as $log){
-			 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
+		 if($userData){
+			 foreach($userData as $log){
+				 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
 			 
-			 foreach($valsToCollate as $valToCollate){
-				 if(!isset($collated[$valToCollate])){
-					 $collated[$valToCollate] = array();
-					 $collated[$valToCollate]['data'] = array();
-					 $collated[$valToCollate]['timestamps'] = array();
-				 }
+				 foreach($valsToCollate as $valToCollate){
+					 if(!isset($collated[$valToCollate])){
+						 $collated[$valToCollate] = array();
+						 $collated[$valToCollate]['data'] = array();
+						 $collated[$valToCollate]['timestamps'] = array();
+					 }
 				 
 				 
-				 $isWeight = $valToCollate == 'weight';
-				 $isWeightLoss = $valToCollate == 'weight_loss';
+					 $isWeight = $valToCollate == 'weight';
+					 $isWeightLoss = $valToCollate == 'weight_loss';
 				 
-				 // Only collate weight if it's been entered this time
-				 if($log->$valToCollate == null){
-					 continue;
-				 }
+					 // Only collate weight if it's been entered this time
+					 if($log->$valToCollate == null){
+						 continue;
+					 }
 				 
 				 
-				 if(!isset($collated[$valToCollate]['yMin']) || $collated[$valToCollate]['yMin'] > $log->$valToCollate){
-					 $collated[$valToCollate]['yMin'] = $log->$valToCollate;
-				 }
+					 if(!isset($collated[$valToCollate]['yMin']) || $collated[$valToCollate]['yMin'] > $log->$valToCollate){
+						 $collated[$valToCollate]['yMin'] = $log->$valToCollate;
+					 }
 		 
-				 if(!isset($collated[$valToCollate]['yMax']) || $collated[$valToCollate]['yMax'] < $log->$valToCollate){
-				 	$collated[$valToCollate]['yMax'] = $log->$valToCollate;
-				 }
+					 if(!isset($collated[$valToCollate]['yMax']) || $collated[$valToCollate]['yMax'] < $log->$valToCollate){
+					 	$collated[$valToCollate]['yMax'] = $log->$valToCollate;
+					 }
 		 		
-				 $collated[$valToCollate]['timestamps'][] = $timestamp;
+					 $collated[$valToCollate]['timestamps'][] = $timestamp;
 				
-				 $collated[$valToCollate]['data'][] = array(
-					 $timestamp, $log->$valToCollate
-				 );
+					 $collated[$valToCollate]['data'][] = array(
+						 $timestamp, $log->$valToCollate
+					 );
 			 	
 				 
-				  if($isWeight){  
-					  $collated['weight_imperial']['data'][] = array(
-						 $timestamp, self::kgToPounds($log->$valToCollate)
-					 );
+					  if($isWeight){  
+						  $collated['weight_imperial']['data'][] = array(
+							 $timestamp, self::kgToPounds($log->$valToCollate)
+						 );
 					 
-					 $collated['weight_imperial']['timestamps'][] = $timestamp;
-				 }
+						 $collated['weight_imperial']['timestamps'][] = $timestamp;
+					 }
 				 
-				 if($isWeightLoss){
-					 $collated['weight_loss_imperial']['data'][] = array(
-						 $timestamp, self::kgToPounds($log->$valToCollate)
-					 );
+					 if($isWeightLoss){
+						 $collated['weight_loss_imperial']['data'][] = array(
+							 $timestamp, self::kgToPounds($log->$valToCollate)
+						 );
 					 
-					 $collated['weight_loss_imperial']['timestamps'][] = $timestamp;
-				 }	 
+						 $collated['weight_loss_imperial']['timestamps'][] = $timestamp;
+					 }	 
+				 }
 			 }
 		 }
 		 
-		 
-		 $weightInitial = array();
-		 // Get the user's start weight in imperial and metric
-		 $weightInitial['initial_weight'] = self::getInitialUserWeight($user_id);
-		 $weightInitial['initial_weight_imperial'] = self::kgToPounds($weightInitial['initial_weight']);
+		
 		 
 		 if(isset($collated['weight'])){
 			 // Update the min and max vals using the initial entered user weight
@@ -802,6 +801,16 @@ class GenesisTracker{
 				 
 				 $collate['data'] = $newData;
 			 }
+		 }
+		 
+		 if(!isset($collated['weight']['data'])){
+			 $collated['weight']['data'] = array();
+			 $collated['weight']['yMin'] = $weightInitial['initial_weight'];
+			 $collated['weight']['yMax'] = $weightInitial['initial_weight'];
+			 
+			 $collated['weight_imperial']['yMin'] = $weightInitial['initial_weight_imperial'];
+			 $collated['weight_imperial']['yMax'] = $weightInitial['initial_weight_imperial'];
+			
 		 }
 		 
 		 $collated['initial_weights'] = $weightInitial;
