@@ -322,10 +322,11 @@ function UserGraph(){
 		
 			case 'weight_loss_imperial' :
 			case 'weight_imperial' :
-				var st = Math.floor(val / 14);
+
+				var st = val >= 0 ? Math.floor(val / 14) : Math.ceil(val / 14);		
 				var p = val - (st * 14);
-				
-				p = Math.round(p * 10) / 10; 
+		
+				p = Math.round(p * 100) / 100; 
 				return (st ? (st + " st ") : "") + (p + " lb"); 
 
 			case 'exercise_minutes' :

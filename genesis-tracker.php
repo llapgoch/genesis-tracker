@@ -59,7 +59,7 @@ function genesis_user_graph(){
 	
 	$userGraphPage = GenesisTracker::getUserPagePermalink();
 	$userInputPage = GenesisTracker::getUserInputPagePermalink();
-	GenesisTracker::getAverageUsersGraphData(false);
+	
 	
 	include('page/user-graph.php');
 	$output = ob_get_contents();

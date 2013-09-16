@@ -597,26 +597,57 @@ class GenesisTracker{
 		 return get_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), true);
 	 }
 	 
-	 public static function getAllUserLogs($user_id){
+	 public static function getUserDateRange($user_id){
+		 global $wpdb;
+		 
+		 $res = $wpdb->get_row(
+			 $sql = $wpdb->prepare('SELECT min(measure_date) mindate, max(measure_date) maxdate FROM wp_genesis_tracker WHERE user_id=%d', $user_id)
+	 	);
+		
+		
+		if(!$res){
+			return array(
+				'mindate' => '',
+				'maxdate' => ''
+			);
+		}
+		
+		return array(
+			'mindate' => $res->mindate,
+			'maxdate' => $res->maxdate
+		);
+	}
+	 
+	 public static function getAllUserLogs($user_id, $startDate ='', $endDate = ''){
 		 global $wpdb;
 		 
 		 $weightQ = '';
+		 $dateConstraint = '';
 		 
 		 if($startWeight = self::getInitialUserWeight($user_id)){
 			 $weightQ = ", ($startWeight - weight) as weight_loss ";
 		 }
 		 
+		 if($startDate){
+			 $dateConstraint = "AND measure_date >= '$startDate'";
+		 }
+		 
+		 if($endDate){
+			 $dateConstraint .= " AND measure_Date <= '$endDate'";
+		 }
+		 
 		 $results = $wpdb->get_results($sql = $wpdb->prepare(
-		 $select = "SELECT * $weightQ FROM " . self::getTrackerTableName() . "
-		 WHERE user_id=%d ORDER BY measure_date", $user_id
+		 	$select = "SELECT * $weightQ FROM " . self::getTrackerTableName() . "
+		 	WHERE user_id=%d $dateConstraint ORDER BY measure_date", $user_id
 		 ));
-				 	 
+		
+		
 		 return $results;
 	 }
 	 
 	 // Pass in an array of keys to average in $avgVals
-	 public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false){
-		 $userData = self::getAllUserLogs($user_id);
+	 public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
+		 $userData = self::getAllUserLogs($user_id, $startDate, $endDate);
 		 
 		 if(!$userData){
 			return;
@@ -784,7 +815,7 @@ class GenesisTracker{
 	 	Then we key that data by date, then merge it into an array of all values using the date as key.  
 	 	Then we average each value for the date.
 	 */
-	 public static function getAverageUsersGraphData($onlySubscribers = true){
+	 public static function getAverageUsersGraphData($onlySubscribers = true, $startDate = '', $endDate = ''){
 		 
 		 $limit = $onlySubscribers ? 'role=subscriber' : '';
 		 $users = get_users($limit);
@@ -803,7 +834,7 @@ class GenesisTracker{
 		 
 		 // Get all of the values in an array with the timestamp as key so se can easily loop over them
 		 foreach($users as $user){
-			 $graphData = self::getUserGraphData($user->ID, true, $averageValues, true);
+			 $graphData = self::getUserGraphData($user->ID, true, $averageValues, true, $startDate, $endDate);
 			  
 			 if(!$graphData){
 				 continue;
@@ -871,7 +902,7 @@ class GenesisTracker{
 		 $list = "";
 		 $month = $month + 1;
 		 
-		 for($i = self::$dietDaysToDisplay; $i > 0; $i--){
+		 for($i = self::$dietDaysToDisplay - 1; $i >= 0; $i--){
 			 $time = mktime(0, 0, 0, $month, $day - $i, $year);
 			 $dateKey = date("Y-m-d", $time);
 			 $cl = $i == 0 ? 'last' : '';
@@ -907,8 +938,11 @@ class GenesisTracker{
 			  wp_enqueue_script('flot-navigate', plugins_url('js/jquery.flot.navigate.min.js', __FILE__), array('flot'));
 			  wp_enqueue_script('user-graph', plugins_url('js/UserGraph.js', __FILE__), array('flot-navigate'));
 			  
+			  
+			  $dateRange = self::getUserDateRange(get_current_user_id());
+			  
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
-			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false));
+			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false, $dateRange['mindate'], $dateRange['maxdate']));
 		 }
 		 	 
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage()){	
