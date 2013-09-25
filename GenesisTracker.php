@@ -12,6 +12,7 @@ class GenesisTracker{
 	const userStartWeightKey = "start_weight";
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
+	const editCapability = "edit_genesis";
 	public static $pageData = array();
 	public static $dietDaysToDisplay = 7;
 	
@@ -55,6 +56,12 @@ class GenesisTracker{
 		 self::createInputPage();
 		 self::createTargetInputPage();
 		 self::createInitialWeightPage();
+		 
+		 $role = get_role('administrator');
+		 
+		 if($role){
+			 $role->add_cap(self::editCapability);
+		 }
 	 }
 	 
 	 public static function getTrackerTableName(){
@@ -262,12 +269,17 @@ class GenesisTracker{
 		 }
 	 }
 	 
+	 public static function adminMenu(){
+	 	add_menu_page('Genesis Admin', 'Genesis Admin', self::editCapability, 'genesis-tracker', genesisAdminPage, null, 1);
+	 }
+	 
 	 // For saving, updating etc
 	 public static function doActions(){
 		 global $wpdb;
+		 global $current_user;
 		 
 		 $formName = null;
-		 
+
 		 if(self::isOnUserInputPage()){
 			 $formName = 'user-input';
 			 self::userInputPageAction();
@@ -871,6 +883,7 @@ class GenesisTracker{
 		 $averages = array();
 		 
 		 foreach($structure as $key => $dates){
+			  
 			 foreach($dates as $date => $measurements){
 				 
 				 $avg = array_sum($measurements) / count($measurements);
@@ -885,21 +898,23 @@ class GenesisTracker{
 				 
 				 $averages[$key]['data'][] = array($date, $avg);
 			 }
-			 
+
 			 // Sort by date
 			 if(isset($averages[$key]['data'])){
-				 usort($averages[$key]['data'], function($a, $b){
-					 if($a[0] == $b[0]){
-						 return 0;
-					 }
-				 
-					 if($a[0] > $b[0]){
-						 return -1;
-					 }
-				 
-					 return 1;
-				 });
-			 }
+ 				 usort($averages[$key]['data'], function($a, $b){
+ 					
+ 					
+ 					 if($a[0] == $b[0]){
+ 						 return 0;
+ 					 }
+ 				 
+ 					 if($a[0] < $b[0]){
+ 						 return -1;
+ 					 }
+ 				 
+ 					 return 1;
+ 				 });
+ 			 }
 		 }
 		 		 
 		 return $averages;

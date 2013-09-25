@@ -40,10 +40,14 @@ if(!is_admin()){
 	add_action('wp', array('GenesisTracker', 'doActions'));
 	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
 	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
+}else{
+	add_action('admin_menu', 'genesisAdminMenu');
 }
 
-/* TODO: Change this so that it uses an optionified key */
-add_action('wp_ajax_genesis_getdatepicker', 'genesis_post_date_picker');
+function genesisAdminMenu(){
+	add_menu_page('Genesis Admin', 'Genesis Admin', GenesisTracker::editCapability, 'genesis-tracker', genesis_admin_page, null, 5);
+}
+
 
 // Because the ajax functionality doesn't pass parameters, we get them here
 function genesis_post_date_picker(){
@@ -52,6 +56,23 @@ function genesis_post_date_picker(){
 	$year = $_POST['year'];
 	
 	die(GenesisTracker::getDateListPicker($day, $month, $year));
+}
+
+function genesis_admin_page(){
+	global $wpdb;
+	$tbl = new GenesisUserTable();
+	
+	?>
+	<div class="wrap">
+	
+	<?php
+	
+	$tbl->testData = $wpdb->get_results('SELECT * FROM wp_users', ARRAY_A);
+	$tbl->prepare_items();
+	$tbl->display();
+	?>
+	</div>
+	<?php
 }
 
 function genesis_user_graph(){

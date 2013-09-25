@@ -130,10 +130,10 @@ function UserGraph(){
 		if(isNaN(maxDate)){
 			maxDate = 1;
 		}
-		// So the single value is in the middle
+		// So the single value is in the middle, add an arbirtrary amount of time either side
 		if(minDate == maxDate){
-			minDate -=1;
-			maxDate +=1;
+			minDate -= 50000000;
+			maxDate += 50000000;
 		}
 		
 		switch(mode){
