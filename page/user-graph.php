@@ -23,3 +23,10 @@
 	<button class="button blue in">Zoom In</button>
 	<button class="button blue out">Zoom Out</button>
 </div>
+
+
+<?php if($weightChangeInButter != 0) : ?>
+<div class="butter weight-loss-example">
+	<p>You have lost the equivalent <em><?php echo $weightChangeInButter; ?> packs of butter!</em></p>
+</div>
+<?php endif; ?>

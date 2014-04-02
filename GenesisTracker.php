@@ -167,6 +167,17 @@ class GenesisTracker{
 		 wp_redirect(get_permalink($pageID));
 	 }
 	 
+	 public static function getUserWeightChange($user_id){
+		 $cWeight = (float) self::getUserLastEnteredWeight($user_id);
+		 $sWeight = (float) self::getInitialUserWeight($user_id);
+		 
+		 if(!$cWeight){
+			 return 0;
+		 }
+		 
+		 return $cWeight - $sWeight;
+	 }
+	 
 	 public static function getUserLastEnteredWeight($user_id){
 		 global $wpdb;
 		 $result = $wpdb->get_row($wpdb->prepare($sql = "SELECT * FROM  ". self::getTrackerTableName() . "
@@ -269,9 +280,7 @@ class GenesisTracker{
 		 }
 	 }
 	 
-	 public static function adminMenu(){
-	 	add_menu_page('Genesis Admin', 'Genesis Admin', self::editCapability, 'genesis-tracker', genesisAdminPage, null, 1);
-	 }
+
 	 
 	 // For saving, updating etc
 	 public static function doActions(){
@@ -926,6 +935,7 @@ class GenesisTracker{
 		 $list = "";
 		 $month = $month + 1;
 		 
+		 
 		 for($i = self::$dietDaysToDisplay - 1; $i >= 0; $i--){
 			 $time = mktime(0, 0, 0, $month, $day - $i, $year);
 			 $dateKey = date("Y-m-d", $time);
@@ -1112,5 +1122,24 @@ class GenesisTracker{
 		 
 		  $post_id = wp_insert_post($pageData);
 		  self::updateOption(self::initialWeightPageId, $post_id);
+	 }
+	 
+	 public static function sendReminderEmail(){
+		 // Sends a reminder email to all users
+		 $templatePath = plugin_dir_path( __FILE__ ) . "template" . DIRECTORY_SEPARATOR . "reminder.html";
+		 $body = file_get_contents($templatePath);
+		 
+ 		$headers = array();
+ 		$headers[] = 'From: Genesis Clinical Trial<'. get_option('admin_email') .'>';
+ 		$headers[] = 'MIME-Version: 1.0';
+ 		$headers[] = 'Content-type: text/html; charset=utf-8';
+		 
+		 // get all subscribers
+		  $users = get_users( array("user_login" => 'admin') );
+
+		  foreach($users as $user){
+			  mail($user->user_email, 'A reminder from Genesis', $body, implode("\r\n", $headers));
+		  }
+		
 	 }
 }
