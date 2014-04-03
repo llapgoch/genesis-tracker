@@ -19,7 +19,7 @@
 		<div class="question-container">
 			<div class="title">
 				<label><?php _e('Date of Target');?></label>
-				<div class="title-sep-container"><div class="title-sep"></div></div>
+				
 			</div>
 			<p class="form-explanation"><?php _e('The date when you would like to acheive your target weight by');?></p>
 			<?php
@@ -32,7 +32,7 @@
 		<div class="question-container">
 			<div class="title">
 				<label for="weight_unit"><?php _e('Weight Units');?></label>
-				<div class="title-sep-container"><div class="title-sep"></div></div>
+				
 			</div>
 			<p class="form-explanation"><?php _e('Whether you would like your weight to be saved as metric or imperial units');?></p>
 			<?php
@@ -49,7 +49,7 @@
 		<div class="question-container">
 			<div class="title">
 				<label for="weight"><?php _e('Weight');?></label>
-				<div class="title-sep-container"><div class="title-sep"></div></div>
+				
 			</div>
 			<p class="form-explanation"><?php _e('Enter the target weight you\'d like to be on the date you\'ve chosen');?>
 				<?php

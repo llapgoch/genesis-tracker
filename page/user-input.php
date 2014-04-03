@@ -18,7 +18,7 @@
 	<div class="question-container">
 		<div class="title">
 			<h3><label class="general-label"><?php _e('Date of Measurement');?></label></h3>
-			<div class="title-sep-container"><div class="title-sep"></div></div>
+			
 		</div>
 		<p class="form-explanation"><span class='js-show'><?php _e('The date when you took this measurement.  Click the field below to select the date on a calendar');?></span><span class="js-hide"><?php echo _e('Enter the date you took this measurement in the format DD-MM-YYYY');?></span></p>
 		<?php
@@ -32,7 +32,7 @@
 	<div class="question-outer-container">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Weight');?></h3>
-			<div class="title-sep-container"><div class="title-sep"></div></div>
+			
 		</div>
 		<?php echo $form->checkbox('record-weight', 1, array(
 			'class' => 'question-chooser',
@@ -43,7 +43,7 @@
 			<div class="question-container">
 				<div class="title">
 					<label for="weight_unit" class="general-label"><?php _e('Units');?></label>
-					<div class="title-sep-container"><div class="title-sep"></div></div>
+					
 				</div>
 		
 				<p class="form-explanation"><?php _e('Whether you would like your weight to be saved as metric or imperial units');?></p>
@@ -61,7 +61,7 @@
 			<div class="question-container">
 				<div class="title">
 					<label for="weight" class="general-label"><?php _e('Your Weight');?></label>
-					<div class="title-sep-container"><div class="title-sep"></div></div>
+					
 				</div>
 				<p class="form-explanation"><?php _e('Enter your weight for the day you are recording');?></p>
 		
@@ -90,7 +90,7 @@
 			<div class="question-container">
 				<div class="title">
 					<label for="weight" class="general-label"><?php _e('Diet Days');?></label>
-					<div class="title-sep-container"><div class="title-sep"></div></div>
+					
 				</div>
 				<p class="form-explanation"><?php _e('Please mark any diet days you have done in the last week');?></p>
 				<div class="diet-days">
@@ -111,7 +111,7 @@
 	<div class="question-outer-container">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Calories');?></h3>
-			<div class="title-sep-container"><div class="title-sep"></div></div>
+			
 		</div>
 		<?php echo $form->checkbox('record-calories', 1, array(
 			'class' => 'question-chooser',
@@ -122,7 +122,7 @@
 			<div class="question-container">
 				<div class="title">
 					<label for="calories" class="general-label"><?php _e('Calories consumed');?></label>
-					<div class="title-sep-container"><div class="title-sep"></div></div>
+					
 				</div>
 				<p class="form-explanation"><?php _e('Enter the amount of calories you consumed on the day you are recording');?></p>
 				<?php
@@ -138,7 +138,7 @@
 	<div class="question-outer-container">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Exercise');?></h3>
-			<div class="title-sep-container"><div class="title-sep"></div></div>
+			
 		</div>
 		<?php echo $form->checkbox('record-exercise', 1, array(
 			'class' => 'question-chooser',
@@ -149,7 +149,7 @@
 			<div class="question-container">
 				<div class="title">
 					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Exercise');?></label>
-					<div class="title-sep-container"><div class="title-sep"></div></div>
+					
 				</div>
 				<p class="form-explanation"><?php _e('Enter the minutes of exercise you completed on the day you are recording');?></p>
 				<?php

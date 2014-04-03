@@ -34,6 +34,35 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId),
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genesis_tracker_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
 
+add_filter('cron_schedules', 'new_interval');
+	
+if(!wp_next_scheduled('genesis_send_reminder_email')){
+	wp_schedule_event(time(), 'weekly', 'genesis_send_reminder_email');
+}
+
+add_action('genesis_send_reminder_email', 'send_reminder_email');
+
+
+ if( $timestamp = wp_next_scheduled( 'genesis_send_reminder_email' )){
+
+// 	wp_unschedule_event($timestamp, 'genesis_send_reminder_email');
+ }
+
+// add once 10 minute interval to wp schedules
+function new_interval($interval) {
+    $interval['minutes_10'] = array('interval' => 10*60, 'display' => 'Once 10 minutes');
+	$interval['second_1'] = array('interval' => 1, 'display' => '1 second');
+	$interval['minute_1'] = array('interval' => 60, 'display' => '1 second');
+	$interval['weekly'] = array('interval' => 604800, 'display' => __('Once Weekly'));
+	
+    return $interval;
+}
+
+
+function send_reminder_email(){
+	GenesisTracker::sendReminderEmail();
+}
+
 if(!is_admin()){
 	add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
 	add_action('wp', array('GenesisTracker', 'addHeaderElements'));
@@ -41,8 +70,11 @@ if(!is_admin()){
 	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
 	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
 }else{
-	add_action('admin_menu', 'genesisAdminMenu');
+
 }
+
+add_action('admin_menu', 'genesisAdminMenu');
+add_action('wp_ajax_genesis_getdatepicker', 'genesis_post_date_picker');
 
 function genesisAdminMenu(){
 	add_menu_page('Genesis Admin', 'Genesis Admin', GenesisTracker::editCapability, 'genesis-tracker', genesis_admin_page, null, 5);
@@ -81,6 +113,13 @@ function genesis_user_graph(){
 	$userGraphPage = GenesisTracker::getUserPagePermalink();
 	$userInputPage = GenesisTracker::getUserInputPagePermalink();
 	
+	$weightChange = GenesisTracker::getUserWeightChange(get_current_user_id());
+	$weightChangeInButter = 0;
+	
+	if($weightChange < -0.1){
+		$butterWeight = 0.25;
+		$weightChangeInButter = round(abs($weightChange) / $butterWeight,2);
+	}
 	
 	include('page/user-graph.php');
 	$output = ob_get_contents();

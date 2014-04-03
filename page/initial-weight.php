@@ -16,7 +16,7 @@ endif;
 	<div class="question-container">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Weight Units');?></h3>
-			<div class="title-sep-container"><div class="title-sep"></div></div>
+			
 		</div>
 		<p class="form-explanation"><?php _e('Whether you would like your weight to be saved as metric or imperial units');?></p>
 		<?php
@@ -33,7 +33,7 @@ endif;
 	<div class="question-container">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Your Starting Weight');?></h3>
-			<div class="title-sep-container"><div class="title-sep"></div></div>
+			
 		</div>
 		<p class="form-explanation"><?php _e('Enter what your weight is at the start of the trial');?></p>
 		<div class="input-wrapper">
