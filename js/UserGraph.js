@@ -218,15 +218,15 @@ function UserGraph(){
 			}
 		};	
 		
-		if(this.mode == 'weight_loss'){
-			options.yaxis.transform = function(v) {
-				return -v;
-    		};
-    		
-			options.yaxis.inverseTransform = function(v) {
-        		return -v;
-			}
-		}
+		// if(this.mode == 'weight_loss'){
+		// 	options.yaxis.transform = function(v) {
+		// 		return -v;
+		//     		};
+		//
+		// 	options.yaxis.inverseTransform = function(v) {
+		//         		return -v;
+		// 	}
+		// }
 		
 		if(!showTicks){
 			options.xaxis.ticks = false;
@@ -250,7 +250,8 @@ function UserGraph(){
 		});
 	
 		// Plot the average user data for everyone on the site along side the user's data
-		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined){			
+		// AVERAGE USER GRAPH DATA REMOVED TEMPORARILY
+		if(false && this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined){			
 			data.push({
 				"label":settings[mode].avgLabel,
 				"data":this.averageUserGraphData[mode].data,
