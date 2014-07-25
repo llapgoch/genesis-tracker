@@ -10,9 +10,16 @@ class GenesisTracker{
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
+	const omitUserReminderEmailKey = "omit_reminder_email";
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	const editCapability = "edit_genesis";
+	
+	// 7 Stone
+	const MIN_VALID_WEIGHT = 44.4;
+	// 25 Stone
+	const MAX_VALID_WEIGHT = 158.8;
+	
 	public static $pageData = array();
 	public static $dietDaysToDisplay = 7;
 	
@@ -233,11 +240,24 @@ class GenesisTracker{
 				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
 			 }
 			 
+			 if(!self::isValidWeight($weight)){
+ 				$form->setError('weight_main', array(
+ 					'general' => 'Please enter a valid weight',
+ 					'main' => 'Please enter a valid weight'
+ 				));
+				return;
+			 }
+			 
 		 	 add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), $weight, true);
 			 
 			 self::$pageData['weight-save'] = true;
  	 		 unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
 		 }
+	 }
+	 
+	 public static function isValidWeight($weight){
+		 $weight = (float)$weight;
+		 return $weight >= self::MIN_VALID_WEIGHT && $weight <= self::MAX_VALID_WEIGHT;
 	 }
 	
 	 public static function targetPageAction(){
@@ -428,12 +448,24 @@ class GenesisTracker{
 			 }
 			 
 			 // Check at least one entry type has been checked
-			 if(!$form->hasValue('record-weight') &! $form->hasValue('record-calories') &! $form->hasValue('record-exercise')){
+			 if(!$form->hasValue('record-weight') &! $form->hasValue('record-calories') &! $form->hasValue('record-exercise') &! $form->hasValue('diet-days')){
 				 self::$pageData['errors'][] = 'Please select at least one measurement type to take';
 				 return;
 			 }
 			 
 			 $weight = (float)$form->getRawValue('weight_main');
+			 	 
+			 if($imperial){
+				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
+			 }
+			 
+			 if(!self::isValidWeight($weight)){
+ 				$form->setError('weight_main', array(
+ 					'general' => 'Please enter a valid weight',
+ 					'main' => 'Please enter a valid weight'
+ 				));
+				return;
+			 }
 			 
 			 if($form->getRawValue('action') !== 'duplicate-overwrite'){
 				 if(self::getUserDataForDate(get_current_user_id(), $date)){
@@ -441,10 +473,6 @@ class GenesisTracker{
 					 return;
 				 }
 		 	}
-			 
-			 if($imperial){
-				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
-			 }
 			 
 			 $data = array(
 				 'measure_date' => $date,
@@ -965,6 +993,23 @@ class GenesisTracker{
 		 return "<ul>" . $list . "</ul>";
 	 }
 	 
+	 // Get rid of the < and > which break on Android browsers
+	 public function forgottenPassword($message, $key){
+		 return str_replace(array("<", ">"), "", $message);
+	 }
+	 
+	 
+	 public static function addBodyClasses($classes){
+		 // Add classes not to show header alerts on specific pages
+		 if(self::getPageData('user-input-duplicate') 
+		 || self::getPageData('user-input-save')
+		 || self::isOnEnterWeightPage()){
+			 $classes[] = 'hide-header-notice';
+		 }
+		 
+		 return $classes;
+	 }
+	 
 	 public static function addHeaderElements(){
 		 if(self::isOnUserPage()){
 			  wp_enqueue_script('flot', plugins_url('js/jquery.flot.min.js', __FILE__), array('jquery'));
@@ -1138,6 +1183,13 @@ class GenesisTracker{
 		  $users = get_users( array("user_login" => 'admin') );
 
 		  foreach($users as $user){
+			 $optOut = (bool)get_user_meta( $user->ID, 'genesis___tracker___omit_reminder_email', true);
+
+			  // Don't send reminders to users who have opted out of emails
+			   if( $optOut ){
+				   continue;
+			   }
+			 
 			  mail($user->user_email, 'A reminder from Genesis', $body, implode("\r\n", $headers));
 		  }
 		

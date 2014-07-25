@@ -15,7 +15,7 @@
 	
 <form class="input-form user-tracking-input" action="" method="post" name="input-form">
 
-	<div class="question-container">
+	<div class="question-outer-container">
 		<div class="title">
 			<h3><label class="general-label"><?php _e('Date of Measurement');?></label></h3>
 			
@@ -40,7 +40,7 @@
 		));?>
 		<label for="record-weight">I would like to record my weight on this occasion</label>
 		<div class="inner-question-container weight-container js-hide">
-			<div class="question-container">
+			<div class="question-container clearfix">
 				<div class="title">
 					<label for="weight_unit" class="general-label"><?php _e('Units');?></label>
 					
@@ -58,7 +58,7 @@
 				<button type="submit" name="action" value="changeunits" class="changeunits">Set</button>
 			</div>
 	
-			<div class="question-container">
+			<div class="question-container clearfix">
 				<div class="title">
 					<label for="weight" class="general-label"><?php _e('Your Weight');?></label>
 					
@@ -87,23 +87,32 @@
 				</div>
 				
 			</div> 
-			<div class="question-container">
-				<div class="title">
-					<label for="weight" class="general-label"><?php _e('Diet Days');?></label>
-					
-				</div>
-				<p class="form-explanation"><?php _e('Please mark any diet days you have done in the last week');?></p>
-				<div class="diet-days">
-					<?php 
-					if($dateListPicker) :
-						echo $dateListPicker;
-						else :
-						?>
-					<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your diet days');?>
-					<?php
-					endif;
+			
+		</div>
+	</div>
+	
+	
+	<div class="question-outer-container">
+		<div class="title">
+			<h3 class="general-label"><?php _e('Diet Days');?></h3>
+		</div>
+		<?php echo $form->checkbox('diet-days', 1, array(
+			'class' => 'question-chooser',
+			'id' => 'diet-days'
+		));?>
+		<label for="diet-days"><?php _e('I would like to record the number of diet days I\'ve completed in the last week');?></label>
+		<div class="inner-question-container diet-days-container js-hide clearfix">
+			<p class="form-explanation"><?php _e('Please mark any diet days you have done in the last week');?></p>
+			<div class="diet-days">
+				<?php 
+				if($dateListPicker) :
+					echo $dateListPicker;
+					else :
 					?>
-				</div>
+				<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your diet days');?>
+				<?php
+				endif;
+				?>
 			</div>
 		</div>
 	</div>
@@ -117,9 +126,9 @@
 			'class' => 'question-chooser',
 			'id' => 'record-calories'
 		));?>
-		<label for="record-calories">I would like to record my calories on this occasion</label>
+		<label for="record-calories"><?php _e('I would like to record my calories on this occasion');?></label>
 		<div class="inner-question-container calories-container js-hide">
-			<div class="question-container">
+			<div class="question-container clearfix">
 				<div class="title">
 					<label for="calories" class="general-label"><?php _e('Calories consumed');?></label>
 					
@@ -146,7 +155,7 @@
 		));?>
 			<label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
 		<div class="inner-question-container calories-container js-hide">
-			<div class="question-container">
+			<div class="question-container clearfix">
 				<div class="title">
 					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Exercise');?></label>
 					

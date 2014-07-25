@@ -13,7 +13,7 @@ endif;
 ?>
 
 <form class="input-form user-tracking-input" action="" method="post" name="input-form">
-	<div class="question-container">
+	<div class="question-outer-container clearfix">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Weight Units');?></h3>
 			
@@ -30,7 +30,7 @@ endif;
 		<button type="submit" name="action" value="changeunits" class="changeunits">Set</button>
 	</div>
 	
-	<div class="question-container">
+	<div class="question-outer-container clearfix">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Your Starting Weight');?></h3>
 			

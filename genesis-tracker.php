@@ -35,13 +35,29 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genes
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
 
 add_filter('cron_schedules', 'new_interval');
+add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
+add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPassword'));
 	
+remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
+
+add_filter('user_contactmethods','remove_profile_contact_methods',10,1);
+function remove_profile_contact_methods( $contactmethods ) {
+  unset($contactmethods['aim']);
+  unset($contactmethods['jabber']);
+  unset($contactmethods['yim']);
+  return $contactmethods;
+}
+
+
 if(!wp_next_scheduled('genesis_send_reminder_email')){
 	wp_schedule_event(time(), 'weekly', 'genesis_send_reminder_email');
 }
 
+
 add_action('genesis_send_reminder_email', 'send_reminder_email');
 
+// For testing Email Reminders ---- CAREFUL!
+//send_reminder_email();
 
  if( $timestamp = wp_next_scheduled( 'genesis_send_reminder_email' )){
 
@@ -70,7 +86,59 @@ if(!is_admin()){
 	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
 	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
 }else{
+	
+}
 
+add_action( 'show_user_profile', 'extra_user_profile_fields' );
+add_action( 'edit_user_profile', 'extra_user_profile_fields' );
+add_action( 'personal_options_update', 'save_extra_user_profile_fields' );
+add_action( 'edit_user_profile_update', 'save_extra_user_profile_fields' );
+
+function extra_user_profile_fields($user){	
+	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
+	$storedVal = get_the_author_meta($reminderKey, $user->ID );
+	
+	?>
+	<table class="form-table">
+	<tr>
+	<th><label for="address"><?php _e("Opt out of Genesis Reminder Emails"); ?></label></th>
+	<td>
+	<?php
+	 echo DP_HelperForm::createInput($reminderKey, 'checkbox', array(
+	 'id' => $reminderKey,
+	 'value' => 1
+	 ), $storedVal);
+			
+			
+	?>
+	</td>
+	</tr>
+</table>
+	<?php
+}
+
+function save_extra_user_profile_fields($user_id){
+	if ( !current_user_can( 'edit_user', $user_id ) ) { return false; }
+	
+	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
+	$val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
+	
+	update_user_meta( $user_id, $reminderKey, $val );
+}
+
+add_action('login_enqueue_scripts', 'login_scripts');
+
+function login_scripts(){
+	?>
+	<style type="text/css">
+	#login h1 a{
+		background:url(<?php echo get_stylesheet_directory_uri() ?>/images/login-logo.png) no-repeat;
+		width:295px;
+		height:94px;
+		margin:0 auto;
+	}
+	</style>
+	<?php
 }
 
 add_action('admin_menu', 'genesisAdminMenu');
