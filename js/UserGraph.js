@@ -251,7 +251,7 @@ function UserGraph(){
 	
 		// Plot the average user data for everyone on the site along side the user's data
 		// AVERAGE USER GRAPH DATA REMOVED TEMPORARILY
-		if(false && this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined){			
+		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined){			
 			data.push({
 				"label":settings[mode].avgLabel,
 				"data":this.averageUserGraphData[mode].data,

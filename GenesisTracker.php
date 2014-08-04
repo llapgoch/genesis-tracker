@@ -1022,7 +1022,7 @@ class GenesisTracker{
 			  $dateRange = self::getUserDateRange(get_current_user_id());
 			  
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
-			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false, $dateRange['mindate'], $dateRange['maxdate']));
+			  //wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false, $dateRange['mindate'], $dateRange['maxdate']));
 		 }
 		 	 
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage()){	
