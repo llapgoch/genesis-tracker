@@ -1003,7 +1003,8 @@ class GenesisTracker{
 		 // Add classes not to show header alerts on specific pages
 		 if(self::getPageData('user-input-duplicate') 
 		 || self::getPageData('user-input-save')
-		 || self::isOnEnterWeightPage()){
+		 || self::isOnEnterWeightPage()
+         || apply_filters('hide-header-notice', false)){
 			 $classes[] = 'hide-header-notice';
 		 }
 		 
