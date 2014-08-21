@@ -94,22 +94,22 @@
 	
 	<div class="question-outer-container">
 		<div class="title">
-			<h3 class="general-label"><?php _e('Diet Days');?></h3>
+			<h3 class="general-label"><?php _e('Restricted Days');?></h3>
 		</div>
 		<?php echo $form->checkbox('diet-days', 1, array(
 			'class' => 'question-chooser',
 			'id' => 'diet-days'
 		));?>
-		<label for="diet-days"><?php _e('I would like to record the number of diet days I\'ve completed in the last week');?></label>
+		<label for="diet-days"><?php _e('I would like to record the number of restricted days I\'ve completed in the last week');?></label>
 		<div class="inner-question-container diet-days-container js-hide clearfix">
-			<p class="form-explanation"><?php _e('Please mark any diet days you have done in the last week');?></p>
+			<p class="form-explanation"><?php _e('Please mark any restricted days you have done in the last week');?></p>
 			<div class="diet-days">
 				<?php 
 				if($dateListPicker) :
 					echo $dateListPicker;
 					else :
 					?>
-				<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your diet days');?>
+				<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your restricted days');?>
 				<?php
 				endif;
 				?>

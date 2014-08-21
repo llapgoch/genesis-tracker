@@ -43,15 +43,15 @@ function UserGraph(){
 			},
 			'weight_loss':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Weight Loss (metric)',
+				'label':'Your Weight Progress (metric)',
 				'avgLabel':'Average Weight Loss',
-				'color':'rgb(255,134,134)'
+				'color':'rgb(178,219,106)'
 			},
 			'weight_loss_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Weight Loss (imperial)',
+				'label':'Your Weight Progress (imperial)',
 				'avgLabel':'Average Weight Loss',
-				'color':'rgb(255,134,134)'
+				'color':'rgb(178,219,106)'
 			}
 		};
 		
