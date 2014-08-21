@@ -453,19 +453,21 @@ class GenesisTracker{
 				 return;
 			 }
 			 
-			 $weight = (float)$form->getRawValue('weight_main');
+             if($form->hasValue('record-weight')){ 
+    			 $weight = (float)$form->getRawValue('weight_main');
 			 	 
-			 if($imperial){
-				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
-			 }
+    			 if($imperial){
+    				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
+    			 }
 			 
-			 if(!self::isValidWeight($weight)){
- 				$form->setError('weight_main', array(
- 					'general' => 'Please enter a valid weight',
- 					'main' => 'Please enter a valid weight'
- 				));
-				return;
-			 }
+    			 if(!self::isValidWeight($weight)){
+     				$form->setError('weight_main', array(
+     					'general' => 'Please enter a valid weight',
+     					'main' => 'Please enter a valid weight'
+     				));
+    				return;
+    			 }
+             }
 			 
 			 if($form->getRawValue('action') !== 'duplicate-overwrite'){
 				 if(self::getUserDataForDate(get_current_user_id(), $date)){
