@@ -6,10 +6,16 @@
 		// User Input Page
 		$(document).ready(function(){
 			if($('.user-tracking-input').size()){
-				$('.date-input').datepicker({
+                var setup = {
 					dateFormat: "dd-mm-yy",
-					maxDate:0
-				});
+					maxDate:0    
+                };
+                
+                if(window.datePickerMin){
+                     setup.minDate = new Date(parseInt(datePickerMin.year, 10), parseInt(datePickerMin.month, 10) - 1, parseInt(datePickerMin.day, 10));
+                }
+                
+				$('.date-input').datepicker(setup);
 				
 				$('.date-input').on('change', function(){
 					updateDateList($(this));
@@ -24,6 +30,11 @@
 			$('.weight-unit').on('change', function(){
 				updateWeightVisibilities(this);
 			})
+            
+            if(window.initialUserUnit){
+                // Set any selects to show the correct units the user originally selected
+                $('.weight-unit').val(window.initialUserUnit);
+            }
 			
 			updateWeightVisibilities($('.weight-unit'));
 			
@@ -54,7 +65,7 @@
 					e.preventDefault();
 					var mode = $(this).data('mode');
 					
-					userGraph.initialise(mode, $('.mode-switcher').val());
+					userGraph.initialise(mode, $('.mode-switcher').val() == 1 ? "imperial" : "");
 					selectModeButton(mode);
 					
 					$('.mode-switcher').attr('disabled', 'disabled');
@@ -80,7 +91,7 @@
 					userGraph.zoomOut();
 				});
 				
-				userGraph.initialise('weight', $('.mode-switcher').val());
+				userGraph.initialise('weight', $('.mode-switcher').val() == 1 ? "imperial" : "");
 				selectModeButton('weight');
 			}
 			

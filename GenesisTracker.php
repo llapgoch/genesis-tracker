@@ -10,6 +10,9 @@ class GenesisTracker{
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
+    const userStartDateKey = "start_date";
+    const userInitialUnitSelectionKey = "initial_unit_selection";
+    
 	const omitUserReminderEmailKey = "omit_reminder_email";
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
@@ -22,6 +25,8 @@ class GenesisTracker{
 	
 	public static $pageData = array();
 	public static $dietDaysToDisplay = 7;
+    
+    protected static $_initialUserUnit;
 	
 	public static function install(){
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -220,10 +225,13 @@ class GenesisTracker{
 	 }
 	 
 	 public static function saveInitialWeight($form, $user_id){
+         global $wpdb;
+         
 		 $rules = array(
 			 'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
 		 );
 		 
+         $unit     = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL ? self::UNIT_IMPERIAL : self::UNIT_METRIC;
 		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
 		 
 		 // If we're doing imperial, validate pounds too.
@@ -247,9 +255,21 @@ class GenesisTracker{
  				));
 				return;
 			 }
+             
+             // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
+             $date = date('Y-m-d', time() - 86400);
 			 
 		 	 add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), $weight, true);
+             add_user_meta($user_id, self::getOptionKey(self::userStartDateKey), $date, true);
+             add_user_meta($user_id, self::getOptionKey(self::userInitialUnitSelectionKey), $unit, true);
 			 
+             $data = array(
+                 'user_id' => $user_id,
+                 'measure_date' => $date,
+                 'weight' => $weight
+             );
+                
+             
 			 self::$pageData['weight-save'] = true;
  	 		 unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
 		 }
@@ -647,6 +667,18 @@ class GenesisTracker{
 	 public static function getInitialUserWeight($user_id){
 		 return get_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), true);
 	 }
+     
+	 public static function getInitialUserStartDate($user_id){
+		 return get_user_meta($user_id, self::getOptionKey(self::userStartDateKey), true);
+	 }
+     
+	 public static function getInitialUserUnit($user_id){
+         if(!self::$_initialUserUnit){
+             self::$_initialUserUnit = get_user_meta($user_id, self::getOptionKey(self::userInitialUnitSelectionKey), true);
+         }
+		 
+         return self::$_initialUserUnit;
+	 }
 	 
 	 public static function getUserDateRange($user_id){
 		 global $wpdb;
@@ -691,15 +723,27 @@ class GenesisTracker{
 		 	$select = "SELECT * $weightQ FROM " . self::getTrackerTableName() . "
 		 	WHERE user_id=%d $dateConstraint ORDER BY measure_date", $user_id
 		 ));
-		
-		
+         
+         $start = new stdClass();
+         $start->user_id = $user_id;
+         $start->measure_date = self::getInitialUserStartDate($user_id);
+         $start->weight = self::getInitialUserWeight($user_id);
+         $start->weight_loss = 0;
+         
+         array_unshift($results, $start);
+         
+         // sort the array by date entered
+         usort($results, function($a, $b){
+             return strtotime($a->measure_date) - strtotime($b->measure_date);
+         });
+		 
 		 return $results;
 	 }
 	 
 	 // Pass in an array of keys to average in $avgVals
 	 public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
-		 $userData = self::getAllUserLogs($user_id, $startDate, $endDate);
-		 
+
+         $userData = self::getAllUserLogs($user_id, $startDate, $endDate);		 
 		 $weightInitial = array();
 		 // Get the user's start weight in imperial and metric
 		 $weightInitial['initial_weight'] = self::getInitialUserWeight($user_id);
@@ -736,7 +780,7 @@ class GenesisTracker{
 					 $isWeightLoss = $valToCollate == 'weight_loss';
 				 
 					 // Only collate weight if it's been entered this time
-					 if($log->$valToCollate == null){
+					 if($log->$valToCollate === null){
 						 continue;
 					 }
 				 
@@ -865,7 +909,7 @@ class GenesisTracker{
 		 }
 		 
 		 $collated['initial_weights'] = $weightInitial;
-		
+         
 		 return $collated;
 	 }
 	 
@@ -1014,6 +1058,8 @@ class GenesisTracker{
 	 }
 	 
 	 public static function addHeaderElements(){
+         $user_id = get_current_user_id();
+         
 		 if(self::isOnUserPage()){
 			  wp_enqueue_script('flot', plugins_url('js/jquery.flot.min.js', __FILE__), array('jquery'));
 			  wp_enqueue_script('flot-time', plugins_url('js/jquery.flot.time.min.js', __FILE__), array('flot'));
@@ -1034,10 +1080,22 @@ class GenesisTracker{
 		    
 			wp_localize_script( 'progress', 'myAjax', array( 
 				'ajaxurl' => admin_url('admin-ajax.php')
-			));        
+			));
+            
+            wp_localize_script('progress', 'initialUserUnit', self::getInitialUserUnit($user_id));      
 
 		    wp_enqueue_script('progress');
 		}
+        
+        if(self::isOnUserInputPage()){
+            $minDate = strtotime(self::getInitialUserStartDate($user_id)) + 86400;
+
+            wp_localize_script('progress', 'datePickerMin', array(
+                "day" => date("j", $minDate),
+                "month" => date("n", $minDate),
+                "year" => date("Y", $minDate)
+            ));
+        }
 	 }
 	 
 	 public static function decideAuthRedirect(){
