@@ -466,6 +466,14 @@ class GenesisTracker{
 				 ));
 				 return;
 			 }
+             
+             if($logDate <= strtotime(self::getInitialUserStartDate(get_current_user_id()))){
+                 $form->setError('measure_date', array(
+                     'general' => 'Your measurement date must be after your start day',
+                     'main' => 'Your measurement date must be after your start day'
+                 ));
+                 return;
+             }
 			 
 			 // Check at least one entry type has been checked
 			 if(!$form->hasValue('record-weight') &! $form->hasValue('record-calories') &! $form->hasValue('record-exercise') &! $form->hasValue('diet-days')){

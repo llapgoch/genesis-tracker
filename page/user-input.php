@@ -23,7 +23,8 @@
 		<p class="form-explanation"><span class='js-show'><?php _e('The date when you took this measurement.  Click the field below to select the date on a calendar');?></span><span class="js-hide"><?php echo _e('Enter the date you took this measurement in the format DD-MM-YYYY');?></span></p>
 		<?php
 		echo $form->input('measure_date', 'text', array(
-			'class' => 'general-input date-input'
+			'class' => 'general-input date-input',
+            'readonly' => 'readonly'
 		));
 		?>
 	</div>
