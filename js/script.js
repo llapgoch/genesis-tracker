@@ -80,7 +80,7 @@
 						return;
 					}
 					
-					userGraph.changeUnits($(this).val());
+					userGraph.changeUnits($(this).val() == 1 ? "imperial" : "");
 				});
 				
 				$('.zoomer .in').on('click', function(e){
