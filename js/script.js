@@ -61,7 +61,7 @@
 				var switcherCompat = ['weight', 'weight_imperial', 'weight_loss', 'weight_loss_imperial'];
 				
 				// Add events
-				$('.progress-graph-switcher > button').on('click', function(e){
+				$('.progress-graph-switcher .button-group button').on('click', function(e){
 					e.preventDefault();
 					var mode = $(this).data('mode');
 					
@@ -141,8 +141,8 @@
 		}
 		
 		function selectModeButton(mode){
-			$('.progress-graph-switcher > button').removeClass('selected');
-			$('.progress-graph-switcher > button[data-mode="' + mode + '"]').addClass('selected');
+			$('.progress-graph-switcher .button-group button').removeClass('selected');
+			$('.progress-graph-switcher .button-group button[data-mode="' + mode + '"]').addClass('selected');
 		}
 		
 		

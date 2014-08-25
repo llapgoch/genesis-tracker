@@ -2,7 +2,9 @@
 class GenesisTracker{
 	const UNIT_IMPERIAL = 1;
 	const UNIT_METRIC = 2;
-	const version = "0.1";
+    // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
+    // it twice.  Go Wordpress!
+	const version = "0.2";
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
@@ -11,6 +13,7 @@ class GenesisTracker{
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
+    const versionKey = "version";
     const userInitialUnitSelectionKey = "initial_unit_selection";
     
 	const omitUserReminderEmailKey = "omit_reminder_email";
@@ -31,19 +34,23 @@ class GenesisTracker{
 	public static function install(){
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 		global $wpdb;
-		
+
 		// Because the makers of this are dicks, you have to have two spaces after "PRIMARY KEY"
 		dbDelta($sql = "CREATE TABLE " . self::getTrackerTableName() . " (
 		  tracker_id int(11) unsigned NOT NULL AUTO_INCREMENT,
 		  user_id int(11) DEFAULT NULL,
 		  measure_date datetime DEFAULT NULL,
 		  weight decimal(10,6) unsigned DEFAULT NULL,
-		  calories int(11) unsigned DEFAULT NULL,
+		  fat int(11) unsigned DEFAULT NULL,
+          carbs int(11) unsigned DEFAULT NULL,
+          protein int(11) unsigned DEFAULT NULL,
 		  exercise_minutes int(11) DEFAULT NULL,
 		  PRIMARY KEY  (tracker_id),
 		  KEY user_id (user_id)
 		)");
 		
+        $wpdb->query( "ALTER TABLE " . self::getTrackerTableName() . " DROP COLUMN calories" );
+        
 		// Create the target table
 		dbDelta($sql = "CREATE TABLE " . self::getTargetTableName() . " (
 		  target_id int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -75,6 +82,14 @@ class GenesisTracker{
 			 $role->add_cap(self::editCapability);
 		 }
 	 }
+     
+     public static function checkVersionUpgrade(){
+         $installedVersion = self::getOption(self::versionKey);
+
+         if($installedVersion !== self::version){
+             self::install();             
+         }
+     }
 	 
 	 public static function getTrackerTableName(){
 		 global $wpdb;
@@ -443,6 +458,12 @@ class GenesisTracker{
 			 $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
 		 }
 		 
+         if($form->getRawValue('record-food')){
+             $rules['fat'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             $rules['carbs'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             $rules['protein'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+         }
+         
 		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
 		 
 		 // If we're doing imperial, validate pounds too.
@@ -476,7 +497,7 @@ class GenesisTracker{
              }
 			 
 			 // Check at least one entry type has been checked
-			 if(!$form->hasValue('record-weight') &! $form->hasValue('record-calories') &! $form->hasValue('record-exercise') &! $form->hasValue('diet-days')){
+			 if(!$form->hasValue('record-weight') &! $form->hasValue('record-food') &! $form->hasValue('record-exercise') &! $form->hasValue('diet-days')){
 				 self::$pageData['errors'][] = 'Please select at least one measurement type to take';
 				 return;
 			 }
@@ -513,8 +534,10 @@ class GenesisTracker{
 				 $data['weight'] = $weight;
 			 }
 			 
-			 if($form->hasValue('record-calories')){
-				 $data['calories'] = (float)$form->getRawValue('calories');
+			 if($form->hasValue('record-food')){
+				 $data['fat'] = (float)$form->getRawValue('fat');
+                 $data['carbs'] = (float)$form->getRawValue('carbs');
+                 $data['protein'] = (float)$form->getRawValue('protein');
 			 }
 			 
 			 if($form->hasValue('record-exercise')){
@@ -759,9 +782,11 @@ class GenesisTracker{
 		 
 		 $valsToCollate = array(
 			 'weight',
-			 'calories',
 			 'exercise_minutes',
-			 'weight_loss'
+			 'weight_loss',
+             'fat',
+             'carbs',
+             'protein'
 		 );
 		 
 		 $collated['weight_imperial'] = array();
@@ -917,7 +942,6 @@ class GenesisTracker{
 		 }
 		 
 		 $collated['initial_weights'] = $weightInitial;
-         
 		 return $collated;
 	 }
 	 

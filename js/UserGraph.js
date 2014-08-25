@@ -29,10 +29,22 @@ function UserGraph(){
 				'avgLabel':'Average User Weight',
 				'color':'rgb(231,5,144)'
 			},
-			'calories':{
-				'noresults':"You haven't made any calorie measurements yet.",
-				'label':'Calories You\'ve Consumed',
-				'avgLabel':'Average Calories Consumed',
+			'fat':{
+				'noresults':"You haven't recorded any fat consumption yet.",
+				'label':'Fat You\'ve Consumed',
+				'avgLabel':'Average Fat Consumed',
+				'color':'rgb(230,130,130)'
+			},
+			'carbs':{
+				'noresults':"You haven't recorded any carbohydrate consumption yet.",
+				'label':'Carbohydrates You\'ve Consumed',
+				'avgLabel':'Average Carbohydrates Consumed',
+				'color':'rgb(179,179,179)'
+			},
+			'protein':{
+				'noresults':"You haven't recorded any protein consumption yet.",
+				'label':'Protein You\'ve Consumed',
+				'avgLabel':'Average Protein Consumed',
 				'color':'rgb(92,178,208)'
 			},
 			'exercise_minutes':{
@@ -359,6 +371,10 @@ function UserGraph(){
 				return val + " minutes";
 			case 'calories' :
 				return val + " kcals";
+            case 'fat' :
+            case 'protein' :
+            case 'carbs' :
+                return Math.round(val) + ' portions';
 		}
 	}
 	

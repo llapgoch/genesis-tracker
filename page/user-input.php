@@ -1,6 +1,6 @@
 <section class="reading-box main-accent clearfix">
 	<h2>Track your weight, calorie intake and minutes exercised</h2>
-	<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your calories consumed, and the minutes of exercise you have done. If you would like to overwrite a previously saved entry, you will be asked if you would like to overwrite it.</p>
+	<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your food groups, and the minutes of exercise you have done. If you would like to overwrite a previously saved entry, you will be asked if you would like to overwrite it.</p>
 	<div class="tagline-shadow"></div></section>
 	
 	<?php
@@ -120,28 +120,61 @@
 	
 	<div class="question-outer-container">
 		<div class="title">
-			<h3 class="general-label"><?php _e('Calories');?></h3>
-			
+			<h3 class="general-label"><?php _e('Food Groups');?></h3>
 		</div>
-		<?php echo $form->checkbox('record-calories', 1, array(
+		<?php echo $form->checkbox('record-food', 1, array(
 			'class' => 'question-chooser',
-			'id' => 'record-calories'
+			'id' => 'record-food'
 		));?>
-		<label for="record-calories"><?php _e('I would like to record my calories on this occasion');?></label>
-		<div class="inner-question-container calories-container js-hide">
+		<label for="record-food"><?php _e('I would like to record my food groups on this occasion');?></label>
+		<div class="inner-question-container food-container js-hide">
+            <div class="alert notice"><a href="https://www.myfood24.org/login" target="_blank">Find out the portions you've consumed using Food 24's Website <em>(opens in a new window)</em></a></div>
 			<div class="question-container clearfix">
 				<div class="title">
-					<label for="calories" class="general-label"><?php _e('Calories consumed');?></label>
+					<label for="fat" class="general-label"><?php _e('Fat consumed');?></label>
 					
 				</div>
-				<p class="form-explanation"><?php _e('Enter the amount of calories you consumed on the day you are recording');?></p>
+				<p class="form-explanation"><?php _e('Enter the portions of fat you consumed on the day you are recording');?></p>
 				<?php
-				echo $form->input('calories', 'text', array(
-					'id' => 'calories',
-					'class' => 'general-input'
+				echo $form->input('fat', 'text', array(
+					'id' => 'fat',
+					'class' => 'general-input',
+                    'default' => 0
 				));
 				?>
-				<p class="input-suffix"><?php _e('kcals');?></p>
+				<p class="input-suffix"><?php _e('portions');?></p>
+			</div>
+            
+			<div class="question-container clearfix">
+				<div class="title">
+					<label for="carbs" class="general-label"><?php _e('Carbohydrates consumed');?></label>
+					
+				</div>
+				<p class="form-explanation"><?php _e('Enter the portions of carbohydrates you consumed on the day you are recording');?></p>
+				<?php
+				echo $form->input('carbs', 'text', array(
+					'id' => 'carbs',
+					'class' => 'general-input',
+                    'default' => 0
+				));
+				?>
+				<p class="input-suffix"><?php _e('portions');?></p>
+			</div>
+            
+			<div class="question-container clearfix">
+				<div class="title">
+					<label for="protein" class="general-label"><?php _e('Protein consumed');?></label>
+					
+				</div>
+				<p class="form-explanation"><?php _e('Enter the portions of protein you consumed on the day you are recording');?></p>
+				<?php
+				echo $form->input('protein', 'text', array(
+					'id' => 'protein',
+					'class' => 'general-input',
+                    'default' => 0
+				));
+				?>
+				<p class="input-suffix"><?php _e('portions');?></p>
 			</div>
 		</div>
 	</div>
@@ -155,7 +188,7 @@
 			'id' => 'record-exercise'
 		));?>
 			<label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
-		<div class="inner-question-container calories-container js-hide">
+		<div class="inner-question-container food-container js-hide">
 			<div class="question-container clearfix">
 				<div class="title">
 					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Exercise');?></label>
@@ -164,7 +197,7 @@
 				<p class="form-explanation"><?php _e('Enter the minutes of exercise you completed on the day you are recording');?></p>
 				<?php
 				echo $form->input('exercise_minutes', 'text', array(
-					'id' => 'calories',
+					'id' => 'exercise_minutes',
 					'class' => 'general-input'
 				));
 			

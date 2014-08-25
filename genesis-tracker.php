@@ -3,7 +3,7 @@
 Plugin Name: Genesis Tracker
 Plugin URI: http://carbolowdrates.com
 Description: Tracks user's weight, calories, and exercise
-Version: 0.1
+Version: 0.2
 Author: Dave Preece
 Author URI: http://www.scumonline.co.uk
 License: GPL
@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 session_start();
 require_once('includes.php');
 
-
 register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
@@ -37,7 +36,10 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId),
 add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
 add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPassword'));
-	
+
+// Checks whether the install function needs to be called again for DB changes
+add_action( 'init', array('GenesisTracker', 'checkVersionUpgrade') );
+
 remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
 
 add_filter('user_contactmethods','remove_profile_contact_methods',10,1);
