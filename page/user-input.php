@@ -1,6 +1,6 @@
 <section class="reading-box main-accent clearfix">
-	<h2>Track your weight, calorie intake and minutes exercised</h2>
-	<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your food groups, and the minutes of exercise you have done. If you would like to overwrite a previously saved entry, you will be asked if you would like to overwrite it.</p>
+	<h2>Track your weight, food consumption, and minutes exercised</h2>
+	<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your food groups, and the minutes of exercise you have done. If you would like to change a previously saved entry, you will be asked if you would like to overwrite it.</p>
 	<div class="tagline-shadow"></div></section>
 	
 	<?php
