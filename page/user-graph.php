@@ -1,6 +1,6 @@
 <div class="progress-graph-switcher">
 	<div class="button-container">
-        <div class="button-group">
+        <div class="button-group measurement">
             <h2>Measurements</h2>
             <div class="button-row">
                 <button class="pink button large" data-mode="weight">Weight</button>
@@ -13,11 +13,18 @@
         	</select>
         </div>
     
-        <div class="button-group">
+        <div class="button-group food">
             <h2>Food Group Portions</h2>
-            <button class="red button large" data-mode="fat">Fat</button>
-            <button class="darkgray button large" data-mode="carbs">Carbohydrates</button>
-            <button class="blue button large" data-mode="protein">Protein</button>
+            <button class="red button small" data-mode="fat">Fat</button>
+            <button class="darkgray button small" data-mode="carbs">Carbohydrates</button>
+            <button class="blue button small" data-mode="protein">Protein</button>
+            
+            <button class="pink button small" data-mode="fruit">Fruit</button>
+            <button class="orange button small" data-mode="vegetables">Vegetables</button>
+            <button class="green button small" data-mode="dairy">Dairy</button>
+            
+            <button class="red button small" data-mode="alcohol">Alcohol</button>
+            <button class="darkgray button small" data-mode="treat">Treats</button>
         </div>
     </div>
     

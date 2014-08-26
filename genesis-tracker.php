@@ -3,7 +3,7 @@
 Plugin Name: Genesis Tracker
 Plugin URI: http://carbolowdrates.com
 Description: Tracks user's weight, calories, and exercise
-Version: 0.2
+Version: 0.3
 Author: Dave Preece
 Author URI: http://www.scumonline.co.uk
 License: GPL
@@ -91,10 +91,16 @@ if(!is_admin()){
 	
 }
 
+add_action( 'edit_user_profile', 'user_target_fields' );
 add_action( 'show_user_profile', 'extra_user_profile_fields' );
+add_action( 'show_user_profile', 'user_target_fields' );
 add_action( 'edit_user_profile', 'extra_user_profile_fields' );
+
 add_action( 'personal_options_update', 'save_extra_user_profile_fields' );
 add_action( 'edit_user_profile_update', 'save_extra_user_profile_fields' );
+
+add_action( 'personal_options_update', 'save_user_target_fields' );
+add_action( 'edit_user_profile_update', 'save_user_target_fields' );
 
 function extra_user_profile_fields($user){	
 	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
@@ -110,12 +116,34 @@ function extra_user_profile_fields($user){
 	 'id' => $reminderKey,
 	 'value' => 1
 	 ), $storedVal);
-			
-			
 	?>
 	</td>
 	</tr>
 </table>
+	<?php
+}
+
+function user_target_fields($user){
+    if(!is_admin()){ return; }
+
+    $targetFields = GenesisTracker::getuserMetaTargetFields();
+	?>
+	<table class="form-table">	
+        <?php foreach($targetFields as $fieldKey => $data) : ?>
+        <tr>
+        <?php $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); ?>
+            <th><label for="<?php echo $fullKey;?>"><?php _e("Target " . $data['name']); ?></label></th>
+            <td>
+                <?php
+                echo DP_HelperForm::createInput($fullKey, 'text', array(
+                    'id' => $fullKey,
+                     'value' => get_the_author_meta( $fullKey, $user->ID )
+                ));
+                ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
 	<?php
 }
 
@@ -126,6 +154,21 @@ function save_extra_user_profile_fields($user_id){
 	$val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
 	
 	update_user_meta( $user_id, $reminderKey, $val );
+}
+
+function save_user_target_fields($user_id){
+    if(!is_admin()){ return; }
+
+    $targetFields = GenesisTracker::getuserMetaTargetFields();
+    
+    foreach($targetFields as $fieldKey => $data){
+        $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); 
+
+        if(isset($_POST[$fullKey]) && is_numeric($_POST[$fullKey])){
+            update_user_meta( $user_id, $fullKey, abs((float)$_POST[$fullKey]) );
+        }
+    }
+    
 }
 
 add_action('login_enqueue_scripts', 'login_scripts');

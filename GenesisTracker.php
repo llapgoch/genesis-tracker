@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-	const version = "0.2";
+	const version = "0.3";
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
@@ -13,6 +13,7 @@ class GenesisTracker{
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
+    const targetPrependKey = "target_";
     const versionKey = "version";
     const userInitialUnitSelectionKey = "initial_unit_selection";
     
@@ -25,11 +26,24 @@ class GenesisTracker{
 	const MIN_VALID_WEIGHT = 44.4;
 	// 25 Stone
 	const MAX_VALID_WEIGHT = 158.8;
+    const AIM_GREATER = "greater";
+    const AIM_LESS = "fewer";
 	
 	public static $pageData = array();
 	public static $dietDaysToDisplay = 7;
     
     protected static $_initialUserUnit;
+    
+    protected static $_userMetaTargetFields = array(
+        "fat" => array("aim" => self::AIM_LESS, "name" => 'Fat', "unit" => "portion"),
+        "protein" => array("aim" => self::AIM_GREATER, "name" => "Protein", "unit" => "portion"),
+        "carbs" => array("aim" => self::AIM_LESS, "name" => "Carbohydrates", "unit" => "portion"),
+        "fruit" => array("aim" => self::AIM_GREATER, "name" => "Fruit", "unit" => "portion"),
+        "vegetables" => array("aim" => self::AIM_GREATER , "name" => "Vegetables", "unit" => "portion"),
+        "dairy" => array("aim" => self::AIM_LESS, "name" => "Dairy", "unit" => "portion"),
+        "alcohol" => array("aim" => self::AIM_LESS, "name" => "Alcohol", "unit" => "unit"),
+        "treat" => array("aim" => self::AIM_LESS, "name" => "Treat", "unit" => "portion")
+    );
 	
 	public static function install(){
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -44,6 +58,11 @@ class GenesisTracker{
 		  fat int(11) unsigned DEFAULT NULL,
           carbs int(11) unsigned DEFAULT NULL,
           protein int(11) unsigned DEFAULT NULL,
+          fruit int(11) unsigned DEFAULT NULL,
+          dairy int(11) unsigned DEFAULT NULL,
+          vegetables int(11) unsigned DEFAULT NULL,
+          alcohol int(11) unsigned DEFAULT NULL,
+          treat int(11) unsigned DEFAULT NULL,
 		  exercise_minutes int(11) DEFAULT NULL,
 		  PRIMARY KEY  (tracker_id),
 		  KEY user_id (user_id)
@@ -89,6 +108,26 @@ class GenesisTracker{
          if($installedVersion !== self::version){
              self::install();             
          }
+     }
+     
+     public static function getuserMetaTargetFields(){
+         return self::$_userMetaTargetFields;
+     }
+     
+     public static function getUserTargetLabel($key, $user_id = null){
+         $user_id = !is_null($user_id) ? $user_id : get_current_user_id();
+
+         if(!isset(self::$_userMetaTargetFields[$key])){
+             return '';
+         }         
+
+         if(null === $val = get_the_author_meta(self::getOptionKey(self::targetPrependKey . $key, $user_id))){
+             return '';
+         }
+         
+         $fieldData = self::$_userMetaTargetFields[$key];
+         
+         return "<p class='target-label'>" . sprintf("<strong>Your Personal %s Target:</strong> %s %d %s%s", $fieldData['name'], $val > 0 ? ucwords($fieldData['aim']) . " or equal to" : '', $val, $fieldData['unit'], $val != 1 ? "s" : "") . "</p>";
      }
 	 
 	 public static function getTrackerTableName(){
@@ -462,6 +501,11 @@ class GenesisTracker{
              $rules['fat'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
              $rules['carbs'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
              $rules['protein'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             $rules['fruit'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             $rules['vegetables'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             $rules['dairy'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             $rules['alcohol'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             $rules['treat'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
          }
          
 		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
@@ -538,6 +582,11 @@ class GenesisTracker{
 				 $data['fat'] = (float)$form->getRawValue('fat');
                  $data['carbs'] = (float)$form->getRawValue('carbs');
                  $data['protein'] = (float)$form->getRawValue('protein');
+                 $data['fruit'] = (float)$form->getRawValue('fruit');
+                 $data['vegetables'] = (float)$form->getRawValue('vegetables');
+                 $data['dairy'] = (float)$form->getRawValue('dairy');
+                 $data['alcohol'] = (float)$form->getRawValue('alcohol');
+                 $data['treat'] = (float)$form->getRawValue('treat');
 			 }
 			 
 			 if($form->hasValue('record-exercise')){
@@ -786,7 +835,12 @@ class GenesisTracker{
 			 'weight_loss',
              'fat',
              'carbs',
-             'protein'
+             'protein',
+             'dairy',
+             'fruit',
+             'vegetables',
+             'treat',
+             'alcohol'
 		 );
 		 
 		 $collated['weight_imperial'] = array();

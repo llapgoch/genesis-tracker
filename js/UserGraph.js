@@ -47,6 +47,36 @@ function UserGraph(){
 				'avgLabel':'Average Protein Consumed',
 				'color':'rgb(92,178,208)'
 			},
+			'fruit':{
+				'noresults':"You haven't recorded any fruit consumption yet.",
+				'label':'Fruit You\'ve Consumed',
+				'avgLabel':'Average Fruit Consumed',
+				'color':'rgb(231,5,144)'
+			},
+			'vegetables':{
+				'noresults':"You haven't recorded any vegetable consumption yet.",
+				'label':'Vegetables You\'ve Consumed',
+				'avgLabel':'Average Vegetables Consumed',
+				'color':'rgb(255,201,107)'
+			},
+			'dairy':{
+				'noresults':"You haven't recorded any dairy consumption yet.",
+				'label':'Dairy You\'ve Consumed',
+				'avgLabel':'Average Dairy Consumed',
+				'color':'rgb(178,219,106)'
+			},
+			'alcohol':{
+				'noresults':"You haven't recorded any alcohol units yet.",
+				'label':'Alcohol Consumption',
+				'avgLabel':'Average Alcohol Consumption',
+				'color':'rgb(230,130,130)'
+			},
+			'treat':{
+				'noresults':"You haven't recorded any treats yet.",
+				'label':'Treat Consumption',
+				'avgLabel':'Average Treat Consumption',
+                'color':'rgb(179,179,179)'
+			},
 			'exercise_minutes':{
 				'noresults':"You haven't made any measurements for minutes exercised yet.",
 				'label':'Minutes You\'ve Exercised',
@@ -371,9 +401,15 @@ function UserGraph(){
 				return val + " minutes";
 			case 'calories' :
 				return val + " kcals";
+            case 'alcohol' :
+                return val + " units"
             case 'fat' :
             case 'protein' :
             case 'carbs' :
+            case 'dairy' :
+            case 'treat' :
+            case 'vegetables':
+            case 'fruit' :
                 return Math.round(val) + ' portions';
 		}
 	}
