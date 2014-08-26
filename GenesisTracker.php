@@ -121,10 +121,10 @@ class GenesisTracker{
              return '';
          }         
 
-         if(null === $val = get_the_author_meta(self::getOptionKey(self::targetPrependKey . $key, $user_id))){
+         if('' == $val = get_the_author_meta(self::getOptionKey(self::targetPrependKey . $key, $user_id))){
              return '';
          }
-         
+
          $fieldData = self::$_userMetaTargetFields[$key];
          
          return "<p class='target-label'>" . sprintf("<strong>Your Personal %s Target:</strong> %s %d %s%s", $fieldData['name'], $val > 0 ? ucwords($fieldData['aim']) . " or equal to" : '', $val, $fieldData['unit'], $val != 1 ? "s" : "") . "</p>";
