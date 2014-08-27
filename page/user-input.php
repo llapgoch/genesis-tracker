@@ -118,7 +118,7 @@
 		</div>
 	</div>
 	
-	<div class="question-outer-container">
+	<div class="question-outer-container record-food-container">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Food Groups');?></h3>
 		</div>
@@ -134,15 +134,8 @@
 					<label for="fat" class="general-label"><?php _e('Fat consumed');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Enter the portions of fat you consumed on the day you are recording');?></p>
-                <?php echo GenesisTracker::getUserTargetLabel('fat'); ?>
-				<?php
-				echo $form->input('fat', 'text', array(
-					'id' => 'fat',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('portions');?></p>
+               
+			<?php echo GenesisUserInputTable::getFoodInputTableHTML('fat', $form); ?>
 			</div>
             
 			<div class="question-container clearfix">
@@ -150,15 +143,7 @@
 					<label for="carbs" class="general-label"><?php _e('Carbohydrates consumed');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Enter the portions of carbohydrates you consumed on the day you are recording');?></p>
-                <?php echo GenesisTracker::getUserTargetLabel('carbs'); ?>
-				<?php
-				echo $form->input('carbs', 'text', array(
-					'id' => 'carbs',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('portions');?></p>
+              <?php echo GenesisUserInputTable::getFoodInputTableHTML('carbs', $form); ?>
 			</div>
             
 			<div class="question-container clearfix">
@@ -166,15 +151,8 @@
 					<label for="protein" class="general-label"><?php _e('Protein consumed');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Enter the portions of protein you consumed on the day you are recording');?></p>
-                <?php echo GenesisTracker::getUserTargetLabel('protein'); ?>
-				<?php
-				echo $form->input('protein', 'text', array(
-					'id' => 'protein',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('portions');?></p>
+               <?php echo GenesisUserInputTable::getFoodInputTableHTML('protein', $form); ?>
+				
 			</div>
             
 			<div class="question-container clearfix">
@@ -184,13 +162,9 @@
 				<p class="form-explanation"><?php _e('Enter the portions of fruit you consumed on the day you are recording');?></p>
                 <?php echo GenesisTracker::getUserTargetLabel('fruit'); ?>
 				<?php
-				echo $form->input('fruit', 'text', array(
-					'id' => 'fruit',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('portions');?></p>
+                echo GenesisUserInputTable::getFoodInputTableHTML('fruit', $form); 
+                ?>
+                
 			</div>
             
 			<div class="question-container clearfix">
@@ -198,15 +172,7 @@
 					<label for="vegetables" class="general-label"><?php _e('Vegetables consumed');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Enter the portions of vegetables you consumed on the day you are recording');?></p>
-                <?php echo GenesisTracker::getUserTargetLabel('vegetables'); ?>
-				<?php
-				echo $form->input('vegetables', 'text', array(
-					'id' => 'fruit',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('portions');?></p>
+                <?php echo GenesisUserInputTable::getFoodInputTableHTML('vegetables', $form); ?>
 			</div>
             
 			<div class="question-container clearfix">
@@ -214,15 +180,7 @@
 					<label for="dairy" class="general-label"><?php _e('Dairy consumed');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Enter the portions of dairy you consumed on the day you are recording');?></p>
-                <?php echo GenesisTracker::getUserTargetLabel('dairy'); ?>
-				<?php
-				echo $form->input('dairy', 'text', array(
-					'id' => 'dairy',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('portions');?></p>
+                <?php echo GenesisUserInputTable::getFoodInputTableHTML('dairy', $form); ?>
 			</div>
             
 			<div class="question-container clearfix">
@@ -230,15 +188,7 @@
 					<label for="alcohol" class="general-label"><?php _e('Alcohol consumed');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Enter the units of alcohol you consumed on the day you are recording');?></p>
-                <?php echo GenesisTracker::getUserTargetLabel('alcohol'); ?>
-				<?php
-				echo $form->input('alcohol', 'text', array(
-					'id' => 'alcohol',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('units');?></p>
+                <?php echo GenesisUserInputTable::getFoodInputTableHTML('alcohol', $form); ?>
 			</div>
             
 			<div class="question-container clearfix">
@@ -246,15 +196,7 @@
 					<label for="treat" class="general-label"><?php _e('Treats consumed');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Enter the amount of treats you consumed on the day you are recording');?></p>
-                <?php echo GenesisTracker::getUserTargetLabel('treat'); ?>
-				<?php
-				echo $form->input('treat', 'text', array(
-					'id' => 'treat',
-					'class' => 'general-input',
-                    'default' => 0
-				));
-				?>
-				<p class="input-suffix"><?php _e('portions');?></p>
+               <?php echo GenesisUserInputTable::getFoodInputTableHTML('treat', $form); ?>
 			</div>
 		</div>
 	</div>

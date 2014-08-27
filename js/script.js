@@ -18,7 +18,7 @@
 				$('.date-input').datepicker(setup);
 				
 				$('.date-input').on('change', function(){
-					updateDateList($(this));
+					updateFormValues($(this));
 				});
 			}
 			
@@ -107,21 +107,21 @@
 			$('.preload-cover').remove();
 		}
 		
-		function updateDateList(pickField){
+		function updateFormValues(pickField){
 			var selDate = pickField.datepicker('getDate');
 			showPreloader();
 			
 			$.ajax(myAjax.ajaxurl, {
 				'type':'post',
-				'dataType':'html',
+				'dataType':'json',
 				'complete':function(){
 					removePreloader();
 				},
 				'success':function(data){
-					$('.diet-days').html(data);
+					$('.diet-days').html(data.date_picker);
 				},
 				'data':{
-					'action':'genesis_getdatepicker',
+					'action':'genesis_get_form_values',
 					'day':selDate.getDate(),
 					'month':selDate.getMonth(),
 					'year':selDate.getFullYear()

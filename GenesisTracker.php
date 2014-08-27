@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-	const version = "0.3";
+	const version = "0.4";
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
@@ -44,6 +44,14 @@ class GenesisTracker{
         "alcohol" => array("aim" => self::AIM_LESS, "name" => "Alcohol", "unit" => "unit"),
         "treat" => array("aim" => self::AIM_LESS, "name" => "Treat", "unit" => "portion")
     );
+    
+    protected static $_userTargetTimes = array(
+        "breakfast" => array("name" => "Breakfast"),
+        "lunch" => array("name" => "Lunch"),
+        "evening" => array("name" => "Evening"),
+        "snacks" => array("name" => "Snacks"),
+        "drinks" => array("name" => "Drinks")
+    );
 	
 	public static function install(){
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -55,20 +63,15 @@ class GenesisTracker{
 		  user_id int(11) DEFAULT NULL,
 		  measure_date datetime DEFAULT NULL,
 		  weight decimal(10,6) unsigned DEFAULT NULL,
-		  fat int(11) unsigned DEFAULT NULL,
-          carbs int(11) unsigned DEFAULT NULL,
-          protein int(11) unsigned DEFAULT NULL,
-          fruit int(11) unsigned DEFAULT NULL,
-          dairy int(11) unsigned DEFAULT NULL,
-          vegetables int(11) unsigned DEFAULT NULL,
-          alcohol int(11) unsigned DEFAULT NULL,
-          treat int(11) unsigned DEFAULT NULL,
 		  exercise_minutes int(11) DEFAULT NULL,
 		  PRIMARY KEY  (tracker_id),
 		  KEY user_id (user_id)
 		)");
-		
-        $wpdb->query( "ALTER TABLE " . self::getTrackerTableName() . " DROP COLUMN calories" );
+        
+        $wpdb->query($sql =  "ALTER TABLE " . self::getTrackerTableName() . " 
+            DROP COLUMN calories" );
+        
+        $wpdb->query("ALTER TABLE " . self::getTrackerTableName() ." DROP COLUMN fat, DROP COLUMN carbs, DROP COLUMN protein, DROP COLUMN fruit, DROP COLUMN dairy, DROP COLUMN vegetables, DROP COLUMN alcohol, DROP COLUMN treat");
         
 		// Create the target table
 		dbDelta($sql = "CREATE TABLE " . self::getTargetTableName() . " (
@@ -86,6 +89,16 @@ class GenesisTracker{
 		  day date DEFAULT NULL,
 		  PRIMARY KEY  (diet_day_id)
 		)");
+        
+        dbDelta($sql = "CREATE TABLE " . self::getFoodLogTableName() . " (
+          `food_log_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `tracker_id` int(11) unsigned NOT NULL,
+          `food_type` varchar(255) DEFAULT NULL,
+          `time` varchar(255) DEFAULT NULL,
+          `value` int(11) DEFAULT NULL,
+          PRIMARY KEY  (`food_log_id`),
+          KEY `tracker_id` (`tracker_id`)
+        )");
 		
 		self::updateOption("version", self::version);
 		 
@@ -114,6 +127,10 @@ class GenesisTracker{
          return self::$_userMetaTargetFields;
      }
      
+     public static function getUserTargetTimes(){
+         return self::$_userTargetTimes;
+     }
+     
      public static function getUserTargetLabel($key, $user_id = null){
          $user_id = !is_null($user_id) ? $user_id : get_current_user_id();
 
@@ -138,6 +155,11 @@ class GenesisTracker{
 	 public static function getDietDayTableName(){
 		 global $wpdb;
 		 return $wpdb->base_prefix . "genesis_diet_day";
+	 }
+     
+	 public static function getFoodLogTableName(){
+		 global $wpdb;
+		 return $wpdb->base_prefix . "genesis_food_log";
 	 }
 	 
 	 public static function getTargetTableName(){
@@ -498,14 +520,11 @@ class GenesisTracker{
 		 }
 		 
          if($form->getRawValue('record-food')){
-             $rules['fat'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
-             $rules['carbs'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
-             $rules['protein'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
-             $rules['fruit'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
-             $rules['vegetables'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
-             $rules['dairy'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
-             $rules['alcohol'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
-             $rules['treat'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+             foreach(self::$_userMetaTargetFields as $targetKey => $target){
+                 foreach(self::$_userTargetTimes as $timeKey => $time){
+                     $rules[$timeKey . "_" . $targetKey] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+                 }
+             }
          }
          
 		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
@@ -517,136 +536,156 @@ class GenesisTracker{
 		 
 		 $form->validate($rules);
 		 
-		 if(!$form->hasErrors()){
-			 // Prepare the data
-			 $date = self::convertFormDate($form->getRawValue('measure_date'));
-			 $logDate = strtotime($date);
-			 $dateParsed = date_parse($date);
-			 
-			 // Validate the date is in the past or today
-			 if($logDate >= mktime(0, 0, 0, date("m"), date("d") + 1, date("Y"))){
-				 $form->setError('measure_date', array(
-					 'general' => 'You can only add measurements for today\'s date or past days',
-					 'main' => 'Your measurement date needs to be in the past or for today'
-				 ));
-				 return;
-			 }
-             
-             if($logDate <= strtotime(self::getInitialUserStartDate(get_current_user_id()))){
-                 $form->setError('measure_date', array(
-                     'general' => 'Your measurement date must be after your start day',
-                     'main' => 'Your measurement date must be after your start day'
-                 ));
-                 return;
-             }
-			 
-			 // Check at least one entry type has been checked
-			 if(!$form->hasValue('record-weight') &! $form->hasValue('record-food') &! $form->hasValue('record-exercise') &! $form->hasValue('diet-days')){
-				 self::$pageData['errors'][] = 'Please select at least one measurement type to take';
-				 return;
-			 }
-			 
-             if($form->hasValue('record-weight')){ 
-    			 $weight = (float)$form->getRawValue('weight_main');
-			 	 
-    			 if($imperial){
-    				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
-    			 }
-			 
-    			 if(!self::isValidWeight($weight)){
-     				$form->setError('weight_main', array(
-     					'general' => 'Please enter a valid weight',
-     					'main' => 'Please enter a valid weight'
-     				));
-    				return;
-    			 }
-             }
-			 
-			 if($form->getRawValue('action') !== 'duplicate-overwrite'){
-				 if(self::getUserDataForDate(get_current_user_id(), $date)){
-				 	 self::$pageData['user-input-duplicate'] = true;
-					 return;
-				 }
-		 	}
-			 
-			 $data = array(
-				 'measure_date' => $date,
-				 'user_id' => get_current_user_id()
-			 );
-			 
-			 if($form->hasValue('record-weight')){
-				 $data['weight'] = $weight;
-			 }
-			 
-			 if($form->hasValue('record-food')){
-				 $data['fat'] = (float)$form->getRawValue('fat');
-                 $data['carbs'] = (float)$form->getRawValue('carbs');
-                 $data['protein'] = (float)$form->getRawValue('protein');
-                 $data['fruit'] = (float)$form->getRawValue('fruit');
-                 $data['vegetables'] = (float)$form->getRawValue('vegetables');
-                 $data['dairy'] = (float)$form->getRawValue('dairy');
-                 $data['alcohol'] = (float)$form->getRawValue('alcohol');
-                 $data['treat'] = (float)$form->getRawValue('treat');
-			 }
-			 
-			 if($form->hasValue('record-exercise')){
-				 $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
-			 }
-			 
-			 
-			 
-			 $wpdb->query(
-			 	$wpdb->prepare('DELETE FROM ' . self::getTrackerTableName() . ' WHERE user_id=%d AND measure_date=%s', get_current_user_id(), $date)
-			 );
-			
-			 if(!($wpdb->insert(self::getTrackerTableName(), $data))){
-				 self::$pageData['errors'] = array(
-					 'An error occurred in saving your measurement'
-				 );
-				 return;
-			 }else{
-				 self::$pageData['user-input-save'] = true;
-			 }
-			 
-			 $removeDates = array();
-			 
-			 // Remove the diet days
-			 for($i = 0; $i < self::$dietDaysToDisplay; $i++){
-				 // Create as timestamp to overflow
-				 $time = mktime(0,0,0, $dateParsed['month'] , $dateParsed['day'] - $i, $dateParsed['year']);
-				 
-				 $removeDates[] = "'" . date('Y-m-d', $time) . "'";
-			 }
-			 
-			 if($removeDates){
-				 $wpdb->query(
-				 	$sql = $wpdb->prepare($sql = 'DELETE FROM ' . self::getDietDayTableName() . ' 
-						WHERE day IN (' . implode(',', $removeDates) . ')
-						AND user_id=%d', get_current_user_id()
-					)
-			 	 );
-			}
-			
-			// Add diet days
-			
-			if($dietDays = $form->getRawValue('diet_days')){
-				foreach($dietDays as $dietDay){
-					if(!mktime($dietDay)){
-						continue;
-					}
-					
-					$wpdb->insert(self::getDietDayTableName(),
-						array(
-							'user_id' => get_current_user_id(),
-							'day' => $dietDay
-						)
-					);
-				}
-			}
-			 
-			 
+		 if($form->hasErrors()){
+             return false;
+         }
+		 // Prepare the data
+		 $date = self::convertFormDate($form->getRawValue('measure_date'));
+		 $logDate = strtotime($date);
+		 $dateParsed = date_parse($date);
+		 
+		 // Validate the date is in the past or today
+		 if($logDate >= mktime(0, 0, 0, date("m"), date("d") + 1, date("Y"))){
+			 $form->setError('measure_date', array(
+				 'general' => 'You can only add measurements for today\'s date or past days',
+				 'main' => 'Your measurement date needs to be in the past or for today'
+			 ));
+			 return;
+		 }
+         
+         if($logDate <= strtotime(self::getInitialUserStartDate(get_current_user_id()))){
+             $form->setError('measure_date', array(
+                 'general' => 'Your measurement date must be after your start day',
+                 'main' => 'Your measurement date must be after your start day'
+             ));
+             return;
+         }
+		 
+		 // Check at least one entry type has been checked
+		 if(!$form->hasValue('record-weight') &! $form->hasValue('record-food') &! $form->hasValue('record-exercise') &! $form->hasValue('diet-days')){
+			 self::$pageData['errors'][] = 'Please select at least one measurement type to take';
+			 return;
 		 }
 		 
+         if($form->hasValue('record-weight')){ 
+			 $weight = (float)$form->getRawValue('weight_main');
+		 	 
+			 if($imperial){
+				 $weight = self::stoneToKg($weight, (float)$form->getRawValue('weight_pounds'));
+			 }
+		 
+			 if(!self::isValidWeight($weight)){
+ 				$form->setError('weight_main', array(
+ 					'general' => 'Please enter a valid weight',
+ 					'main' => 'Please enter a valid weight'
+ 				));
+				return;
+			 }
+         }
+		 
+		 if($form->getRawValue('action') !== 'duplicate-overwrite'){
+			 if(self::getUserDataForDate(get_current_user_id(), $date)){
+			 	 self::$pageData['user-input-duplicate'] = true;
+				 return;
+			 }
+	 	}
+		 
+		 $data = array(
+			 'measure_date' => $date,
+			 'user_id' => get_current_user_id()
+		 );
+		 
+		 if($form->hasValue('record-weight')){
+			 $data['weight'] = $weight;
+		 }
+		 
+		 if($form->hasValue('record-exercise')){
+			 $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
+		 }
+		 
+         // Remove Food Logs
+		// Get the ID of any previously saved data against this date
+         if($prevResult = self::getUserDataForDate(get_current_user_id(), $date)){
+             // Remove dates
+ 			 $wpdb->query(
+ 			 	$sql = $wpdb->prepare('DELETE FROM ' . self::getFoodLogTableName() . ' 
+ 					WHERE tracker_id = %d', $prevResult->tracker_id
+ 				)
+ 		 	 );
+         }  
+		 
+         // Remove current entry
+		 $wpdb->query(
+		 	$wpdb->prepare('DELETE FROM ' . self::getTrackerTableName() . ' WHERE user_id=%d AND measure_date=%s', get_current_user_id(), $date)
+		 );
+		
+		 if(!($wpdb->insert(self::getTrackerTableName(), $data))){
+			 self::$pageData['errors'] = array(
+				 'An error occurred in saving your measurement'
+			 );
+			 return;
+		 }
+	     
+		 $trackerId = $wpdb->insert_id;
+		 $removeDates = array();
+		 
+		 // Remove the diet days
+		 for($i = 0; $i < self::$dietDaysToDisplay; $i++){
+			 // Create as timestamp to overflow
+			 $time = mktime(0,0,0, $dateParsed['month'] , $dateParsed['day'] - $i, $dateParsed['year']);
+			 
+			 $removeDates[] = "'" . date('Y-m-d', $time) . "'";
+		 }
+		 
+		 if($removeDates){
+			 $wpdb->query(
+			 	$sql = $wpdb->prepare($sql = 'DELETE FROM ' . self::getDietDayTableName() . ' 
+					WHERE day IN (' . implode(',', $removeDates) . ')
+					AND user_id=%d', get_current_user_id()
+				)
+		 	 );
+		}
+		
+		// Add diet days
+		
+		if($dietDays = $form->getRawValue('diet_days')){
+			foreach($dietDays as $dietDay){
+				if(!mktime($dietDay)){
+					continue;
+				}
+				
+				$wpdb->insert(self::getDietDayTableName(),
+					array(
+						'user_id' => get_current_user_id(),
+						'day' => $dietDay
+					)
+				);
+			}
+		}
+        
+        
+        if($form->hasValue('record-food')){
+            // Save the new values
+            foreach(self::$_userMetaTargetFields as $targetKey => $target){
+                foreach(self::$_userTargetTimes as $timeKey => $time){
+                    if(!$wpdb->insert(self::getFoodLogTableName(),
+                        array(
+                            'tracker_id' => $trackerId,
+                            'food_type' => $targetKey,
+                            'time' => $timeKey,
+                            'value' => $form->getRawValue($timeKey . "_" . $targetKey) 
+                        )
+                    )){
+                         self::$pageData['errors'] = array(
+                        	 'An error occurred in saving your measurement'
+                         );
+                         return;
+                    }
+                }
+            }
+        }      
+		 
+         self::$pageData['user-input-save'] = true;
 	 }
 	 
 	 public static function getUserDataForDate($user_id, $date){
@@ -1088,6 +1127,13 @@ class GenesisTracker{
 		 		 
 		 return $averages;
 	 }
+     
+     public static function getUserFormValues($day, $month, $year){
+         // Add rest of form details here
+         return array(
+             "date_picker" =>self::getDateListPicker($day, $month, $year)
+        );
+     }
 	 
 	 public static function getDateListPicker($day, $month, $year, $forUser = true, $selected = array()){
 		 global $wpdb;

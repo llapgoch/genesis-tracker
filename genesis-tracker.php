@@ -187,7 +187,7 @@ function login_scripts(){
 }
 
 add_action('admin_menu', 'genesisAdminMenu');
-add_action('wp_ajax_genesis_getdatepicker', 'genesis_post_date_picker');
+add_action('wp_ajax_genesis_get_form_values', 'genesis_post_form_values');
 
 function genesisAdminMenu(){
 	add_menu_page('Genesis Admin', 'Genesis Admin', GenesisTracker::editCapability, 'genesis-tracker', genesis_admin_page, null, 5);
@@ -195,12 +195,12 @@ function genesisAdminMenu(){
 
 
 // Because the ajax functionality doesn't pass parameters, we get them here
-function genesis_post_date_picker(){
+function genesis_post_form_values(){
 	$day = $_POST['day'];
 	$month = $_POST['month'];
 	$year = $_POST['year'];
-	
-	die(GenesisTracker::getDateListPicker($day, $month, $year));
+    
+    die(json_encode(GenesisTracker::getUserFormValues($day, $month, $year)));
 }
 
 function genesis_admin_page(){
