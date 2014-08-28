@@ -21,6 +21,10 @@
 					updateFormValues($(this));
 				});
 			}
+            
+            if($('.date-input').val()){
+                showUserMeasurements();
+            }
 			
 			$('.changeunits').hide();
 			
@@ -106,6 +110,17 @@
 		function removePreloader(){
 			$('.preload-cover').remove();
 		}
+        
+        function showUserMeasurements(animate){
+            var $removeVal = $('#wpadminbar').size() ? $('#wpadminbar').outerHeight() : 0;
+            $('.user-tracking-input .user-measurements').css('display', 'block');
+            
+            if(animate){
+                $('body').animate({
+                    scrollTop:(jQuery('.user-measurements').offset().top - ($removeVal + 20))
+                }, 500);
+            }
+        }
 		
 		function updateFormValues(pickField){
 			var selDate = pickField.datepicker('getDate');
@@ -119,6 +134,7 @@
 				},
 				'success':function(data){
 					$('.diet-days').html(data.date_picker);
+                    showUserMeasurements(true);
 				},
 				'data':{
 					'action':'genesis_get_form_values',

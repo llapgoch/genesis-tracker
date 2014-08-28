@@ -1214,8 +1214,10 @@ class GenesisTracker{
 				'ajaxurl' => admin_url('admin-ajax.php')
 			));
             
-            wp_localize_script('progress', 'initialUserUnit', self::getInitialUserUnit($user_id));      
-
+            // Don't set the initial user unit in the case of a posted form - allow the form to use what was posted
+            if(!DP_HelperForm::wasPosted()){
+                wp_localize_script('progress', 'initialUserUnit', self::getInitialUserUnit($user_id));      
+            }
 		    wp_enqueue_script('progress');
 		}
         
