@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-	const version = "0.4";
+	const version = "0.5";
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
@@ -64,6 +64,7 @@ class GenesisTracker{
 		  measure_date datetime DEFAULT NULL,
 		  weight decimal(10,6) unsigned DEFAULT NULL,
 		  exercise_minutes int(11) DEFAULT NULL,
+          weight_unit tinyint(1) unsigned DEFAULT 1,
 		  PRIMARY KEY  (tracker_id),
 		  KEY user_id (user_id)
 		)");
@@ -528,6 +529,7 @@ class GenesisTracker{
          }
          
 		 $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
+         $weightUnit = $imperial ? self::UNIT_IMPERIAL : self::UNIT_METRIC;
 		 
 		 // If we're doing imperial, validate pounds too.
 		 if($imperial){
@@ -592,7 +594,8 @@ class GenesisTracker{
 		 
 		 $data = array(
 			 'measure_date' => $date,
-			 'user_id' => get_current_user_id()
+			 'user_id' => get_current_user_id(),
+             'weight_unit' => $weightUnit
 		 );
 		 
 		 if($form->hasValue('record-weight')){
@@ -644,6 +647,7 @@ class GenesisTracker{
 					AND user_id=%d', get_current_user_id()
 				)
 		 	 );
+             
 		}
 		
 		// Add diet days
@@ -691,12 +695,14 @@ class GenesisTracker{
 	 public static function getUserDataForDate($user_id, $date){
 		 global $wpdb;
 		 
-		 return $wpdb->get_row($sql = $wpdb->prepare(
+		 $res = $wpdb->get_row($sql = $wpdb->prepare(
 		 	"SELECT * FROM " . self::getTrackerTableName() . "
 		 	 WHERE user_id=%d
 			 	AND measure_date=%s",
 			$user_id,
 			$date));
+        
+        return $res;
 	 }
 	 
 	 public static function getOptionKey($option){
@@ -1130,8 +1136,30 @@ class GenesisTracker{
      
      public static function getUserFormValues($day, $month, $year){
          // Add rest of form details here
+         $user_id = get_current_user_id();
+         $date = $year . "-" . $month . "-" . $day;
+
+         if(!$measureDetails = self::getUserDataForDate($user_id, $date)){
+             $measureDetails = new stdClass();
+         }
+         
+         if($measureDetails->weight !== null){
+             $measureDetails->weight_imperial = self::kgToStone($measureDetails->weight);
+             $measureDetails->weight = (float) $measureDetails->weight;
+             
+             $measureDetails->weight_imperial['stone'] = round($measureDetails->weight_imperial['stone'], 2);
+             $measureDetails->weight_imperial['pounds'] = round($measureDetails->weight_imperial['pounds'], 2); 
+         }
+         
+         // Look up food targets using the tracker_id if we have one
+         
+         if($measureDetails->tracker_id){
+             
+         }
+         
          return array(
-             "date_picker" =>self::getDateListPicker($day, $month, $year)
+             "date_picker" =>self::getDateListPicker($day, $month, $year),
+             "measure_details" => $measureDetails
         );
      }
 	 
@@ -1139,8 +1167,6 @@ class GenesisTracker{
 		 global $wpdb;
 		 // return html for the last five days
 		 $list = "";
-		 $month = $month + 1;
-		 
 		 
 		 for($i = self::$dietDaysToDisplay - 1; $i >= 0; $i--){
 			 $time = mktime(0, 0, 0, $month, $day - $i, $year);

@@ -48,7 +48,7 @@
 				}
 			});
 			
-			$('.question-chooser').on('click', function(e){
+			$('.question-chooser').on('change', function(e){
 				if($(this).is(':checked')){
 					$(this).parent().find('.inner-question-container').show();
 				}else{
@@ -117,7 +117,7 @@
             
             if(animate){
                 $('body').animate({
-                    scrollTop:(jQuery('.user-measurements').offset().top - ($removeVal + 20))
+                    scrollTop:(jQuery('.user-tracking-input').offset().top - ($removeVal + 20))
                 }, 500);
             }
         }
@@ -133,13 +133,76 @@
 					removePreloader();
 				},
 				'success':function(data){
+                    var $form = $('.user-tracking-input');
+                    var $weightUnit = $form.find('.weight-unit');
+                    var measures = data.measure_details;
+                    
+                    // Close all forms
+                    $form.find('.question-chooser').prop('checked', false).trigger('change');
+                    
+                    // Set the value to the saved unit with this measurement
+                    // Otherwise set the form's weight default back to the user's initial selection if we've got it
+                    if(measures.weight_unit){
+                        $weightUnit.val(measures.weight_unit);
+                    }else{
+                        if(window.initialUserUnit){
+                            $weightUnit.val(window.initialUserUnit);
+                        }
+                    }
+                    $weightUnit.trigger('change');
+                    
+                    // Clear the weight form
+                    $('.weight-container input[type="text"]').val('');
+                    // Clear the exercise form
+                    $('.exercise-container input[type="text"]').val('');
+                    // Clear the food form
+                    $('.food-container input[type="text"]').val(0);
+                   
+                    var unit = $weightUnit.val() == 1 ? "imperial" : "metric";
+                    
+                    // See if there were any diet days in the saved data
+                    if($(data.date_picker).find('input[checked="checked"]').size()){
+                        $form.find('input[name="diet-days"]').prop('checked', true).trigger('change');
+                    }
+                    
+
+                    // Set the diet days
 					$('.diet-days').html(data.date_picker);
+
+                    // Set the exercise values
+                    if(measures.exercise_minutes){
+                        $form.find('input[name="exercise_minutes"]').val(measures.exercise_minutes);
+                        $form.find('input[name="record-exercise"]').prop('checked', true).trigger('change');
+                    }
+                    
+                    var $weightMain = $form.find('input[name="weight_main"]');
+                    var $weightPounds = $form.find('input[name="weight_pounds"]');
+                    
+                    // Set the weight values
+                    if(measures.weight){
+                        var $weightMain = $form.find('input[name="weight_main"]');
+                        var $weightPounds = $form.find('input[name="weight_pounds"]');
+                        
+                        if(unit == "metric"){
+                            $weightMain.val(measures.weight)
+                        }else{
+                            $weightMain.val(measures.weight_imperial.stone);
+                            $weightPounds.val(measures.weight_imperial.pounds);
+                        }
+                        
+                        // Open the weight form field
+                        $form.find('input[name="record-weight"]').prop('checked', true).trigger('change');
+                    }
+                    
                     showUserMeasurements(true);
 				},
+                'error':function(data){
+                    alert('Sorry, we\'re experiencing technical difficulties at the moment.  Please try again later');
+                },
 				'data':{
 					'action':'genesis_get_form_values',
 					'day':selDate.getDate(),
-					'month':selDate.getMonth(),
+					'month':selDate.getMonth() + 1,
 					'year':selDate.getFullYear()
 				}
 			});

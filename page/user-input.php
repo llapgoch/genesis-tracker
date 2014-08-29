@@ -32,6 +32,31 @@
 	<div class="user-measurements">
     	<div class="question-outer-container">
     		<div class="title">
+    			<h3 class="general-label"><?php _e('Restricted Days');?></h3>
+    		</div>
+    		<?php  echo $form->checkbox('diet-days', 1, array(
+    			'class' => 'question-chooser',
+    			'id' => 'diet-days'
+    		));?>
+    	    <label for="diet-days"><?php _e('I would like to record the number of restricted days I\'ve completed in the last week');?></label>
+    		<div class="inner-question-container diet-days-container js-hide clearfix">
+    			<p class="form-explanation"><?php _e('Please mark any restricted days you have done in the last week.');?><br /><?php _e('Previously saved restricted days for the last week will automatically be shown here.');?></p>
+    			<div class="diet-days">
+    				<?php 
+    				if($dateListPicker) :
+    					echo $dateListPicker;
+    					else :
+    					?>
+    				<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your restricted days');?>
+    				<?php
+    				endif;
+    				?>
+    			</div>
+    		</div>
+    	</div>
+        
+    	<div class="question-outer-container">
+    		<div class="title">
     			<h3 class="general-label"><?php _e('Weight');?></h3>
 			
     		</div>
@@ -44,10 +69,9 @@
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="weight_unit" class="general-label"><?php _e('Units');?></label>
-					
     				</div>
 		
-    				<p class="form-explanation"><?php _e('Whether you would like your weight to be saved as metric or imperial units');?></p>
+    				<p class="form-explanation"><?php _e('Whether you would like to enter your weight as metric or imperial units');?></p>
     				<?php
     				echo $form->dropdown('weight_unit', array(
     						'1' => 'Stone and Pounds',
@@ -58,7 +82,7 @@
     				?> 
     				<button type="submit" name="action" value="changeunits" class="changeunits">Set</button>
     			</div>
-	
+                	
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="weight" class="general-label"><?php _e('Your Weight');?></label>
@@ -89,32 +113,6 @@
 				
     			</div> 
 			
-    		</div>
-    	</div>
-	
-	
-    	<div class="question-outer-container">
-    		<div class="title">
-    			<h3 class="general-label"><?php _e('Restricted Days');?></h3>
-    		</div>
-    		<?php echo $form->checkbox('diet-days', 1, array(
-    			'class' => 'question-chooser',
-    			'id' => 'diet-days'
-    		));?>
-    		<label for="diet-days"><?php _e('I would like to record the number of restricted days I\'ve completed in the last week');?></label>
-    		<div class="inner-question-container diet-days-container js-hide clearfix">
-    			<p class="form-explanation"><?php _e('Please mark any restricted days you have done in the last week');?></p>
-    			<div class="diet-days">
-    				<?php 
-    				if($dateListPicker) :
-    					echo $dateListPicker;
-    					else :
-    					?>
-    				<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your restricted days');?>
-    				<?php
-    				endif;
-    				?>
-    			</div>
     		</div>
     	</div>
     
@@ -211,7 +209,7 @@
     			'id' => 'record-exercise'
     		));?>
     			<label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
-    		<div class="inner-question-container food-container js-hide">
+    		<div class="inner-question-container exercise-container js-hide">
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Exercise');?></label>
