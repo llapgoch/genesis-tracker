@@ -14,6 +14,7 @@ class GenesisTracker{
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
     const targetPrependKey = "target_";
+    const averageDataKey = "average_data";
     const versionKey = "version";
     const userInitialUnitSelectionKey = "initial_unit_selection";
     
@@ -26,23 +27,23 @@ class GenesisTracker{
 	const MIN_VALID_WEIGHT = 44.4;
 	// 25 Stone
 	const MAX_VALID_WEIGHT = 158.8;
-    const AIM_GREATER = "greater";
-    const AIM_LESS = "fewer";
+
 	
 	public static $pageData = array();
 	public static $dietDaysToDisplay = 7;
     
     protected static $_initialUserUnit;
+
     
     protected static $_userMetaTargetFields = array(
-        "fat" => array("aim" => self::AIM_LESS, "name" => 'Fat', "unit" => "portion"),
-        "protein" => array("aim" => self::AIM_GREATER, "name" => "Protein", "unit" => "portion"),
-        "carbs" => array("aim" => self::AIM_LESS, "name" => "Carbohydrates", "unit" => "portion"),
-        "fruit" => array("aim" => self::AIM_GREATER, "name" => "Fruit", "unit" => "portion"),
-        "vegetables" => array("aim" => self::AIM_GREATER , "name" => "Vegetables", "unit" => "portion"),
-        "dairy" => array("aim" => self::AIM_LESS, "name" => "Dairy", "unit" => "portion"),
-        "alcohol" => array("aim" => self::AIM_LESS, "name" => "Alcohol", "unit" => "unit"),
-        "treat" => array("aim" => self::AIM_LESS, "name" => "Treat", "unit" => "portion")
+        "fat" => array("name" => 'Fat', "unit" => "portion"),
+        "protein" => array("name" => "Protein", "unit" => "portion"),
+        "carbs" => array("name" => "Carbohydrate", "unit" => "portion"),
+        "fruit" => array("name" => "Fruit", "unit" => "portion"),
+        "vegetables" => array("name" => "Vegetables", "unit" => "portion"),
+        "dairy" => array("name" => "Dairy", "unit" => "portion"),
+        "alcohol" => array("name" => "Alcohol", "unit" => "unit"),
+        "treat" => array("name" => "Treat", "unit" => "portion")
     );
     
     protected static $_userTargetTimes = array(
@@ -53,6 +54,43 @@ class GenesisTracker{
         "drinks" => array("name" => "Drinks")
     );
 	
+    public function populate(){
+        global $wpdb;
+        
+        // for($i = 37541; $i < 72001; $i++){
+ //            foreach(self::$_userMetaTargetFields as $targetKey => $target){
+ //                foreach(self::$_userTargetTimes as $timeKey => $time){
+ //                    $data = array(
+ //                       'tracker_id' => $i,
+ //                       'food_type' => $targetKey,
+ //                       'time' => $timeKey,
+ //                       'value' => rand(0, 200)
+ //                    );
+ //
+ //
+ //                    $wpdb->insert(self::getFoodLogTableName(), $data);
+ //                }
+ //            }
+ //        }
+        
+        // for($i = 0; $i < 36000; $i++){
+        //     $data = array(
+        //         "user_id" => rand(1, 200),
+        //         "measure_date" => date("Y-m-d", rand(time() - (86400 * 30 * 6), time())),
+        //         "weight" => rand(75, 146),
+        //         "exercise_minutes" => rand(0, 1) ? rand(0, 500) : "NULL",
+        //         "weight_unit" => rand(1, 2)
+        //     );
+        //
+        //     $wpdb->insert(self::getTrackerTableName(), $data);
+        // }
+        
+        // create users
+        // for($i = 102; $i < 202; $i++){
+        //     wp_create_user ( "test" . $i . "@example.com", "test" . $i,  "test" . $i . "@example.com" );
+        // }
+    }
+    
 	public static function install(){
 		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 		global $wpdb;
@@ -145,7 +183,7 @@ class GenesisTracker{
 
          $fieldData = self::$_userMetaTargetFields[$key];
          
-         return "<p class='target-label'>" . sprintf("<strong>Your Personal %s Target:</strong> %s %d %s%s", $fieldData['name'], $val > 0 ? ucwords($fieldData['aim']) . " or equal to" : '', $val, $fieldData['unit'], $val != 1 ? "s" : "") . "</p>";
+         return "<p class='target-label'>" . sprintf("<strong>Your Personal %s Target:</strong> %s", $fieldData['name'], $val)  . "</p>";
      }
 	 
 	 public static function getTrackerTableName(){
@@ -667,17 +705,24 @@ class GenesisTracker{
 			}
 		}
         
-        
+        // Save food logs
         if($form->hasValue('record-food')){
             // Save the new values
             foreach(self::$_userMetaTargetFields as $targetKey => $target){
                 foreach(self::$_userTargetTimes as $timeKey => $time){
+                    $fieldKey = $timeKey . "_" . $targetKey;
+                    
+                    if(!$form->hasValue($fieldKey) || (float) $form->getRawValue($fieldKey) < 0){
+                        continue;
+                    }
+                    
+                    
                     if(!$wpdb->insert(self::getFoodLogTableName(),
                         array(
                             'tracker_id' => $trackerId,
                             'food_type' => $targetKey,
                             'time' => $timeKey,
-                            'value' => $form->getRawValue($timeKey . "_" . $targetKey) 
+                            'value' => (float) $form->getRawValue($fieldKey) 
                         )
                     )){
                          self::$pageData['errors'] = array(
@@ -691,6 +736,20 @@ class GenesisTracker{
 		 
          self::$pageData['user-input-save'] = true;
 	 }
+     
+     public static function getUserFoodLogsForTracker($user_id, $tracker_id){
+         global $wpdb;
+         
+         $res = $wpdb->get_results($sql = $wpdb->prepare("SELECT fl.* 
+             FROM " . self::getFoodLogTableName() . " fl
+             JOIN " . self::getTrackerTableName() . " t 
+                 ON fl.tracker_id = t.tracker_id
+                 AND t.user_id = %d
+                 AND t.tracker_id = %d", $user_id, $tracker_id)
+        );
+        
+        return $res;
+     }
 	 
 	 public static function getUserDataForDate($user_id, $date){
 		 global $wpdb;
@@ -843,11 +902,24 @@ class GenesisTracker{
 		 if($endDate){
 			 $dateConstraint .= " AND measure_Date <= '$endDate'";
 		 }
-		 
+         
+         $aggregates = array();
+         
+         // Build the aggregates for each value we want to pull out
+         foreach(self::$_userMetaTargetFields as $targetKey => $targetVal){
+             $aggregates[] = sprintf("SUM(CASE WHEN fl.`food_type` = '%s' THEN fl.`value` ELSE NULL END) as %s", $targetKey, $targetKey);
+         }
+         
 		 $results = $wpdb->get_results($sql = $wpdb->prepare(
-		 	$select = "SELECT * $weightQ FROM " . self::getTrackerTableName() . "
-		 	WHERE user_id=%d $dateConstraint ORDER BY measure_date", $user_id
+		 	$select = "SELECT t.* $weightQ " .
+            ($aggregates ? "," . implode(",\n", $aggregates) . " " : "") . 
+            "FROM " . self::getTrackerTableName() . " t " . 
+            "LEFT JOIN " . self::getFoodLogTableName() . " fl USING(tracker_id)
+		 	WHERE user_id=%d $dateConstraint 
+            GROUP BY t.tracker_id
+            ORDER BY measure_date", $user_id
 		 ));
+
          
          $start = new stdClass();
          $start->user_id = $user_id;
@@ -867,6 +939,7 @@ class GenesisTracker{
 	 
 	 // Pass in an array of keys to average in $avgVals
 	 public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
+         
 
          $userData = self::getAllUserLogs($user_id, $startDate, $endDate);		 
 		 $weightInitial = array();
@@ -895,9 +968,9 @@ class GenesisTracker{
 		 
 		 $collated['weight_imperial']['timestamps'] = array();
 		 $collated['weight_loss_imperial']['timestamps'] = array();		 
-		 
+		 $a = 0;
 		 if($userData){
-			 foreach($userData as $log){
+			 foreach($userData as $log){             
 				 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
 			 
 				 foreach($valsToCollate as $valToCollate){
@@ -1050,26 +1123,70 @@ class GenesisTracker{
 	 	Then we key that data by date, then merge it into an array of all values using the date as key.  
 	 	Then we average each value for the date.
 	 */
-	 public static function getAverageUsersGraphData($onlySubscribers = true, $startDate = '', $endDate = ''){
-		 
-		 $limit = $onlySubscribers ? 'role=subscriber' : '';
+     public static function getAverageUsersGraphData($startDate = '', $endDate = ''){ 
+        if(!$averages = wp_cache_get( self::getOptionKey(self::averageDataKey) )){
+            $averages = self::generateAverageUsersGraphData();
+        };
+        
+        if(!$averages){
+            return;
+        }
+        
+        if(!$startData && !$endDate){
+            return $averages;
+        }
+        
+        $startTime = $startDate ? strtotime($startDate) * 1000 : null;
+        $endTime = $endDate ? strtotime($endDate) * 1000 : null;
+
+        
+        // Trim the data so we only have between the dates we need
+        // This used to be done in the method which now caches all user data
+        foreach($averages as $averageKey => &$averageData){
+            
+            unset($averageData['yMin']);
+            unset($averageData['yMax']);
+            
+            foreach($averageData['data'] as $dataKey => &$dataPoint){
+                if($dataPoint[0] < $startTime || $dataPoint[0] > $endTime){
+                    unset($averageData['data'][$dataKey]);
+                    continue;
+                }
+                
+                if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['min']){
+                    $averageData['yMin'] = $dataPoint[1];
+                }
+                
+                if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['max']){
+                    $averageData['yMax'] = $dataPoint[1];
+                }
+            }
+        }
+        
+        return $averages;
+     }
+     
+     
+     // Generate the cached version of the average dataset
+	 public static function generateAverageUsersGraphData($onlySubscribers = true){
+         $limit = $onlySubscribers ? 'role=subscriber' : '';
 		 $users = get_users($limit);
-		 
+        
 		 $results = array();
 		 $structure = array();
 		 
 		 // No need to average weight or weight-imperial
 		 $averageValues = array(
 			'weight_loss', 
-			'exercise_minutes', 
-			'calories',
+	        // 'exercise_minutes',
+        //     'calories',
 			'weight_loss_imperial'
 		 );
 
 		 
 		 // Get all of the values in an array with the timestamp as key so se can easily loop over them
 		 foreach($users as $user){
-			 $graphData = self::getUserGraphData($user->ID, true, $averageValues, true, $startDate, $endDate);
+			 $graphData = self::getUserGraphData($user->ID, true, $averageValues, true);
 			  
 			 if(!$graphData){
 				 continue;
@@ -1102,13 +1219,13 @@ class GenesisTracker{
 				 
 				 $avg = array_sum($measurements) / count($measurements);
 				 
-				 if(isset($averages[$key]['yMin'])){
-					 $averages[$key]['yMin'] = min($averages[$key]['yMin'], $avg);
-					 $averages[$key]['yMax'] = max($averages[$key]['yMax'], $avg);
-				 }else{
-					 $averages[$key]['yMin'] = $avg;
-					 $averages[$key]['yMax'] = $avg;
-				 }
+				 // if(isset($averages[$key]['yMin'])){
+ //                      $averages[$key]['yMin'] = min($averages[$key]['yMin'], $avg);
+ //                      $averages[$key]['yMax'] = max($averages[$key]['yMax'], $avg);
+ //                  }else{
+ //                      $averages[$key]['yMin'] = $avg;
+ //                      $averages[$key]['yMax'] = $avg;
+ //                  }
 				 
 				 $averages[$key]['data'][] = array($date, $avg);
 			 }
@@ -1130,9 +1247,15 @@ class GenesisTracker{
  				 });
  			 }
 		 }
-		 		 
+         
+         wp_cache_set(self::getOptionKey(self::averageDataKey), $averages, null, 86400);
+         
+         mail("dave_preece@mac.com", "Regenerated Cache", "Regenerated");
+         
 		 return $averages;
 	 }
+     
+
      
      public static function getUserFormValues($day, $month, $year){
          // Add rest of form details here
@@ -1152,14 +1275,16 @@ class GenesisTracker{
          }
          
          // Look up food targets using the tracker_id if we have one
+         $foodData = array();
          
          if($measureDetails->tracker_id){
-             
+             $foodData = self::getUserFoodLogsForTracker($user_id, $measureDetails->tracker_id);
          }
          
          return array(
              "date_picker" =>self::getDateListPicker($day, $month, $year),
-             "measure_details" => $measureDetails
+             "measure_details" => $measureDetails,
+             "food_log" => $foodData 
         );
      }
 	 
@@ -1228,8 +1353,10 @@ class GenesisTracker{
 			  $dateRange = self::getUserDateRange(get_current_user_id());
 			  
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
-			  //wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData(false, $dateRange['mindate'], $dateRange['maxdate']));
+			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange['mindate'], $dateRange['maxdate']));
 		 }
+         
+
 		 	 
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage()){	
 		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 

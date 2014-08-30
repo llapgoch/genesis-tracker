@@ -194,6 +194,18 @@
                         $form.find('input[name="record-weight"]').prop('checked', true).trigger('change');
                     }
                     
+                    // Food log
+                    if(data.food_log && data.food_log.length){
+                        $form.find('input[name="record-food"]').prop('checked', true).trigger('change');
+                        
+                        $(data.food_log).each(function(i, val){
+                            if(val.food_type && val.time){
+                                $form.find("input[name=" + val.time + "_" + val.food_type + "]").val(val.value);
+                            }
+                        });
+                    }
+                    
+                    
                     showUserMeasurements(true);
 				},
                 'error':function(data){

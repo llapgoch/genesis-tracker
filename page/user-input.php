@@ -12,15 +12,19 @@
 		<?php
 	}
 	?>
-	
-<form class="input-form user-tracking-input" action="" method="post" name="input-form">
+    
+<noscript>
+     <div class="alert error"><?php _e('Please enable Javascript in your browser to use the food tracker')?></div>
+</noscript>
+
+<form class="input-form user-tracking-input js-show" action="" method="post" name="input-form">
 
 	<div class="question-outer-container">
 		<div class="title">
 			<h3><label class="general-label"><?php _e('Date of Measurement');?></label></h3>
 			
 		</div>
-		<p class="form-explanation"><span class='js-show'><?php _e('The date when you took this measurement.  Click the field below to select the date on a calendar');?></span><span class="js-hide"><?php echo _e('Enter the date you took this measurement in the format DD-MM-YYYY');?></span></p>
+		<p class="form-explanation"><span class='js-show'><?php _e('The date when you took this measurement.  Click the field below to select the date on a calendar.  If you have previously saved values for this date, they will be loaded below.');?></span></p>
 		<?php
 		echo $form->input('measure_date', 'text', array(
 			'class' => 'general-input date-input',
@@ -127,7 +131,7 @@
     		));?>
     		<label for="record-food"><?php _e('I would like to record my food groups on this occasion');?></label>
     		<div class="inner-question-container food-container js-hide">
-                <div class="alert notice"><a href="https://www.myfood24.org/login" target="_blank">Find out the portions you've consumed using Food 24's Website <em>(opens in a new window)</em></a></div>
+                <!-- <div class="alert notice"><a href="https://www.myfood24.org/login" target="_blank">Find out the portions you've consumed using Food 24's Website <em>(opens in a new window)</em></a></div> -->
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="fat" class="general-label"><?php _e('Fat consumed');?></label>

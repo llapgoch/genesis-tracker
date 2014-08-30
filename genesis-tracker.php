@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 session_start();
 require_once('includes.php');
 
+
 register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
@@ -55,8 +56,15 @@ if(!wp_next_scheduled('genesis_send_reminder_email')){
 	wp_schedule_event(time(), 'weekly', 'genesis_send_reminder_email');
 }
 
+// Regenerates all cache data for graph averages
+if(!wp_next_scheduled('genesis_generate_average_user_data')){
+    wp_schedule_event(mktime(0,0,0,9,29,2014), 'daily', 'genesis_generate_average_user_data');
+}
 
 add_action('genesis_send_reminder_email', 'send_reminder_email');
+add_action('genesis_generate_average_user_data', array('GenesisTracker', 'generateAverageUsersGraphData'));
+
+//GenesisTracker::populate();
 
 // For testing Email Reminders ---- CAREFUL!
 //send_reminder_email();
@@ -70,7 +78,7 @@ add_action('genesis_send_reminder_email', 'send_reminder_email');
 function new_interval($interval) {
     $interval['minutes_10'] = array('interval' => 10*60, 'display' => 'Once 10 minutes');
 	$interval['second_1'] = array('interval' => 1, 'display' => '1 second');
-	$interval['minute_1'] = array('interval' => 60, 'display' => '1 second');
+	$interval['minute_1'] = array('interval' => 60, 'display' => '1 minute');
 	$interval['weekly'] = array('interval' => 604800, 'display' => __('Once Weekly'));
 	
     return $interval;
@@ -164,8 +172,8 @@ function save_user_target_fields($user_id){
     foreach($targetFields as $fieldKey => $data){
         $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); 
 
-        if(isset($_POST[$fullKey]) && is_numeric($_POST[$fullKey])){
-            update_user_meta( $user_id, $fullKey, abs((float)$_POST[$fullKey]) );
+        if(isset($_POST[$fullKey])){
+            update_user_meta( $user_id, $fullKey, $_POST[$fullKey] );
         }
     }
     
