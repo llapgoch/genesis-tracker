@@ -866,23 +866,44 @@ class GenesisTracker{
 	 
 	 public static function getUserDateRange($user_id){
 		 global $wpdb;
+         
+         
 		 
 		 $res = $wpdb->get_row(
-			 $sql = $wpdb->prepare('SELECT min(measure_date) mindate, max(measure_date) maxdate FROM wp_genesis_tracker WHERE user_id=%d', $user_id)
+			 $sql = $wpdb->prepare($sql = "SELECT *  
+                FROM (
+                	SELECT MIN(measure_date) weight_min, MAX(measure_date) weight_max 
+                	FROM " . self::getTrackerTableName() . "
+                	WHERE weight IS NOT NULL
+                	AND user_id = %d
+                ) weight_dates,
+                (
+                	SELECT MIN(measure_date) exercise_minutes_min, MAX(measure_date) exercise_minutes_max 
+                	FROM " . self::getTrackerTableName() . "
+                	WHERE exercise_minutes IS NOT NULL
+                	AND user_id = %d
+                ) measure_dates,
+                (
+                	SELECT MIN(measure_date) mindate, MAX(measure_date) maxdate 
+                	FROM " . self::getTrackerTableName() . "
+                	WHERE user_id = %d
+                ) total_dates
+                ", $user_id, $user_id, $user_id)
 	 	);
-		
-		
+        
 		if(!$res){
-			return array(
-				'mindate' => '',
-				'maxdate' => ''
-			);
+            return new stdClass();
 		}
 		
-		return array(
-			'mindate' => $res->mindate,
-			'maxdate' => $res->maxdate
-		);
+        $initialUserStartDate = self::getInitialUserStartDate($user_id);
+        
+        // This should be lower than any value in the measurements table
+        $res->weight_min = $initialUserStartDate;
+        
+        $res->weight_loss_min = $res->weight_min;
+        $res->weight_loss_max = $res->weight_max;
+
+        return $res;
 	}
 	 
 	 public static function getAllUserLogs($user_id, $startDate ='', $endDate = ''){
@@ -968,7 +989,7 @@ class GenesisTracker{
 		 
 		 $collated['weight_imperial']['timestamps'] = array();
 		 $collated['weight_loss_imperial']['timestamps'] = array();		 
-		 $a = 0;
+		 
 		 if($userData){
 			 foreach($userData as $log){             
 				 $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
@@ -1123,7 +1144,7 @@ class GenesisTracker{
 	 	Then we key that data by date, then merge it into an array of all values using the date as key.  
 	 	Then we average each value for the date.
 	 */
-     public static function getAverageUsersGraphData($startDate = '', $endDate = ''){ 
+     public static function getAverageUsersGraphData($rangeDates){ 
         if(!$averages = wp_cache_get( self::getOptionKey(self::averageDataKey) )){
             $averages = self::generateAverageUsersGraphData();
         };
@@ -1132,25 +1153,49 @@ class GenesisTracker{
             return;
         }
         
-        if(!$startData && !$endDate){
-            return $averages;
-        }
-        
-        $startTime = $startDate ? strtotime($startDate) * 1000 : null;
-        $endTime = $endDate ? strtotime($endDate) * 1000 : null;
 
+        
         
         // Trim the data so we only have between the dates we need
         // This used to be done in the method which now caches all user data
         foreach($averages as $averageKey => &$averageData){
-            
             unset($averageData['yMin']);
             unset($averageData['yMax']);
             
+            $startTime = null;
+            $endTime = null;
+            
+            $minKey = $averageKey . "_min";
+            $maxKey = $averageKey . "_max";
+            
+            if($averageKey == 'weight_loss_imperial'){
+                $minKey = 'weight_loss_min';
+                $maxKey = 'weight_loss_max';
+            }
+            
+            if($rangeDates->$minKey){
+                $startTime = strtotime($rangeDates->$minKey) * 1000;
+            }elseif($rangeDates->minDate){
+                $startTime = strtotime($rangeDates->minDate) * 1000;
+            }
+            
+            if($rangeDates->$maxKey){
+                $endTime = strtotime($rangeDates->$maxKey) * 1000;
+            }elseif($rangeDates->maxDate){
+                $endTime = strtotime($rangeDates->maxDate) * 1000;
+            }
+            
+            
             foreach($averageData['data'] as $dataKey => &$dataPoint){
-                if($dataPoint[0] < $startTime || $dataPoint[0] > $endTime){
+                
+                if($startTime !== null && $dataPoint[0] < $startTime){
                     unset($averageData['data'][$dataKey]);
                     continue;
+                }
+                
+                if($endTime !== null && $dataPoint[0] > $endTime){
+                     unset($averageData['data'][$dataKey]);
+                     continue;
                 }
                 
                 if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['min']){
@@ -1161,6 +1206,10 @@ class GenesisTracker{
                     $averageData['yMax'] = $dataPoint[1];
                 }
             }
+            
+            // Because the array has had items removed from it, the index is no longer sequential
+            // So it becomes an assoc array (and object when json_encoded). Make it indexed here.
+            $averageData['data'] = array_values($averageData['data']);
         }
         
         return $averages;
@@ -1353,7 +1402,7 @@ class GenesisTracker{
 			  $dateRange = self::getUserDateRange(get_current_user_id());
 			  
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
-			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange['mindate'], $dateRange['maxdate']));
+			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange));
 		 }
          
 

@@ -56,9 +56,11 @@ if(!wp_next_scheduled('genesis_send_reminder_email')){
 	wp_schedule_event(time(), 'weekly', 'genesis_send_reminder_email');
 }
 
+//wp_unschedule_event(mktime(0,0,0,9,29,2014), 'genesis_generate_average_user_data');
+
 // Regenerates all cache data for graph averages
 if(!wp_next_scheduled('genesis_generate_average_user_data')){
-    wp_schedule_event(mktime(0,0,0,9,29,2014), 'daily', 'genesis_generate_average_user_data');
+    wp_schedule_event(mktime(0,0,0,9,31,2014), 'daily', 'genesis_generate_average_user_data');
 }
 
 add_action('genesis_send_reminder_email', 'send_reminder_email');

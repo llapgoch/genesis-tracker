@@ -187,11 +187,15 @@ function UserGraph(){
 		
 	
 		// Show the min max y values for all users
+
 		if(this.averageUserGraphData && this.averageUserGraphData[mode]){
-			yMin = Math.min(yMin, parseFloat(this.averageUserGraphData[mode].yMin));
-			yMax = Math.max(yMax, parseFloat(this.averageUserGraphData[mode].yMax));
+            if( !isNaN(parseFloat(this.averageUserGraphData[mode].yMin)) ){
+                yMin = Math.min(yMin, parseFloat(this.averageUserGraphData[mode].yMin));
+            }
+            if( !isNaN(parseFloat(this.averageUserGraphData[mode].yMax)) ){
+			    yMax = Math.max(yMax, parseFloat(this.averageUserGraphData[mode].yMax));
+            }
 		 }
-	
 	
 		var yDiff = yMax - yMin;
 		yTick = (yDiff / 10);
@@ -295,17 +299,19 @@ function UserGraph(){
 		// AVERAGE USER GRAPH DATA REMOVED TEMPORARILY
 		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined){			
 			data.push({
-				"label":settings[mode].avgLabel,
-				"data":this.averageUserGraphData[mode].data,
-				"color":'rgb(207,207,207)',
-				"points":{
-					"show":false
-				},
-				"lines":{
-					"fill":false
-				}
-			});	
+                "label":settings[mode].avgLabel,
+                "data":this.averageUserGraphData[mode].data,
+                "color":'rgb(207,207,207)',
+                "points":{
+                    "show":false
+                },
+                "lines":{
+                    "fill":false
+                }
+            });
 		}
+        
+
 		
 		if(mode == 'weight' || mode == 'weight_imperial' && this.userGraphData['initial_weights']){
 			// Plot the user's start date
