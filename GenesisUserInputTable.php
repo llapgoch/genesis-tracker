@@ -30,7 +30,7 @@ class GenesisUserInputTable{
                 'default' => 0
             ));
 
-            $html[] = "<p class='input-suffix'>" .  'portions' . "</p>";
+            $html[] = "<p class='input-suffix'>" .  GenesisTracker::getUserTargetUnit($foodIdentifier) . "</p>";
             $html[] = "</td>";
         }
         $html[] = "</tbody>";

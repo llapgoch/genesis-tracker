@@ -2,6 +2,7 @@ function UserGraph(){
 	var $plot = null;
 	this.mode = null;
 	this.unit = null;
+    this.averages = null;
 	this.savePositions = {};
 	this.previousPoint = null;
 	this.overlayTooltip = null;
@@ -10,10 +11,10 @@ function UserGraph(){
 	this.averageUserGraphData = null;
 	
 	this.replot = function(){
-		this.initialise(this.mode, this.unit, true);
+		this.initialise(this.mode, this.unit, this.averages, true);
 	}
 	
-	this.initialise = function(mode, unit, moveToEnd) {
+	this.initialise = function(mode, unit, averages, moveToEnd) {
 		var host = this;
 		
 		var settings = {
@@ -108,6 +109,7 @@ function UserGraph(){
 		
 		this.mode = mode;
 		this.unit = unit;
+        this.averages = averages == true ? true : false;
 		
 		if(unit && (mode == 'weight' || mode == 'weight_loss')){
 			mode = mode + "_" + unit;
@@ -188,7 +190,7 @@ function UserGraph(){
 	
 		// Show the min max y values for all users
 
-		if(this.averageUserGraphData && this.averageUserGraphData[mode]){
+		if(this.averageUserGraphData && this.averageUserGraphData[mode] && this.averages){
             if( !isNaN(parseFloat(this.averageUserGraphData[mode].yMin)) ){
                 yMin = Math.min(yMin, parseFloat(this.averageUserGraphData[mode].yMin));
             }
@@ -297,7 +299,7 @@ function UserGraph(){
 	
 		// Plot the average user data for everyone on the site along side the user's data
 		// AVERAGE USER GRAPH DATA REMOVED TEMPORARILY
-		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined){			
+		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined && this.averages){			
 			data.push({
                 "label":settings[mode].avgLabel,
                 "data":this.averageUserGraphData[mode].data,
@@ -485,6 +487,10 @@ function UserGraph(){
 	}
 	
 	this.changeUnits = function(unit){
-		this.initialise(this.mode, unit);
+		this.initialise(this.mode, unit, this.averages);
 	}
+    
+    this.switchAverages = function(avg){
+        this.initialise(this.mode, this.unit, avg);
+    }
 }

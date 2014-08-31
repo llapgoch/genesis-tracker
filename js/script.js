@@ -68,16 +68,16 @@
 				$('.progress-graph-switcher .button-group button').on('click', function(e){
 					e.preventDefault();
 					var mode = $(this).data('mode');
+                    var averages = $('.extended-button input').is(":checked");
 					
-					userGraph.initialise(mode, $('.mode-switcher').val() == 1 ? "imperial" : "");
+					userGraph.initialise(mode, $('.mode-switcher').val() == 1 ? "imperial" : "", averages);
 					selectModeButton(mode);
-					
-					$('.mode-switcher').attr('disabled', 'disabled');
-					
-					if(mode == 'weight' || mode == 'weight_loss'){
-						$('.mode-switcher').removeAttr('disabled');
-					}
 				});
+                
+                $('.extended-button input').on('click', function(e){
+                   var showAverages = $(this).is(":checked");
+                   userGraph.switchAverages(showAverages);
+                });
 				
 				$('.mode-switcher').on('change', function(){
 					if(!$.inArray(switcherCompat, userGraph.getMode())){
@@ -234,6 +234,21 @@
 		function selectModeButton(mode){
 			$('.progress-graph-switcher .button-group button').removeClass('selected');
 			$('.progress-graph-switcher .button-group button[data-mode="' + mode + '"]').addClass('selected');
+        
+            
+            if(mode == 'weight_loss'){
+                $('.extended-button .averages').removeClass('disabled');
+                $('.extended-button .averages input').prop('disabled', false);
+            }else{
+                $('.extended-button .averages').addClass('disabled');
+                $('.extended-button .averages input').prop('disabled', true);
+            }
+            
+			$('.mode-switcher').attr('disabled', 'disabled');
+			
+			if(mode == 'weight' || mode == 'weight_loss'){
+				$('.mode-switcher').removeAttr('disabled');
+			}
 		}
 		
 		

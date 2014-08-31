@@ -36,14 +36,14 @@ class GenesisTracker{
 
     
     protected static $_userMetaTargetFields = array(
-        "fat" => array("name" => 'Fat', "unit" => "portion"),
-        "protein" => array("name" => "Protein", "unit" => "portion"),
-        "carbs" => array("name" => "Carbohydrate", "unit" => "portion"),
-        "fruit" => array("name" => "Fruit", "unit" => "portion"),
-        "vegetables" => array("name" => "Vegetables", "unit" => "portion"),
-        "dairy" => array("name" => "Dairy", "unit" => "portion"),
-        "alcohol" => array("name" => "Alcohol", "unit" => "unit"),
-        "treat" => array("name" => "Treat", "unit" => "portion")
+        "fat" => array("name" => 'Fat', "unit" => "portions"),
+        "protein" => array("name" => "Protein", "unit" => "portions"),
+        "carbs" => array("name" => "Carbohydrate", "unit" => "portions"),
+        "fruit" => array("name" => "Fruit", "unit" => "portions"),
+        "vegetables" => array("name" => "Vegetables", "unit" => "portions"),
+        "dairy" => array("name" => "Dairy", "unit" => "portions"),
+        "alcohol" => array("name" => "Alcohol", "unit" => "units"),
+        "treat" => array("name" => "Treat", "unit" => "portions")
     );
     
     protected static $_userTargetTimes = array(
@@ -184,6 +184,14 @@ class GenesisTracker{
          $fieldData = self::$_userMetaTargetFields[$key];
          
          return "<p class='target-label'>" . sprintf("<strong>Your Personal %s Target:</strong> %s", $fieldData['name'], $val)  . "</p>";
+     }
+     
+     public static function getUserTargetUnit($key){
+         if(!isset(self::$_userMetaTargetFields[$key]) || !isset(self::$_userMetaTargetFields[$key]['unit'])){
+             return 'portions';
+         }
+         
+         return self::$_userMetaTargetFields[$key]['unit'];
      }
 	 
 	 public static function getTrackerTableName(){

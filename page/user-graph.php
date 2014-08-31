@@ -5,12 +5,15 @@
             <div class="button-row">
                 <button class="pink button large" data-mode="weight">Weight</button>
                 <button class="orange button large" data-mode="exercise_minutes">Exercise</button>
-    	        <button class="green button large" data-mode="weight_loss">Weight Progress</button>
+    	        <div class="extended-button">
+                    <button class="green button large" data-mode="weight_loss">Weight Progress</button>
+                    <div class="averages">                        
+                        <input type="checkbox" name="averages" id="averages" />
+                        <label for="averages"><?php _e('Show all user averages'); ?></label>
+                    </div>
+                </div>
             </div>
-        	<select class="mode-switcher weight-unit">
-        		<option value="1">Stone / Pounds</option>
-        		<option value="2">Kilograms</option>
-        	</select>
+        	
         </div>
     
         <div class="button-group food">
@@ -33,6 +36,10 @@
 
 
 <div class="genesis-graph-container">
+	<select class="mode-switcher weight-unit">
+		<option value="1">Stone / Pounds</option>
+		<option value="2">Kilograms</option>
+	</select>
 	<div class="no-results alert notice">
 		<div class="msg">
 			<h2>There are no results available for your selection</h2>

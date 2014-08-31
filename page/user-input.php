@@ -90,7 +90,6 @@
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="weight" class="general-label"><?php _e('Your Weight');?></label>
-					
     				</div>
     				<p class="form-explanation"><?php _e('Enter your weight for the day you are recording');?></p>
 		
@@ -113,10 +112,8 @@
     					?>
 		
     					<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('pounds');?></p>
-    				</div>
-				
+    				</div>				
     			</div> 
-			
     		</div>
     	</div>
     
@@ -125,6 +122,7 @@
     		<div class="title">
     			<h3 class="general-label"><?php _e('Food Groups');?></h3>
     		</div>
+          
     		<?php echo $form->checkbox('record-food', 1, array(
     			'class' => 'question-chooser',
     			'id' => 'record-food'
@@ -132,37 +130,37 @@
     		<label for="record-food"><?php _e('I would like to record my food groups on this occasion');?></label>
     		<div class="inner-question-container food-container js-hide">
                 <!-- <div class="alert notice"><a href="https://www.myfood24.org/login" target="_blank">Find out the portions you've consumed using Food 24's Website <em>(opens in a new window)</em></a></div> -->
+                
     			<div class="question-container clearfix">
+                      <p class="form-explanation"><?php _e('Enter any of the following food groups you have consumed.  You can enter as much or as little information as you like, and then come back and add more or amend it later');?></p>
     				<div class="title">
     					<label for="fat" class="general-label"><?php _e('Fat consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the portions of fat you consumed on the day you are recording');?></p>
-               
-    			<?php echo GenesisUserInputTable::getFoodInputTableHTML('fat', $form); ?>
+    	
+    	            <?php echo GenesisUserInputTable::getFoodInputTableHTML('fat', $form); ?>
     			</div>
             
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="carbs" class="general-label"><?php _e('Carbohydrates consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the portions of carbohydrates you consumed on the day you are recording');?></p>
-                  <?php echo GenesisUserInputTable::getFoodInputTableHTML('carbs', $form); ?>
+    				
+                      <?php echo GenesisUserInputTable::getFoodInputTableHTML('carbs', $form); ?>
     			</div>
             
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="protein" class="general-label"><?php _e('Protein consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the portions of protein you consumed on the day you are recording');?></p>
-                   <?php echo GenesisUserInputTable::getFoodInputTableHTML('protein', $form); ?>
-				
+    				
+                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('protein', $form); ?>
     			</div>
             
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="fruit" class="general-label"><?php _e('Fruit consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the portions of fruit you consumed on the day you are recording');?></p>
+    	
                     <?php echo GenesisTracker::getUserTargetLabel('fruit'); ?>
     				<?php
                     echo GenesisUserInputTable::getFoodInputTableHTML('fruit', $form); 
@@ -174,7 +172,7 @@
     				<div class="title">
     					<label for="vegetables" class="general-label"><?php _e('Vegetables consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the portions of vegetables you consumed on the day you are recording');?></p>
+    
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('vegetables', $form); ?>
     			</div>
             
@@ -182,7 +180,7 @@
     				<div class="title">
     					<label for="dairy" class="general-label"><?php _e('Dairy consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the portions of dairy you consumed on the day you are recording');?></p>
+  
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('dairy', $form); ?>
     			</div>
             
@@ -190,7 +188,7 @@
     				<div class="title">
     					<label for="alcohol" class="general-label"><?php _e('Alcohol consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the units of alcohol you consumed on the day you are recording');?></p>
+    	
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('alcohol', $form); ?>
     			</div>
             
@@ -198,7 +196,7 @@
     				<div class="title">
     					<label for="treat" class="general-label"><?php _e('Treats consumed');?></label>
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the amount of treats you consumed on the day you are recording');?></p>
+    
                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('treat', $form); ?>
     			</div>
     		</div>
