@@ -264,15 +264,15 @@ function UserGraph(){
 			}
 		};	
 		
-		// if(this.mode == 'weight_loss'){
-		// 	options.yaxis.transform = function(v) {
-		// 		return -v;
-		//     		};
-		//
-		// 	options.yaxis.inverseTransform = function(v) {
-		//         		return -v;
-		// 	}
-		// }
+        if(this.mode == 'weight_loss'){
+            options.yaxis.transform = function(v) {
+                return -v;
+                    };
+
+            options.yaxis.inverseTransform = function(v) {
+                        return -v;
+            }
+        }
 		
 		if(!showTicks){
 			options.xaxis.ticks = false;
