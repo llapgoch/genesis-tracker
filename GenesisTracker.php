@@ -1198,11 +1198,12 @@ class GenesisTracker{
                      continue;
                 }
                 
-                if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['min']){
+
+                if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['yMin']){
                     $averageData['yMin'] = $dataPoint[1];
                 }
                 
-                if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['max']){
+                if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['yMax']){
                     $averageData['yMax'] = $dataPoint[1];
                 }
             }
