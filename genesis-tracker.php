@@ -3,7 +3,7 @@
 Plugin Name: Genesis Tracker
 Plugin URI: http://carbolowdrates.com
 Description: Tracks user's weight, calories, and exercise
-Version: 0.3
+Version: 0.6
 Author: Dave Preece
 Author URI: http://www.scumonline.co.uk
 License: GPL
@@ -33,6 +33,7 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId), 'genesis_user_input_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genesis_tracker_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), 'genesis_eligibility_page');
 
 add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
@@ -56,11 +57,11 @@ if(!wp_next_scheduled('genesis_send_reminder_email')){
 	wp_schedule_event(time(), 'weekly', 'genesis_send_reminder_email');
 }
 
-//wp_unschedule_event(mktime(0,0,0,9,29,2014), 'genesis_generate_average_user_data');
+//wp_unschedule_event(1412121600, 'genesis_generate_average_user_data');
 
 // Regenerates all cache data for graph averages
 if(!wp_next_scheduled('genesis_generate_average_user_data')){
-    wp_schedule_event(mktime(0,0,0,9,31,2014), 'daily', 'genesis_generate_average_user_data');
+    wp_schedule_event(mktime(0,0,0,9,1,2014), 'daily', 'genesis_generate_average_user_data');
 }
 
 add_action('genesis_send_reminder_email', 'send_reminder_email');
@@ -338,6 +339,29 @@ function genesis_initial_weight_page(){
 		require('page/initial-weight.php');
 	}
 	
+	$output = ob_get_contents();
+	ob_end_clean();
+	return $output;
+}
+
+function genesis_eligibility_page(){
+    ob_start();
+    $form = DP_HelperForm::getForm('eligibility');
+    $outputBody = false;
+    
+    if(!$form->wasPosted() || $form->hasErrors()){
+        require('page/eligibility.php');
+        $outputBody = true;
+    }
+    
+    if(!$outputBody && GenesisTracker::getPageData('eligible') === false){
+        require('page/eligibility-fail.php');
+        $outputBody = true;
+    }
+    
+   
+    $outputBody = true;
+    
 	$output = ob_get_contents();
 	ob_end_clean();
 	return $output;

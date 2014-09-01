@@ -80,9 +80,9 @@
                 });
 				
 				$('.mode-switcher').on('change', function(){
-					if(!$.inArray(switcherCompat, userGraph.getMode())){
-						return;
-					}
+                    if($.inArray(userGraph.getMode(), switcherCompat) === false){
+                        return;
+                    }
 					
 					userGraph.changeUnits($(this).val() == 1 ? "imperial" : "");
 				});

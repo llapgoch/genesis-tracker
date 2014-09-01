@@ -4,11 +4,13 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-	const version = "0.5";
+    const version = "0.6";
+    const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
 	const initialWeightPageId = "initial_weight_page";
+    const eligibilityPageId = "eligibility_page";
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
@@ -27,6 +29,7 @@ class GenesisTracker{
 	const MIN_VALID_WEIGHT = 44.4;
 	// 25 Stone
 	const MAX_VALID_WEIGHT = 158.8;
+    const ELIGIBILITY_PASSWORD = "NikolaTesla100";
 
 	
 	public static $pageData = array();
@@ -146,7 +149,8 @@ class GenesisTracker{
 		 self::createInputPage();
 		 self::createTargetInputPage();
 		 self::createInitialWeightPage();
-		 
+         self::createEligibilityPage();
+
 		 $role = get_role('administrator');
 		 
 		 if($role){
@@ -262,6 +266,71 @@ class GenesisTracker{
 			break;
 		 }
 	 }
+     
+     public function eligibilityPageAction(){
+         $form = DP_HelperForm::createForm('eligibility');
+         $form->fieldError = self::defaultFieldError;
+         
+		 if(!DP_HelperForm::wasPosted()){
+			 return;
+	 	 }
+         
+		 $form->setData($_POST);
+		 $action = $form->getRawValue('action');
+		 
+		 // Actions for the user input page
+		 
+         switch($action){
+             case "checkeligibility" :
+             self::checkEligibility($form);
+             break;
+         }
+     }
+     
+     public function checkEligibility($form){
+         // Validate all eligibility options
+         
+         $rules = array(
+             'question_one' => array("R"),
+             'question_two' => array("R"),
+             'question_three' => array("R"),
+             'passcode' => array("R")
+         );
+         
+		 $form->validate($rules);
+         
+         self::$pageData['eligible'] = false;
+         
+         
+         
+		 if(!$form->hasErrors()){
+             // Check the values for the eligibility
+             
+             if($form->getRawValue('passcode') !== self::ELIGIBILITY_PASSWORD){
+                 $form->setError('passcode', array(
+                     'main' => 'Sorry, the passcode you have entered is not correct.',
+                     'general' => 'Sorry, the passcode you have entered is not correct.'
+                 ));
+                 
+                 self::$pageData['errors'][] = 'Please enter the passcode from your introduction letter carefully.';
+                 return;
+             }
+             
+             if($form->getRawValue('question_one') !== "1"){
+                 return;
+             }
+             
+             if($form->getRawValue('question_two') !== "2"){
+                 return;
+             }
+             
+             if($form->getRawValue('question_three') !== "2"){
+                 return;
+             }
+         }
+         
+         self::$pageData['eligible'] = true;
+     }
 	 
 	 public function checkLoginWeightEntered($userLogin, $user){
 		
@@ -457,6 +526,10 @@ class GenesisTracker{
 			 self::userInputPageAction();
 		 }
 		 
+         if(self::isOnEligibilityPage()){
+             $formName = 'eligibility';
+             self::eligibilityPageAction();
+         }
 		 
 		 if(self::isOnTargetPage()){
 			 $formName = 'tracker';
@@ -468,7 +541,7 @@ class GenesisTracker{
 			 self::enterWeightPageAction();
 		 }
 		 
-		 if($formName &&  $form = DP_HelperForm::getForm($formName)){
+		 if($formName && count(self::$pageData['errors']) == 0 &&  $form = DP_HelperForm::getForm($formName)){
 			 if($form->hasErrors()){
 				 self::$pageData['errors'][] = 'Please fix the errors on the form and try again.';
 		 	}
@@ -792,61 +865,38 @@ class GenesisTracker{
 	 }
 	 
 	 public static function isOnEnterWeightPage(){
-		global $post;
-
-		if(!$post){
-			return false;
-		}
-		
-		if(self::getOption(self::initialWeightPageId) == $post->ID){
-			return true;
-		}
-		
-		return false;
+        return self::isOnPage(self::initialWeightPageId); 
 	 }
 	 
-	 
 	 public static function isOnUserPage(){
-		global $post;
-
-		if(!$post){
-			return false;
-		}
-		
-		if(self::getOption(self::userPageId) == $post->ID){
-			return true;
-		}
-		
-		return false;
+         return self::isOnPage(self::userPageId);
 	 }
 	 
 	 public static function isOnTargetPage(){
+         return self::isOnPage(self::targetPageId);
+	 }
+     
+     public static function isOnEligibilityPage(){
+  		return self::isOnPage(self::eligibilityPageId);
+     }
+	 
+	 public static function isOnUserInputPage(){
+         return self::isOnPage(self::inputProgressPageId);
+	 }
+     
+     public static function isOnPage($pageCode){
   		global $post;
 
   		if(!$post){
   			return false;
   		}
 		
-  		if(self::getOption(self::targetPageId) == $post->ID){
+  		if(self::getOption($pageCode) == $post->ID){
   			return true;
   		}
 		
   		return false;
-	 }
-	 
-	 public static function isOnUserInputPage(){
- 		global $post;
-
- 		if(!$post){
- 			return false;
- 		}
-		
- 		if(self::getOption(self::inputProgressPageId) == $post->ID){
- 			return true;
- 		}
-		
- 		return false;
-	 }
+     }
 	 
 	 public static function getPageData($key){
 		 if(isset(self::$pageData[$key])){
@@ -1391,6 +1441,7 @@ class GenesisTracker{
 		 if(self::getPageData('user-input-duplicate') 
 		 || self::getPageData('user-input-save')
 		 || self::isOnEnterWeightPage()
+         || self::isOnEligibilityPage()
          || apply_filters('hide-header-notice', false)){
 			 $classes[] = 'hide-header-notice';
 		 }
@@ -1402,19 +1453,20 @@ class GenesisTracker{
          $user_id = get_current_user_id();
          
 		 if(self::isOnUserPage()){
+             add_action( 'wp_head', function() {
+                echo '<!--[if lt IE 9]><script src="' . plugins_url("js/excanvas.min.js", __FILE__) . '"></script><![endif]-->';
+             });
+
 			  wp_enqueue_script('flot', plugins_url('js/jquery.flot.min.js', __FILE__), array('jquery'));
 			  wp_enqueue_script('flot-time', plugins_url('js/jquery.flot.time.min.js', __FILE__), array('flot'));
 			  wp_enqueue_script('flot-navigate', plugins_url('js/jquery.flot.navigate.min.js', __FILE__), array('flot'));
 			  wp_enqueue_script('user-graph', plugins_url('js/UserGraph.js', __FILE__), array('flot-navigate'));
 			  
-			  
 			  $dateRange = self::getUserDateRange(get_current_user_id());
 			  
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
 			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange));
-		 }
-         
-
+         }
 		 	 
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage()){	
 		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
@@ -1468,7 +1520,6 @@ class GenesisTracker{
 		 }
 		 
 		 // Creates the page which displays the graph information
-		 $current_user = wp_get_current_user();
 
 		 $pageData = array(
 			'post_title' => 'Progress',
@@ -1476,7 +1527,7 @@ class GenesisTracker{
  		 	'post_content' => '[' . self::getOptionKey(self::userPageId) . ']',
  		 	'post_status' => 'publish',
  		 	'post_type' => 'page',
- 		 	'post_author' => $current_user->ID
+ 		 	'post_author' => self::userIdForAutoCreatedPages
  		 );
 		
 
@@ -1496,8 +1547,6 @@ class GenesisTracker{
  		 if($post && $post->post_status == 'publish'  &! $overwrite){
 			 return;
 		 }
-		 
-		 $current_user = wp_get_current_user();
 
 		 $pageData = array(
 			'post_title' => 'Input Your Progress',
@@ -1505,7 +1554,7 @@ class GenesisTracker{
  		 	'post_content' => '[' . self::getOptionKey(self::inputProgressPageId) . ']',
  		 	'post_status' => 'publish',
  		 	'post_type' => 'page',
- 		 	'post_author' => $current_user->ID
+ 		 	'post_author' => self::userIdForAutoCreatedPages
  		 );
 		 
 		 $pageID = self::getOption(self::inputProgressPageId);
@@ -1527,7 +1576,6 @@ class GenesisTracker{
 			 return;
 		 }
 		 
-		 $current_user = wp_get_current_user();
 
 		 $pageData = array(
 			'post_title' => 'Set a weight target',
@@ -1535,7 +1583,7 @@ class GenesisTracker{
  		 	'post_content' => '[' . self::getOptionKey(self::targetPageId) . ']',
  		 	'post_status' => 'publish',
  		 	'post_type' => 'page',
- 		 	'post_author' => $current_user->ID
+ 		 	'post_author' => self::userIdForAutoCreatedPages
  		 );
 		 
 
@@ -1546,6 +1594,32 @@ class GenesisTracker{
 		  $post_id = wp_insert_post($pageData);
 		  self::updateOption(self::targetPageId, $post_id);
 	 } 
+     
+     public static function createEligibilityPage($overite = false){
+		 // Create the page which allows users to enter a target weight and date
+		 $pageID = self::getOption(self::eligibilityPageId);
+	 	 $post = get_post($pageID);
+	
+		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+         
+		 $pageData = array(
+			'post_title' => 'Check Your Eligibility',
+ 			'comment_status' => 'closed',
+ 		 	'post_content' => '[' . self::getOptionKey(self::eligibilityPageId) . ']',
+ 		 	'post_status' => 'publish',
+ 		 	'post_type' => 'page',
+ 		 	'post_author' => self::userIdForAutoCreatedPages
+ 		 );
+
+		 if($pageID){
+			 wp_delete_post($pageID, true);
+		 }
+		 
+		  $post_id = wp_insert_post($pageData);
+		  self::updateOption(self::eligibilityPageId, $post_id);
+     }
 	 
 	 public static function createInitialWeightPage($overwrite = false){
 		 // Create the page which allows users to enter a target weight and date
@@ -1555,8 +1629,6 @@ class GenesisTracker{
 		 if($post && $post->post_status == 'publish'  &! $overwrite){
 			 return;
 		 }
-		 
-		 $current_user = wp_get_current_user();
 
 		 $pageData = array(
 			'post_title' => 'Enter Your Initial Weight',
@@ -1564,7 +1636,7 @@ class GenesisTracker{
  		 	'post_content' => '[' . self::getOptionKey(self::initialWeightPageId) . ']',
  		 	'post_status' => 'publish',
  		 	'post_type' => 'page',
- 		 	'post_author' => $current_user->ID
+ 		 	'post_author' => self::userIdForAutoCreatedPages
  		 );
 
 		 if($pageID){
