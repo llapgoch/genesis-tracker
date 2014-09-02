@@ -160,8 +160,7 @@
     				<div class="title">
     					<label for="fruit" class="general-label"><?php _e('Fruit consumed');?></label>
     				</div>
-    	
-                    <?php echo GenesisTracker::getUserTargetLabel('fruit'); ?>
+                     
     				<?php
                     echo GenesisUserInputTable::getFoodInputTableHTML('fruit', $form); 
                     ?>

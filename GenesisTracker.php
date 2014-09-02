@@ -12,6 +12,7 @@ class GenesisTracker{
 	const initialWeightPageId = "initial_weight_page";
     const eligibilityPageId = "eligibility_page";
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
+    const eligibilitySessionKey = "___USER_ELIGIBLE___";
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
@@ -166,6 +167,75 @@ class GenesisTracker{
          }
      }
      
+     public static function isOnRegistrationPage(){
+         $registerUrl = wp_registration_url();
+         $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
+         
+         return $registerUrl == $currentUrl;
+     }
+     
+     public static function initActions(){
+         // Use this for things like the login / register page
+         $registerUrl = wp_registration_url();
+         $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
+         
+         if(self::isOnRegistrationPage() && self::userIsEligible() == false){
+             wp_redirect('/');
+             exit;
+         }
+    
+        
+        // We set the username as the email address
+        if($registerUrl == $currentUrl && count($_POST)){
+            if(isset($_POST['user_email'])){
+                $_POST['user_login'] = $_POST['user_email'];
+            }
+        }
+     }
+     
+     public static function checkRegistrationErrors($errors, $sanitized_user_login, $user_email){
+         if(!self::userIsEligible()){
+             $errors->errors = array();
+             $errors->add( 'eligible_error', __('<strong>ERROR</strong>: Sorry, you are not eligible for this clinical trial.','mydomain') );
+             return $errors;
+         }
+         
+         if(empty($_POST['first_name'])){
+            $errors->add( 'first_name_error', __('<strong>ERROR</strong>: You must include a first name.') );
+        }
+	
+     	if (empty( $_POST['last_name'] )){
+               $errors->add( 'last_name_error', __('<strong>ERROR</strong>: You must include a last name.') );
+     	}
+        
+     	if (empty( $_POST['tel'] )){
+               $errors->add( 'tel_error', __('<strong>ERROR</strong>: You must include a telephone number.') );
+     	}
+        return $errors;
+     }
+     
+     public static function checkRegistrationPost(){
+         if ( isset( $_POST['first_name'] ) ){
+             update_user_meta($user_id, 'first_name', trim($_POST['first_name']));
+         }
+   
+         if ( isset( $_POST['last_name'] ) ){
+             update_user_meta($user_id, 'last_name', trim($_POST['last_name']));
+         }
+         
+         if ( isset( $_POST['tel'] ) ){
+             update_user_meta($user_id, 'last_name', trim($_POST['last_name']));
+         }
+         
+         update_user_meta($user_id, 'active', 0);
+         
+         unset($_SESSION[self::getOptionKey(self::eligibilitySessionKey)]);
+     }
+     
+     public static function userIsEligible(){
+         return $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] == true;
+     }
+     
      public static function getuserMetaTargetFields(){
          return self::$_userMetaTargetFields;
      }
@@ -181,7 +251,7 @@ class GenesisTracker{
              return '';
          }         
 
-         if('' == $val = get_the_author_meta(self::getOptionKey(self::targetPrependKey . $key, $user_id))){
+         if('' == $val = get_the_author_meta(self::getOptionKey(self::targetPrependKey . $key), $user_id)){
              return '';
          }
 
@@ -289,6 +359,7 @@ class GenesisTracker{
      
      public function checkEligibility($form){
          // Validate all eligibility options
+         $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = false;
          
          $rules = array(
              'question_one' => array("R"),
@@ -301,35 +372,40 @@ class GenesisTracker{
          
          self::$pageData['eligible'] = false;
          
-         
-         
-		 if(!$form->hasErrors()){
-             // Check the values for the eligibility
-             
-             if($form->getRawValue('passcode') !== self::ELIGIBILITY_PASSWORD){
-                 $form->setError('passcode', array(
-                     'main' => 'Sorry, the passcode you have entered is not correct.',
-                     'general' => 'Sorry, the passcode you have entered is not correct.'
-                 ));
-                 
-                 self::$pageData['errors'][] = 'Please enter the passcode from your introduction letter carefully.';
-                 return;
-             }
-             
-             if($form->getRawValue('question_one') !== "1"){
-                 return;
-             }
-             
-             if($form->getRawValue('question_two') !== "2"){
-                 return;
-             }
-             
-             if($form->getRawValue('question_three') !== "2"){
-                 return;
-             }
+         if($form->hasErrors()){
+             return;
          }
          
+		 
+         // Check the values for the eligibility
+         
+         if($form->getRawValue('passcode') !== self::ELIGIBILITY_PASSWORD){
+             $form->setError('passcode', array(
+                 'main' => 'Sorry, the passcode you have entered is not correct.',
+                 'general' => 'Sorry, the passcode you have entered is not correct.'
+             ));
+             
+             self::$pageData['errors'][] = 'Please enter the passcode from your introduction letter carefully.';
+             return;
+         }
+         
+         if($form->getRawValue('question_one') !== "1"){
+             return;
+         }
+         
+         if($form->getRawValue('question_two') !== "2"){
+             return;
+         }
+         
+         if($form->getRawValue('question_three') !== "2"){
+             return;
+         }
+         
+         $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
          self::$pageData['eligible'] = true;
+         
+         wp_redirect(wp_registration_url());
+         exit;
      }
 	 
 	 public function checkLoginWeightEntered($userLogin, $user){
@@ -1203,8 +1279,9 @@ class GenesisTracker{
 	 	Then we average each value for the date.
 	 */
      public static function getAverageUsersGraphData($rangeDates){ 
+         // Update to include admins
         if(!$averages = wp_cache_get( self::getOptionKey(self::averageDataKey) )){
-            $averages = self::generateAverageUsersGraphData();
+            $averages = self::generateAverageUsersGraphData(false);
         };
         
         if(!$averages){
@@ -1503,6 +1580,8 @@ class GenesisTracker{
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage()){
 			auth_redirect();	
 		 }
+         
+        
 	 }
 	 
 	 public static function ajaxRequest($data){

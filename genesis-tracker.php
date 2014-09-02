@@ -39,9 +39,25 @@ add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
 add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPassword'));
 
+// Change the edit link URL for all users to be the edit user page.  
+//Currently, the admin logged in is taken to the user profile page, which doesn't have targets.
+// add_filter('get_edit_user_link', function($link, $user_id){
+//     return add_query_arg( 'user_id', $user_id, self_admin_url( 'user-edit.php' ) );
+// }, 10, 2);
+//
+// add_filter('admin_url', function($url, $path, $blog_id ){
+//     if(IS_PROFILE_PAGE){
+//         if($path == 'profile.php'){
+//             return self_admin_url('user-edit.php');
+//         }
+//     }
+//
+//      return $url;
+// }, 10, 3);
+
 // Checks whether the install function needs to be called again for DB changes
 add_action( 'init', array('GenesisTracker', 'checkVersionUpgrade') );
-
+add_action( 'init', array('GenesisTracker', 'initActions') );
 remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
 
 add_filter('user_contactmethods','remove_profile_contact_methods',10,1);
@@ -98,6 +114,14 @@ if(!is_admin()){
 	add_action('wp', array('GenesisTracker', 'doActions'));
 	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
 	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
+    add_filter('registration_errors', array('GenesisTracker', 'checkRegistrationErrors'), 10, 3);
+    add_action('user_register', array('GenesisTracker', 'checkRegistrationPost'));
+    
+    if(GenesisTracker::isOnRegistrationPage()){
+        add_filter( 'login_message', function(){
+            return '<p class="message register">Thank you. You are eligible to participate in our clinical trial.  Please fill in your details below.</p>';
+        });
+    }
 }else{
 	
 }
@@ -112,6 +136,33 @@ add_action( 'edit_user_profile_update', 'save_extra_user_profile_fields' );
 
 add_action( 'personal_options_update', 'save_user_target_fields' );
 add_action( 'edit_user_profile_update', 'save_user_target_fields' );
+
+add_action( 'register_form', 'genesis_add_registration_fields' );
+
+
+
+function genesis_add_registration_fields(){
+    $tel = ( isset( $_POST['tel'] ) ) ? $_POST['tel'] : '';
+      $first_name = ( isset( $_POST['first_name'] ) ) ? stripslashes(trim($_POST['first_name'])) : '';
+ 	 $last_name = ( isset( $_POST['first_name'] ) ) ? stripslashes(trim($_POST['last_name'])) : '';
+      ?>
+      <p>
+          <label for="first_name"><?php _e('First Name') ?><br />
+          <input type="text" name="first_name" id="first_name" class="input" value="<?php echo esc_attr($first_name);?>" size="25" /></label>
+      </p>
+	 
+      <p>
+          <label for="last_name"><?php _e('Last Name') ?><br />
+          <input type="text" name="last_name" id="last_name" class="input" value="<?php echo esc_attr($last_name); ?>" size="25" /></label>
+      </p>
+      <p>
+          <label for="user_extra"><?php _e( 'Telephone Number') ?><br />
+              <input type="text" name="tel" id="tel" class="input" value="<?php echo esc_attr( stripslashes( $tel ) ); ?>" size="25" /></label>
+      </p>
+      
+      <p class="message"><?php _e('You will receive an email once your account has been activated'); ?></p>
+      <?php
+}
 
 function extra_user_profile_fields($user){	
 	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
@@ -193,6 +244,15 @@ function login_scripts(){
 		height:94px;
 		margin:0 auto;
 	}
+    
+    /* Register Form */
+    #registerform label[for="user_login"]{
+        display:none;
+    }
+    
+    #registerform .message{
+        margin-bottom:20px;
+    }
 	</style>
 	<?php
 }
