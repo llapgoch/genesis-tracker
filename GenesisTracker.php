@@ -16,6 +16,7 @@ class GenesisTracker{
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
+    const userActiveKey = "active";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
     const versionKey = "version";
@@ -25,12 +26,13 @@ class GenesisTracker{
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	const editCapability = "edit_genesis";
+    const registrationSuccessMessage = "Thank you, your registration has been successful.<br />You will be contacted shortly by a Genesis dietitian";
 	
 	// 7 Stone
 	const MIN_VALID_WEIGHT = 44.4;
 	// 25 Stone
 	const MAX_VALID_WEIGHT = 158.8;
-    const ELIGIBILITY_PASSWORD = "NikolaTesla100";
+    const ELIGIBILITY_PASSWORD = "1";
 
 	
 	public static $pageData = array();
@@ -180,8 +182,8 @@ class GenesisTracker{
          $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
          
          if(self::isOnRegistrationPage() && self::userIsEligible() == false){
-             wp_redirect('/');
-             exit;
+//             wp_redirect('/');
+  //           exit;
          }
     
         
@@ -194,7 +196,7 @@ class GenesisTracker{
      }
      
      public static function checkRegistrationErrors($errors, $sanitized_user_login, $user_email){
-         if(!self::userIsEligible()){
+         if(!self::userIsEligible() && false){
              $errors->errors = array();
              $errors->add( 'eligible_error', __('<strong>ERROR</strong>: Sorry, you are not eligible for this clinical trial.','mydomain') );
              return $errors;
@@ -211,10 +213,45 @@ class GenesisTracker{
      	if (empty( $_POST['tel'] )){
                $errors->add( 'tel_error', __('<strong>ERROR</strong>: You must include a telephone number.') );
      	}
+        
+        if ( $_POST['password'] !== $_POST['repeat_password'] ) {
+        	$errors->add( 'passwords_not_matched', "<strong>ERROR</strong>: Passwords must match" );
+        }
+        if ( strlen( trim($_POST['password']) ) < 8 ) {
+        	$errors->add( 'password_too_short', "<strong>ERROR</strong>: Passwords must be at least eight characters long" );        	
+        }
+        
         return $errors;
      }
      
-     public static function checkRegistrationPost(){
+     public static function modifyRegistrationMessage($errors, $redirect_to){
+         if(!count($errors->errors)){
+             return $errors;
+         }
+         
+         if(isset($errors->errors['registered'])){
+             $errors->errors['registered'] = array(self::registrationSuccessMessage);
+         }
+         
+         return $errors;
+     }
+     
+     public static function checkLoginAction($user, $password){
+         if(!$user){
+             return;
+         }
+         
+         $isActive = get_the_author_meta(self::getOptionKey(self::userActiveKey), $user->ID);
+
+          if(is_numeric($isActive) && $isActive == 0){
+              return new WP_Error( 'user_inactive',  __( '<strong>ERROR</strong>: Sorry, your account has not been activated yet.'));
+          }
+          
+          return $user;
+     }
+     
+     public static function checkRegistrationPost($user_id){
+         global $ezemails_options;
          if ( isset( $_POST['first_name'] ) ){
              update_user_meta($user_id, 'first_name', trim($_POST['first_name']));
          }
@@ -227,9 +264,53 @@ class GenesisTracker{
              update_user_meta($user_id, 'last_name', trim($_POST['last_name']));
          }
          
-         update_user_meta($user_id, 'active', 0);
+         $userdata = array();
+         $userdata['ID'] = $user_id;
+         $userdata['user_pass'] = trim($_POST['password']);
          
-         unset($_SESSION[self::getOptionKey(self::eligibilitySessionKey)]);
+         $user_id = wp_update_user( $userdata );
+         update_user_option( $user_id, 'default_password_nag', 0, true );
+
+         update_user_meta($user_id, self::getOptionKey(self::userActiveKey), 0, true);
+         
+         $plaintext_pass = trim($_POST['password']);
+         
+         // Send our registration email with the new email
+ 		if ( empty($plaintext_pass) ){
+ 			return;
+        }
+        
+        unset($_SESSION[self::getOptionKey(self::eligibilitySessionKey)]);
+        
+ 		$headers = self::getEmailHeaders();
+        $contents = self::getTemplateContents('register');
+        
+        $contents = str_replace(array(
+            "%user_email%",
+            "%user_pass%"
+        ),array(
+            trim($_POST['user_email']),
+            $plaintext_pass
+        ), $contents);
+        
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the Genesis Procas Clinical Trial', $contents, $headers); 
+        
+     }
+     
+     public function disableDefaultRegistrationEmail($vals){
+         // If we're an administrator, keep the default email alert
+         // So the new user gets their password
+         if(is_admin() || !is_array($vals)){
+             return $vals;
+         }
+         
+         if(strpos($vals['subject'], 'Your username and password') !== false){
+             $vals['to'] = '';
+             $vals['subject'] = '';
+             $vals['message'] = '';
+         }
+         
+         return $vals;
      }
      
      public static function userIsEligible(){
@@ -1289,8 +1370,6 @@ class GenesisTracker{
         }
         
 
-        
-        
         // Trim the data so we only have between the dates we need
         // This used to be done in the method which now caches all user data
         foreach($averages as $averageKey => &$averageData){
@@ -1725,16 +1804,26 @@ class GenesisTracker{
 		  $post_id = wp_insert_post($pageData);
 		  self::updateOption(self::initialWeightPageId, $post_id);
 	 }
+     
+     public static function getTemplateContents($name){
+		 $templatePath = plugin_dir_path( __FILE__ ) . "template" . DIRECTORY_SEPARATOR . $name . ".html";
+		 return file_get_contents($templatePath);
+     }
+     
+     public static function getEmailHeaders(){
+  		$headers = array();
+  		$headers[] = 'From: Genesis Clinical Trial<'. get_option('admin_email') .'>';
+  		$headers[] = 'MIME-Version: 1.0';
+  		$headers[] = 'Content-type: text/html; charset=utf-8';
+        
+        return $headers;
+     }
 	 
 	 public static function sendReminderEmail(){
 		 // Sends a reminder email to all users
-		 $templatePath = plugin_dir_path( __FILE__ ) . "template" . DIRECTORY_SEPARATOR . "reminder.html";
-		 $body = file_get_contents($templatePath);
+        $body = self::getTemplateContents($templatePath);
 		 
- 		$headers = array();
- 		$headers[] = 'From: Genesis Clinical Trial<'. get_option('admin_email') .'>';
- 		$headers[] = 'MIME-Version: 1.0';
- 		$headers[] = 'Content-type: text/html; charset=utf-8';
+ 		$headers = self::getEmailHeaders();
 		 
 		 // get all subscribers
 		  $users = get_users( array("user_login" => 'admin') );

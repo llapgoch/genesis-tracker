@@ -115,13 +115,18 @@ if(!is_admin()){
 	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
 	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
     add_filter('registration_errors', array('GenesisTracker', 'checkRegistrationErrors'), 10, 3);
-    add_action('user_register', array('GenesisTracker', 'checkRegistrationPost'));
+    add_action('user_register', array('GenesisTracker', 'checkRegistrationPost'), 10, 1);
+    add_filter('wp_authenticate_user', array('GenesisTracker', 'checkLoginAction'), 10, 2);
     
-    if(GenesisTracker::isOnRegistrationPage()){
-        add_filter( 'login_message', function(){
+    // Stop the new user registration email from sending
+    add_filter('wp_mail', array('GenesisTracker', 'disableDefaultRegistrationEmail'), 10, 1);
+    add_filter( 'wp_login_errors',  array('GenesisTracker', 'modifyRegistrationMessage'), 10, 2);
+   
+    add_filter( 'login_message', function(){
+         if(GenesisTracker::isOnRegistrationPage()){
             return '<p class="message register">Thank you. You are eligible to participate in our clinical trial.  Please fill in your details below.</p>';
-        });
-    }
+        }
+    });
 }else{
 	
 }
@@ -148,19 +153,30 @@ function genesis_add_registration_fields(){
       ?>
       <p>
           <label for="first_name"><?php _e('First Name') ?><br />
-          <input type="text" name="first_name" id="first_name" class="input" value="<?php echo esc_attr($first_name);?>" size="25" /></label>
+          <input type="text" autocomplete="off" name="first_name" id="first_name" class="input" value="<?php echo esc_attr($first_name);?>" size="25" /></label>
       </p>
 	 
       <p>
           <label for="last_name"><?php _e('Last Name') ?><br />
-          <input type="text" name="last_name" id="last_name" class="input" value="<?php echo esc_attr($last_name); ?>" size="25" /></label>
+          <input type="text" autocomplete="off" name="last_name" id="last_name" class="input" value="<?php echo esc_attr($last_name); ?>" size="25" /></label>
       </p>
       <p>
-          <label for="user_extra"><?php _e( 'Telephone Number') ?><br />
-              <input type="text" name="tel" id="tel" class="input" value="<?php echo esc_attr( stripslashes( $tel ) ); ?>" size="25" /></label>
+          <label for="tel"><?php _e( 'Telephone Number') ?><br />
+              <input type="text" autocomplete="off" name="tel" id="tel" class="input" value="<?php echo esc_attr( stripslashes( $tel ) ); ?>" size="25" /></label>
       </p>
       
-      <p class="message"><?php _e('You will receive an email once your account has been activated'); ?></p>
+  	<p>
+  		<label for="password">Password<br/>
+  		<input id="password" autocomplete="off" class="input" type="password" size="25" value="" name="password" />
+  		</label>
+  	</p>
+  	<p>
+  		<label for="repeat_password">Repeat password<br/>
+  		<input id="repeat_password" autocomplete="off" class="input" type="password" size="25" value="" name="repeat_password" />
+  		</label>
+  	</p>
+      
+      <p class="message"><?php _e('You will recieve an email containing your registration details.'); ?></p>
       <?php
 }
 
@@ -252,6 +268,10 @@ function login_scripts(){
     
     #registerform .message{
         margin-bottom:20px;
+    }
+    
+    #reg_passmail{
+        display:none;
     }
 	</style>
 	<?php
