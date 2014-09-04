@@ -17,6 +17,7 @@ class GenesisTracker{
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
     const userActiveKey = "active";
+    const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
     const versionKey = "version";
@@ -311,6 +312,38 @@ class GenesisTracker{
          }
          
          return $vals;
+     }
+     
+     function saveUserTargetFields($user_id){
+         if(!is_admin()){ return; }
+
+         $targetFields = self::getuserMetaTargetFields();
+    
+         foreach($targetFields as $fieldKey => $data){
+             $fullKey = self::getOptionKey(self::targetPrependKey . $fieldKey); 
+
+             if(isset($_POST[$fullKey])){
+                 update_user_meta( $user_id, $fullKey, $_POST[$fullKey] );
+             }
+         }
+    
+         // Check whether the user has been activated
+         $activeKey = self::getOptionKey(self::userActiveKey);
+    
+         if(isset($_POST[$activeKey])){
+             $active = (int) $_POST[$activeKey];
+             $emailSent = (int) get_the_author_meta(self::userActiveEmailSentKey, $user->ID );
+             update_user_meta( $user_ud, $activeKey, $_POST[$activeKey]);
+        
+             if(!$emailSent && $active){
+                 self::sendUserActivateEmail($user_id);
+             }
+         }    
+     }
+     
+     public static function sendUserActivateEmail($user_id){
+         $activeKey = self::getOptionKey(self::userActiveKey);
+//         update_user_meta( $user_id, $activeKey, 1);
      }
      
      public static function userIsEligible(){

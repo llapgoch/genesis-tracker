@@ -139,8 +139,8 @@ add_action( 'edit_user_profile', 'extra_user_profile_fields' );
 add_action( 'personal_options_update', 'save_extra_user_profile_fields' );
 add_action( 'edit_user_profile_update', 'save_extra_user_profile_fields' );
 
-add_action( 'personal_options_update', 'save_user_target_fields' );
-add_action( 'edit_user_profile_update', 'save_user_target_fields' );
+add_action( 'personal_options_update', array('GenesisTracker', 'saveUserTargetFields'));
+add_action( 'edit_user_profile_update', array('GenesisTracker', 'saveUserTargetFields'));
 
 add_action( 'register_form', 'genesis_add_registration_fields' );
 
@@ -183,14 +183,35 @@ function genesis_add_registration_fields(){
 function extra_user_profile_fields($user){	
 	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
 	$storedVal = get_the_author_meta($reminderKey, $user->ID );
+    
+	$activeKey = GenesisTracker::getOptionKey(GenesisTracker::userActiveKey);
+	$activeVal = get_the_author_meta($activeKey, $user->ID );
+    $form = DP_HelperForm::createForm('userRegister');
+    
 	
 	?>
+    <table class="form-table">
+    	<tr>
+    	<th><label for="address"><?php _e("Genesis Activate User"); ?></label></th>
+    	<td>
+    	<?php
+    	 echo $form->dropdown($activeKey, array(
+    	 '0' => 'Disabled',
+    	 '1' => 'Active'
+    	 ), array(
+    	     'default' => $activeVal
+    	 ));
+    	?>
+    	</td>
+    	</tr>
+    </table>
+    
 	<table class="form-table">
 	<tr>
 	<th><label for="address"><?php _e("Opt out of Genesis Reminder Emails"); ?></label></th>
 	<td>
 	<?php
-	 echo DP_HelperForm::createInput($reminderKey, 'checkbox', array(
+	 echo $form->createInput($reminderKey, 'checkbox', array(
 	 'id' => $reminderKey,
 	 'value' => 1
 	 ), $storedVal);
@@ -234,20 +255,7 @@ function save_extra_user_profile_fields($user_id){
 	update_user_meta( $user_id, $reminderKey, $val );
 }
 
-function save_user_target_fields($user_id){
-    if(!is_admin()){ return; }
 
-    $targetFields = GenesisTracker::getuserMetaTargetFields();
-    
-    foreach($targetFields as $fieldKey => $data){
-        $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); 
-
-        if(isset($_POST[$fullKey])){
-            update_user_meta( $user_id, $fullKey, $_POST[$fullKey] );
-        }
-    }
-    
-}
 
 add_action('login_enqueue_scripts', 'login_scripts');
 
