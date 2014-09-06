@@ -131,10 +131,14 @@ if(!is_admin()){
 	
 }
 
-add_action( 'edit_user_profile', 'user_target_fields' );
-add_action( 'show_user_profile', 'extra_user_profile_fields' );
-add_action( 'show_user_profile', 'user_target_fields' );
-add_action( 'edit_user_profile', 'extra_user_profile_fields' );
+add_action( 'show_user_profile', 'extra_user_profile_fields',1 );
+add_action( 'show_user_profile', 'user_target_fields',2 );
+
+add_action( 'edit_user_profile', 'extra_user_profile_fields' ,1);
+add_action( 'edit_user_profile', 'user_target_fields' ,2);
+
+
+
 
 add_action( 'personal_options_update', 'save_extra_user_profile_fields' );
 add_action( 'edit_user_profile_update', 'save_extra_user_profile_fields' );
@@ -186,10 +190,30 @@ function extra_user_profile_fields($user){
     
 	$activeKey = GenesisTracker::getOptionKey(GenesisTracker::userActiveKey);
 	$activeVal = get_the_author_meta($activeKey, $user->ID );
+    $tel = get_the_author_meta('tel', $user->ID );
+    
     $form = DP_HelperForm::createForm('userRegister');
     
 	
 	?>
+    <table class="form-table">
+    	<tr>
+    	<th><label for="address"><?php _e("Telephone"); ?></label></th>
+    	    <td>
+            <?php 
+            echo $form->input('tel', 'text', array(
+              'autocomplete' => 'off',
+              'id' => 'tel',
+              'class' => 'input',
+              'value' => $tel,
+              'size' => 25  
+            ));
+            ?>
+           </label>
+            </td>
+        </tr>
+    </table>
+    
     <table class="form-table">
     	<tr>
     	<th><label for="address"><?php _e("Genesis Activate User"); ?></label></th>
@@ -251,8 +275,10 @@ function save_extra_user_profile_fields($user_id){
 	
 	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
 	$val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
-	
+	$tel = isset($_POST['tel']) ? $_POST['tel'] : '';
+    
 	update_user_meta( $user_id, $reminderKey, $val );
+	update_user_meta( $user_id, 'tel', $tel );
 }
 
 
@@ -279,6 +305,16 @@ function login_scripts(){
     }
     
     #reg_passmail{
+        display:none;
+    }
+    
+    /* To remove the sep line */
+    #login #nav{
+        color:#F1F1F1;
+    }
+    
+    /* Hide the register link */
+    #login #nav a:first-child{
         display:none;
     }
 	</style>
