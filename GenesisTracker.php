@@ -33,7 +33,7 @@ class GenesisTracker{
 	const MIN_VALID_WEIGHT = 44.4;
 	// 25 Stone
 	const MAX_VALID_WEIGHT = 158.8;
-    const ELIGIBILITY_PASSWORD = "1";
+    const ELIGIBILITY_PASSWORD = "nightowl841";
 
 	
 	public static $pageData = array();
@@ -183,8 +183,12 @@ class GenesisTracker{
          $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
          
          if(self::isOnRegistrationPage() && self::userIsEligible() == false){
-//             wp_redirect('/');
-  //           exit;
+             wp_redirect('/');  
+             exit;
+         }
+         
+         if(self::isOnRegistrationPage()){
+            wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
          }
     
         
@@ -262,7 +266,7 @@ class GenesisTracker{
          }
          
          if ( isset( $_POST['tel'] ) ){
-             update_user_meta($user_id, 'last_name', trim($_POST['last_name']));
+             update_user_meta($user_id, 'tel', trim($_POST['tel']));
          }
          
          $userdata = array();
@@ -329,11 +333,14 @@ class GenesisTracker{
     
          // Check whether the user has been activated
          $activeKey = self::getOptionKey(self::userActiveKey);
-    
+         
+         
+         
          if(isset($_POST[$activeKey])){
              $active = (int) $_POST[$activeKey];
-             $emailSent = (int) get_the_author_meta(self::userActiveEmailSentKey, $user->ID );
-             update_user_meta( $user_ud, $activeKey, $_POST[$activeKey]);
+             $emailSent = (int) get_the_author_meta(self::getOptionKey(self::userActiveEmailSentKey), $user_id );
+             
+             update_user_meta( $user_id, $activeKey, $active);
         
              if(!$emailSent && $active){
                  self::sendUserActivateEmail($user_id);
@@ -343,7 +350,25 @@ class GenesisTracker{
      
      public static function sendUserActivateEmail($user_id){
          $activeKey = self::getOptionKey(self::userActiveKey);
-//         update_user_meta( $user_id, $activeKey, 1);
+         $user = get_userdata($user_id);
+         
+         if(!$user){
+             return;
+         }
+         
+         update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
+         
+         $headers = self::getEmailHeaders();
+         $body = self::getTemplateContents('activated');
+         
+         $body = str_replace(
+             array('%site_url%'),
+             array(get_site_url()),
+             $body
+         );
+         
+         
+          wp_mail($user->user_email, 'Your Genesis Procas account has been activated', $body, self::getEmailHeaders());
      }
      
      public static function userIsEligible(){
@@ -1671,6 +1696,8 @@ class GenesisTracker{
                 wp_localize_script('progress', 'initialUserUnit', self::getInitialUserUnit($user_id));      
             }
 		    wp_enqueue_script('progress');
+            
+     
 		}
         
         if(self::isOnUserInputPage()){
@@ -1856,8 +1883,6 @@ class GenesisTracker{
 		 // Sends a reminder email to all users
         $body = self::getTemplateContents($templatePath);
 		 
- 		$headers = self::getEmailHeaders();
-		 
 		 // get all subscribers
 		  $users = get_users( array("user_login" => 'admin') );
 
@@ -1869,7 +1894,7 @@ class GenesisTracker{
 				   continue;
 			   }
 			 
-			  mail($user->user_email, 'A reminder from Genesis', $body, implode("\r\n", $headers));
+			  wp_mail($user->user_email, 'A reminder from Genesis', $body, self::getEmailHeaders());
 		  }
 		
 	 }
