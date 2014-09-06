@@ -229,13 +229,23 @@ class GenesisTracker{
         return $errors;
      }
      
+     public static function doSurveySuccessMessage($message){
+         return GenesisThemeShortCodes::successBox(
+             $message . '<a href="' . self::getUserPagePermalink() . '" class="button large blue">Go to your progress graph</a>'
+         );
+     }
+     
      public static function modifyRegistrationMessage($errors, $redirect_to){
+         
          if(!count($errors->errors)){
              return $errors;
          }
-         
+
          if(isset($errors->errors['registered'])){
-             $errors->errors['registered'] = array(self::registrationSuccessMessage);
+             $errs = $errors->errors;
+             $errs['registered'] = array(self::registrationSuccessMessage);
+             
+             $errors->errors = $errs;
          }
          
          return $errors;
@@ -572,7 +582,7 @@ class GenesisTracker{
 		 if(!isset($_SESSION[self::weightEnterSessionKey]) && self::getPageData('weight-save') !== true){
 			 // If we're on the enter initial weight page, redirect the user
 			  if($post && $pageID == $post->ID){
-				  wp_redirect(GenesisTracker::getUserPagePermalink());
+				  wp_redirect(self::getUserPagePermalink());
 			  }
 			 
 			 return;

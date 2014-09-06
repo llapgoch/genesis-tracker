@@ -1,17 +1,11 @@
-<section class="reading-box main-accent clearfix">
-	<h2>Track your weight, food consumption, and minutes exercised</h2>
-	<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your food groups, and the minutes of exercise you have done. If you would like to change a previously saved entry, you will be asked if you would like to overwrite it.</p>
-	<div class="tagline-shadow"></div></section>
+<?php 
+
+echo GenesisThemeShortCodes::readingBox("Track your weight, food consumption, and minutes exercised",
+	"<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your food groups, and the minutes of exercise you have done. If you would like to change a previously saved entry, you will be asked if you would like to overwrite it.</p>");
+
+echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
+?>
 	
-	<?php
-	if(isset(GenesisTracker::$pageData['errors'])){
-		?>
-		<div class="alert error spaced"><div class="msg">
-			<?php echo implode("<br />", GenesisTracker::$pageData['errors']);?>
-		</div></div>
-		<?php
-	}
-	?>
     
 <noscript>
      <div class="alert error"><?php _e('Please enable Javascript in your browser to use the food tracker')?></div>

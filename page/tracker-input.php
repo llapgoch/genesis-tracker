@@ -1,18 +1,12 @@
-<section class="reading-box main-accent clearfix">
-	<h2>Choose a weight target to aim for</h2>
-	<p>Enter a target and the date you would like to obtain your target by</p>
-	<div class="tagline-shadow"></div>
-</section>
+<?php
+echo GenesisThemeShortCodes::readingBox(
+    "Choose a weight target to aim for",
+    "Enter a target and the date you would like to obtain your target by"
+);
 
-	<?php
-	if(isset(GenesisTracker::$pageData['errors'])){
-		?>
-		<div class="alert error spaced"><div class="msg">
-			<?php echo implode("<br />", GenesisTracker::$pageData['errors']);?>
-		</div></div>
-		<?php
-	}
-	?>
+echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
+?>
+
 
 	<form class="input-form user-tracking-input" action="" method="post" name="input-form">
 		

@@ -38,6 +38,7 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), '
 add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
 add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPassword'));
+add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 
 // Change the edit link URL for all users to be the edit user page.  
 //Currently, the admin logged in is taken to the user profile page, which doesn't have targets.
@@ -198,13 +199,13 @@ function extra_user_profile_fields($user){
 	?>
     <table class="form-table">
     	<tr>
-    	<th><label for="address"><?php _e("Telephone"); ?></label></th>
+    	<th><label for="tel"><?php _e("Telephone"); ?></label></th>
     	    <td>
             <?php 
             echo $form->input('tel', 'text', array(
               'autocomplete' => 'off',
               'id' => 'tel',
-              'class' => 'input',
+              'class' => 'input regular-text',
               'value' => $tel,
               'size' => 25  
             ));
@@ -214,25 +215,29 @@ function extra_user_profile_fields($user){
         </tr>
     </table>
     
+    <?php if(is_admin()){ ?>
     <table class="form-table">
     	<tr>
-    	<th><label for="address"><?php _e("Genesis Activate User"); ?></label></th>
+    	<th><label for="<?php echo $activeKey?>"><?php _e("Genesis Activate User"); ?></label></th>
     	<td>
     	<?php
     	 echo $form->dropdown($activeKey, array(
     	 '0' => 'Disabled',
     	 '1' => 'Active'
     	 ), array(
-    	     'default' => $activeVal
+    	     'default' => $activeVal,
+             'id' => $activeKey
     	 ));
     	?>
     	</td>
     	</tr>
     </table>
     
-	<table class="form-table">
+    <?php } ?>
+	
+    <table class="form-table">
 	<tr>
-	<th><label for="address"><?php _e("Opt out of Genesis Reminder Emails"); ?></label></th>
+	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of Genesis Reminder Emails"); ?></label></th>
 	<td>
 	<?php
 	 echo $form->createInput($reminderKey, 'checkbox', array(
@@ -451,6 +456,7 @@ function genesis_tracker_page(){
 
 function genesis_initial_weight_page(){
 	ob_start();
+    $userGraphPage = GenesisTracker::getUserPagePermalink();
 	$form = DP_HelperForm::getForm('initial-weight');
 	$outputBody = false;
 	

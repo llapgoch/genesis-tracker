@@ -1,18 +1,13 @@
-<section class="reading-box main-accent clearfix">
-	<h2><?php _e('Thank you for participating in the Procas Lifestyle Study') ?></h2>
-	<p><?php _e('Please answer a few questions to check your eligibility in the clinical trial.')?></p>
-	<div class="tagline-shadow"></div>
-</section>
-
 <?php
-if(isset(GenesisTracker::$pageData['errors'])){
-	?>
-	<div class="alert error spaced"><div class="msg">
-		<?php echo implode("<br />", GenesisTracker::$pageData['errors']);?>
-	</div></div>
-	<?php
-}
+echo GenesisThemeShortCodes::readingBox(
+    "Thank you for participating in the Procas Lifestyle Study",
+    "Please answer a few questions to check your eligibility in the clinical trial."
+);
+
+echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
+
 ?>
+
 
 <form class="input-form eligibility-form" action="" method="post" name="eligibility">
 

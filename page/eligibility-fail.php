@@ -1,8 +1,12 @@
-<section class="reading-box main-accent butted clearfix">
-	<h2><?php _e('Sorry, you are currently not eligible for the Genesis Procas Lifestyle Study') ?></h2>
-	<p>Please read the advice below</p>
-	<div class="tagline-shadow"></div>
-</section>
+<?php
+echo GenesisThemeShortCodes::readingBox(
+    "Sorry, you are currently not eligible for the Genesis Procas Lifestyle Study",
+    "Please read the advice below", 
+    array(
+        "class" => "butted"
+    )
+);
+?>
 
 <div class="input-form eligibility-fail">
     <div class="question-outer-container">

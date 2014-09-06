@@ -1,15 +1,10 @@
-<section class="reading-box main-accent clearfix">
-	<h2>Thank you for participating in Genesis' clinical trial</h2>
-	<p>Before we can get you up and running we just need to know what your current weight is.</p>
-	<div class="tagline-shadow"></div>
-</section>
-
-<?php if(isset(GenesisTracker::$pageData['errors'])) : ?>
-	<div class="alert error spaced"><div class="msg">
-		<?php echo implode("<br />", GenesisTracker::$pageData['errors']);?>
-	</div></div>
 <?php
-endif;
+echo GenesisThemeShortCodes::readingBox(
+    "Thank you for participating in the Genesis Procas clinical trial",
+    "Before we can get you up and running we just need to know what your current weight is."
+);
+
+echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 ?>
 
 <form class="input-form user-tracking-input" action="" method="post" name="input-form">
