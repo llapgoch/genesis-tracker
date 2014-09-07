@@ -322,6 +322,10 @@ function login_scripts(){
     #login #nav a:first-child{
         display:none;
     }
+    
+    .message.register{
+        margin-bottom:10px;
+    }
 	</style>
 	<?php
 }

@@ -1,4 +1,5 @@
 function UserGraph(){
+    var $ = jQuery;
 	var $plot = null;
 	this.mode = null;
 	this.unit = null;
