@@ -483,6 +483,8 @@ function genesis_eligibility_page(){
     $form = DP_HelperForm::getForm('eligibility');
     $outputBody = false;
     
+    $eligibilityPdfUrl = plugins_url('downloads/eligibility.pdf', __FILE__);
+    
     if(!$form->wasPosted() || $form->hasErrors()){
         require('page/eligibility.php');
         $outputBody = true;

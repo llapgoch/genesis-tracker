@@ -67,8 +67,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					'id' => 'weight-main'
 					));
 				?>
-				<p class="input-suffix metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
-				<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('stone');?></p>
+				<p class="input-suffix weight metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
+				<p class="input-suffix weight imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('stone');?></p>
 			</div>
 			<div class="input-wrapper">
 				<?php
@@ -78,7 +78,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					));
 				?>
 		
-				<p class="input-suffix imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('pounds');?></p>
+				<p class="input-suffix weight imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('pounds');?></p>
 			</div>
 			
 		</div>

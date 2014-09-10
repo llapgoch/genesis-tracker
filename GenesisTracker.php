@@ -302,10 +302,12 @@ class GenesisTracker{
         
         $contents = str_replace(array(
             "%user_email%",
-            "%user_pass%"
+            "%user_pass%",
+            "%site_url%",
         ),array(
             trim($_POST['user_email']),
-            $plaintext_pass
+            $plaintext_pass,
+            get_site_url()
         ), $contents);
         
         $res = wp_mail(trim($_POST['user_email']), 'Welcome to the Genesis Procas Clinical Trial', $contents, $headers); 
@@ -1692,7 +1694,7 @@ class GenesisTracker{
 			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange));
          }
 		 	 
-		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage()){	
+		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage() || self::isOnEligibilityPage()){	
 		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
 	 			'jquery'  
 			));
@@ -1702,12 +1704,11 @@ class GenesisTracker{
 			));
             
             // Don't set the initial user unit in the case of a posted form - allow the form to use what was posted
-            if(!DP_HelperForm::wasPosted()){
-                wp_localize_script('progress', 'initialUserUnit', self::getInitialUserUnit($user_id));      
+            if(!DP_HelperForm::wasPosted() && (int) self::getInitialUserUnit($user_id)){
+                wp_localize_script('progress', 'initialUserUnit', self::getInitialUserUnit($user_id));     
             }
-		    wp_enqueue_script('progress');
             
-     
+		    wp_enqueue_script('progress');
 		}
         
         if(self::isOnUserInputPage()){
@@ -1892,6 +1893,12 @@ class GenesisTracker{
 	 public static function sendReminderEmail(){
 		 // Sends a reminder email to all users
         $body = self::getTemplateContents($templatePath);
+        
+        $body = str_replace(
+            array('%site_url%'),
+            array(get_site_url()),
+            $body
+        );
 		 
 		 // get all subscribers
 		  $users = get_users( array("user_login" => 'admin') );

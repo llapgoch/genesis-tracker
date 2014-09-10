@@ -33,14 +33,19 @@
 			
 			$('.weight-unit').on('change', function(){
 				updateWeightVisibilities(this);
-			})
+			});
+            
+			$('.height-unit').on('change', function(){
+				updateHeightVisibilities(this);
+			});
             
             if(window.initialUserUnit){
                 // Set any selects to show the correct units the user originally selected
-                $('.weight-unit').val(window.initialUserUnit);
+                $('.weight-unit').prop(window.initialUserUnit);
             }
 			
 			updateWeightVisibilities($('.weight-unit'));
+            updateHeightVisibilities($('.height-unit'));
 			
 			$('.question-chooser').each(function(){
 				if($(this).is(':checked')){
@@ -99,6 +104,19 @@
 				selectModeButton('weight');
 			}
 			
+
+            $.widget("ui.tooltip", $.ui.tooltip, {
+                  options: {
+                      content: function () {
+                          return $(this).prop('title');
+                      },
+                      tooltipClass:'tooltipPopup',
+                      position:{ my: "left+15 center", at: "right center" }
+                  }
+              });
+
+              $('.help-icon').tooltip();
+
 			
 		});
 		
@@ -223,11 +241,22 @@
 		function updateWeightVisibilities(formElement){
 			// possibly change this so it only acts upon the form the dropdown is in.
 			if($(formElement).val() == 1){
-				$('.metric').addClass('hidden');
-				$('.imperial').removeClass('hidden');
+				$('.metric.weight').addClass('hidden');
+				$('.imperial.weight').removeClass('hidden');
 			}else{
-				$('.metric').removeClass('hidden');
-				$('.imperial').addClass('hidden');
+				$('.metric.weight').removeClass('hidden');
+				$('.imperial.weight').addClass('hidden');
+			}
+		}
+        
+		function updateHeightVisibilities(formElement){
+			// possibly change this so it only acts upon the form the dropdown is in.
+			if($(formElement).val() == 1){
+				$('.metric.height').addClass('hidden');
+				$('.imperial.height').removeClass('hidden');
+			}else{
+				$('.metric.height').removeClass('hidden');
+				$('.imperial.height').addClass('hidden');
 			}
 		}
 		
