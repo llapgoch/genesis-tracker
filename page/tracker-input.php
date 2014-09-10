@@ -73,7 +73,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 			<div class="input-wrapper">
 				<?php
 				echo $form->input('weight_pounds', 'text', array(
-					'class' => 'general-input weight-input imperial ' . ($metricUnits ? "hidden" : ""),
+					'class' => 'general-input weight-input weight imperial  ' . ($metricUnits ? "hidden" : ""),
 					'id' => 'weight-pounds'
 					));
 				?>
