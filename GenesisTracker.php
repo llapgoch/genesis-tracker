@@ -1892,7 +1892,7 @@ class GenesisTracker{
 	 
 	 public static function sendReminderEmail(){
 		 // Sends a reminder email to all users
-        $body = self::getTemplateContents($templatePath);
+        $body = self::getTemplateContents('reminder');
         
         $body = str_replace(
             array('%site_url%'),
