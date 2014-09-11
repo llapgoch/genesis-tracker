@@ -484,6 +484,7 @@ function genesis_eligibility_page(){
     $outputBody = false;
     
     $eligibilityPdfUrl = plugins_url('downloads/eligibility.pdf', __FILE__);
+    $eligibilityQuestions = GenesisTracker::getEligibilityQuestions();
     
     if(!$form->wasPosted() || $form->hasErrors()){
         require('page/eligibility.php');

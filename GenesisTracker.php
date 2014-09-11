@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "0.6";
+    const version = "0.7";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
@@ -145,6 +145,50 @@ class GenesisTracker{
           PRIMARY KEY  (`food_log_id`),
           KEY `tracker_id` (`tracker_id`)
         )");
+        
+        dbDelta($sql = "CREATE TABLE " . self::getEligibilityQuestionsTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `question` text,
+          `correct` tinyint(1) DEFAULT NULL,
+          PRIMARY KEY  (`id`)
+        )");
+        
+        // Initial questions to install
+        $eligibilityQuestions = array(
+          array(
+              'question' => 'Have you ever been diagnosed with <strong>cancer</strong>?',
+              'correct' => 2
+          ),
+          array(
+              'question' => 'Have you ever been diagnosed with <strong>diabetes</strong>?',
+              'correct' => 2
+          ),
+          array(
+              'question' => 'Have you ever had a <strong>stroke or heart attack</strong>?',
+              'correct' => 2
+          ),
+          array(
+              'question' => 'Are you currently prescribed medication for raised <strong>cholesterol</strong>?',
+              'correct' => 2
+          ),
+          array(
+              'question' => 'Have you ever been diagnosed with an eating disorder or alcohol or drug dependency?',			
+              'correct' => 2
+          ),
+          array(
+              'question' => 'Do you have any other  health problems that could be  made worse by taking exercise or could make it  very difficult for you to exercise  (e.g. exercise induced epilepsy, balance problems, unstable back problems or other muscle or bone problems)?',
+              'correct' => 2
+          ),
+          array(
+              'question' => 'Are you currently successfully <strong>following a diet and/or exercise plan</strong> and have <strong>lost more than 2 lb (1 kg) of weight</strong> in the last 2 weeks?',			
+              'correct' => 2
+          )
+        );
+        
+        // Insert the questions into the DB
+        foreach($eligibilityQuestions as $questionData){
+            $wpdb->insert(self::getEligibilityQuestionsTableName(), $questionData);
+        }
 		
 		self::updateOption("version", self::version);
 		 
@@ -314,7 +358,12 @@ class GenesisTracker{
         
      }
      
-     public function disableDefaultRegistrationEmail($vals){
+     public static function getEligibilityQuestions(){
+         global $wpdb;
+         return $wpdb->get_results("SELECT * FROM " . self::getEligibilityQuestionsTableName());
+     }
+     
+     public static function disableDefaultRegistrationEmail($vals){
          // If we're an administrator, keep the default email alert
          // So the new user gets their password
          if(is_admin() || !is_array($vals)){
@@ -330,7 +379,7 @@ class GenesisTracker{
          return $vals;
      }
      
-     function saveUserTargetFields($user_id){
+     protected static function saveUserTargetFields($user_id){
          if(!is_admin()){ return; }
 
          $targetFields = self::getuserMetaTargetFields();
@@ -438,6 +487,11 @@ class GenesisTracker{
 		 global $wpdb;
 		 return $wpdb->base_prefix . "genesis_user_target";
 	 }
+     
+     public static function getEligibilityQuestionsTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_eligibility_questions";
+     }
 	 
 	 public static function stoneToKg($stone, $pounds = 0){
 		 return (($stone * 14) + $pounds) * 0.453592;
@@ -512,12 +566,25 @@ class GenesisTracker{
          // Validate all eligibility options
          $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = false;
          
+         $eligibilityQuestions = self::getEligibilityQuestions();
+         
          $rules = array(
-             'question_one' => array("R"),
-             'question_two' => array("R"),
-             'question_three' => array("R"),
-             'passcode' => array("R")
+             "age" => array("R", "N"),
+             'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
+             "height_main" => array('N', 'R', "VALUE-GREATER[0]")
          );
+         
+         if((int) $form->getRawValue("weight_unit") == 1){
+             $rules["weight_pounds"] = array('N', "VALUE-GREATER-EQ[0]");
+         }
+         
+         if((int) $form->getRawValue("height_unit") == 1){
+             $rules["height_inches"] = array('N', "VALUE-GREATER-EQ[0]");
+         }
+         
+         foreach($eligibilityQuestions as $question){
+             $rules['question_' . $question->id] = array("R");
+         }
          
 		 $form->validate($rules);
          
@@ -540,16 +607,10 @@ class GenesisTracker{
              return;
          }
          
-         if($form->getRawValue('question_one') !== "1"){
-             return;
-         }
-         
-         if($form->getRawValue('question_two') !== "2"){
-             return;
-         }
-         
-         if($form->getRawValue('question_three') !== "2"){
-             return;
+         foreach($eligibilityQuestions as $question){
+             if($form->getRawValue('question_' . $question->id) !== $question->answer){
+                 return;
+             }
          }
          
          $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
@@ -655,7 +716,7 @@ class GenesisTracker{
 		 
 		 // If we're doing imperial, validate pounds too.
 		 if($imperial){
-			 $rules['weight_pounds'] = array("N");
+			 $rules['weight_pounds'] = array("N", "VALUE-GREATER-EQ[0]");
 		 }
 		 
 		 $form->validate($rules);
@@ -1703,9 +1764,18 @@ class GenesisTracker{
 				'ajaxurl' => admin_url('admin-ajax.php')
 			));
             
+            
             // Don't set the initial user unit in the case of a posted form - allow the form to use what was posted
             if(!DP_HelperForm::wasPosted() && (int) self::getInitialUserUnit($user_id)){
                 wp_localize_script('progress', 'initialUserUnit', self::getInitialUserUnit($user_id));     
+            }
+            
+            if(self::isOnEligibilityPage()){
+                wp_register_script("eligibility", plugins_url('js/eligibility.js', __FILE__), array(
+                   'progress' 
+                ));
+                
+                wp_enqueue_script('eligibility');
             }
             
 		    wp_enqueue_script('progress');

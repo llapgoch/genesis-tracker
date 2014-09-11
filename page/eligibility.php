@@ -1,7 +1,7 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
     "Welcome to the Genesis Procas Lifestyle Study",
-    "First, let's check that the clinical trial is for you.  Please read <a href='$eligibilityPdfUrl' target='_blank'>this document</a> before answering the eligibility questions below."
+    "First, let's check that the clinical trial is for you.  Please read <a href='$eligibilityPdfUrl' target='_blank'>this document</a> before completing the form below."
 );
 
 echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
@@ -14,15 +14,33 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 		<div class="title">
 			<h3 class="general-label"><?php _e('Firstly, Please Enter Your details');?></h3>
 		</div>
-	
-		
-		<div class="inner-question-container weight-container">
-			
-            	
+	           
+        
+		<div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
 					<label for="weight" class="general-label">
-                        <?php _e('Your Weight');?>
+                        <?php _e('1. Your Age');?>
+                    </label>
+				</div>
+                <p class="form-explanation"><?php _e('Please tell us your age')?></p>
+				<div class="input-wrapper">
+					<?php
+					echo $form->input('age', 'text', array(
+						'class' => 'general-input smaller',
+						'id' => 'age'
+						));
+					?>
+                    <p class="input-suffix"><?php _e('years');?></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="inner-question-container">
+			<div class="question-container clearfix">
+				<div class="title">
+					<label for="weight" class="general-label">
+                        <?php _e('2. Your Weight');?>
                     </label>
 				</div>
                 
@@ -60,11 +78,12 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<p class="input-suffix weight imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('pounds');?></p>
 				</div>				
 			</div> 
-            
-            
+        </div>
+        
+        <div class="inner-question-container">    
 			<div class="question-container clearfix">
 				<div class="title">
-					<label for="weight" class="general-label"><?php _e('Your Height');?></label>
+					<label for="weight" class="general-label"><?php _e('3. Your Height');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Please enter your current height.  You can switch between imperial and metric values.');?></p>
 	            <div class="unit-switcher">
@@ -98,74 +117,53 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<p class="input-suffix height imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('inches');?></p>
 				</div>				
 			</div>
-		</div>
-	</div>
-    
-    
-	<div class="question-outer-container">
-		<div class="title">
-			<h3><label class="general-label" for="question-one"><?php _e('Question One');?></label></h3>
-		</div>
-    
-         <p class="form-explanation"><?php _e('Question one description');?></p>
-        <?php
-        echo $form->dropdown('question_one', array(
-            '' => '--- Please Select ---',
-            "1" => 'Yes',
-            "2" => 'No'
-        ), array(
-            'default' => ''
-        ));
-        ?>
+        </div>
+        
+        <div class="inner-question-container">
+			<div class="question-container container-bmi clearfix">
+				<div class="title">
+					<label for="weight" class="general-label"><?php _e('4. Your BMI');?></label>
+				</div>
+				<p class="form-explanation"><?php _e('When you\'ve entered your weight and height, your BMI will be calculated below');?></p>
+                <div class="bmi-inner">
+                    *
+                </div>
+            </div>
+        </div>
+        
+        <div class="inner-question-container">
+			<div class="question-container clearfix">
+				<div class="title">
+					<label for="weight" class="general-label"><?php _e('5. Do you have access to a telephone and high/moderate-speed internet ');?></label>
+				</div>
+				<p class="form-explanation"><?php _e('As part of the study you will receive feedback and support by phone and email, you will also be asked to log your progress using the website');?></p>
+            </div>
+        </div>
     </div>
-    
-    
 	<div class="question-outer-container">
 		<div class="title">
-			<h3><label class="general-label" for="question-one"><?php _e('Question Two');?></label></h3>
+			<h3 class="general-label"><?php _e('Please answer the following questions');?></h3>
 		</div>
-    
-     <p class="form-explanation"><?php _e('Question two description');?></p>
-        <?php
-        echo $form->dropdown('question_two', array(
-            '' => '--- Please Select ---',
-            "1" => 'Yes',
-            "2" => 'No'
-        ), array(
-            'default' => ''
-        ));
-        ?>
-    </div>
-    
-    
-	<div class="question-outer-container">
-		<div class="title">
-			<h3><label class="general-label" for="question-one"><?php _e('Question Three');?></label></h3>
-		</div>
-    
-     <p class="form-explanation"><?php _e('Question three description');?></p>
-        <?php
-        echo $form->dropdown('question_three', array(
-            '' => '--- Please Select ---',
-            "1" => 'Yes',
-            "2" => 'No'
-        ), array(
-            'default' => ''
-        ));
-        ?>
-    </div>
-    
-	<div class="question-outer-container">
-		<div class="title">
-			<h3><label class="general-label" for="password"><?php _e('Passcode');?></label></h3>
-		</div>
-    
-     <p class="form-explanation"><?php _e('You will have been sent a passcode with your welcome letter. Please enter it here.');?></p>
-        <?php
-        echo $form->input('passcode', 'password', array(
-			'class' => 'general-input'
-        ));
-        ?>
+        
+        <div class="inner-question-container">
+            <?php foreach($eligibilityQuestions as $question) : ?>
+        	<div class="question-container clearfix">
+        		<div class="title">
+        			<label class="general-label" for="question-one"><?php _e($question->question);?></label>
+        		</div>
+
+                <?php
+                echo $form->dropdown('question_' . $question->id, array(
+                    '' => '--- Please Select ---',
+                    "1" => 'Yes',
+                    "2" => 'No'
+                ), array(
+                    'default' => ''
+                ));
+                ?>
+            </div>
+            <?php endforeach ?>
+        </div>
     </div>
     
     <input type="hidden" name="action" value="checkeligibility" />

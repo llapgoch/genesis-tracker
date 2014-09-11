@@ -1,3 +1,35 @@
+window.GenesisTracker = window.GenesisTracker || {};
+
+GenesisTracker.calculateBmi = function(weight, height){
+    weight = Math.max(0, parseFloat(weight));
+    height = Math.max(0, parseFloat(height));
+    
+    if(isNaN(weight) || isNaN(height)){
+        return 0;
+    }
+    if(weight <= 0 || height <= 0){
+        return 0;
+    }
+    
+    var bmi = weight / (height * height);
+    return Math.round(bmi * 100) / 100; 
+};
+
+GenesisTracker.distToMetric = function(feet, inches){
+    feet = Math.max(0, isNaN(parseFloat(feet)) ? 0 : parseFloat(feet));
+    inches = Math.max(0, isNaN(parseFloat(inches)) ? 0 : parseFloat(inches));
+    
+    feet += (inches / 12);
+    return feet * 0.3048;
+};
+
+GenesisTracker.weightToMetric = function(stone, pounds){
+    stone = Math.max(0, isNaN(parseFloat(stone)) ? 0 : parseFloat(stone));
+    pounds = Math.max(0, isNaN(parseFloat(pounds)) ? 0 : parseFloat(pounds));
+
+    return ((stone * 14) + pounds) * 0.453592;
+};
+
 (function($){	
 	$(document).ready(function(){
 		$('.js-hide').hide();
@@ -104,7 +136,7 @@
 				selectModeButton('weight');
 			}
 			
-
+            // Add popups for help
             $.widget("ui.tooltip", $.ui.tooltip, {
                   options: {
                       content: function () {
