@@ -34,27 +34,14 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId),
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genesis_tracker_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), 'genesis_eligibility_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligiblePageId), 'genesis_ineligible_page');
+
 
 add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
 add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPassword'));
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 
-// Change the edit link URL for all users to be the edit user page.  
-//Currently, the admin logged in is taken to the user profile page, which doesn't have targets.
-// add_filter('get_edit_user_link', function($link, $user_id){
-//     return add_query_arg( 'user_id', $user_id, self_admin_url( 'user-edit.php' ) );
-// }, 10, 2);
-//
-// add_filter('admin_url', function($url, $path, $blog_id ){
-//     if(IS_PROFILE_PAGE){
-//         if($path == 'profile.php'){
-//             return self_admin_url('user-edit.php');
-//         }
-//     }
-//
-//      return $url;
-// }, 10, 3);
 
 // Checks whether the install function needs to be called again for DB changes
 add_action( 'init', array('GenesisTracker', 'checkVersionUpgrade') );
@@ -125,12 +112,22 @@ if(!is_admin()){
    
     add_filter( 'login_message', function(){
          if(GenesisTracker::isOnRegistrationPage()){
-            return '<p class="message register">Thank you. You are eligible to participate in our clinical trial.  Please fill in your details below.</p>';
+            return GenesisThemeShortCodes::readingBox(
+                'Thank you for taking an interest in the PROCAS – Lifestyle research study',
+                '<p>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</p><p>We are happy to say that you are able to take part in the study and shortly after registration, you will be contacted to get you started.</p>'
+            );  
+        }
+        
+        if(GenesisTracker::isOnLoginPage() && GenesisTracker::userHasJustRegistered()){
+            return GenesisThemeShortCodes::readingBox(
+                'Registration Successful - What Happens Next?',
+                '<ul><li>A member of the research team will contact you within 3-4 days to book an appointment with you.</li><li> We aim to get you started in the trial within 2 weeks of signing up, so it won’t be long before you receive your diet and exercise advice from us.</li> <li>You will receive a food diary to record your normal food and drink intake in the 7 days before your appointment with us.</li> 
+<li>Please make sure you don’t change your normal diet and activity level, and do not make any changes before your initial appointment with us.</li><li>You will be able to log in to the website once your account has been activated by a member of our research team.</li></ul><div class="centered-button-box"><a href="' . home_url() . '" class="button large blue">Go to the PROCAS Lifestyle Study Homepage</a></div>' 
+            );  
         }
     });
-}else{
-	
 }
+
 
 add_action( 'show_user_profile', 'extra_user_profile_fields',1 );
 add_action( 'show_user_profile', 'user_target_fields',2 );
@@ -149,6 +146,18 @@ add_action( 'edit_user_profile_update', array('GenesisTracker', 'saveUserTargetF
 
 add_action( 'register_form', 'genesis_add_registration_fields' );
 
+add_action('login_enqueue_scripts', function(){
+    // We're hijacking the login page after registering and displaying our custom content - so hide these elements
+    if(GenesisTracker::isOnLoginPage() && GenesisTracker::userHasJustRegistered()){
+     ?>
+     <style>
+     #loginform, #backtoblog, #nav{
+         display:none;
+     }
+     </style>
+     <?php
+    }
+});
 
 
 function genesis_add_registration_fields(){
@@ -181,7 +190,7 @@ function genesis_add_registration_fields(){
   		</label>
   	</p>
       
-      <p class="message"><?php _e('You will recieve an email containing your registration details.'); ?></p>
+      <p class="message"><?php _e('You will recieve an email containing your registration details.<br />Keep this safe, you will need them when your account has been activated.'); ?></p>
       <?php
 }
 
@@ -288,47 +297,6 @@ function save_extra_user_profile_fields($user_id){
 
 
 
-add_action('login_enqueue_scripts', 'login_scripts');
-
-function login_scripts(){
-	?>
-	<style type="text/css">
-	#login h1 a{
-		background:url(<?php echo get_stylesheet_directory_uri() ?>/images/login-logo.png) no-repeat;
-		width:295px;
-		height:94px;
-		margin:0 auto;
-	}
-    
-    /* Register Form */
-    #registerform label[for="user_login"]{
-        display:none;
-    }
-    
-    #registerform .message{
-        margin-bottom:20px;
-    }
-    
-    #reg_passmail{
-        display:none;
-    }
-    
-    /* To remove the sep line */
-    #login #nav{
-        color:#F1F1F1;
-    }
-    
-    /* Hide the register link */
-    #login #nav a:first-child{
-        display:none;
-    }
-    
-    .message.register{
-        margin-bottom:10px;
-    }
-	</style>
-	<?php
-}
 
 add_action('admin_menu', 'genesisAdminMenu');
 add_action('wp_ajax_genesis_get_form_values', 'genesis_post_form_values');
@@ -485,18 +453,23 @@ function genesis_eligibility_page(){
     
     $eligibilityPdfUrl = plugins_url('downloads/eligibility.pdf', __FILE__);
     $eligibilityQuestions = GenesisTracker::getEligibilityQuestions();
+
+    require('page/eligibility.php');
+    $outputBody = true;
     
-    if(!$form->wasPosted() || $form->hasErrors()){
-        require('page/eligibility.php');
-        $outputBody = true;
-    }
+	$output = ob_get_contents();
+	ob_end_clean();
+	return $output;
+}
+
+function genesis_ineligible_page(){
+    ob_start();
+
+    $outputBody = false;
+    $ineligibleDownloadPdfUrl = plugins_url('downloads/advice.pdf', __FILE__);
+    $twoDayDietDownloadPdfUrl = plugins_url('downloads/2-day-diet-advice.pdf', __FILE__);
     
-    if(!$outputBody && GenesisTracker::getPageData('eligible') === false){
-        require('page/eligibility-fail.php');
-        $outputBody = true;
-    }
-    
-   
+    require('page/ineligible.php');
     $outputBody = true;
     
 	$output = ob_get_contents();

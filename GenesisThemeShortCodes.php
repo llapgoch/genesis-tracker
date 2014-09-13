@@ -1,12 +1,26 @@
 <?php
 class GenesisThemeShortCodes{
     public static function readingBox($title, $content, $attribs = array()){
-        $extra = '';
-        foreach($attribs as $key => $attrib){
-            $extra .= $key . '="' . $attrib . '" ';
-        }
-        
-        return do_shortcode('[tagline_box backgroundcolor="" shadow="yes" shadowopacity="0.4" border="0px" bordercolor="#e67fb9" highlightposition="top" content_alignment="left" link="" linktarget="_self" button_size="small" button_shape="square" button_type="flat" buttoncolor="" button="" title="' . $title . '" description="' . $content . '" animation_type="0" animation_direction="down" animation_speed="0.1" ' . $extra . '][/tagline_box]');
+        $defaults = array(
+            "shadow" => "yes",
+            "shadowopacity" => 0.4,
+            "border" => "0px",
+            "bordercolor" => "#e67fb9",
+            "highlightposition" => "top",
+            "content_alignment" => "left",
+            "button_size" => "small",
+            "button_shape" => "square",
+            "button" => "Test",
+            "button_color" => "",
+            "button_type" => "flat",
+            "animation_type" => 0
+         );
+         
+         array_merge($defaults, $attribs);
+         $taglineObj = new FusionSC_Tagline();
+         
+         $content = "<h2>" . $title . "</h2>" . $content;
+         return $taglineObj->render($defaults, $content);
     }
     
     public static function errorBox($content){

@@ -1,6 +1,6 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
-    "Welcome to the Genesis Procas Lifestyle Study",
+    "Welcome to the Genesis PROCAS Lifestyle Study",
     "First, let's check that the clinical trial is for you.  Please read <a href='$eligibilityPdfUrl' target='_blank'>this document</a> before completing the form below."
 );
 
@@ -9,7 +9,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 ?>
 
 
-<form class="input-form eligibility-form" action="" method="post" name="eligibility">
+<form class="input-form eligibility-form" action="" method="post" name="eligibility" autocomplete="off">
 	<div class="question-outer-container">
 		<div class="title">
 			<h3 class="general-label"><?php _e('Firstly, Please Enter Your details');?></h3>
@@ -134,7 +134,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
         <div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
-					<label for="weight" class="general-label"><?php _e('5. Do you have access to a telephone and high/moderate-speed internet ');?></label>
+					<label for="weight" class="general-label"><?php _e('5. Do you have access to a telephone and high/moderate-speed internet?');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('As part of the study you will receive feedback and support by phone and email, you will also be asked to log your progress using the website');?></p>
             </div>
@@ -146,10 +146,11 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 		</div>
         
         <div class="inner-question-container">
+            <?php $a = 1; ?>
             <?php foreach($eligibilityQuestions as $question) : ?>
         	<div class="question-container clearfix">
         		<div class="title">
-        			<label class="general-label" for="question-one"><?php _e($question->question);?></label>
+        			<label class="general-label" for="question-one"><?php  _e($a . ". " . $question->question);?></label>
         		</div>
 
                 <?php
@@ -162,7 +163,23 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                 ));
                 ?>
             </div>
+            <?php $a++ ?>
             <?php endforeach ?>
+        </div>
+    </div>
+    
+    <div class="question-outer-container">
+         <div class="inner-question-container">
+    		<div class="title">
+    			<h3><label class="general-label" for="password"><?php _e('Passcode');?></label></h3>
+    		</div>
+    
+         <p class="form-explanation"><?php _e('You will have been sent a passcode with your welcome letter. Please enter it here.');?></p>
+            <?php
+            echo $form->input('passcode', 'password', array(
+    			'class' => 'general-input'
+            ));
+            ?>
         </div>
     </div>
     

@@ -4,13 +4,14 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "0.7";
+    const version = "0.9";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
 	const inputProgressPageId = "progress_page";
 	const initialWeightPageId = "initial_weight_page";
     const eligibilityPageId = "eligibility_page";
+    const ineligiblePageId = "ineligibile_page";
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
 	const targetPageId = "tracker_page";
@@ -27,7 +28,6 @@ class GenesisTracker{
 	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	const editCapability = "edit_genesis";
-    const registrationSuccessMessage = "Thank you, your registration has been successful.<br />You will be contacted shortly by a Genesis dietitian";
 	
 	// 7 Stone
 	const MIN_VALID_WEIGHT = 44.4;
@@ -146,6 +146,8 @@ class GenesisTracker{
           KEY `tracker_id` (`tracker_id`)
         )");
         
+        $eligibilityQuestionsTableExists = self::checkTableExists(self::getEligibilityQuestionsTableName());
+        
         dbDelta($sql = "CREATE TABLE " . self::getEligibilityQuestionsTableName() . " (
           `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
           `question` text,
@@ -153,51 +155,76 @@ class GenesisTracker{
           PRIMARY KEY  (`id`)
         )");
         
-        // Initial questions to install
-        $eligibilityQuestions = array(
-          array(
-              'question' => 'Have you ever been diagnosed with <strong>cancer</strong>?',
-              'correct' => 2
-          ),
-          array(
-              'question' => 'Have you ever been diagnosed with <strong>diabetes</strong>?',
-              'correct' => 2
-          ),
-          array(
-              'question' => 'Have you ever had a <strong>stroke or heart attack</strong>?',
-              'correct' => 2
-          ),
-          array(
-              'question' => 'Are you currently prescribed medication for raised <strong>cholesterol</strong>?',
-              'correct' => 2
-          ),
-          array(
-              'question' => 'Have you ever been diagnosed with an eating disorder or alcohol or drug dependency?',			
-              'correct' => 2
-          ),
-          array(
-              'question' => 'Do you have any other  health problems that could be  made worse by taking exercise or could make it  very difficult for you to exercise  (e.g. exercise induced epilepsy, balance problems, unstable back problems or other muscle or bone problems)?',
-              'correct' => 2
-          ),
-          array(
-              'question' => 'Are you currently successfully <strong>following a diet and/or exercise plan</strong> and have <strong>lost more than 2 lb (1 kg) of weight</strong> in the last 2 weeks?',			
-              'correct' => 2
-          )
-        );
+        dbDelta($sql = "CREATE TABLE " . self::getEligibilityResultTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `hash_id` varchar(255) DEFAULT NULL,
+          `ip_address` varchar(255) DEFAULT NULL,
+          `weight` decimal(10,6) DEFAULT NULL,
+          `height` decimal(10,6) DEFAULT NULL,
+          `age` int(11) unsigned DEFAULT NULL,
+          `bmi` decimal(10,6) DEFAULT NULL,
+          `date_created` datetime DEFAULT NULL,
+          PRIMARY KEY  (`id`),
+          KEY `hash_id` (`hash_id`)
+        )");
         
-        // Insert the questions into the DB
-        foreach($eligibilityQuestions as $questionData){
-            $wpdb->insert(self::getEligibilityQuestionsTableName(), $questionData);
+        dbDelta($sql = "CREATE TABLE ". self::getEligibilityResultAnswersTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `result_id` int(11) unsigned DEFAULT NULL,
+          `question_id` int(11) unsigned DEFAULT NULL,
+          `answer` int(11) unsigned DEFAULT NULL,
+          PRIMARY KEY  (`id`)
+        )");
+        
+        // Don't install the questions again after the first time
+        if($eligibilityQuestionsTableExists == false){
+            // Initial questions to install
+            $eligibilityQuestions = array(
+              array(
+                  'question' => 'Have you ever been diagnosed with <strong>cancer</strong>?',
+                  'correct' => 2
+              ),
+              array(
+                  'question' => 'Have you ever been diagnosed with <strong>diabetes</strong>?',
+                  'correct' => 2
+              ),
+              array(
+                  'question' => 'Have you ever had a <strong>stroke or heart attack</strong>?',
+                  'correct' => 2
+              ),
+              array(
+                  'question' => 'Are you currently prescribed medication for raised <strong>cholesterol</strong>?',
+                  'correct' => 2
+              ),
+              array(
+                  'question' => 'Have you ever been diagnosed with an eating disorder or alcohol or drug dependency?',			
+                  'correct' => 2
+              ),
+              array(
+                  'question' => 'Do you have any other  health problems that could be  made worse by taking exercise or could make it  very difficult for you to exercise  (e.g. exercise induced epilepsy, balance problems, unstable back problems or other muscle or bone problems)?',
+                  'correct' => 2
+              ),
+              array(
+                  'question' => 'Are you currently successfully <strong>following a diet and/or exercise plan</strong> and have <strong>lost more than 2 lb (1 kg) of weight</strong> in the last 2 weeks?',			
+                  'correct' => 2
+              )
+            );
+        
+            // Insert the questions into the DB
+            foreach($eligibilityQuestions as $questionData){
+                $wpdb->insert(self::getEligibilityQuestionsTableName(), $questionData);
+            }
         }
 		
-		self::updateOption("version", self::version);
-		 
+		
+		 self::updateOption("version", self::version);
 		 // Create the user page if it's not already there		 
  		 self::createUserPage();
 		 self::createInputPage();
 		 self::createTargetInputPage();
 		 self::createInitialWeightPage();
          self::createEligibilityPage();
+         self::createIneligiblePage();
 
 		 $role = get_role('administrator');
 		 
@@ -216,9 +243,12 @@ class GenesisTracker{
      
      public static function isOnRegistrationPage(){
          $registerUrl = wp_registration_url();
-         $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
-         
-         return $registerUrl == $currentUrl;
+         return $registerUrl == site_url($_SERVER['REQUEST_URI']);
+     }
+     
+     public static function isOnLoginPage(){
+         $loginUrl = wp_login_url();
+         return $loginUrl == $_SERVER['SCRIPT_URI'];
      }
      
      public static function initActions(){
@@ -227,7 +257,7 @@ class GenesisTracker{
          $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
          
          if(self::isOnRegistrationPage() && self::userIsEligible() == false){
-             wp_redirect('/');  
+             wp_redirect(home_url());  
              exit;
          }
          
@@ -245,7 +275,16 @@ class GenesisTracker{
      }
      
      public static function checkRegistrationErrors($errors, $sanitized_user_login, $user_email){
-         if(!self::userIsEligible() && false){
+         // Remove the username error - it's the same as email in our case
+         $errs = $errors->errors;
+         
+         if(isset($errs['username_exists'])){
+             unset($errs['username_exists']);
+         }
+         
+         $errors->errors = $errs;
+         
+         if(!self::userIsEligible()){
              $errors->errors = array();
              $errors->add( 'eligible_error', __('<strong>ERROR</strong>: Sorry, you are not eligible for this clinical trial.','mydomain') );
              return $errors;
@@ -279,6 +318,10 @@ class GenesisTracker{
          );
      }
      
+     public static function userHasJustRegistered(){
+         return isset($_GET['checkemail']) && $_GET['checkemail'] == 'registered';
+     }
+     
      public static function modifyRegistrationMessage($errors, $redirect_to){
          
          if(!count($errors->errors)){
@@ -287,7 +330,7 @@ class GenesisTracker{
 
          if(isset($errors->errors['registered'])){
              $errs = $errors->errors;
-             $errs['registered'] = array(self::registrationSuccessMessage);
+             $errs['registered'] = array();
              
              $errors->errors = $errs;
          }
@@ -354,13 +397,25 @@ class GenesisTracker{
             get_site_url()
         ), $contents);
         
-        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the Genesis Procas Clinical Trial', $contents, $headers); 
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the Genesis PROCAS Clinical Trial', $contents, $headers); 
         
      }
      
      public static function getEligibilityQuestions(){
          global $wpdb;
          return $wpdb->get_results("SELECT * FROM " . self::getEligibilityQuestionsTableName());
+     }
+     
+     public static function getEligibilityAnswersForResultHash($hashId){
+         global $wpdb;
+         $res = $wpdb->get_results($sql = $wpdb->prepare("
+             SELECT answers.* FROM " . self::getEligibilityResultAnswersTableName() . " answers
+             JOIN " . self::getEligibilityResultTableName() . " result 
+                 ON result.id = answers.result_id
+             WHERE result.hash_id = %s", $hashId
+        ));
+
+        return $res;
      }
      
      public static function disableDefaultRegistrationEmail($vals){
@@ -429,7 +484,7 @@ class GenesisTracker{
          );
          
          
-          wp_mail($user->user_email, 'Your Genesis Procas account has been activated', $body, self::getEmailHeaders());
+          wp_mail($user->user_email, 'Your Genesis PROCAS account has been activated', $body, self::getEmailHeaders());
      }
      
      public static function userIsEligible(){
@@ -492,10 +547,37 @@ class GenesisTracker{
          global $wpdb;
          return $wpdb->base_prefix . "genesis_eligibility_questions";
      }
+     
+     public static function getEligibilityResultTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_eligibility_result";
+     }
 	 
+     public static function getEligibilityResultAnswersTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_eligibility_result_answers";
+     }
+     
+     public static function checkTableExists($tableName){
+         global $wpdb;
+         $tableRes = $wpdb->get_var($sql = "SHOW TABLES LIKE '$tableName'");
+         
+         return $tableRes === $tableName;
+     }
+     
 	 public static function stoneToKg($stone, $pounds = 0){
-		 return (($stone * 14) + $pounds) * 0.453592;
+		 return (((float) $stone * 14) + (float) $pounds) * 0.453592;
 	 }
+     
+     public static function feetToMetres($feet, $inches = 0){
+         $feet = (float) $feet;
+         
+         if($inches = (float) $inches){
+             $feet += ($inches / 12);
+         }
+         
+         return $feet * 0.3048;
+     }
 	 
 	 public static function kgToPounds($kg){
 		 return  (float) $kg / 0.453592;
@@ -569,9 +651,10 @@ class GenesisTracker{
          $eligibilityQuestions = self::getEligibilityQuestions();
          
          $rules = array(
-             "age" => array("R", "N"),
+             "age" => array("R", "N", "VALUE-GREATER[0]", "VALUE-LESS[95]"),
              'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
-             "height_main" => array('N', 'R', "VALUE-GREATER[0]")
+             "height_main" => array('N', 'R', "VALUE-GREATER[0]"),
+             "passcode" => array("R")
          );
          
          if((int) $form->getRawValue("weight_unit") == 1){
@@ -587,8 +670,6 @@ class GenesisTracker{
          }
          
 		 $form->validate($rules);
-         
-         self::$pageData['eligible'] = false;
          
          if($form->hasErrors()){
              return;
@@ -608,7 +689,20 @@ class GenesisTracker{
          }
          
          foreach($eligibilityQuestions as $question){
-             if($form->getRawValue('question_' . $question->id) !== $question->answer){
+             if($form->getRawValue('question_' . $question->id) !== $question->correct){
+                 $res = self::logIneligibleData($form);
+                 
+                 if($res['hash_id']){
+                     wp_redirect(add_query_arg(array(
+                         'result' => $res['hash_id']
+                     ),
+                         self::getIneligiblePagePermalink()
+                     ));
+                     exit;
+                 }else{
+                     wp_redirect(home_url());
+                     exit;
+                 }
                  return;
              }
          }
@@ -618,6 +712,76 @@ class GenesisTracker{
          
          wp_redirect(wp_registration_url());
          exit;
+     }
+     
+     public function getClientIp(){
+         $ip = '';
+         
+         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+             $ip = $_SERVER['HTTP_CLIENT_IP'];
+         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+         } else {
+             $ip = $_SERVER['REMOTE_ADDR'];
+         }
+         
+         return $ip;
+     }
+     
+     // Insert all the user's data, and return the unique hash key
+     public function logIneligibleData(DP_HelperForm $form){
+         global $wpdb;
+         
+         // get the questions to store against
+         $ip = self::getClientIp();
+         $hash = md5(self::getClientIp() . time() . rand(1, 100000));
+         
+         $weight = (float)$form->getRawValue('weight_main');
+         
+         if($form->getRawValue('weight_unit') == 1){
+             $weight = self::stoneToKg($weight, $form->getValue('weight_pounds'));
+         }  
+         
+         $height = (float)$form->getRawValue('height_main');
+         
+         if($form->getRawValue('height_unit') == 1){
+             $height = self::feetToMetres($height, $form->getValue('height_inches'));
+         }  
+         
+         $bmi = $weight / ($height * $height);
+         $resultId = false;
+         
+         var_dump($weight);
+         var_dump($height);
+         
+        if($wpdb->insert(self::getEligibilityResultTableName(), array(
+          'ip_address' =>  $ip,
+          'hash_id' => $hash,
+          'weight' => $weight,
+          'height' => $height,
+          'age' => $form->getRawValue('age'),
+          'bmi' => $bmi,
+          'date_created' => date('Y-m-d H:i:s')
+        ))){
+            $resultId = $wpdb->insert_id;
+            // Insert the question answers
+            $eligibilityQuestions = self::getEligibilityQuestions();
+            
+            foreach($eligibilityQuestions as $question){
+                $wpdb->insert(self::getEligibilityResultAnswersTableName(), array(
+                    'result_id' => $resultId,
+                    'question_id' => $question->id,
+                    'answer' => $form->getRawValue("question_" . $question->id)
+                ));
+            }
+        }
+        
+        
+        return array(
+            'hash_id' => $hash,
+            'result_id' => $resultId
+        );
+         
      }
 	 
 	 public function checkLoginWeightEntered($userLogin, $user){
@@ -646,6 +810,7 @@ class GenesisTracker{
 			 // If we're on the enter initial weight page, redirect the user
 			  if($post && $pageID == $post->ID){
 				  wp_redirect(self::getUserPagePermalink());
+                  exit;
 			  }
 			 
 			 return;
@@ -657,6 +822,7 @@ class GenesisTracker{
 		 }
 		
 		 wp_redirect(get_permalink($pageID));
+         exit;
 	 }
 	 
 	 public static function getUserWeightChange($user_id){
@@ -1151,6 +1317,14 @@ class GenesisTracker{
 	 public static function getUserInputPagePermalink(){
 	 	return get_permalink(self::getOption(self::inputProgressPageId));
 	 }
+     
+	 public static function getEligibilityPagePermailink(){
+	 	return get_permalink(self::getOption(self::eligibilityPageId));
+	 }
+     
+	 public static function getIneligiblePagePermalink(){
+	 	return get_permalink(self::getOption(self::ineligiblePageId));
+	 }
 	 
 	 public static function isOnEnterWeightPage(){
         return self::isOnPage(self::initialWeightPageId); 
@@ -1167,6 +1341,12 @@ class GenesisTracker{
      public static function isOnEligibilityPage(){
   		return self::isOnPage(self::eligibilityPageId);
      }
+     
+     public static function isOnInEligiblePage(){
+  		return self::isOnPage(self::ineligiblePageId);
+     }
+     
+     
 	 
 	 public static function isOnUserInputPage(){
          return self::isOnPage(self::inputProgressPageId);
@@ -1739,6 +1919,25 @@ class GenesisTracker{
 	 public static function addHeaderElements(){
          $user_id = get_current_user_id();
          
+         // Do any redirects first
+         if(self::isOnInEligiblePage()){
+             // Check we've got a hash
+             if(isset($_GET['result'])){
+                 // Get the result answers data based on the hash
+                 $answers = self::getEligibilityAnswersForResultHash($_GET['result']);
+                 
+                 if(!$answers){
+                     wp_redirect(home_url());
+                     exit;
+                 }
+                 
+                 self::$pageData['eligibilityAnswers'] = $answers;
+             }else{
+                 wp_redirect(home_url());
+                 exit;
+             }
+         }
+         
 		 if(self::isOnUserPage()){
              add_action( 'wp_head', function() {
                 echo '<!--[if lt IE 9]><script src="' . plugins_url("js/excanvas.min.js", __FILE__) . '"></script><![endif]-->';
@@ -1800,8 +1999,6 @@ class GenesisTracker{
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage()){
 			auth_redirect();	
 		 }
-         
-        
 	 }
 	 
 	 public static function ajaxRequest($data){
@@ -1918,6 +2115,32 @@ class GenesisTracker{
 		 
 		  $post_id = wp_insert_post($pageData);
 		  self::updateOption(self::eligibilityPageId, $post_id);
+     }
+     
+     public static function createIneligiblePage($overite = false){
+		 // Create the page which allows users to enter a target weight and date
+		 $pageID = self::getOption(self::ineligiblePageId);
+	 	 $post = get_post($pageID);
+	
+		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+         
+		 $pageData = array(
+			'post_title' => 'Thanks You',
+ 			'comment_status' => 'closed',
+ 		 	'post_content' => '[' . self::getOptionKey(self::ineligiblePageId) . ']',
+ 		 	'post_status' => 'publish',
+ 		 	'post_type' => 'page',
+ 		 	'post_author' => self::userIdForAutoCreatedPages
+ 		 );
+
+		 if($pageID){
+			 wp_delete_post($pageID, true);
+		 }
+		 
+		  $post_id = wp_insert_post($pageData);
+		  self::updateOption(self::ineligiblePageId, $post_id);
      }
 	 
 	 public static function createInitialWeightPage($overwrite = false){
