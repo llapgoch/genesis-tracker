@@ -27,6 +27,7 @@ session_start();
 require_once('includes.php');
 
 
+
 register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis_user_graph');
@@ -71,6 +72,22 @@ if(!wp_next_scheduled('genesis_generate_average_user_data')){
 add_action('genesis_send_reminder_email', 'send_reminder_email');
 add_action('genesis_generate_average_user_data', array('GenesisTracker', 'generateAverageUsersGraphData'));
 
+// Caters for if reauth=1 is on the URL.  wp_redirect_admin_locations didn't do this
+add_action('template_redirect', function(){
+    $urlParts = parse_url($_SERVER['REQUEST_URI']);
+    $path = $urlParts['path'];
+    
+	$logins = array(
+		home_url( 'wp-login.php', 'relative' ),
+		home_url( 'login', 'relative' ),
+		site_url( 'login', 'relative' ),
+	);
+	if ( in_array( untrailingslashit($path), $logins ) ) {
+		wp_redirect( site_url( 'wp-login.php', 'login' ) );
+		exit;
+	}
+}, 900 );
+
 //GenesisTracker::populate();
 
 // For testing Email Reminders ---- CAREFUL!
@@ -113,11 +130,11 @@ if(!is_admin()){
     add_filter( 'login_message', function(){
          if(GenesisTracker::isOnRegistrationPage()){
             return GenesisThemeShortCodes::readingBox(
-                'Thank you for taking an interest in the PROCAS – Lifestyle research study',
-                '<p>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</p><p>We are happy to say that you are able to take part in the study and shortly after registration, you will be contacted to get you started.</p>'
+                'Thank you for taking an interest in the PROCAS Lifestyle research study',
+                '<ul><li>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</li><li>We are happy to say that you are able to take part in the study.</li><li>Please fill in the registration form below and a member of our research team will contact you within 3-4 days to get you started.</li></ul>'
             );  
         }
-        
+
         if(GenesisTracker::isOnLoginPage() && GenesisTracker::userHasJustRegistered()){
             return GenesisThemeShortCodes::readingBox(
                 'Registration Successful - What Happens Next?',
@@ -141,8 +158,8 @@ add_action( 'edit_user_profile', 'user_target_fields' ,2);
 add_action( 'personal_options_update', 'save_extra_user_profile_fields' );
 add_action( 'edit_user_profile_update', 'save_extra_user_profile_fields' );
 
-add_action( 'personal_options_update', array('GenesisTracker', 'saveUserTargetFields'));
-add_action( 'edit_user_profile_update', array('GenesisTracker', 'saveUserTargetFields'));
+add_action( 'personal_options_update', array('GenesisTracker', 'saveUserTargetFields'), 10, 1);
+add_action( 'edit_user_profile_update', array('GenesisTracker', 'saveUserTargetFields'), 10, 1);
 
 add_action( 'register_form', 'genesis_add_registration_fields' );
 
@@ -246,7 +263,7 @@ function extra_user_profile_fields($user){
 	
     <table class="form-table">
 	<tr>
-	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of Genesis Reminder Emails"); ?></label></th>
+	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of reminder emails"); ?></label></th>
 	<td>
 	<?php
 	 echo $form->createInput($reminderKey, 'checkbox', array(

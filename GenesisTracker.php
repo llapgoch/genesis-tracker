@@ -25,7 +25,7 @@ class GenesisTracker{
     const userInitialUnitSelectionKey = "initial_unit_selection";
     
 	const omitUserReminderEmailKey = "omit_reminder_email";
-	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR]">
+	const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR] field-[TYPE]">
 								<span class="form-input-error">[ERROR]</span></div>';
 	const editCapability = "edit_genesis";
 	
@@ -33,6 +33,11 @@ class GenesisTracker{
 	const MIN_VALID_WEIGHT = 44.4;
 	// 25 Stone
 	const MAX_VALID_WEIGHT = 158.8;
+    
+    // 0.5 - 3m
+    const MIN_VALID_HEIGHT = 0.5;
+    const MAX_VALID_HEIGHT = 2.5;
+    
     const ELIGIBILITY_PASSWORD = "nightowl841";
 
 	
@@ -241,14 +246,21 @@ class GenesisTracker{
          }
      }
      
+     public static function isOnLogoutPage(){
+         $logoutUrl = wp_logout_url();
+         
+         if(site_url($_SERVER['REQUEST_URI']) == $logoutUrl){
+             return true;
+         }
+     }
+     
      public static function isOnRegistrationPage(){
          $registerUrl = wp_registration_url();
          return $registerUrl == site_url($_SERVER['REQUEST_URI']);
      }
      
      public static function isOnLoginPage(){
-         $loginUrl = wp_login_url();
-         return $loginUrl == $_SERVER['SCRIPT_URI'];
+         return in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'));
      }
      
      public static function initActions(){
@@ -286,7 +298,7 @@ class GenesisTracker{
          
          if(!self::userIsEligible()){
              $errors->errors = array();
-             $errors->add( 'eligible_error', __('<strong>ERROR</strong>: Sorry, you are not eligible for this clinical trial.','mydomain') );
+             $errors->add( 'eligible_error', __('<strong>ERROR</strong>: Sorry, you are not eligible for this research study.','mydomain') );
              return $errors;
          }
          
@@ -397,7 +409,7 @@ class GenesisTracker{
             get_site_url()
         ), $contents);
         
-        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the Genesis PROCAS Clinical Trial', $contents, $headers); 
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
         
      }
      
@@ -434,7 +446,7 @@ class GenesisTracker{
          return $vals;
      }
      
-     protected static function saveUserTargetFields($user_id){
+     public static function saveUserTargetFields($user_id){
          if(!is_admin()){ return; }
 
          $targetFields = self::getuserMetaTargetFields();
@@ -457,7 +469,7 @@ class GenesisTracker{
              $emailSent = (int) get_the_author_meta(self::getOptionKey(self::userActiveEmailSentKey), $user_id );
              
              update_user_meta( $user_id, $activeKey, $active);
-        
+
              if(!$emailSent && $active){
                  self::sendUserActivateEmail($user_id);
              }
@@ -657,12 +669,17 @@ class GenesisTracker{
              "passcode" => array("R")
          );
          
+         $weight = $form->getRawValue("weight_main");
+         $height = $form->getRawValue("height_main");
+         
          if((int) $form->getRawValue("weight_unit") == 1){
              $rules["weight_pounds"] = array('N', "VALUE-GREATER-EQ[0]");
+             $weight = self::stoneToKg($weight, $form->getRawValue('weight_pounds'));
          }
          
          if((int) $form->getRawValue("height_unit") == 1){
              $rules["height_inches"] = array('N', "VALUE-GREATER-EQ[0]");
+             $height = self::feetToMetres($height, $form->getRawValue('height_inches'));
          }
          
          foreach($eligibilityQuestions as $question){
@@ -671,17 +688,41 @@ class GenesisTracker{
          
 		 $form->validate($rules);
          
+         
+         
+		 if(!self::isValidWeight($weight)){
+			$form->setError('weight_main', array(
+				'general' => 'Please enter a valid weight',
+				'main' => 'Please enter a valid weight'
+			));
+		 }
+         
+         if(!self::isValidHeight($height)){
+ 			$form->setError('height_main', array(
+ 				'general' => 'Please enter a valid height',
+ 				'main' => 'Please enter a valid height'
+ 			));
+         }
+         
+		 
+         // Check consent was given
+         if((int)$form->getRawValue('consent') !== 1){
+             $form->setError('consent', array(
+                'main' => 'You must give your consent to continue',
+                'general' => 'You must give your consent to continue'
+             ));
+         }
+         
          if($form->hasErrors()){
              return;
          }
          
-		 
          // Check the values for the eligibility
          
          if($form->getRawValue('passcode') !== self::ELIGIBILITY_PASSWORD){
              $form->setError('passcode', array(
-                 'main' => 'Sorry, the passcode you have entered is not correct.',
-                 'general' => 'Sorry, the passcode you have entered is not correct.'
+                 'main' => 'The passcode you have entered is not correct.',
+                 'general' => 'The passcode you have entered is not correct.'
              ));
              
              self::$pageData['errors'][] = 'Please enter the passcode from your introduction letter carefully.';
@@ -750,9 +791,7 @@ class GenesisTracker{
          
          $bmi = $weight / ($height * $height);
          $resultId = false;
-         
-         var_dump($weight);
-         var_dump($height);
+
          
         if($wpdb->insert(self::getEligibilityResultTableName(), array(
           'ip_address' =>  $ip,
@@ -761,7 +800,7 @@ class GenesisTracker{
           'height' => $height,
           'age' => $form->getRawValue('age'),
           'bmi' => $bmi,
-          'date_created' => date('Y-m-d H:i:s')
+          'date_created' => current_time('Y-m-d H:i:s')
         ))){
             $resultId = $wpdb->insert_id;
             // Insert the question answers
@@ -785,7 +824,6 @@ class GenesisTracker{
      }
 	 
 	 public function checkLoginWeightEntered($userLogin, $user){
-		
 	 	if(!GenesisTracker::getInitialUserWeight($user->ID)){
 	 		$_SESSION[GenesisTracker::weightEnterSessionKey] = true;
 	 	}
@@ -793,7 +831,7 @@ class GenesisTracker{
 
 	 public function checkWeightEntered(){
 		 global $post;
-		 
+
 		 if(!is_user_logged_in()){
 			 unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
 			 return;
@@ -817,7 +855,7 @@ class GenesisTracker{
 		 }
 		
 		 
-		 if($post && $pageID == $post->ID){
+		 if($post && $pageID == $post->ID || self::isOnLogoutPage()){
 			 return;
 		 }
 		
@@ -903,7 +941,7 @@ class GenesisTracker{
 			 }
              
              // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
-             $date = date('Y-m-d', time() - 86400);
+             $date = date('Y-m-d', current_time('timestamp') - 86400);
 			 
 		 	 add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), $weight, true);
              add_user_meta($user_id, self::getOptionKey(self::userStartDateKey), $date, true);
@@ -924,6 +962,11 @@ class GenesisTracker{
 	 public static function isValidWeight($weight){
 		 $weight = (float)$weight;
 		 return $weight >= self::MIN_VALID_WEIGHT && $weight <= self::MAX_VALID_WEIGHT;
+	 }
+     
+	 public static function isValidHeight($height){
+		 $height = (float)$height;
+		 return $height >= self::MIN_VALID_HEIGHT && $height <= self::MAX_VALID_HEIGHT;
 	 }
 	
 	 public static function targetPageAction(){
@@ -1672,7 +1715,7 @@ class GenesisTracker{
 	 */
      public static function getAverageUsersGraphData($rangeDates){ 
          // Update to include admins
-        if(!$averages = wp_cache_get( self::getOptionKey(self::averageDataKey) )){
+        if(!$averages = wp_cache_get( self::getOptionKey(self::averageDataKey), 'users' )){
             $averages = self::generateAverageUsersGraphData(false);
         };
         
@@ -1823,7 +1866,7 @@ class GenesisTracker{
  			 }
 		 }
          
-         wp_cache_set(self::getOptionKey(self::averageDataKey), $averages, null, 86400);
+         wp_cache_set(self::getOptionKey(self::averageDataKey), $averages, 'users', 86400);
          
          mail("dave_preece@mac.com", "Regenerated Cache", "Regenerated");
          
@@ -1912,6 +1955,10 @@ class GenesisTracker{
          || apply_filters('hide-header-notice', false)){
 			 $classes[] = 'hide-header-notice';
 		 }
+         
+         if(self::isOnEnterWeightPage()){
+             $classes[] = 'enter-weight-page';
+         }
 		 
 		 return $classes;
 	 }
@@ -2127,7 +2174,7 @@ class GenesisTracker{
 		 }
          
 		 $pageData = array(
-			'post_title' => 'Thanks You',
+			'post_title' => 'Thank You',
  			'comment_status' => 'closed',
  		 	'post_content' => '[' . self::getOptionKey(self::ineligiblePageId) . ']',
  		 	'post_status' => 'publish',
@@ -2176,7 +2223,7 @@ class GenesisTracker{
      
      public static function getEmailHeaders(){
   		$headers = array();
-  		$headers[] = 'From: Genesis Clinical Trial<'. get_option('admin_email') .'>';
+  		$headers[] = 'From: Procas Lifestyle Research Study<'. get_option('admin_email') .'>';
   		$headers[] = 'MIME-Version: 1.0';
   		$headers[] = 'Content-type: text/html; charset=utf-8';
         
@@ -2188,8 +2235,14 @@ class GenesisTracker{
         $body = self::getTemplateContents('reminder');
         
         $body = str_replace(
-            array('%site_url%'),
-            array(get_site_url()),
+            array(
+                '%site_url%', 
+                '%forgot_url%'
+            ),
+            array(
+                get_site_url(),
+                wp_lostpassword_url()
+            ),
             $body
         );
 		 
@@ -2204,7 +2257,7 @@ class GenesisTracker{
 				   continue;
 			   }
 			 
-			  wp_mail($user->user_email, 'A reminder from Genesis', $body, self::getEmailHeaders());
+			  wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
 		  }
 		
 	 }

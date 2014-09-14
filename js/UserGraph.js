@@ -159,13 +159,16 @@ function UserGraph(){
 				xTicks.push(this.userGraphData[mode].timestamps[i], this.userGraphData[mode].timestamps[i]);
 			}
 		}
-	
+	    
+        
 		var yMin = parseFloat(this.userGraphData[mode].yMin);
 		var yMax = parseFloat(this.userGraphData[mode].yMax);
 		var minDate = parseFloat(xTicks[0]);
 		var maxDate = parseFloat(xTicks[xTicks.length - 1]);
 		var showTicks = true;
 		
+
+        
 		// Falsify the min and max date if we have no results
 		if(isNaN(minDate)){
 			minDate = 0;
@@ -188,7 +191,7 @@ function UserGraph(){
 			 yMax = Math.max(yMax, this.userGraphData['initial_weights']['initial_' + mode]);
 		}
 		
-	
+
 		// Show the min max y values for all users
 
 		if(this.averageUserGraphData && this.averageUserGraphData[mode] && this.averages){
@@ -211,7 +214,13 @@ function UserGraph(){
 		// Give a y margin lower than zero if the bottom is already lower than zero (otherwise a negative)
 		// y margin with all positive results looks odd.
 		if(yMin >= 0){
+            // Changed to -1 instead of zero, because the first time a user logs in their weight loss appears
+            // right at the top of the graph, instead of being in the middle
 			yMin = Math.max(yMin - yTick, 0);
+            
+            if(yMax == 1 && yMin == 0){
+                yMin = -1;
+            }
 		}else{
 			yMin = yMin - yTick;
 		}
@@ -219,8 +228,7 @@ function UserGraph(){
 		this.yMin = yMin;
 		this.yMax = yMax;
 		
-	
-		
+	    
 		
 		var options = {
 			lines: {

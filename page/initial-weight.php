@@ -1,6 +1,6 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
-    "Thank you for participating in the Genesis PROCAS clinical trial",
+    "Thank you for participating in the PROCAS Lifestyle Research Study",
     "Before we can get you up and running we just need to know what your current weight is."
 );
 

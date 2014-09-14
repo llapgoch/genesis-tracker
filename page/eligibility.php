@@ -1,6 +1,6 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
-    "Welcome to the Genesis PROCAS Lifestyle Study",
+    "Welcome to the PROCAS Lifestyle Research Study",
     "First, let's check that the clinical trial is for you.  Please read <a href='$eligibilityPdfUrl' target='_blank'>this document</a> before completing the form below."
 );
 
@@ -19,7 +19,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 		<div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
-					<label for="weight" class="general-label">
+					<label for="age" class="general-label">
                         <?php _e('1. Your Age');?>
                     </label>
 				</div>
@@ -39,7 +39,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
         <div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
-					<label for="weight" class="general-label">
+					<label for="weight-main" class="general-label">
                         <?php _e('2. Your Weight');?>
                     </label>
 				</div>
@@ -83,7 +83,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
         <div class="inner-question-container">    
 			<div class="question-container clearfix">
 				<div class="title">
-					<label for="weight" class="general-label"><?php _e('3. Your Height');?></label>
+					<label for="height-main" class="general-label"><?php _e('3. Your Height');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('Please enter your current height.  You can switch between imperial and metric values.');?></p>
 	            <div class="unit-switcher">
@@ -122,7 +122,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
         <div class="inner-question-container">
 			<div class="question-container container-bmi clearfix">
 				<div class="title">
-					<label for="weight" class="general-label"><?php _e('4. Your BMI');?></label>
+					<span class="general-label"><?php _e('4. Your BMI');?></span>
 				</div>
 				<p class="form-explanation"><?php _e('When you\'ve entered your weight and height, your BMI will be calculated below');?></p>
                 <div class="bmi-inner">
@@ -134,7 +134,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
         <div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
-					<label for="weight" class="general-label"><?php _e('5. Do you have access to a telephone and high/moderate-speed internet?');?></label>
+					<span class="general-label"><?php _e('5. Do you have access to a telephone and high/moderate-speed internet?');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('As part of the study you will receive feedback and support by phone and email, you will also be asked to log your progress using the website');?></p>
             </div>
@@ -150,7 +150,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             <?php foreach($eligibilityQuestions as $question) : ?>
         	<div class="question-container clearfix">
         		<div class="title">
-        			<label class="general-label" for="question-one"><?php  _e($a . ". " . $question->question);?></label>
+        			<label class="general-label" for="question-<?php echo $a ?>"><?php  _e($a . ". " . $question->question);?></label>
         		</div>
 
                 <?php
@@ -159,7 +159,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     "1" => 'Yes',
                     "2" => 'No'
                 ), array(
-                    'default' => ''
+                    'default' => '',
+                    'id' => 'question-' . $a
                 ));
                 ?>
             </div>
@@ -170,18 +171,41 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     
     <div class="question-outer-container">
          <div class="inner-question-container">
-    		<div class="title">
-    			<h3><label class="general-label" for="password"><?php _e('Passcode');?></label></h3>
-    		</div>
+             <div class="question-container">
+        		<div class="title">
+        			<label class="general-label" for="passcode"><?php _e('Passcode');?></label>
+        		</div>
     
-         <p class="form-explanation"><?php _e('You will have been sent a passcode with your welcome letter. Please enter it here.');?></p>
-            <?php
-            echo $form->input('passcode', 'password', array(
-    			'class' => 'general-input'
-            ));
-            ?>
+             <p class="form-explanation"><?php _e('You will have been sent a passcode with your welcome letter. Please enter it here.');?></p>
+                <?php
+                echo $form->input('passcode', 'password', array(
+        			'class' => 'general-input',
+                    'id' => 'passcode'
+                ));
+                ?>
+            </div>
+            
+            <div class="question-container">
+        		<div class="title">
+        			<span class="general-label"><?php _e('Your Consent');?></span>
+        		</div>
+                <div class="auto-width-form">
+                <div class="col">
+                    <?php
+                    echo $form->checkbox('consent', 1, array(
+            			'class' => 'general-checkbox',
+                        'id' => 'consent'
+                    ));
+                    ?>
+                </div>
+                <div class="col">
+                    <label for="consent"><?php _e('I give my consent that PROCAS Lifestyle Research Study to use the information I have entered for research purposes. <br /><em>We will never share your data with any third parties</em>')?></label>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
     
     <input type="hidden" name="action" value="checkeligibility" />
     
