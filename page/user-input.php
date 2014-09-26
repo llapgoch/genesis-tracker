@@ -128,7 +128,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     			<div class="question-container clearfix">
                       <p class="form-explanation"><?php _e('Enter any of the following food groups you have consumed.  You can enter as much or as little information as you like, and then come back and add more or amend it later');?></p>
     				<div class="title">
-    					<label for="fat" class="general-label"><?php _e('Fat consumed');?></label>
+    					<label for="fat" class="general-label"><?php _e('Fat portions consumed');?></label>
     				</div>
     	
     	            <?php echo GenesisUserInputTable::getFoodInputTableHTML('fat', $form); ?>
@@ -136,7 +136,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="carbs" class="general-label"><?php _e('Carbohydrates consumed');?></label>
+    					<label for="carbs" class="general-label"><?php _e('Carbohydrate portions consumed');?></label>
     				</div>
     				
                       <?php echo GenesisUserInputTable::getFoodInputTableHTML('carbs', $form); ?>
@@ -144,7 +144,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="protein" class="general-label"><?php _e('Protein consumed');?></label>
+    					<label for="protein" class="general-label"><?php _e('Protein portions consumed');?></label>
     				</div>
     				
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('protein', $form); ?>
@@ -152,7 +152,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="fruit" class="general-label"><?php _e('Fruit consumed');?></label>
+    					<label for="fruit" class="general-label"><?php _e('Fruit portions consumed');?></label>
     				</div>
                      
     				<?php
@@ -163,7 +163,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="vegetables" class="general-label"><?php _e('Vegetables consumed');?></label>
+    					<label for="vegetables" class="general-label"><?php _e('Vegetable portions consumed');?></label>
     				</div>
     
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('vegetables', $form); ?>
@@ -171,7 +171,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="dairy" class="general-label"><?php _e('Dairy consumed');?></label>
+    					<label for="dairy" class="general-label"><?php _e('Dairy portions consumed');?></label>
     				</div>
   
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('dairy', $form); ?>
@@ -179,7 +179,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="alcohol" class="general-label"><?php _e('Alcohol consumed');?></label>
+    					<label for="alcohol" class="general-label"><?php _e('Alcohol units consumed');?></label>
     				</div>
     	
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('alcohol', $form); ?>

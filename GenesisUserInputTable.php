@@ -6,35 +6,32 @@ class GenesisUserInputTable{
         $html = array();
         
         $html[] = GenesisTracker::getUserTargetLabel($foodIdentifier);
-        $html[] = "<table>";
-            $html[] = "<thead>";
-                $html[] = "<tr>";
-        
-        foreach($userTargetTimes as $key => $time){
-            $fullKey = $key . "_" . $foodIdentifier;
-            $html[] = "<th>" . "<label for='$fullKey'>" . $time['name'] . "</label>" . "</th>";
-        }
-        $html[] = "</tr>";
-        $html[] = "</thead>";
-        
-        $html[] = "<tbody>";
+        $html[] = "<div class='food-input-form'>";
         
         foreach($userTargetTimes as $key => $time){
             $fullKey = $key . "_" . $foodIdentifier;
             
-            $html[] = "<td>";
+            $html[] = "<div class='input-box'>";
+            
+            $html[] = "<label for='$fullKey'>" . $time['name'] . "</label>";
 
             $html[] = $form->input($fullKey, 'text', array(
 		        'id' => $key . "_" . $foodIdentifier,
                 'class' => 'general-input',
                 'default' => 0
             ));
+            
+            
 
-            $html[] = "<p class='input-suffix'>" .  GenesisTracker::getUserTargetUnit($foodIdentifier) . "</p>";
-            $html[] = "</td>";
+//            $html[] = "<p class='input-suffix'>" .  GenesisTracker::getUserTargetUnit($foodIdentifier) . "</p>";
+            $html[] = "</div>";
         }
-        $html[] = "</tbody>";
-        $html[] = "</table>";
+        
+
+        
+        $html[] = "</div>";
+        
+        $html[] = "<p class='food-totals'><span class='total-label'>Total:</span><span class='number general-input'>0</span></p>";
         
         return implode($html);
     }
