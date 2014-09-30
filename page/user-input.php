@@ -123,75 +123,160 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     		));?>
     		<label for="record-food"><?php _e('I would like to record my food groups on this occasion');?></label>
     		<div class="inner-question-container food-container js-hide">
-                <!-- <div class="alert notice"><a href="https://www.myfood24.org/login" target="_blank">Find out the portions you've consumed using Food 24's Website <em>(opens in a new window)</em></a></div> -->
                 
     			<div class="question-container clearfix">
-                      <p class="form-explanation"><?php _e('Enter any of the following food groups you have consumed.  You can enter as much or as little information as you like, and then come back and add more or amend it later');?></p>
+                      <div class="form-explanation">
+                          <p><?php _e('You may choose to keep a log of the different foods and drinks you consume on a daily, weekly or monthly basis. This log can be used to see how closely you match your food group targets for a healthy balanced diet. We know that people who monitor their intake are more likely to choose healthy foods and to be successful at weight loss.');?></p>
+                      
+                          <ul>
+                              <li><strong>Step 1:</strong> Make a list of the meals, snacks and drinks you consumed today</li>
+                              <li><strong>Step 2:</strong> Match the foods with the food groups and record how many portions you had using the portion guide (as shown in the example breakfast below).</li>
+                          </ul>
+                          
+                          <div class="example">
+                              <div class="title">
+                                  <label for="example" class="general-label">Breakfast Example:</label>
+                              </div>
+                               <p class="example-explanation">2 Weetabix, 100 mls of semi-skimmed milk, 150mls of orange juice</p>
+                              <div class="food-input-form">
+                                <div class="input-box">
+                                    <label for="example_fat">Carbohydrate</label>
+                                    <div class="input-container fat">
+                                        <input type="text" readonly="readonly" id="example_fat" class="general-input" name="example_fat" value="2">
+                                    </div>
+                                </div>
+                                <div class="input-box">
+                                    <label for="example_protein">Protein</label>
+                                    <div class="input-container protein">
+                                        <input type="text" readonly="readonly" id="example_protein" class="general-input" name="example_protein" value="0">
+                                    </div>
+                                </div>
+                                <div class="input-box">
+                                    <label for="example_carbs">Dairy</label>
+                                    <div class="input-container carbs">
+                                        <input type="text" readonly="readonly" id="example_carbs" class="general-input" name="example_carbs" value="0.5">
+                                    </div>
+                                </div>
+                                <div class="input-box">
+                                    <label for="example_fruit">Vegetables</label>
+                                    <div class="input-container fruit">
+                                        <input type="text" readonly="readonly" id="example_fruit" class="general-input" name="example_fruit" value="0">
+                                    </div>
+                                </div>
+                                <div class="input-box">
+                                    <label for="example_vegetables">Fruit</label>
+                                    <div class="input-container vegetables">
+                                        <input type="text" readonly="readonly" id="example_vegetables" class="general-input" name="example_vegetables" value="1">
+                                    </div>
+                                </div>
+                                <div class="input-box">
+                                    <label for="example_dairy">Fat</label>
+                                    <div class="input-container dairy">
+                                        <input type="text" readonly="readonly" id="example_dairy" class="general-input" name="example_dairy" value="0">
+                                    </div>
+                                </div>
+                                <div class="input-box">
+                                    <label for="example_alcohol">Treat</label>
+                                    <div class="input-container alcohol">
+                                        <input type="text" readonly="readonly" id="example_alcohol" class="general-input" name="example_alcohol" value="0">
+                                    </div>
+                                </div>
+                                <div class="input-box">
+                                    <label for="example_treat">Alcohol</label>
+                                    <div class="input-container treat">
+                                        <input type="text" readonly="readonly" id="example_treat" class="general-input" name="example_treat" value="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                          </div>
+                      </div>
     				<div class="title">
-    					<label for="fat" class="general-label"><?php _e('Fat portions consumed');?></label>
+    					<label for="breakfast" class="general-label"><?php _e('Breakfast');?></label>
     				</div>
     	
-    	            <?php echo GenesisUserInputTable::getFoodInputTableHTML('fat', $form); ?>
+    	            <?php echo GenesisUserInputTable::getFoodInputTableHTML('breakfast', $form); ?>
     			</div>
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="carbs" class="general-label"><?php _e('Carbohydrate portions consumed');?></label>
+    					<label for="lunch" class="general-label"><?php _e('Lunch');?></label>
     				</div>
     				
-                      <?php echo GenesisUserInputTable::getFoodInputTableHTML('carbs', $form); ?>
+                      <?php echo GenesisUserInputTable::getFoodInputTableHTML('lunch', $form); ?>
     			</div>
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="protein" class="general-label"><?php _e('Protein portions consumed');?></label>
+    					<label for="evening" class="general-label"><?php _e('Evening');?></label>
     				</div>
     				
-                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('protein', $form); ?>
+                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('evening', $form); ?>
     			</div>
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="fruit" class="general-label"><?php _e('Fruit portions consumed');?></label>
+    					<label for="snacks" class="general-label"><?php _e('Snacks');?></label>
     				</div>
                      
     				<?php
-                    echo GenesisUserInputTable::getFoodInputTableHTML('fruit', $form); 
+                    echo GenesisUserInputTable::getFoodInputTableHTML('snacks', $form); 
                     ?>
                 
     			</div>
             
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="vegetables" class="general-label"><?php _e('Vegetable portions consumed');?></label>
+    					<label for="drinks" class="general-label"><?php _e('Drinks');?></label>
     				</div>
     
-                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('vegetables', $form); ?>
+                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('drinks', $form); ?>
     			</div>
             
-    			<div class="question-container clearfix">
+    			<div class="question-container clearfix totals">
     				<div class="title">
-    					<label for="dairy" class="general-label"><?php _e('Dairy portions consumed');?></label>
+    					<label for="total" class="general-label"><?php _e('Totals');?></label>
     				</div>
-  
-                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('dairy', $form); ?>
+                    <div class="food-input-form">
+                        <?php $_foods = GenesisTracker::getUserMetaTargetFields(); ?>
+                    
+                        <?php foreach($_foods as $_foodIdentifier => $_food): ?>  
+                            <?php $fullKey = "total_" . $_foodIdentifier; ?>  
+                            <div class='input-box'>
+                                <label for='<?php echo $fullKey; ?>'><?php echo $_food['name'];?></label>
+                                
+                                <span class="value">0</span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+    			</div>
+    			
+    			<div class="question-container clearfix targets">
+    				<div class="title">
+    					<label for="targets" class="general-label"><?php _e('Your Targets');?></label>
+    				</div>
+                    <div class="food-input-form">
+                        <?php $_foods = GenesisTracker::getUserMetaTargetFields(); ?>
+                    
+                        <?php foreach($_foods as $_foodIdentifier => $_food): ?>  
+                            <?php $fullKey = "total_" . $_foodIdentifier; ?>  
+                            <div class='input-box'>
+                                <label for='<?php echo $fullKey; ?>'><?php echo $_food['name'];?></label>
+                                <span class="value">
+                                    <?php
+                                    if($_target = GenesisTracker::getUserTargetLabel($_foodIdentifier)) :
+                                        echo $_target;
+                                    else :
+                                        echo "--";
+                                    endif;
+                                    ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
     			</div>
             
-    			<div class="question-container clearfix">
-    				<div class="title">
-    					<label for="alcohol" class="general-label"><?php _e('Alcohol units consumed');?></label>
-    				</div>
-    	
-                    <?php echo GenesisUserInputTable::getFoodInputTableHTML('alcohol', $form); ?>
-    			</div>
-            
-    			<div class="question-container clearfix">
-    				<div class="title">
-    					<label for="treat" class="general-label"><?php _e('Treats consumed');?></label>
-    				</div>
-    
-                   <?php echo GenesisUserInputTable::getFoodInputTableHTML('treat', $form); ?>
-    			</div>
+    			
     		</div>
     	</div>
     	<div class="question-outer-container">
