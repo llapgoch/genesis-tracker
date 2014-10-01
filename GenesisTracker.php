@@ -1139,7 +1139,7 @@ class GenesisTracker{
          if($form->getRawValue('record-food')){
              foreach(self::$_userMetaTargetFields as $targetKey => $target){
                  foreach(self::$_userTargetTimes as $timeKey => $time){
-                     $rules[$timeKey . "_" . $targetKey] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+                     $rules[$timeKey . "_" . $targetKey] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[200]');
                  }
              }
          }

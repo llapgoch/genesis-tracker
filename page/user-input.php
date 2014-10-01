@@ -242,7 +242,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     
                         <?php foreach($_foods as $_foodIdentifier => $_food): ?>  
                             <?php $fullKey = "total_" . $_foodIdentifier; ?>  
-                            <div class='input-box'>
+                            <div class='input-box total-box' data-total-type="<?php echo $_foodIdentifier;?>">
                                 <label for='<?php echo $fullKey; ?>'><?php echo $_food['name'];?></label>
                                 
                                 <span class="value">0</span>
@@ -260,7 +260,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     
                         <?php foreach($_foods as $_foodIdentifier => $_food): ?>  
                             <?php $fullKey = "total_" . $_foodIdentifier; ?>  
-                            <div class='input-box'>
+                            <div class='input-box <?php echo $_foodIdentifier;?>'>
                                 <label for='<?php echo $fullKey; ?>'><?php echo $_food['name'];?></label>
                                 <span class="value">
                                     <?php

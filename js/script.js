@@ -149,8 +149,33 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 
               $('.help-icon').tooltip();
 
+              
+              $('.food-input').on('change, keyup', function(){
+                  calculateFoodTotals();
+              });
+              
+              calculateFoodTotals();
 			
 		});
+        
+        function calculateFoodTotals(){
+            $('.total-box').each(function(){
+               var type = $(this).data('total-type');
+               var total = 0;
+               
+               $('.user-measurements input[data-input-food="' + type + '"]').each(function(){
+                   var val = parseFloat($(this).val());
+                   
+                   if(!isNaN(val) && val >= 0){
+                       total += val;
+                   }
+               });
+               
+               total = Math.round(total * 100) / 100;
+
+               $(this).find('.value').html(total);
+            });
+        }
 		
 		function showPreloader(){
 			removePreloader();
@@ -257,6 +282,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     
                     
                     showUserMeasurements(true);
+                    calculateFoodTotals();
 				},
                 'error':function(data){
                     alert('Sorry, we\'re experiencing technical difficulties at the moment.  Please try again later');
