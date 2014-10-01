@@ -230,8 +230,8 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     $('.weight-container input[type="text"]').val('');
                     // Clear the exercise form
                     $('.exercise-container input[type="text"]').val('');
-                    // Clear the food form
-                    $('.food-container input[type="text"]').val(0);
+                    // Clear the food form - not the example readonly ones though
+                    $('.food-container input[type="text"]:not([readonly="readonly"])').val(0);
                    
                     var unit = $weightUnit.val() == 1 ? "imperial" : "metric";
                     
@@ -283,6 +283,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     
                     showUserMeasurements(true);
                     calculateFoodTotals();
+                    $('.form-input-error-container').remove();
 				},
                 'error':function(data){
                     alert('Sorry, we\'re experiencing technical difficulties at the moment.  Please try again later');

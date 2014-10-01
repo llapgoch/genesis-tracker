@@ -88,14 +88,16 @@ function UserGraph(){
 			'weight_loss':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight Progress (metric)',
-				'avgLabel':'Average Weight Loss',
-				'color':'rgb(178,219,106)'
+				'avgLabel':"Average User's Weight Loss",
+				'color':'rgb(178,219,106)',
+                'legend':'<h3>This is your weight change since you started the study</h3>'
 			},
 			'weight_loss_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight Progress (imperial)',
-				'avgLabel':'Average Weight Loss',
-				'color':'rgb(178,219,106)'
+				'avgLabel':"Average User's Weight Loss",
+				'color':'rgb(178,219,106)',
+                'legend':'<h3>This is your weight change since you started the study</h3>'
 			}
 		};
 		
@@ -394,7 +396,12 @@ function UserGraph(){
 			this.$plot.getOptions().xaxes[0].max = this.savePositions[this.mode].xmax;
 		}
 
-		
+		// Set the legend
+        $('.graph-legend').empty();
+        if(settings[mode].legend){
+            $('.graph-legend').append(settings[mode].legend);
+        }
+        
 		this.updateAxes();
 	}
 	

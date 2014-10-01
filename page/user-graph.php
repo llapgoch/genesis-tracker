@@ -34,12 +34,15 @@
 	
 </div>
 
-
 <div class="genesis-graph-container">
-	<select class="mode-switcher weight-unit">
-		<option value="1">Stone / Pounds</option>
-		<option value="2">Kilograms</option>
-	</select>
+    <div class="graph-top">
+    	<select class="mode-switcher weight-unit">
+    		<option value="1">Stone / Pounds</option>
+    		<option value="2">Kilograms</option>
+    	</select>
+        <!-- if displays need to add a legend to the graph -->
+        <div class="graph-legend"><h3>This is your weight change since you started the study</h3></div>
+    </div>
 	<div class="alert-warning fusion-alert no-results alert notice">
 		<div class="msg">
 			<h2>There are no results available for your selection</h2>

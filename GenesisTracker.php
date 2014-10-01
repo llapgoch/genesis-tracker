@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "0.9";
+    const version = "1.0";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
@@ -167,6 +167,7 @@ class GenesisTracker{
           `weight` decimal(10,6) DEFAULT NULL,
           `height` decimal(10,6) DEFAULT NULL,
           `age` int(11) unsigned DEFAULT NULL,
+          `high_speed_internet` tinyint(1) unsigned DEFAULT NULL,
           `bmi` decimal(10,6) DEFAULT NULL,
           `date_created` datetime DEFAULT NULL,
           PRIMARY KEY  (`id`),
@@ -219,6 +220,15 @@ class GenesisTracker{
             foreach($eligibilityQuestions as $questionData){
                 $wpdb->insert(self::getEligibilityQuestionsTableName(), $questionData);
             }
+        }
+        
+        // Version specific updates
+        if(self::version == "1.0"){
+            // Add an additional quesion
+             $wpdb->insert(self::getEligibilityQuestionsTableName(), array(
+                 'question' => 'Are you currently taking hormone replacement therapy (HRT)?',			
+                 'correct' => 2
+             ));
         }
 		
 		
@@ -666,6 +676,7 @@ class GenesisTracker{
              "age" => array("R", "N", "VALUE-GREATER[0]", "VALUE-LESS[95]"),
              'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
              "height_main" => array('N', 'R', "VALUE-GREATER[0]"),
+             "high_speed_internet" => array("N", "R"),
              "passcode" => array("R")
          );
          
@@ -729,24 +740,46 @@ class GenesisTracker{
              return;
          }
          
+         $eligible = true;
+         
          foreach($eligibilityQuestions as $question){
              if($form->getRawValue('question_' . $question->id) !== $question->correct){
-                 $res = self::logIneligibleData($form);
-                 
-                 if($res['hash_id']){
-                     wp_redirect(add_query_arg(array(
-                         'result' => $res['hash_id']
-                     ),
-                         self::getIneligiblePagePermalink()
-                     ));
-                     exit;
-                 }else{
-                     wp_redirect(home_url());
-                     exit;
-                 }
-                 return;
+                 $eligible = false;
+                 break;
              }
          }
+         
+         if((int)$form->getRawValue("high_speed_internet") !== 1){
+             $eligible = false;
+         }
+         
+         if((int)$form->getRawValue("age") < 47 || (int)$form->getRawValue("age") > 74){
+             $eligible = false;
+         }
+         
+         $bmi = $weight / ($height * $height);
+         
+         if($bmi < 25){
+             $eligible = false;            
+         }
+         
+         if(!$eligible){
+             $res = self::logIneligibleData($form);
+         
+             if($res['hash_id']){
+                 wp_redirect(add_query_arg(array(
+                     'result' => $res['hash_id']
+                 ),
+                     self::getIneligiblePagePermalink()
+                 ));
+                 exit;
+             }else{
+                 wp_redirect(home_url());
+                 exit;
+             }
+             return;
+         }
+        
          
          $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
          self::$pageData['eligible'] = true;
@@ -800,6 +833,7 @@ class GenesisTracker{
           'height' => $height,
           'age' => $form->getRawValue('age'),
           'bmi' => $bmi,
+          'high_speed_internet' => $form->getRawValue('high_speed_internet'),
           'date_created' => current_time('Y-m-d H:i:s')
         ))){
             $resultId = $wpdb->insert_id;
@@ -2237,10 +2271,12 @@ class GenesisTracker{
         $body = str_replace(
             array(
                 '%site_url%', 
+                '%login_url%',
                 '%forgot_url%'
             ),
             array(
                 get_site_url(),
+                wp_login_url(),
                 wp_lostpassword_url()
             ),
             $body

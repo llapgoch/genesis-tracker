@@ -45,7 +45,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 				</div>
                 
 				<p class="form-explanation">
-                    <a href="javascript:;" class="fa fa-question-circle help-icon weight-help" title="<strong>Simple tips for accurate weight measurements</strong><ul><li>Use the same set of <strong>reliable</strong> scales</li><li>Stand bathroom scales on an on a <strong>hard, level floor</strong> –it is best not to place them on carpet</li><li><strong>Remove your clothes and shoes</strong> before weighing yourself or wear light clothes only</li></ul>"></a>
+                    <a href="javascript:;" class="fa fa-question-circle help-icon weight-help" title="<strong>Simple tips for accurate weight measurements</strong><ul><li>Use the same set of <strong>reliable</strong> scales</li><li>Stand bathroom scales a <strong>hard, level floor</strong> –it is best not to place them on carpet</li><li><strong>Remove your clothes and shoes</strong> before weighing yourself or wear light clothes only</li></ul>"></a>
                     <?php _e('Please enter your current weight.  You can switch between imperial and metric values.');?></p>
                 <div class="unit-switcher">
                     <?php
@@ -134,9 +134,18 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
         <div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
-					<span class="general-label"><?php _e('5. Do you have access to a telephone and high/moderate-speed internet?');?></label>
+					<label class="general-label"><?php _e('5. Do you have access to a telephone and high/moderate-speed internet?');?></label>
 				</div>
 				<p class="form-explanation"><?php _e('As part of the study you will receive feedback and support by phone and email, you will also be asked to log your progress using the website');?></p>
+                <?php
+                echo $form->dropdown('high_speed_internet', array(
+                    '' => '--- Please Select ---',
+                    "1" => 'Yes',
+                    "2" => 'No'
+                ), array(
+                    'default' => ''
+                ));
+                ?>
             </div>
         </div>
     </div>
