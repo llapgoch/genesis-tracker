@@ -213,22 +213,16 @@ class GenesisTracker{
               array(
                   'question' => 'Are you currently successfully <strong>following a diet and/or exercise plan</strong> and have <strong>lost more than 2 lb (1 kg) of weight</strong> in the last 2 weeks?',			
                   'correct' => 2
-              )
-            );
+              ),
+              array(
+                  'question' => 'Are you currently taking hormone replacement therapy (HRT)?',			
+                  'correct' => 2  
+             ));
         
             // Insert the questions into the DB
             foreach($eligibilityQuestions as $questionData){
                 $wpdb->insert(self::getEligibilityQuestionsTableName(), $questionData);
             }
-        }
-        
-        // Version specific updates
-        if(self::version == "1.0"){
-            // Add an additional quesion
-             $wpdb->insert(self::getEligibilityQuestionsTableName(), array(
-                 'question' => 'Are you currently taking hormone replacement therapy (HRT)?',			
-                 'correct' => 2
-             ));
         }
 		
 		
