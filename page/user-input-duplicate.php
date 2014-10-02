@@ -1,5 +1,5 @@
 <form name="user-inputs" method="post" action="">
-	<div class="alert notice">
+	<div class="fusion-alert alert notice alert-warning alert-shadow">
 		<div class="msg">
 			<h2>You have previously recorded measurements for the date you've chosen</h2>
 			<p>Would you like to overwrite your previously entered data?</p>
