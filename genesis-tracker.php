@@ -3,7 +3,7 @@
 Plugin Name: Genesis Tracker
 Plugin URI: http://carbolowdrates.com
 Description: Tracks user's weight, calories, and exercise
-Version: 1.13
+Version: 1.14
 Author: Dave Preece
 Author URI: http://www.scumonline.co.uk
 License: GPL
