@@ -114,14 +114,14 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     
     	<div class="question-outer-container record-food-container">
     		<div class="title">
-    			<h3 class="general-label"><?php _e('Food Groups');?></h3>
+    			<h3 class="general-label"><?php _e('Unrestricted Days Diet Tracker');?></h3>
     		</div>
           
     		<?php echo $form->checkbox('record-food', 1, array(
     			'class' => 'question-chooser',
     			'id' => 'record-food'
     		));?>
-    		<label for="record-food"><?php _e('I would like to record my food groups on this occasion');?></label>
+    		<label for="record-food"><?php _e('I would like to record my food and drink portions on this occasion');?></label>
     		<div class="inner-question-container food-container js-hide">
                 
     			<div class="question-container clearfix">
@@ -142,49 +142,49 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                                 <div class="input-box">
                                     <label for="example_fat">Carbohydrate</label>
                                     <div class="input-container fat">
-                                        <input type="text" readonly="readonly" id="example_fat" class="general-input" name="example_fat" value="2">
+                                        <input type="text" readonly="readonly" id="example_fat" class="general-input food-input" name="example_fat" value="2">
                                     </div>
                                 </div>
                                 <div class="input-box">
                                     <label for="example_protein">Protein</label>
                                     <div class="input-container protein">
-                                        <input type="text" readonly="readonly" id="example_protein" class="general-input" name="example_protein" value="0">
+                                        <input type="text" readonly="readonly" id="example_protein" class="general-input food-input" name="example_protein" value="0">
                                     </div>
                                 </div>
                                 <div class="input-box">
                                     <label for="example_carbs">Dairy</label>
                                     <div class="input-container carbs">
-                                        <input type="text" readonly="readonly" id="example_carbs" class="general-input" name="example_carbs" value="0.5">
+                                        <input type="text" readonly="readonly" id="example_carbs" class="general-input food-input" name="example_carbs" value="0.5">
                                     </div>
                                 </div>
                                 <div class="input-box">
                                     <label for="example_fruit">Vegetables</label>
                                     <div class="input-container fruit">
-                                        <input type="text" readonly="readonly" id="example_fruit" class="general-input" name="example_fruit" value="0">
+                                        <input type="text" readonly="readonly" id="example_fruit" class="general-input food-input" name="example_fruit" value="0">
                                     </div>
                                 </div>
                                 <div class="input-box">
                                     <label for="example_vegetables">Fruit</label>
                                     <div class="input-container vegetables">
-                                        <input type="text" readonly="readonly" id="example_vegetables" class="general-input" name="example_vegetables" value="1">
+                                        <input type="text" readonly="readonly" id="example_vegetables" class="general-input food-input" name="example_vegetables" value="1">
                                     </div>
                                 </div>
                                 <div class="input-box">
                                     <label for="example_dairy">Fat</label>
                                     <div class="input-container dairy">
-                                        <input type="text" readonly="readonly" id="example_dairy" class="general-input" name="example_dairy" value="0">
+                                        <input type="text" readonly="readonly" id="example_dairy" class="general-input food-input" name="example_dairy" value="0">
                                     </div>
                                 </div>
                                 <div class="input-box">
                                     <label for="example_alcohol">Treat</label>
                                     <div class="input-container alcohol">
-                                        <input type="text" readonly="readonly" id="example_alcohol" class="general-input" name="example_alcohol" value="0">
+                                        <input type="text" readonly="readonly" id="example_alcohol" class="general-input food-input" name="example_alcohol" value="0">
                                     </div>
                                 </div>
                                 <div class="input-box">
                                     <label for="example_treat">Alcohol</label>
                                     <div class="input-container treat">
-                                        <input type="text" readonly="readonly" id="example_treat" class="general-input" name="example_treat" value="0">
+                                        <input type="text" readonly="readonly" id="example_treat" class="general-input food-input" name="example_treat" value="0">
                                     </div>
                                 </div>
                             </div>
@@ -301,8 +301,6 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     					'id' => 'exercise_minutes',
     					'class' => 'general-input'
     				));
-			
-		
     				?>
     				<p class="input-suffix"><?php _e('minutes');?></p>
     			</div>

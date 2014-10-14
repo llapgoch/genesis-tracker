@@ -231,7 +231,9 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     // Clear the exercise form
                     $('.exercise-container input[type="text"]').val('');
                     // Clear the food form - not the example readonly ones though
-                    $('.food-container input[type="text"]:not([readonly="readonly"])').val(0);
+                    $('.food-container input.food-input[type="text"]:not([readonly="readonly"])').val(0);
+                    // Clear the food descriptions
+                    $('.food-container .food-description').val('');
                    
                     var unit = $weightUnit.val() == 1 ? "imperial" : "metric";
                     
@@ -277,6 +279,15 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                             if(val.food_type && val.time){
                                 $form.find("input[name=" + val.time + "_" + val.food_type + "]").val(val.value);
                             }
+                        });
+                    }
+                    
+                    // Food descriptions
+                    if(data.food_descriptions && data.food_descriptions.length){
+                        $form.find('input[name="record-food"]').prop('checked', true).trigger('change');
+                        
+                        $(data.food_descriptions).each(function(i, val){
+                            $form.find("input[name=" + val.time + "_description]").val(val.description);
                         });
                     }
                     

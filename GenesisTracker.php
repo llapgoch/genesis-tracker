@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.1";
+    const version = "1.14";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
@@ -151,6 +151,14 @@ class GenesisTracker{
           KEY `tracker_id` (`tracker_id`)
         )");
         
+        dbDelta($sql = "CREATE TABLE " . self::getFoodDescriptionTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `tracker_id` int(10) unsigned NOT NULL,
+          `time` varchar(255) DEFAULT NULL,
+          `description` text,
+          PRIMARY KEY  (`id`)
+        )");
+        
         $eligibilityQuestionsTableExists = self::checkTableExists(self::getEligibilityQuestionsTableName());
         
         dbDelta($sql = "CREATE TABLE " . self::getEligibilityQuestionsTableName() . " (
@@ -195,7 +203,7 @@ class GenesisTracker{
                   'correct' => 2
               ),
               array(
-                  'question' => 'Have you ever had a <strong>stroke or heart attack</strong>?',
+                  'question' => 'Have you ever had <strong> angina, a mini stroke (TIA), stroke or heart attack</strong>?',
                   'correct' => 2
               ),
               array(
@@ -407,10 +415,12 @@ class GenesisTracker{
             "%user_email%",
             "%user_pass%",
             "%site_url%",
+            '%genesis_logo%',
         ),array(
             trim($_POST['user_email']),
             $plaintext_pass,
-            get_site_url()
+            get_site_url(),
+            self::getLogoUrl()
         ), $contents);
         
         $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
@@ -494,8 +504,8 @@ class GenesisTracker{
          $body = self::getTemplateContents('activated');
          
          $body = str_replace(
-             array('%site_url%'),
-             array(get_site_url()),
+             array('%site_url%', '%genesis_logo%'),
+             array(get_site_url(),  self::getLogoUrl()),
              $body
          );
          
@@ -537,6 +547,11 @@ class GenesisTracker{
          }
          
          return self::$_userMetaTargetFields[$key]['unit'];
+     }
+     
+     public static function getFoodDescriptionTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_food_description";
      }
 	 
 	 public static function getTrackerTableName(){
@@ -1259,7 +1274,18 @@ class GenesisTracker{
  					WHERE tracker_id = %d', $prevResult->tracker_id
  				)
  		 	 );
+             
+             // Remove food descriptions
+             $wpdb->query(
+                 $sql = $wpdb->prepare("DELETE FROM " . self::getFoodDescriptionTableName() . "
+                     WHERE tracker_id = %d", $prevResult->tracker_id
+                 )
+             );
+         
          }  
+         
+         
+         
 		 
          // Remove current entry
 		 $wpdb->query(
@@ -1338,20 +1364,47 @@ class GenesisTracker{
                     }
                 }
             }
+            
+            // Save the food descriptions
+            foreach(self::$_userTargetTimes as $timeKey => $time){
+                if(!$form->hasValue($timeKey . "_description")){
+                    continue;
+                }
+                
+                $wpdb->insert(self::getFoodDescriptionTableName(), 
+                    array(
+                        'tracker_id' => $trackerId,
+                        'time' => $timeKey,
+                        'description' => trim($form->getRawValue($timeKey . "_description"))
+                    )
+                );
+            }
         }      
 		 
          self::$pageData['user-input-save'] = true;
 	 }
      
-     public static function getUserFoodLogsForTracker($user_id, $tracker_id){
+     public static function getUserFoodDescriptionsForTracker($tracker_id){
+          global $wpdb;
+          
+          $res = $wpdb->get_results($sql = $wpdb->prepare("SELECT fd.*
+              FROM " . self::getFoodDescriptionTableName() . " fd
+              JOIN " . self::getTrackerTableName() . " t 
+                ON fd.tracker_id = t.tracker_id
+                AND t.tracker_id = %d", $tracker_id)    
+          );
+          
+          return $res;
+     }
+     
+     public static function getUserFoodLogsForTracker($tracker_id){
          global $wpdb;
          
          $res = $wpdb->get_results($sql = $wpdb->prepare("SELECT fl.* 
              FROM " . self::getFoodLogTableName() . " fl
              JOIN " . self::getTrackerTableName() . " t 
                  ON fl.tracker_id = t.tracker_id
-                 AND t.user_id = %d
-                 AND t.tracker_id = %d", $user_id, $tracker_id)
+                 AND t.tracker_id = %d", $tracker_id)
         );
         
         return $res;
@@ -1922,15 +1975,18 @@ class GenesisTracker{
          
          // Look up food targets using the tracker_id if we have one
          $foodData = array();
+         $foodDescriptions = array();
          
          if($measureDetails->tracker_id){
-             $foodData = self::getUserFoodLogsForTracker($user_id, $measureDetails->tracker_id);
+             $foodData = self::getUserFoodLogsForTracker($measureDetails->tracker_id);
+             $foodDescription = self::getUserFoodDescriptionsForTracker($measureDetails->tracker_id);
          }
          
          return array(
              "date_picker" =>self::getDateListPicker($day, $month, $year),
              "measure_details" => $measureDetails,
-             "food_log" => $foodData 
+             "food_log" => $foodData,
+             "food_descriptions" => $foodDescription 
         );
      }
 	 
@@ -1960,11 +2016,12 @@ class GenesisTracker{
 				 'id' => $dateKey,
 				 'value' => $dateKey
 			 ), $selected);
+             
 			 
 			 $list .= "<li class='$cl'>" . $inputHTML . "
 				 <label for='$dateKey'><span class='line-1'>" . date('l', $time) . "</span><span class='line-2'>" . date("jS F", $time). "</span></label></li>";				 
 		 }
-		 
+         
 		 return "<ul>" . $list . "</ul>";
 	 }
 	 
@@ -2257,6 +2314,10 @@ class GenesisTracker{
         
         return $headers;
      }
+     
+     public static function getLogoUrl(){
+         return plugins_url('images/genesis-logo@2x.png', __FILE__);
+     }
 	 
 	 public static function sendReminderEmail(){
 		 // Sends a reminder email to all users
@@ -2266,12 +2327,14 @@ class GenesisTracker{
             array(
                 '%site_url%', 
                 '%login_url%',
-                '%forgot_url%'
+                '%forgot_url%',
+                '%genesis_logo%'
             ),
             array(
                 get_site_url(),
                 wp_login_url(),
-                wp_lostpassword_url()
+                wp_lostpassword_url(),
+                self::getLogoUrl()
             ),
             $body
         );

@@ -5,9 +5,20 @@ class GenesisUserInputTable{
         
         $html = array();
         
-        $html[] = GenesisTracker::getUserTargetLabel($foodIdentifier);
-        $html[] = "<div class='food-input-form'>";
+       
+       
+        $html[] = "<div class='food-description'>";
+        $html[] = "<label for='" . $timeIdentifier . "_description'>A Brief Description of what you ate:</label>";
         
+        $html[] = $form->input($timeIdentifier . '_description', 'text', array(
+            'id' => $timeIdentifier . "_description",
+            'class' => 'general-input food-description'
+        ));
+        $html[] = "</div>";
+       
+        $html[] = "<div class='food-input-form'>";
+       
+            
         foreach($foodTypes as $foodIdentifier => $food){
             $fullKey = $timeIdentifier . "_" . $foodIdentifier;
             

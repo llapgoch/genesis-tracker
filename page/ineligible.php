@@ -6,7 +6,7 @@
         <div class="content">
             <p><?php _e("Unfortunately because of one of the following, you are not able to progress onto the study;");?></p>
                 <ul>
-                    <li>Your age is not between 47 to 74</li>
+                    <li>Your age is not between 47 to 74 years</li>
                     <li>Your BMI is lower than 25</li>
                     <li>You do not have access to a telephone or high/moderate speed internet</li>
                     <li>You have answered yes to one or more of the health eligibility questions</li>

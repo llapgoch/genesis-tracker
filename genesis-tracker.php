@@ -3,7 +3,7 @@
 Plugin Name: Genesis Tracker
 Plugin URI: http://carbolowdrates.com
 Description: Tracks user's weight, calories, and exercise
-Version: 1.1
+Version: 1.13
 Author: Dave Preece
 Author URI: http://www.scumonline.co.uk
 License: GPL
@@ -42,7 +42,7 @@ add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
 add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPassword'));
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
-
+add_filter('show_admin_bar', '__return_false');
 
 // Checks whether the install function needs to be called again for DB changes
 add_action( 'init', array('GenesisTracker', 'checkVersionUpgrade') );
@@ -56,6 +56,8 @@ function remove_profile_contact_methods( $contactmethods ) {
   unset($contactmethods['yim']);
   return $contactmethods;
 }
+
+
 
 if(!wp_next_scheduled('genesis_send_reminder_email')){
 	wp_schedule_event(time(), 'weekly', 'genesis_send_reminder_email');
@@ -385,7 +387,7 @@ function genesis_user_input_page(){
 
 		$dateParts = date_parse($date);
 		$selectedDates = is_array($form->getRawValue('diet_days')) ? $form->getRawValue('diet_days') : array();
-		$dateListPicker = GenesisTracker::getDateListPicker($dateParts['day'], $dateParts['month'] - 1, $dateParts['year'], false, $selectedDates);
+		$dateListPicker = GenesisTracker::getDateListPicker($dateParts['day'], $dateParts['month'], $dateParts['year'], false, $selectedDates);
 	}
 	
 	if(GenesisTracker::getPageData('user-input-save') == true){
