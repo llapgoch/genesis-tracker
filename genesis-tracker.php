@@ -3,7 +3,7 @@
 Plugin Name: Genesis Tracker
 Plugin URI: http://carbolowdrates.com
 Description: Tracks user's weight, calories, and exercise
-Version: 1.14
+Version: 1.16
 Author: Dave Preece
 Author URI: http://www.scumonline.co.uk
 License: GPL
@@ -36,7 +36,8 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genes
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), 'genesis_eligibility_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligiblePageId), 'genesis_ineligible_page');
-
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::prescriptionPageId), 'genesis_prescription_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::physiotecLoginPageId), 'genesis_physiotec_login');
 
 add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
@@ -462,6 +463,18 @@ function genesis_initial_weight_page(){
 	$output = ob_get_contents();
 	ob_end_clean();
 	return $output;
+}
+
+function genesis_prescription_page(){
+    ?>
+    <div class="physiotec">
+    <script src="https://www.physiotec.ca/jscripts/iframe.js"></script>
+    </div>
+    <?php
+}
+
+function genesis_physiotec_login(){
+    require('page/physiotec-login.php');
 }
 
 function genesis_eligibility_page(){

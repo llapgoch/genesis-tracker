@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.14";
+    const version = "1.25";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
@@ -12,6 +12,8 @@ class GenesisTracker{
 	const initialWeightPageId = "initial_weight_page";
     const eligibilityPageId = "eligibility_page";
     const ineligiblePageId = "ineligibile_page";
+    const prescriptionPageId = "prescription_page";
+    const physiotecLoginPageId = "physiotec_login_page";
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
 	const targetPageId = "tracker_page";
@@ -38,7 +40,10 @@ class GenesisTracker{
     const MIN_VALID_HEIGHT = 0.5;
     const MAX_VALID_HEIGHT = 2.5;
     
-    const ELIGIBILITY_PASSWORD = "nightowl841";
+    protected static $eligibilityPasswords = array(
+        "nightowl841",
+        "chimp1231"
+    );
 
 	
 	public static $pageData = array();
@@ -178,6 +183,8 @@ class GenesisTracker{
           `high_speed_internet` tinyint(1) unsigned DEFAULT NULL,
           `bmi` decimal(10,6) DEFAULT NULL,
           `date_created` datetime DEFAULT NULL,
+          `is_eligible` tinyint(1) DEFAULT NULL,
+          `passcode` VARCHAR(255) DEFAULT NULL,
           PRIMARY KEY  (`id`),
           KEY `hash_id` (`hash_id`)
         )");
@@ -233,8 +240,6 @@ class GenesisTracker{
             }
         }
 		
-		
-		 self::updateOption("version", self::version);
 		 // Create the user page if it's not already there		 
  		 self::createUserPage();
 		 self::createInputPage();
@@ -242,7 +247,11 @@ class GenesisTracker{
 		 self::createInitialWeightPage();
          self::createEligibilityPage();
          self::createIneligiblePage();
-
+         self::createPrescriptionPage();
+         self::createPhysiotecLoginPage();
+         
+ 		 self::updateOption("version", self::version);
+         
 		 $role = get_role('administrator');
 		 
 		 if($role){
@@ -739,7 +748,7 @@ class GenesisTracker{
          
          // Check the values for the eligibility
          
-         if($form->getRawValue('passcode') !== self::ELIGIBILITY_PASSWORD){
+         if(in_array($form->getRawValue('passcode'), self::$eligibilityPasswords) == false){
              $form->setError('passcode', array(
                  'main' => 'The passcode you have entered is not correct.',
                  'general' => 'The passcode you have entered is not correct.'
@@ -772,8 +781,11 @@ class GenesisTracker{
              $eligible = false;            
          }
          
+         $form->setValue('is_eligible', $eligible);
+         
+         $res = self::logEligibilityData($form);
+         
          if(!$eligible){
-             $res = self::logIneligibleData($form);
          
              if($res['hash_id']){
                  wp_redirect(add_query_arg(array(
@@ -812,7 +824,7 @@ class GenesisTracker{
      }
      
      // Insert all the user's data, and return the unique hash key
-     public function logIneligibleData(DP_HelperForm $form){
+     public function logEligibilityData(DP_HelperForm $form){
          global $wpdb;
          
          // get the questions to store against
@@ -833,14 +845,15 @@ class GenesisTracker{
          
          $bmi = $weight / ($height * $height);
          $resultId = false;
-
          
         if($wpdb->insert(self::getEligibilityResultTableName(), array(
           'ip_address' =>  $ip,
           'hash_id' => $hash,
+          'is_eligible' => $form->getRawValue('is_eligible'),
           'weight' => $weight,
           'height' => $height,
           'age' => $form->getRawValue('age'),
+          'passcode' => $form->getRawValue('passcode'),
           'bmi' => $bmi,
           'high_speed_internet' => $form->getRawValue('high_speed_internet'),
           'date_created' => current_time('Y-m-d H:i:s')
@@ -1449,6 +1462,14 @@ class GenesisTracker{
 	 public static function getIneligiblePagePermalink(){
 	 	return get_permalink(self::getOption(self::ineligiblePageId));
 	 }
+     
+     public static function getPrescriptionPagePermalink(){
+         return get_permalink(self::getOption(self::prescriptionPageId));
+     }
+     
+     public static function getPhysiotecPagePermalink(){
+         return get_permalink(self::getOption(self::physiotecLoginPageId));
+     }
 	 
 	 public static function isOnEnterWeightPage(){
         return self::isOnPage(self::initialWeightPageId); 
@@ -1470,7 +1491,13 @@ class GenesisTracker{
   		return self::isOnPage(self::ineligiblePageId);
      }
      
+     public static function isOnPrescriptionPage(){
+         return self::isOnPage(self::prescriptionPageId);
+     }
      
+     public static function isOnPhysiotecLoginPage(){
+         return self::isOnPage(self::physiotecLoginPageId);
+     }
 	 
 	 public static function isOnUserInputPage(){
          return self::isOnPage(self::inputProgressPageId);
@@ -1482,7 +1509,7 @@ class GenesisTracker{
   		if(!$post){
   			return false;
   		}
-		
+        
   		if(self::getOption($pageCode) == $post->ID){
   			return true;
   		}
@@ -2037,6 +2064,8 @@ class GenesisTracker{
 		 || self::getPageData('user-input-save')
 		 || self::isOnEnterWeightPage()
          || self::isOnEligibilityPage()
+         || self::isOnPhysiotecLoginPage()
+         || self::isOnPrescriptionPage()
          || apply_filters('hide-header-notice', false)){
 			 $classes[] = 'hide-header-notice';
 		 }
@@ -2110,7 +2139,9 @@ class GenesisTracker{
             }
             
 		    wp_enqueue_script('progress');
+           
 		}
+        
         
         if(self::isOnUserInputPage()){
             $minDate = strtotime(self::getInitialUserStartDate($user_id)) + 86400;
@@ -2249,7 +2280,61 @@ class GenesisTracker{
 		  self::updateOption(self::eligibilityPageId, $post_id);
      }
      
-     public static function createIneligiblePage($overite = false){
+     public static function createPhysiotecLoginPage($overwrite = false){
+    
+		 // Create the page which allows users to enter a target weight and date
+		 $pageID = self::getOption(self::physiotecLoginPageId);
+	 	 $post = get_post($pageID);
+	
+		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+         
+         
+		 $pageData = array(
+			'post_title' => 'Physiotec Login',
+ 			'comment_status' => 'closed',
+ 		 	'post_content' => '[' . self::getOptionKey(self::physiotecLoginPageId) . ']',
+ 		 	'post_status' => 'publish',
+ 		 	'post_type' => 'page',
+ 		 	'post_author' => self::userIdForAutoCreatedPages
+ 		 );
+ 
+		 if($pageID){
+			 wp_delete_post($pageID, true);
+		 }
+		 
+		  $post_id = wp_insert_post($pageData);
+		  self::updateOption(self::physiotecLoginPageId, $post_id);
+     }
+     
+     public static function createPrescriptionPage($overwrite = false){
+		 // Create the page which allows users to enter a target weight and date
+		 $pageID = self::getOption(self::prescriptionPageId);
+	 	 $post = get_post($pageID);
+	
+		 if($post && $post->post_status == 'publish'  &! $overwrite){
+			 return;
+		 }
+         
+		 $pageData = array(
+			'post_title' => 'Prescription Exercises',
+ 			'comment_status' => 'closed',
+ 		 	'post_content' => '[' . self::getOptionKey(self::prescriptionPageId) . ']',
+ 		 	'post_status' => 'publish',
+ 		 	'post_type' => 'page',
+ 		 	'post_author' => self::userIdForAutoCreatedPages
+ 		 );
+
+		 if($pageID){
+			 wp_delete_post($pageID, true);
+		 }
+		 
+		  $post_id = wp_insert_post($pageData);
+		  self::updateOption(self::prescriptionPageId, $post_id);
+     }
+     
+     public static function createIneligiblePage($overwite = false){
 		 // Create the page which allows users to enter a target weight and date
 		 $pageID = self::getOption(self::ineligiblePageId);
 	 	 $post = get_post($pageID);
@@ -2308,7 +2393,7 @@ class GenesisTracker{
      
      public static function getEmailHeaders(){
   		$headers = array();
-  		$headers[] = 'From: Procas Lifestyle Research Study<'. get_option('admin_email') .'>';
+  		$headers[] = 'From: Procas Lifestyle Research<'. get_option('admin_email') .'>';
   		$headers[] = 'MIME-Version: 1.0';
   		$headers[] = 'Content-type: text/html; charset=utf-8';
         
