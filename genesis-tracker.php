@@ -357,7 +357,8 @@ function genesis_admin_user_show($user){
     $userTelephone = get_user_meta($user->ID, 'tel', true);
     $userEditLink = get_edit_user_link($user->ID);
     $foodLogs = GenesisAdmin::getFoodLogs($user->ID);
-    var_dump($foodLogs);
+    $foodTypes = GenesisTracker::getuserMetaTargetFields();
+    $foodTimes = GenesisTracker::getUserTargetTimes();
     include('page/admin/user-show.php');
 }
 

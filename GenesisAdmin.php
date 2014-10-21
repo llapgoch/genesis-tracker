@@ -68,12 +68,34 @@ class GenesisAdmin{
             JOIN " . GenesisTracker::getFoodLogTableName() . " f
             	ON t.`tracker_id` = f.`tracker_id`
             WHERE user_id = %d
+            ORDER BY measure_date DESC
             LIMIT %d
+            
         ", $user_id, $limit));
         
         // Get all of the logs
+        
+        
         foreach($results as $result){
-            $result->foodLog = GenesisTracker::getUserFoodLogsForTracker($result->tracker_id);
+            $result->foodLog = array();
+            $foodLogs = GenesisTracker::getUserFoodLogsForTracker($result->tracker_id);
+
+            foreach(GenesisTracker::getUserTargetTimes() as $timeKey => $time){
+                $result->foodLog[$timeKey] = array();
+                $result->foodLog[$timeKey]['total'] = 0;
+                foreach(GenesisTracker::getuserMetaTargetFields() as $foodKey => $food){
+                    $result->foodLog[$timeKey][$foodKey] = array();
+                    
+                    foreach($foodLogs as $log){
+                        if($log->food_type == $foodKey && $log->time == $timeKey){
+                            $result->foodLog[$timeKey][$foodKey] = $log;
+                            $result->foodLog[$timeKey]['total'] += $log->value;
+                        }
+                    }
+                    
+                }
+            }
+            
             $result->foodDescriptions = GenesisTracker::getUserFoodDescriptionsForTracker($result->tracker_id);
         }
         
