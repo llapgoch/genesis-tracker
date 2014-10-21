@@ -889,7 +889,7 @@ class GenesisTracker{
 	 	}
 	 }
 
-	 public function checkWeightEntered(){
+	 public static function checkWeightEntered(){
 		 global $post;
 
 		 if(!is_user_logged_in()){
@@ -1586,6 +1586,27 @@ class GenesisTracker{
 
         return $res;
 	}
+    
+    public static function getTotalFoodLogs($user_id, $limit = 7){
+        global $wpdb;
+        // Build the aggregates for each value we want to pull out
+        foreach(self::$_userMetaTargetFields as $targetKey => $targetVal){
+            $aggregates[] = sprintf("SUM(CASE WHEN fl.`food_type` = '%s' THEN fl.`value` ELSE NULL END) as %s", $targetKey, $targetKey);
+        }
+        
+    	 $results = $wpdb->get_results($sql = $wpdb->prepare(
+    	 	$select = "SELECT t.* " .
+               ($aggregates ? "," . implode(",\n", $aggregates) . " " : "") . 
+               "FROM " . self::getTrackerTableName() . " t " . 
+               "JOIN " . self::getFoodLogTableName() . " fl USING(tracker_id)
+    	 	WHERE user_id=%d 
+               GROUP BY t.tracker_id
+               ORDER BY measure_date DESC 
+               LIMIT %d", $user_id, $limit
+    	 ));
+         
+         return $results;
+    }
 	 
 	 public static function getAllUserLogs($user_id, $startDate ='', $endDate = ''){
 		 global $wpdb;
@@ -1687,7 +1708,7 @@ class GenesisTracker{
 					 $isWeightLoss = $valToCollate == 'weight_loss';
 				 
 					 // Only collate weight if it's been entered this time
-					 if($log->$valToCollate === null){
+					 if(!property_exists($log, $valToCollate) || $log->$valToCollate == null){
 						 continue;
 					 }
 				 
@@ -2117,6 +2138,9 @@ class GenesisTracker{
 			  
 			  wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
 			  wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange));
+              
+               wp_enqueue_script('responsive-tables', plugins_url('js/responsive-tables.js', __FILE__));
+               wp_enqueue_style('responsive-tables-css', plugins_url('css/responsive-tables.css', __FILE__));
          }
 		 	 
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage() || self::isOnEligibilityPage()){	
@@ -2160,6 +2184,11 @@ class GenesisTracker{
 	 
 	 public static function decideAuthRedirect(){
 		 if(is_user_logged_in()){
+             // If on the eligibility pages, redirect to the homepage
+             if(self::isOnEligibilityPage() || self::isOnInEligiblePage()){
+                 wp_redirect(home_url());
+             }
+             
 			 return false;
 		 }
 

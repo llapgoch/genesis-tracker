@@ -364,12 +364,16 @@ function genesis_admin_user_show($user){
 
 function genesis_user_graph(){
 	ob_start();
-	
+	$foodLogDays = 7;
 	$userGraphPage = GenesisTracker::getUserPagePermalink();
 	$userInputPage = GenesisTracker::getUserInputPagePermalink();
 	
 	$weightChange = GenesisTracker::getUserWeightChange(get_current_user_id());
+    $foodLogData = GenesisTracker::getTotalFoodLogs(get_current_user_id(), $foodLogDays);
+    $foodTypes = GenesisTracker::getuserMetaTargetFields();
+    
 	$weightChangeInButter = 0;
+
 	
 	if($weightChange < -0.1){
 		$butterWeight = 0.25;

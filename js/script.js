@@ -103,13 +103,24 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 				
 				// Add events
 				$('.progress-graph-switcher .button-group button').on('click', function(e){
-					e.preventDefault();
-					var mode = $(this).data('mode');
-                    var averages = $('.extended-button input').is(":checked");
-					
-					userGraph.initialise(mode, $('.mode-switcher').val() == 1 ? "imperial" : "", averages);
-					selectModeButton(mode);
+                    e.preventDefault();
+                    var mode = $(this).data('mode');
+                    selectModeButton(mode);
+                    
+                    if(mode == 'unrestricted-days'){
+                        $('.genesis-graph-container').hide();
+                        $('.genesis-food-table-container').show(); 
+                        $('.zoomer').hide();
+                    }else{
+                        $('.genesis-food-table-container').hide(); 
+                        $('.genesis-graph-container').show();
+					    $('.zoomer').show();
+                        var averages = $('.extended-button input').is(":checked");
+    					userGraph.initialise(mode, $('.mode-switcher').val() == 1 ? "imperial" : "", averages);
+                    }
+                   
 				});
+            
                 
                 $('.extended-button input').on('click', function(e){
                    var showAverages = $(this).is(":checked");
