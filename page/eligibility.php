@@ -45,7 +45,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 				</div>
                 
 				<p class="form-explanation">
-                    <a href="javascript:;" class="fa fa-question-circle help-icon weight-help" title="<strong>Simple tips for accurate weight measurements</strong><ul><li>Use the same set of <strong>reliable</strong> scales</li><li>Stand bathroom scales a <strong>hard, level floor</strong> –it is best not to place them on carpet</li><li><strong>Remove your clothes and shoes</strong> before weighing yourself or wear light clothes only</li></ul>"></a>
+                    <a href="javascript:;" class="fa fa-question-circle help-icon weight-help" title="<strong>Simple tips for accurate weight measurements</strong><ul><li>Use the same set of <strong>reliable</strong> scales</li><li>Stand bathroom scales on a <strong>hard, level floor</strong> –it is best not to place them on carpet</li><li><strong>Remove your clothes and shoes</strong> before weighing yourself or wear light clothes only</li></ul>"></a>
                     <?php _e('Please enter your current weight.  You can switch between imperial and metric values.');?></p>
                 <div class="unit-switcher">
                     <?php

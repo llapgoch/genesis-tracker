@@ -24,6 +24,4 @@
             <p>For further information about the diet and to access a diet plan, <a href="<?php echo $twoDayDietDownloadPdfUrl;?>" target='_blank'>click here</a></p>
         </div>
     </div>
-    
-    <a href="<?php echo home_url()?>" class="button large blue"><?php _e("Go to the PROCAS Lifestyle Study Homepage")?></a>
 </div>

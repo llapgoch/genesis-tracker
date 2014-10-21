@@ -26,7 +26,7 @@ class GenesisAdmin{
                 LIMIT 1) as weight
 
             FROM " . $wpdb->users . " u
-                JOIN " . GenesisTracker::getTrackerTableName() . " t
+                LEFT JOIN " . GenesisTracker::getTrackerTableName() . " t
                 	ON u.ID = t.user_id
                 LEFT JOIN " . $wpdb->usermeta . " as initial_weight 
                 	ON initial_weight.user_id = u.ID
