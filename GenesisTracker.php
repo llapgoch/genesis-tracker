@@ -499,6 +499,10 @@ class GenesisTracker{
          }    
      }
      
+     public static function getAdminUrl($query = array()){
+         return admin_url('admin.php?page=genesis-tracker') . "&" . build_query($query);
+     }
+     
      public static function sendUserActivateEmail($user_id){
          $activeKey = self::getOptionKey(self::userActiveKey);
          $user = get_userdata($user_id);

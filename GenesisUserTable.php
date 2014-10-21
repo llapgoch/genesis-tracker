@@ -1,8 +1,9 @@
 <?php
 class GenesisUserTable extends WP_List_Table {
-    public $testData;
-	
-	function __construct(){
+	// Two weeks in seconds
+    const TWO_WEEKS = 1209600;
+    
+    function __construct(){
           global $status, $page;
                 
           //Set parent defaults
@@ -13,17 +14,53 @@ class GenesisUserTable extends WP_List_Table {
           ) );
         
       }
+      
+      public function wrapRed($data){
+          return "<span style='color:red'>" . $data . "</span>";
+      }
 	  
 	  public function column_default($item, $column_name){
-	         switch($column_name){
-	             case 'ID':
-				 case 'user_pass':
-	             case 'display_name':
-	                 return "<span style='color:red'>" . $item[$column_name] . "</span>";
-	             default:
-	                 return "NOT FOUND " . $column_name;
-	         }
-	     }
+         $noValue = '- -';
+         
+         if(!isset($item[$column_name])){
+             return $noValue;
+         }
+          
+         switch($column_name){
+             case 'user_email':
+                 $email = "<a href='mailto:" . $item[$column_name] . "'>" . $item[$column_name] . "</a>";
+
+                 $email .= $this->row_actions(array(
+                     'View'=> '<a href="' . GenesisTracker::getAdminUrl(array("edit_user" => $item['user_id'])) . '">View</a>',
+                     'Edit' => '<a href="' . get_edit_user_link($item['user_id']) . '">Edit</a>'
+                         
+                 ), false);
+                 
+                 return $email;
+             case 'initial_weight':
+             case 'weight':
+                 if(!(float)$item[$column_name]){
+                     return $noValue;
+                 }
+                 return round((float)$item[$column_name], 2);
+             case 'weight_change':
+                 if(($loss = round((float)$item[$column_name], 2)) >= 0){
+                     return $this->wrapRed($loss);
+                 }
+                 return $loss;
+             case 'unix_timestamp' : 
+                 $time = strtotime($item['measure_date']);
+                 $date = gmdate('d M Y', strtotime($item['measure_date']));
+                 if(time() - $item[$column_name] > self::TWO_WEEKS){
+                     return $this->wrapRed($date);
+                 }
+                 return $date;
+             case 'account_active' :
+                 return (int)$item[$column_name] ? 'Yes' : $this->wrapRed('No');
+             default:
+                 return $item[$column_name] ? $item[$column_name] : $noValue;
+         }
+     }
 		 
 	     function column_title($item){
         
@@ -51,17 +88,24 @@ class GenesisUserTable extends WP_List_Table {
 			
 		    function get_columns(){
 		        $columns = array(
-		            'ID'     => 'ID',
-		            'display_name'    => 'Display Name',
-					 'user_pass'    => 'Password',
+		            'user_email'            => 'Email Address',
+		            'unix_timestamp'          => 'Last Measurement Date',
+					 'account_active'       => 'Active',
+                     'initial_weight'       => 'Start Weight (Kg)',
+                     'weight'               => 'Current Weight (Kg)',
+                     'weight_change'          => 'Weight Change (Kg)',
 		        );
 		        return $columns;
 		    }
     
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
-		               'ID'     => array('ID',false),     //true means it's already sorted
-		               'display_name'    => array('display_name',false),
+		               'user_email'     => array('user_email',false),     //true means it's already sorted
+		               'initial_weight'    => array('initial_weight',false),
+                       'weight' => array('weight', false),
+                       'account_active' => array('account_active', false),
+                       'weight_change' => array('weight_change', false),
+                       'unix_timestamp' => array('unix_timestamp', true)
 		           );
 		           return $sortable_columns;
 		       }
@@ -113,7 +157,11 @@ class GenesisUserTable extends WP_List_Table {
 		            * use sort and pagination data to build a custom query instead, as you'll
 		            * be able to use your precisely-queried data immediately.
 		            */
-		           $data = $this->testData;
+                     
+                   $cols = $this->get_sortable_columns();
+                   $orderBy = isset($cols[$_REQUEST['orderby']]) ? $_REQUEST['orderby'] : 'measure_date';
+                   $order = strtoupper($_REQUEST['order']) == 'ASC' ? 'ASC' : 'DESC';
+		           $data = GenesisAdmin::getUserLogDetails($orderBy . " " . $order);
 
         
 		           /**
@@ -124,13 +172,7 @@ class GenesisUserTable extends WP_List_Table {
 		            * to a custom query. The returned data will be pre-sorted, and this array
 		            * sorting technique would be unnecessary.
 		            */
-		           function usort_reorder($a,$b){
-		               $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'title'; //If no sort, default to title
-		               $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc'; //If no order, default to asc
-		               $result = strcmp($a[$orderby], $b[$orderby]); //Determine sort order
-		               return ($order==='asc') ? $result : -$result; //Send final sort direction to usort
-		           }
-		           usort($data, 'usort_reorder');
+		     
         
         
 		           /***********************************************************************

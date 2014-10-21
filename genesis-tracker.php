@@ -321,7 +321,7 @@ add_action('admin_menu', 'genesisAdminMenu');
 add_action('wp_ajax_genesis_get_form_values', 'genesis_post_form_values');
 
 function genesisAdminMenu(){
-	add_menu_page('Genesis Admin', 'Genesis Admin', GenesisTracker::editCapability, 'genesis-tracker', genesis_admin_page, null, 5);
+	add_menu_page('Procas Admin', 'Procas Admin', GenesisTracker::editCapability, 'genesis-tracker', genesis_admin_page, null, 5);
 }
 
 
@@ -335,20 +335,30 @@ function genesis_post_form_values(){
 }
 
 function genesis_admin_page(){
+    if(isset($_GET['edit_user']) && (int) $_GET['edit_user']){
+        if($user = get_user_by('id', $_GET['edit_user'])){
+            genesis_admin_user_show($user);
+            return;
+        }
+    }
+    
+	genesis_admin_user_list();
+}
+
+function genesis_admin_user_list(){
 	global $wpdb;
 	$tbl = new GenesisUserTable();
-	
-	?>
-	<div class="wrap">
-	
-	<?php
-	
-	$tbl->testData = $wpdb->get_results('SELECT * FROM wp_users', ARRAY_A);
-	$tbl->prepare_items();
-	$tbl->display();
-	?>
-	</div>
-	<?php
+	include('page/admin/user-list.php');
+}
+
+function genesis_admin_user_show($user){
+    global $wpdb;
+    $userDetails = GenesisAdmin::getUserLogDetails(null, $user->ID);
+    $userTelephone = get_user_meta($user->ID, 'tel', true);
+    $userEditLink = get_edit_user_link($user->ID);
+    $foodLogs = GenesisAdmin::getFoodLogs($user->ID);
+    var_dump($foodLogs);
+    include('page/admin/user-show.php');
 }
 
 function genesis_user_graph(){
