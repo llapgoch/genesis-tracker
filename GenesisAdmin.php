@@ -12,7 +12,7 @@ class GenesisAdmin{
         }
         
         $results = $wpdb->get_results($wpdb->prepare($sql = 
-            "SELECT *, IFNULL(initial_weight - weight, 0) weight_loss FROM 
+            "SELECT *, IFNULL(weight - initial_weight, 0) weight_change FROM 
                 (SELECT u.user_email, u.ID user_id,  
             	MAX(measure_date) as measure_date, 
                 UNIX_TIMESTAMP(MAX(measure_date)) unix_timestamp,
@@ -44,14 +44,7 @@ class GenesisAdmin{
         ), ARRAY_A);
         
         
-        foreach($results as &$res){
-            if(!$res['weight'] || !$res['initial_weight']){
-                $res['weight_change'] = 0;
-                continue;
-            }
-            
-            $res['weight_change'] = (float)$res['weight'] - (float)$res['initial_weight'];
-        }
+       
 
         // Return results for a single user
         if($user && $results){

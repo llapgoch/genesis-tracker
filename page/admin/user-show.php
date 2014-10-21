@@ -23,7 +23,7 @@
         <dt>Initial Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['initial_weight']) && $userDetails['initial_weight']) :
-                echo $userDetails['initial_weight'];
+                echo round($userDetails['initial_weight'], 2);
             else :
                 echo "- -";
             endif;
@@ -31,7 +31,7 @@
         <dt>Current Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['weight']) && $userDetails['weight']) :
-                echo $userDetails['weight'];
+                echo round($userDetails['weight'], 2);
             else :
                 echo "- -";
             endif;
@@ -40,7 +40,7 @@
         <dt>Weight Change</dt>
         <dd><?php 
              if(isset($userDetails['weight_change']) && $userDetails['weight_change']) :
-                 echo $userDetails['weight_change'];
+                 echo round($userDetails['weight_change'], 2);
              else :
                  echo "- -";
              endif;
