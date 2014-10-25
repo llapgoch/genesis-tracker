@@ -88,8 +88,8 @@ class GenesisUserTable extends WP_List_Table {
 			
 		    function get_columns(){
 		        $columns = array(
-                    'user_name'             => 'Name',
 		            'user_email'            => 'Email Address',
+                    'user_name'             => 'Name',
 		            'unix_timestamp'        => 'Last Measurement Date',
 					 'account_active'       => 'Active',
                      'initial_weight'       => 'Start Weight (Kg)',

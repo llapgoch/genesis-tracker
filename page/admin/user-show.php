@@ -7,6 +7,8 @@
     <dl class="admin-list">
         <dt>Email Address</dt>
         <dd><a href="mailto:<?php echo $user->user_email;?>"><?php echo $user->user_email;?></a></dd>
+        <dt>Name</dt>
+        <dd><?php echo trim($userDetails['user_name']) ? (string)$userDetails['user_name'] : "- -"; ?></dd>
         <dt>Telephone Number</dt>
         <dd><?php echo $userTelephone; ?></dd>
         <dt>Account Active</dt>
