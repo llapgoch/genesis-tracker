@@ -40,9 +40,17 @@ class GenesisTracker{
     const MIN_VALID_HEIGHT = 0.5;
     const MAX_VALID_HEIGHT = 2.5;
     
+    const CACHE_DIR = "genesis-tracker";
+    
     protected static $eligibilityPasswords = array(
-        "nightowl841",
-        "chimp1231"
+        "PLSC1L",
+        "PLSC2A",
+        "PLSC3B",
+        "PLSC4H",
+        "PLHC1L",
+        "PLHC2A",
+        "PLHC3B",
+        "PLHC4H"
     );
 
 	
@@ -752,7 +760,7 @@ class GenesisTracker{
          
          // Check the values for the eligibility
          
-         if(in_array($form->getRawValue('passcode'), self::$eligibilityPasswords) == false){
+         if(in_array(strtoupper($form->getRawValue('passcode')), self::$eligibilityPasswords) == false){
              $form->setError('passcode', array(
                  'main' => 'The passcode you have entered is not correct.',
                  'general' => 'The passcode you have entered is not correct.'
@@ -857,7 +865,7 @@ class GenesisTracker{
           'weight' => $weight,
           'height' => $height,
           'age' => $form->getRawValue('age'),
-          'passcode' => $form->getRawValue('passcode'),
+          'passcode' => strtoupper($form->getRawValue('passcode')),
           'bmi' => $bmi,
           'high_speed_internet' => $form->getRawValue('high_speed_internet'),
           'date_created' => current_time('Y-m-d H:i:s')
@@ -1839,6 +1847,43 @@ class GenesisTracker{
 		 $collated['initial_weights'] = $weightInitial;
 		 return $collated;
 	 }
+     
+     public static function getCachePath(){
+         return WP_CONTENT_DIR . DIRECTORY_SEPARATOR . "cache" . DIRECTORY_SEPARATOR . self::CACHE_DIR . DIRECTORY_SEPARATOR;
+     }
+     
+     public static function setCacheData($key, $data, $expire = 0){
+         if(!file_exists(self::getCachePath())){
+             mkdir(self::getCachePath(), 0775, true);
+         }
+         
+         $encKey = base64_encode($key);
+         
+         // Save the cache
+         file_put_contents(self::getCachePath() . $encKey, serialize($data));
+         
+         if($expire){
+             file_put_contents(self::getCachePath() . $encKey . "_expire", time() + $expire);
+         }elseif(file_exists(self::getCachePath() . $encKey . "_expire")){
+             unlink(self::getCachePath() . $encKey . "_expire");
+         }
+     }
+     
+     public static function getCacheData($key){
+         if(!file_exists(self::getCachePath() . base64_encode($key))){
+             return null;
+         }
+         
+         if(file_exists(self::getCachePath() . base64_encode($key) . "_expire")){
+             $expire = (int) file_get_contents(self::getCachePath() . base64_encode($key) . "_expire");
+
+             if($expire <= time()){
+                 return null;
+             }
+         }
+         
+         return unserialize(file_get_contents(self::getCachePath() . base64_encode($key)));
+     }
 	 
 	 /*
 	 	This needs testing on large datasets
@@ -1848,7 +1893,7 @@ class GenesisTracker{
 	 */
      public static function getAverageUsersGraphData($rangeDates){ 
          // Update to include admins
-        if(!$averages = wp_cache_get( self::getOptionKey(self::averageDataKey), 'users' )){
+        if( !$averages = self::getCacheData(self::getOptionKey(self::averageDataKey)) ){
             $averages = self::generateAverageUsersGraphData(false);
         };
         
@@ -1999,7 +2044,7 @@ class GenesisTracker{
  			 }
 		 }
          
-         wp_cache_set(self::getOptionKey(self::averageDataKey), $averages, 'users', 86400);
+         self::setCacheData(self::getOptionKey(self::averageDataKey), $averages, 86400);
          
          mail("dave_preece@mac.com", "Regenerated Cache", "Regenerated");
          

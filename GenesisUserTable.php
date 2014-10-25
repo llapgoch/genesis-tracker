@@ -88,24 +88,26 @@ class GenesisUserTable extends WP_List_Table {
 			
 		    function get_columns(){
 		        $columns = array(
+                    'user_name'             => 'Name',
 		            'user_email'            => 'Email Address',
-		            'unix_timestamp'          => 'Last Measurement Date',
+		            'unix_timestamp'        => 'Last Measurement Date',
 					 'account_active'       => 'Active',
                      'initial_weight'       => 'Start Weight (Kg)',
                      'weight'               => 'Current Weight (Kg)',
-                     'weight_change'          => 'Weight Change (Kg)',
+                     'weight_change'        => 'Weight Change (Kg)',
 		        );
 		        return $columns;
 		    }
     
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
-		               'user_email'     => array('user_email',false),     //true means it's already sorted
-		               'initial_weight'    => array('initial_weight',false),
-                       'weight' => array('weight', false),
-                       'account_active' => array('account_active', false),
-                       'weight_change' => array('weight_change', false),
-                       'unix_timestamp' => array('unix_timestamp', true)
+                       'user_name'          => array('user_name', false),
+		               'user_email'         => array('user_email',false),     //true means it's already sorted
+		               'initial_weight'     => array('initial_weight',false),
+                       'weight'             => array('weight', false),
+                       'account_active'     => array('account_active', false),
+                       'weight_change'      => array('weight_change', false),
+                       'unix_timestamp'     => array('unix_timestamp', true)
 		           );
 		           return $sortable_columns;
 		       }
@@ -117,7 +119,7 @@ class GenesisUserTable extends WP_List_Table {
 		           /**
 		            * First, lets decide how many records per page to show
 		            */
-		           $per_page = 50;
+		           $per_page = 200;
         
         
 		           /**

@@ -18,7 +18,7 @@
     
         <div class="button-group food">
             <h2>Unrestricted Days Diet</h2>
-            <button class="blue button large" data-mode="unrestricted-days">View Your Last 7 Logs</button>
+            <button class="blue button large" data-mode="unrestricted-days">View Your Most Recent Logs</button>
         </div>
     </div>
     

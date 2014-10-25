@@ -18,6 +18,9 @@ class GenesisAdmin{
                 UNIX_TIMESTAMP(MAX(measure_date)) unix_timestamp,
             	initial_weight.`meta_value` as initial_weight,
             	IFNULL(account_active.`meta_value`, 1) as account_active,
+                user_first_name.meta_value as first_name,
+                user_last_name.meta_value as last_name,
+                CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
         		(SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
                 WHERE NOT ISNULL(weight) 
@@ -34,6 +37,12 @@ class GenesisAdmin{
                 LEFT JOIN " . $wpdb->usermeta . " as account_active 
                 	ON account_active.user_id = u.ID
                 	AND account_active.meta_key = %s
+                LEFT JOIN " . $wpdb->usermeta . " as user_first_name
+                    ON user_first_name.user_id = u.ID
+                    AND user_first_name.meta_key = 'first_name'
+                LEFT JOIN " . $wpdb->usermeta . " as user_last_name
+                    ON user_last_name.user_id = u.ID
+                    AND user_last_name.meta_key = 'last_name'
                 $where
                 GROUP BY ID
                 

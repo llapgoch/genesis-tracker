@@ -217,8 +217,10 @@ function extra_user_profile_fields($user){
 	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
 	$storedVal = get_the_author_meta($reminderKey, $user->ID );
     
-	$activeKey = GenesisTracker::getOptionKey(GenesisTracker::userActiveKey);
+	$activeKey = GenesisTracker::getOptionKey(GenesisTracker::userActiveKey) ;
 	$activeVal = get_the_author_meta($activeKey, $user->ID );
+    $activeVal = $activeVal == "" ? 1 : (int)$activeVal;
+
     $tel = get_the_author_meta('tel', $user->ID );
     
     $form = DP_HelperForm::createForm('userRegister');

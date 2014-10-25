@@ -6,7 +6,7 @@
     
     <dl class="admin-list">
         <dt>Email Address</dt>
-        <dd><?php echo $user->user_email;?></dd>
+        <dd><a href="mailto:<?php echo $user->user_email;?>"><?php echo $user->user_email;?></a></dd>
         <dt>Telephone Number</dt>
         <dd><?php echo $userTelephone; ?></dd>
         <dt>Account Active</dt>
