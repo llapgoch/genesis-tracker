@@ -25,7 +25,7 @@
 	
 </div>
 
-<div class="data-container">
+<div class="data-container user-data-container">
     <div class="genesis-graph-container">
         <div class="graph-top">
         	<select class="mode-switcher weight-unit">
@@ -35,16 +35,24 @@
             <!-- if displays need to add a legend to the graph -->
             <div class="graph-legend"><h3>This is your weight change since you started the study</h3></div>
         </div>
-    	<div class="alert-warning fusion-alert no-results alert notice">
+    	
+    	<div class="genesis-progress-graph">
+    	</div>
+        
+        <!-- no results for the graph -->
+    	<div class="alert-warning fusion-alert no-results alert notice graph-warning">
     		<div class="msg">
     			<h2>There are no results available for your selection</h2>
     			<a href="<?php echo $userInputPage;?>">Record a measurement now</a>
     		</div>
     	</div>
-    	<div class="genesis-progress-graph">
-    	</div>
-    
+        
+        <div class="zoomer">
+        	<button class="button blue in">Zoom In</button>
+        	<button class="button blue out">Zoom Out</button>
+        </div>
     </div>
+    
     <div class="genesis-food-table-container">
         <?php if($foodLogData && count($foodLogData)): ?>
         <h3>Your Last <?php echo count($foodLogData);?> Unrestricted Days Diet Tracker Entries</h3>
@@ -76,11 +84,8 @@
         	</div>
         <?php endif;?>
     </div>
-</div>
-
-<div class="zoomer">
-	<button class="button blue in">Zoom In</button>
-	<button class="button blue out">Zoom Out</button>
+    
+   
 </div>
 
 

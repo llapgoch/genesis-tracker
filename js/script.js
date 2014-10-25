@@ -110,11 +110,9 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     if(mode == 'unrestricted-days'){
                         $('.genesis-graph-container').hide();
                         $('.genesis-food-table-container').show(); 
-                        $('.zoomer').hide();
                     }else{
                         $('.genesis-food-table-container').hide(); 
                         $('.genesis-graph-container').show();
-					    $('.zoomer').show();
                         var averages = $('.extended-button input').is(":checked");
     					userGraph.initialise(mode, $('.mode-switcher').val() == 1 ? "imperial" : "", averages);
                     }

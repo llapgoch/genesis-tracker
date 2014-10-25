@@ -119,8 +119,8 @@ function UserGraph(){
 		}
 		
 		$(".genesis-progress-graph").hide();
-		$(".genesis-graph-container").addClass('empty');
-		$('.genesis-graph-container .no-results').show();
+        $(".genesis-graph-container").addClass('empty');
+		$('.no-results').show();
 		
 		if(settings[mode]){
 			$(".no-results h2").html(settings[mode].noresults);
@@ -152,7 +152,7 @@ function UserGraph(){
 	
 		$(".genesis-progress-graph").show();
 		$(".genesis-graph-container").removeClass('empty');
-		$('.genesis-graph-container .no-results').hide();
+		$('.no-results').hide();
 	
 		var xTicks = [];
 	
