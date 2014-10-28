@@ -49,6 +49,47 @@
             ?>     
         </dt>
     </dl>
+    
+    
+    <?php if($measurementLogs && count($measurementLogs)) : ?>
+        <hr />
+    <h2>Last <?php echo count($measurementLogs); ?> Measurement Logs</h2>
+     <table class="wp-list-table widefat ">
+         <thead>
+             <th>Date</th>
+             <th>Weight</th>
+             <th>Exercise Minutes</th>
+         </thead>
+         <tbody>
+             <?php foreach($measurementLogs as $log): ?>
+                 <tr>
+                     <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
+                     <td><?php echo $log->weight ? round($log->weight, 2) : "- -"; ?></td>
+                     <td><?php echo $log->exercise_minutes ? $log->exercise_minutes : "- -";?></td>
+                 </tr>
+             <?php endforeach; ?>
+             </tbody>
+     </table>
+        
+    <?php endif; ?>
+    
+    <?php if($dietDays && count($dietDays)) : ?>
+        <hr />
+        <h2>Last <?php echo count($dietDays) ?> Unrestricted Diet Days</h2>
+        <table class="wp-list-table widefat ">
+            <thead>
+                <th>Date</th>
+            </thead>
+            <tbody>
+                <?php foreach($dietDays as $dietDay) : ?>
+                    <tr>
+                        <td><?php echo date('j M Y', strtotime($dietDay->day)); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+    <?php endif; ?>
+    
     <hr />
     <?php if($foodLogs && count($foodLogs)): ?>
     <h2>Last <?php echo count($foodLogs);?> Food Logs</h2>

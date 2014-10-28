@@ -1893,7 +1893,9 @@ class GenesisTracker{
 	 */
      public static function getAverageUsersGraphData($rangeDates){ 
          // Update to include admins
-        if( !$averages = self::getCacheData(self::getOptionKey(self::averageDataKey)) ){
+        $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
+         
+        if($averages === null){
             $averages = self::generateAverageUsersGraphData(false);
         };
         

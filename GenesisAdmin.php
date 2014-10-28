@@ -1,5 +1,33 @@
 <?php
 class GenesisAdmin{
+    public static function getDietDaysForUser($user_id){
+        global $wpdb;
+        
+        $results = $wpdb->get_results($wpdb->prepare(
+        'SELECT * FROM ' . GenesisTracker::getDietDayTableName() . '
+            WHERE user_id=%d
+            ORDER BY day DESC
+            LIMIT 10', $user_id
+        ));
+        
+        return $results;
+    }
+    
+    public static function getMeasurementLogsForUser($user_id){
+        global $wpdb;
+        
+        $results = $wpdb->get_results($wpdb->prepare(
+        'SELECT * FROM ' . GenesisTracker::getTrackerTableName() . '
+         WHERE exercise_minutes IS NOT NULL
+            OR weight IS NOT NULL
+            AND user_id=%d
+         ORDER BY measure_date DESC
+         LIMIT 10'
+            , $user_id));
+        
+        return $results;
+    }
+    
     public static function getUserLogDetails($sortBy = 'measure_date', $user = null){
         global $wpdb;
         

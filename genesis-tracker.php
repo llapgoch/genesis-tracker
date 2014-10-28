@@ -58,10 +58,10 @@ function remove_profile_contact_methods( $contactmethods ) {
   return $contactmethods;
 }
 
-
+//wp_unschedule_event(1414618561, 'genesis_send_reminder_email');
 
 if(!wp_next_scheduled('genesis_send_reminder_email')){
-	wp_schedule_event(time(), 'weekly', 'genesis_send_reminder_email');
+	wp_schedule_event(1414259174, 'weekly', 'genesis_send_reminder_email');
 }
 
 //wp_unschedule_event(1412121600, 'genesis_generate_average_user_data');
@@ -361,6 +361,9 @@ function genesis_admin_user_show($user){
     $foodLogs = GenesisAdmin::getFoodLogs($user->ID);
     $foodTypes = GenesisTracker::getuserMetaTargetFields();
     $foodTimes = GenesisTracker::getUserTargetTimes();
+    $measurementLogs = GenesisAdmin::getMeasurementLogsForUser($user->ID);
+    $dietDays = GenesisAdmin::getDietDaysForUser($user->ID);
+    
     include('page/admin/user-show.php');
 }
 
