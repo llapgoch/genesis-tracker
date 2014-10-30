@@ -2,6 +2,7 @@
 class GenesisUserTable extends WP_List_Table {
 	// Two weeks in seconds
     const TWO_WEEKS = 1209600;
+    const ONE_WEEK = 604800;
     
     function __construct(){
           global $status, $page;
@@ -51,7 +52,7 @@ class GenesisUserTable extends WP_List_Table {
              case 'unix_timestamp' : 
                  $time = strtotime($item['measure_date']);
                  $date = gmdate('d M Y', strtotime($item['measure_date']));
-                 if(time() - $item[$column_name] > self::TWO_WEEKS){
+                 if(time() - $item[$column_name] > self::ONE_WEEK){
                      return $this->wrapRed($date);
                  }
                  return $date;
