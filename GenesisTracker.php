@@ -2510,12 +2510,14 @@ class GenesisTracker{
 
 		  foreach($users as $user){
 			 $optOut = (bool)get_user_meta( $user->ID, 'genesis___tracker___omit_reminder_email', true);
+             $isActive = get_user_meta($user->ID, self::getOptionKey(self::userActiveKey) );             
+             $isActive = $isActive == "" ? 1 : (int)$isActive;
 
 			  // Don't send reminders to users who have opted out of emails
-			   if( $optOut ){
+			   if( $optOut || !$isActive){
 				   continue;
 			   }
-			 
+               
 			  wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
 		  }
 		

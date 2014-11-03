@@ -18,8 +18,8 @@ class GenesisAdmin{
         
         $results = $wpdb->get_results($wpdb->prepare(
         'SELECT * FROM ' . GenesisTracker::getTrackerTableName() . '
-         WHERE exercise_minutes IS NOT NULL
-            OR weight IS NOT NULL
+         WHERE (exercise_minutes IS NOT NULL
+            OR weight IS NOT NULL)
             AND user_id=%d
          ORDER BY measure_date DESC
          LIMIT 10'

@@ -93,7 +93,7 @@ add_action('template_redirect', function(){
 //GenesisTracker::populate();
 
 // For testing Email Reminders ---- CAREFUL!
-//send_reminder_email();
+//add_action('wp', array('GenesisTracker', 'sendReminderEmail'));
 
  if( $timestamp = wp_next_scheduled( 'genesis_send_reminder_email' )){
 
