@@ -39,16 +39,18 @@ class GenesisAdmin{
             $where = " WHERE u.ID = $user";
         }
         
-        $results = $wpdb->get_results($wpdb->prepare($sql = 
+        $results = $wpdb->get_results($sql = $wpdb->prepare( 
             "SELECT *, IFNULL(weight - initial_weight, 0) weight_change FROM 
-                (SELECT u.user_email, u.ID user_id,  
+                (SELECT u.user_registered, u.user_email, u.ID user_id,  
             	MAX(measure_date) as measure_date, 
                 UNIX_TIMESTAMP(MAX(measure_date)) unix_timestamp,
             	initial_weight.`meta_value` as initial_weight,
+                passcode_group.`meta_value` as passcode_group,
             	IFNULL(account_active.`meta_value`, 1) as account_active,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
+                UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
         		(SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
                 WHERE NOT ISNULL(weight) 
@@ -71,16 +73,18 @@ class GenesisAdmin{
                 LEFT JOIN " . $wpdb->usermeta . " as user_last_name
                     ON user_last_name.user_id = u.ID
                     AND user_last_name.meta_key = 'last_name'
+                LEFT JOIN " . $wpdb->usermeta . " as passcode_group
+                    ON passcode_group.user_id = u.ID
+                    AND passcode_group.meta_key = %s
                 $where
                 GROUP BY ID
                 
             ) as mainQuery
             ORDER BY $sortBy", 
             GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey),
-            GenesisTracker::getOptionKey(GenesisTracker::userActiveKey)
+            GenesisTracker::getOptionKey(GenesisTracker::userActiveKey),
+            GenesisTracker::getOptionKey(GenesisTracker::eligibilityGroupSessionKey)
         ), ARRAY_A);
-        
-        
        
 
         // Return results for a single user
@@ -116,8 +120,18 @@ class GenesisAdmin{
                 foreach(GenesisTracker::getuserMetaTargetFields() as $foodKey => $food){
                     $result->foodLog[$timeKey][$foodKey] = array();
                     
+                    if(!isset($result->foodLog[$foodKey . "_total"])){
+                        $result->foodLog[$foodKey . "_total"] = 0;
+                        $target = get_user_meta( $user_id, GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $foodKey ), true);
+                        
+                            
+                        $result->foodLog[$foodKey . "_target"] = $target ? $target : "- -";
+                    }
+                    
+                    
                     foreach($foodLogs as $log){
                         if($log->food_type == $foodKey && $log->time == $timeKey){
+                            $result->foodLog[$foodKey . "_total"] += $log->value;
                             $result->foodLog[$timeKey][$foodKey] = $log;
                             $result->foodLog[$timeKey]['total'] += $log->value;
                         }

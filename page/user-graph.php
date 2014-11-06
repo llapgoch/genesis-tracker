@@ -55,7 +55,7 @@
     
     <div class="genesis-food-table-container">
         <?php if($foodLogData && count($foodLogData)): ?>
-        <h3>Your Last <?php echo count($foodLogData);?> Unrestricted Days Diet Tracker Entries</h3>
+        <h3>Your Last <?php echo count($foodLogData) > 1 ? count($foodLogData) : "";?> Unrestricted Days Diet Tracker Entr<?php echo count($foodLogData) == 1 ? "y" : "ies";?></h3>
         <table class="progress-food-log responsive">
             <thead>
                 <th>&nbsp;</th>
@@ -69,7 +69,7 @@
                     <tr>
                     <td><?php echo date('d F Y', strtotime($data->measure_date)); ?>
                         <?php foreach($foodTypes as $foodType => $food) : ?>
-                            <td><?php echo $data->$foodType ? $data->$foodType : 0;?></td>
+                            <td><?php echo $data->$foodType ?  (float) $data->$foodType : 0;?></td>
                         <?php endforeach; ?>
                     </tr>
                 <?php endforeach;?>

@@ -49,6 +49,8 @@ class GenesisUserTable extends WP_List_Table {
                      return $this->wrapRed($loss);
                  }
                  return $loss;
+             case 'user_registered_timestamp' :
+                 return gmdate('d M Y', strtotime($item['user_registered']));
              case 'unix_timestamp' : 
                  $time = strtotime($item['measure_date']);
                  $date = gmdate('d M Y', strtotime($item['measure_date']));
@@ -91,6 +93,8 @@ class GenesisUserTable extends WP_List_Table {
 		        $columns = array(
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
+                    'user_registered_timestamp'       => 'Register Date',
+                    'passcode_group'        => 'Passcode Group',
 		            'unix_timestamp'        => 'Last Measurement Date',
 					 'account_active'       => 'Active',
                      'initial_weight'       => 'Start Weight (Kg)',
@@ -103,7 +107,10 @@ class GenesisUserTable extends WP_List_Table {
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
                        'user_name'          => array('user_name', false),
-		               'user_email'         => array('user_email',false),     //true means it's already sorted
+		               'user_email'         => array('user_email',false),
+                       'user_registered_timestamp' => array('user_registered_timestamp', false),
+                       'passcode_group'     => array('passcode_group', false),
+                            //true means it's already sorted
 		               'initial_weight'     => array('initial_weight',false),
                        'weight'             => array('weight', false),
                        'account_active'     => array('account_active', false),

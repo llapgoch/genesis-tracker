@@ -107,17 +107,10 @@
                 <?php
                 endforeach;
                 ?>
+                <th style="font-weight:bold">Total</th>
+                <th style="font-weight:bold">Target</th>
             </thead>
-            <tfoot>
-                <tr>
-                    <td>Total</td>
-                    
-                        <?php foreach($foodTimes as $timeKey => $foodTime):?>
-                            <td><?php echo $log->foodLog[$timeKey]['total'];?></td>
-                        <?php endforeach; ?>
-                    
-                </tr>
-            </tfoot>
+           
             <tbody>
                 <tr>
                 <?php foreach($foodTypes as $foodKey => $foodType): ?>
@@ -126,7 +119,8 @@
                 <?php foreach($foodTimes as $timeKey => $foodTime):?>
                     <td><?php echo $log->foodLog[$timeKey][$foodKey]->value;?></td>
                 <?php endforeach; ?>
-                
+                    <td style="font-weight:bold"><?php echo $log->foodLog[$foodKey . "_total"]; ?></td>
+                    <td style="font-weight:bold"><?php echo $log->foodLog[$foodKey . "_target"]; ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

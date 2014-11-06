@@ -16,6 +16,7 @@ class GenesisTracker{
     const physiotecLoginPageId = "physiotec_login_page";
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
+    const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
 	const targetPageId = "tracker_page";
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
@@ -159,7 +160,7 @@ class GenesisTracker{
           `tracker_id` int(11) unsigned NOT NULL,
           `food_type` varchar(255) DEFAULT NULL,
           `time` varchar(255) DEFAULT NULL,
-          `value` int(11) DEFAULT NULL,
+          `value` decimal(5,2) DEFAULT NULL,
           PRIMARY KEY  (`food_log_id`),
           KEY `tracker_id` (`tracker_id`)
         )");
@@ -405,6 +406,10 @@ class GenesisTracker{
          
          if ( isset( $_POST['tel'] ) ){
              update_user_meta($user_id, 'tel', trim($_POST['tel']));
+         }
+         
+         if( isset( $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]) ){
+             update_user_meta($user_id, self::getOptionKey(self::eligibilityGroupSessionKey), $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
          }
          
          $userdata = array();
@@ -813,7 +818,7 @@ class GenesisTracker{
              return;
          }
         
-         
+         $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)] = $form->getRawValue('passcode');
          $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
          self::$pageData['eligible'] = true;
          
@@ -1716,7 +1721,7 @@ class GenesisTracker{
 					 $isWeightLoss = $valToCollate == 'weight_loss';
 				 
 					 // Only collate weight if it's been entered this time
-					 if(!property_exists($log, $valToCollate) || $log->$valToCollate == null){
+					 if(!property_exists($log, $valToCollate) || $log->$valToCollate === null){
 						 continue;
 					 }
 				 
