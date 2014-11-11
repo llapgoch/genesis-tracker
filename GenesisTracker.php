@@ -21,6 +21,7 @@ class GenesisTracker{
 	const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
     const userActiveKey = "active";
+    const userContactedKey = "contacted";
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
@@ -497,7 +498,7 @@ class GenesisTracker{
     
          // Check whether the user has been activated
          $activeKey = self::getOptionKey(self::userActiveKey);
-         
+         $contactedKey = self::getOptionKey(self::userContactedKey);
          
          
          if(isset($_POST[$activeKey])){
@@ -509,7 +510,13 @@ class GenesisTracker{
              if(!$emailSent && $active){
                  self::sendUserActivateEmail($user_id);
              }
-         }    
+         }
+         
+         // Check whether the user has been contacted
+         if(isset($_POST[$contactedKey])){
+             $contacted = (int) $_POST[$contactedKey];
+             update_user_meta( $user_id, $contactedKey, $contacted);
+         }
      }
      
      public static function getAdminUrl($query = array()){
@@ -2515,9 +2522,9 @@ class GenesisTracker{
 
 		  foreach($users as $user){
 			 $optOut = (bool)get_user_meta( $user->ID, 'genesis___tracker___omit_reminder_email', true);
-             $isActive = get_user_meta($user->ID, self::getOptionKey(self::userActiveKey) );             
+             $isActive = get_user_meta($user->ID, self::getOptionKey(self::userActiveKey), true ); 
              $isActive = $isActive == "" ? 1 : (int)$isActive;
-
+             
 			  // Don't send reminders to users who have opted out of emails
 			   if( $optOut || !$isActive){
 				   continue;

@@ -11,12 +11,18 @@
         <dd><?php echo trim($userDetails['user_name']) ? (string)$userDetails['user_name'] : "- -"; ?></dd>
         <dt>Telephone Number</dt>
         <dd><?php echo $userTelephone; ?></dd>
+        <dt>Passcode Group</dt>
+        <dd><?php echo $userDetails['passcode_group'] ? $userDetails['passcode_group'] : "- -"; ?></dd>
+        <dt>Register Date</dt>
+        <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
+        <dt>User Contacted</dt>
+        <dd><?php echo (int) $userDetails['user_contacted'] == 0 ? 'No' : 'Yes'?></dd>
         <dt>Account Active</dt>
         <dd><?php echo (int) $userDetails['account_active'] == 0  ? 'No' : 'Yes';?></dd>
         <dt>Last Measurement Date</dt>
         <dd><?php 
             if(isset($userDetails['measure_date']) && $userDetails['measure_date']) :
-                echo date('d F Y', strtotime($userDetails['measure_date']));
+                echo gmdate('d M Y', strtotime($userDetails['measure_date']));
             else :
                 echo "- -";
             endif;

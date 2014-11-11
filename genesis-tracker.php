@@ -122,7 +122,7 @@ if(!is_admin()){
 	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
 	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
     add_filter('registration_errors', array('GenesisTracker', 'checkRegistrationErrors'), 10, 3);
-    add_action('user_register', array('GenesisTracker', 'checkRegistrationPost'), 10, 1);
+    add_action('user_register', array('GenesisTracker', ' '), 10, 1);
     add_filter('wp_authenticate_user', array('GenesisTracker', 'checkLoginAction'), 10, 2);
     
     // Stop the new user registration email from sending
@@ -221,8 +221,10 @@ function extra_user_profile_fields($user){
 	$activeVal = get_the_author_meta($activeKey, $user->ID );
     $activeVal = $activeVal == "" ? 1 : (int)$activeVal;
 
+    $contactedKey = GenesisTracker::getOptionKey(GenesisTracker::userContactedKey);
+    $contactedVal = get_the_author_meta($contactedKey, $user->ID );
+
     $tel = get_the_author_meta('tel', $user->ID );
-    
     $form = DP_HelperForm::createForm('userRegister');
     
 	
@@ -261,6 +263,20 @@ function extra_user_profile_fields($user){
     	?>
     	</td>
     	</tr>
+        <tr>
+        	<th><label for="<?php echo $contactedKey; ?>"><?php _e("User has been contacted"); ?></label></th>
+        	<td>
+        	<?php
+        	 echo $form->dropdown($contactedKey, array(
+        	 '0' => 'No',
+        	 '1' => 'Yes'
+        	 ), array(
+        	     'default' => $contactedVal,
+                 'id' => $contactedKey
+        	 ));
+        	?>
+        	</td>
+        </tr>
     </table>
     
     <?php } ?>
@@ -336,7 +352,7 @@ function genesis_post_form_values(){
     die(json_encode(GenesisTracker::getUserFormValues($day, $month, $year)));
 }
 
-function genesis_admin_page(){
+function genesis_admin_page(){ 
     if(isset($_GET['edit_user']) && (int) $_GET['edit_user']){
         if($user = get_user_by('id', $_GET['edit_user'])){
             genesis_admin_user_show($user);
