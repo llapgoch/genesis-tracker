@@ -21,14 +21,14 @@ function UserGraph(){
 		var settings = {
 			'weight':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Weight (metric)',
-				'avgLabel':'Average User Weight',
+				'label':'Your Weight',
+				'avgLabel':'Average weight for other women on the study',
 				'color':'rgb(231,5,144)'
 			},
 			'weight_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Weight (imperial)',
-				'avgLabel':'Average User Weight',
+				'label':'Your Weight',
+				'avgLabel':'Average weight for other women on the study',
 				'color':'rgb(231,5,144)'
 			},
 			'fat':{
@@ -80,24 +80,24 @@ function UserGraph(){
                 'color':'rgb(179,179,179)'
 			},
 			'exercise_minutes':{
-				'noresults':"You haven't made any measurements for minutes exercised yet.",
+				'noresults':"You have not recorded any minutes of exercise yet.",
 				'label':'Minutes You\'ve Exercised',
 				'avgLabel':'Average Minutes Exercised',
 				'color':'rgb(255,201,107)'
 			},
 			'weight_loss':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Weight Progress (metric)',
-				'avgLabel':"Average User's Weight Loss",
-				'color':'rgb(178,219,106)',
-                'legend':'<h3>This is your weight change since you started the study</h3>'
+				'label':'Your Current Weight',
+				'avgLabel':"Average weight loss for other women on the study",
+				'color':'rgb(118,47,152)',
+                'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
 			},
 			'weight_loss_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Weight Progress (imperial)',
-				'avgLabel':"Average User's Weight Loss",
-				'color':'rgb(178,219,106)',
-                'legend':'<h3>This is your weight change since you started the study</h3>'
+				'label':'Your Current Weight',
+				'avgLabel':"Average weight loss for other women on the study",
+				'color':'rgb(118,47,152)',
+                'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
 			}
 		};
 		
@@ -234,13 +234,19 @@ function UserGraph(){
 		
 		var options = {
 			lines: {
-				show: true,
+				show: this.mode == 'exercise_minutes' ? false : true,
 				fill: true
 			},
 			points: {
-				show: true,
+				show: this.mode == 'exercise_minutes' ? false : true,
 				fill: true,
+                radius: this.mode == 'exercise_minutes' ? 7 : 3
 			},
+            bars : {
+                show: this.mode == 'exercise_minutes' ? true : false,
+                barWidth:46400000,
+                align:"center"
+            },
 			xaxis: {
 				mode: 'time',
 				timeformat: "%b %d",
@@ -276,6 +282,7 @@ function UserGraph(){
 				cursor:"move"
 			}
 		};	
+    
 		
         if(this.mode == 'weight_loss'){
             options.yaxis.transform = function(v) {
@@ -283,7 +290,7 @@ function UserGraph(){
                     };
 
             options.yaxis.inverseTransform = function(v) {
-                        return -v;
+                return -v;
             }
         }
 		
@@ -414,7 +421,7 @@ function UserGraph(){
 		
 			case 'weight_loss_imperial' :
 			case 'weight_imperial' :
-
+                val = -val;
 				var st = val >= 0 ? Math.floor(val / 14) : Math.ceil(val / 14);		
 				var p = val - (st * 14);
 		

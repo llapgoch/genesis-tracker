@@ -133,7 +133,7 @@ if(!is_admin()){
          if(GenesisTracker::isOnRegistrationPage()){
             return GenesisThemeShortCodes::readingBox(
                 'Thank you for taking an interest in the PROCAS Lifestyle research study',
-                '<ul><li>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</li><li>We are happy to say that you are able to take part in the study.</li><li>Please fill in the registration form below and a member of our research team will contact you within 3-4 days to get you started.</li></ul>'
+                '<ul><li>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</li><li><strong>We are happy to say that you are able to take part in the study.</strong></li><li>Please fill in the registration form below and a member of our research team will contact you within 3-4 working days to get you started.</li></ul>'
             );  
         }
 
@@ -213,7 +213,7 @@ function genesis_add_registration_fields(){
       <?php
 }
 
-function extra_user_profile_fields($user){	
+function extra_user_profile_fields($user){
 	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
 	$storedVal = get_the_author_meta($reminderKey, $user->ID );
     
@@ -223,7 +223,16 @@ function extra_user_profile_fields($user){
 
     $contactedKey = GenesisTracker::getOptionKey(GenesisTracker::userContactedKey);
     $contactedVal = get_the_author_meta($contactedKey, $user->ID );
+    
+    $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
+    $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
+    $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
 
+    $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
+    $maxHealthyWeightVal = get_the_author_meta($maxHealthyWeightKey, $user->ID );
+    $weightTargetVal     = get_the_author_meta($weightTargetKey, $user->ID );
+
+    
     $tel = get_the_author_meta('tel', $user->ID );
     $form = DP_HelperForm::createForm('userRegister');
     
@@ -277,6 +286,8 @@ function extra_user_profile_fields($user){
         	?>
         	</td>
         </tr>
+        
+       
     </table>
     
     <?php } ?>
@@ -293,7 +304,54 @@ function extra_user_profile_fields($user){
 	?>
 	</td>
 	</tr>
+    </table>
+
+    <?php if(is_admin()): ?>
+      <hr />
+        <table class="form-table">
+        <tr>
+            <th><label for="<?php echo $minHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Low)'); ?></label></th>
+            <td>
+                <?php
+                echo $form->input($minHealthyWeightKey, 'text', array(
+                      'autocomplete' => 'off',
+                      'id' => $minHealthyWeightKey,
+                      'class' => '',
+                      'value' => $minHealthyWeightVal  
+                  ));
+                ?>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="<?php echo $maxHealthyWeightKey;?>"><?php _e('Healthy Weight Range (High)'); ?></label></th>
+            <td>
+                <?php
+                echo $form->input($maxHealthyWeightKey, 'text', array(
+                      'autocomplete' => 'off',
+                      'id' => $maxHealthyWeightKey,
+                      'class' => '',
+                      'value' => $maxHealthyWeightVal  
+                  ));
+                ?>
+            </td>
+        </tr>
+        
+        <tr>
+            <th><label for="<?php echo $weightTargetKey;?>"><?php _e('Target Weight'); ?></label></th>
+            <td>
+                <?php
+                echo $form->input($weightTargetKey, 'text', array(
+                      'autocomplete' => 'off',
+                      'id' => $weightTargetKey,
+                      'class' => '',
+                      'value' => $weightTargetVal  
+                  ));
+                ?>
+            </td>
+        </tr>
+    <?php endif;?>
 </table>
+<hr />
 	<?php
 }
 
@@ -325,11 +383,27 @@ function save_extra_user_profile_fields($user_id){
 	if ( !current_user_can( 'edit_user', $user_id ) ) { return false; }
 	
 	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
+    $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
+    $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
+    $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
+    
 	$val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
 	$tel = isset($_POST['tel']) ? $_POST['tel'] : '';
     
 	update_user_meta( $user_id, $reminderKey, $val );
 	update_user_meta( $user_id, 'tel', $tel );
+
+    if(is_admin()){
+            $minHealthyWeight = isset($_POST[$minHealthyWeightKey]) ? $_POST[$minHealthyWeightKey] : '';
+            $maxHealthyWeight = isset($_POST[$maxHealthyWeightKey]) ? $_POST[$maxHealthyWeightKey] : '';
+            $targetWeight = isset($_POST[$weightTargetKey]) ? $_POST[$weightTargetKey] : '';
+             
+        	update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
+        	update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
+            update_user_meta( $user_id, $weightTargetKey, $targetWeight );
+    }
+    
+    
 }
 
 
@@ -396,9 +470,9 @@ function genesis_user_graph(){
 	$weightChangeInButter = 0;
 
 	
-	if($weightChange < -0.1){
+	if(abs($weightChange) > -0.1){
 		$butterWeight = 0.25;
-		$weightChangeInButter = round(abs($weightChange) / $butterWeight,2);
+		$weightChangeInButter = round(($weightChange) / $butterWeight,2);
 	}
 	
 	include('page/user-graph.php');

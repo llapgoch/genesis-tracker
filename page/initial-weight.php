@@ -30,7 +30,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 			<h3 class="general-label"><?php _e('Your Starting Weight');?></h3>
 			
 		</div>
-		<p class="form-explanation"><?php _e('Enter what your weight is at the start of the trial');?></p>
+		<p class="form-explanation"><?php _e('Enter your weight is at the start of the trial');?></p>
 		<div class="input-wrapper">
 			<?php
 			echo $form->input('weight_main', 'text', array(

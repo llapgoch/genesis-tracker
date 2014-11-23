@@ -18,10 +18,15 @@ class GenesisTracker{
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
 	const targetPageId = "tracker_page";
-	const userStartWeightKey = "start_weight";
+	
+    const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
     const userActiveKey = "active";
     const userContactedKey = "contacted";
+    const minHealthyWeightKey = "min_healthy_weight";
+    const maxHealthyWeightKey = "max_healthy_weight";
+    const weightTargetKey        = "weight_target";
+    
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
@@ -1213,7 +1218,7 @@ class GenesisTracker{
 		 }
 		 
 		 if($form->getRawValue('record-exercise')){
-			 $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
+			 $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
 		 }
 		 
          if($form->getRawValue('record-food')){
@@ -1692,7 +1697,7 @@ class GenesisTracker{
 		 
 		 $valsToCollate = array(
 			 'weight',
-			 'exercise_minutes',
+             'exercise_minutes',
 			 'weight_loss',
              'fat',
              'carbs',

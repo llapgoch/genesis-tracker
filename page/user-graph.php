@@ -1,15 +1,15 @@
 <div class="progress-graph-switcher">
 	<div class="button-container">
         <div class="button-group measurement">
-            <h2>Measurements</h2>
+            <h2>My Progress</h2>
             <div class="button-row">
                 <button class="pink button large" data-mode="weight">Weight</button>
                 <button class="orange button large" data-mode="exercise_minutes">Exercise</button>
     	        <div class="extended-button">
-                    <button class="green button large" data-mode="weight_loss">Weight Progress</button>
+                    <button class="purple button large" data-mode="weight_loss">Weight Progress</button>
                     <div class="averages">                        
                         <input type="checkbox" name="averages" id="averages" />
-                        <label for="averages"><?php _e('Show all user averages'); ?></label>
+                        <label for="averages"><?php _e('Average weight loss for other women on the study'); ?></label>
                     </div>
                 </div>
             </div>
@@ -91,6 +91,6 @@
 
 <?php if($weightChangeInButter != 0) : ?>
 <div class="butter weight-loss-example">
-	<p>You have lost the equivalent <em><?php echo $weightChangeInButter; ?> packs of butter!</em></p>
+	<p>You have <?php echo $weightChangeInButter > 0 ? "gained" : "lost";?> the equivalent of <em><?php echo abs($weightChangeInButter); ?> packs of butter</em> since starting the diet and exercise plan</p>
 </div>
 <?php endif; ?>

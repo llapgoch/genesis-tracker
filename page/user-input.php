@@ -1,7 +1,7 @@
 <?php 
 
-echo GenesisThemeShortCodes::readingBox("Track your weight, food consumption, and minutes exercised",
-	"<p>Select the date you would like to track from the calendar field, enter your weight in imperial or metric, your food groups, and the minutes of exercise you have done. If you would like to change a previously saved entry, you will be asked if you would like to overwrite it.</p>");
+echo GenesisThemeShortCodes::readingBox("Input your weight, food intake, and minutes of exercise",
+	"<p>Click the box below to select the date that you want to enter your details for.</p>");
 
 echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 ?>
@@ -18,7 +18,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 			<h3><label class="general-label"><?php _e('Date of Measurement');?></label></h3>
 			
 		</div>
-		<p class="form-explanation"><span class='js-show'><?php _e('The date when you took this measurement.  Click the field below to select the date on a calendar.  If you have previously saved values for this date, they will be loaded below.');?></span></p>
+		<p class="form-explanation"><span class='js-show'><?php _e('Click the field below to select the date on a calendar.');?></span></p>
 		<?php
 		echo $form->input('measure_date', 'text', array(
 			'class' => 'general-input date-input',
@@ -62,14 +62,14 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     			'class' => 'question-chooser',
     			'id' => 'record-weight'
     		));?>
-    		<label for="record-weight">I would like to record my weight on this occasion</label>
+    		<label for="record-weight">I would like to record my weight for this date</label>
     		<div class="inner-question-container weight-container js-hide">
     			<div class="question-container clearfix">
     				<div class="title">
     					<label for="weight_unit" class="general-label"><?php _e('Units');?></label>
     				</div>
 		
-    				<p class="form-explanation"><?php _e('Whether you would like to enter your weight as metric or imperial units');?></p>
+    				<p class="form-explanation"><?php _e('Would you like your weight to be saved as metric or imperial?');?></p>
     				<?php
     				echo $form->dropdown('weight_unit', array(
     						'1' => 'Stone and Pounds',
@@ -121,7 +121,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     			'class' => 'question-chooser',
     			'id' => 'record-food'
     		));?>
-    		<label for="record-food"><?php _e('I would like to record my food and drink portions on this occasion');?></label>
+    		<label for="record-food"><?php _e('I would like to record my food and drink portions for this date');?></label>
     		<div class="inner-question-container food-container js-hide">
                 
     			<div class="question-container clearfix">
@@ -288,7 +288,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     			'class' => 'question-chooser',
     			'id' => 'record-exercise'
     		));?>
-    			<label for="record-exercise">I would like to record my minutes of exercise on this occasion</label>
+    			<label for="record-exercise">I would like to record my minutes of exercise for this date</label>
     		<div class="inner-question-container exercise-container js-hide">
     			<div class="question-container clearfix">
     				<div class="title">
