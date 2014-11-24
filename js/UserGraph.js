@@ -230,6 +230,7 @@ function UserGraph(){
 		this.yMin = yMin;
 		this.yMax = yMax;
 		
+        var xMargin = this.mode == "exercise_minutes" ? 46400000 : 0;
 	    
 		
 		var options = {
@@ -252,7 +253,7 @@ function UserGraph(){
 				timeformat: "%b %d",
 				tickSize: [1, "day"],
 				tickLength: 10,
-				panRange:[minDate, maxDate],
+				panRange:[minDate - xMargin, maxDate + xMargin],
 			},
 			yaxis: {
 				autoscaleMargin: 0.5,
@@ -303,6 +304,7 @@ function UserGraph(){
 			options.xaxis.min = 0;
 			options.xaxis.max = 1000000000;
 		}else{
+            
 			options.xaxis.min = minDate;
 			options.xaxis.max = maxDate;
 		}
@@ -417,11 +419,17 @@ function UserGraph(){
 		switch(mode){
 			case 'weight_loss' :
 			case 'weight' : 
-			return val + " kg";
+                if(mode == 'weight_loss'){
+                    val = -val;
+                }
+                
+                return val + " kg";
 		
 			case 'weight_loss_imperial' :
 			case 'weight_imperial' :
-                val = -val;
+                if(mode == 'weight_loss_imperial'){
+                    val = -val;
+                }
 				var st = val >= 0 ? Math.floor(val / 14) : Math.ceil(val / 14);		
 				var p = val - (st * 14);
 		

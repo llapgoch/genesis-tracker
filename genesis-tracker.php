@@ -149,10 +149,10 @@ if(!is_admin()){
 
 
 add_action( 'show_user_profile', 'extra_user_profile_fields',1 );
-add_action( 'show_user_profile', 'user_target_fields',2 );
+//add_action( 'show_user_profile', '// user_target_fields',2 );
 
 add_action( 'edit_user_profile', 'extra_user_profile_fields' ,1);
-add_action( 'edit_user_profile', 'user_target_fields' ,2);
+//add_action( 'edit_user_profile', 'user_target_fields' ,2);
 
 
 
@@ -232,7 +232,8 @@ function extra_user_profile_fields($user){
     $maxHealthyWeightVal = get_the_author_meta($maxHealthyWeightKey, $user->ID );
     $weightTargetVal     = get_the_author_meta($weightTargetKey, $user->ID );
 
-    
+    $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
+
     $tel = get_the_author_meta('tel', $user->ID );
     $form = DP_HelperForm::createForm('userRegister');
     
@@ -291,7 +292,111 @@ function extra_user_profile_fields($user){
     </table>
     
     <?php } ?>
-	
+	    <?php if(is_admin()):?>
+            <hr />
+        <?php endif;?>
+        <div class="stats">
+            <h4><?php if(is_admin() == false): echo "Your"; endif;?> Target Data</h4>
+            <table class="form-table">
+            <tr>
+                <th><label for="<?php echo $minHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Min)'); ?></label></th>
+                <td>
+                    <?php
+                    if(is_admin()):
+                        echo $form->input($minHealthyWeightKey, 'text', array(
+                              'autocomplete' => 'off',
+                              'id' => $minHealthyWeightKey,
+                              'class' => '',
+                              'value' => $minHealthyWeightVal  
+                          ));
+                    else :
+                        ?>
+                        <span class="stat">
+                            <?php if($isMetric):?>
+                                <span class="weight metric">
+                                    <?php echo GenesisTracker::niceFormatWeight($minHealthyWeightVal, "metric");?>
+                                </span>
+                            <?php else:?>
+                                <span class="weight imperial">
+                                    <?php echo GenesisTracker::niceFormatWeight($minHealthyWeightVal, "imperial");?>
+                                </span>
+                            <?php endif;?>
+                        </span>
+                    <?php
+                    endif;  
+                    ?>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="<?php echo $maxHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Max)'); ?></label></th>
+                <td>
+                    <?php
+                     if(is_admin()):
+                        echo $form->input($maxHealthyWeightKey, 'text', array(
+                              'autocomplete' => 'off',
+                              'id' => $maxHealthyWeightKey,
+                              'class' => '',
+                              'value' => $maxHealthyWeightVal  
+                          ));
+                      else:
+                          ?>
+                         <span class="stat">
+                              <?php if($isMetric):?>
+                                 <span class="weight-check metric">
+                                     <?php echo GenesisTracker::niceFormatWeight($maxHealthyWeightVal, "metric");?>
+                                 </span>
+                             <?php else:?>
+                                 <span class="weight-check imperial">
+                                     <?php echo GenesisTracker::niceFormatWeight($maxHealthyWeightVal, "imperial");?>
+                                 </span>
+                             <?php endif; ?>
+                         </span>
+                     <?php
+                     endif;
+                    ?>
+                </td>
+            </tr>
+        
+            <tr>
+                <th><label for="<?php echo $weightTargetKey;?>"><?php _e('Target Weight'); ?></label></th>
+                <td>
+                    <?php
+                    if(is_admin()):
+                        echo $form->input($weightTargetKey, 'text', array(
+                              'autocomplete' => 'off',
+                              'id' => $weightTargetKey,
+                              'class' => '',
+                              'value' => $weightTargetVal  
+                          ));
+                      else:
+                          ?>
+                          <span class="stat">
+                               <?php if($isMetric):?>
+                                  <span class="weight metric">
+                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "metric");?>
+                                  </span>
+                              <?php else:?>
+                                  <span class="weight imperial">
+                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "imperial");?>
+                                  </span>
+                              <?php endif;?>
+                          </span>
+                      <?php
+                      endif;
+                    ?>
+                </td>
+            </tr>
+        </table>
+	    <?php if(is_admin()):?>
+            <hr />
+            <h4>Nutritional Targets</h4>
+        <?php endif;?>
+        <?php user_target_fields($user); ?>
+    </div>
+    
+    <?php if(is_admin()):?>
+        <hr />
+    <?php endif;?>
     <table class="form-table">
 	<tr>
 	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of reminder emails"); ?></label></th>
@@ -305,75 +410,44 @@ function extra_user_profile_fields($user){
 	</td>
 	</tr>
     </table>
-
-    <?php if(is_admin()): ?>
-      <hr />
-        <table class="form-table">
-        <tr>
-            <th><label for="<?php echo $minHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Low)'); ?></label></th>
-            <td>
-                <?php
-                echo $form->input($minHealthyWeightKey, 'text', array(
-                      'autocomplete' => 'off',
-                      'id' => $minHealthyWeightKey,
-                      'class' => '',
-                      'value' => $minHealthyWeightVal  
-                  ));
-                ?>
-            </td>
-        </tr>
-        <tr>
-            <th><label for="<?php echo $maxHealthyWeightKey;?>"><?php _e('Healthy Weight Range (High)'); ?></label></th>
-            <td>
-                <?php
-                echo $form->input($maxHealthyWeightKey, 'text', array(
-                      'autocomplete' => 'off',
-                      'id' => $maxHealthyWeightKey,
-                      'class' => '',
-                      'value' => $maxHealthyWeightVal  
-                  ));
-                ?>
-            </td>
-        </tr>
-        
-        <tr>
-            <th><label for="<?php echo $weightTargetKey;?>"><?php _e('Target Weight'); ?></label></th>
-            <td>
-                <?php
-                echo $form->input($weightTargetKey, 'text', array(
-                      'autocomplete' => 'off',
-                      'id' => $weightTargetKey,
-                      'class' => '',
-                      'value' => $weightTargetVal  
-                  ));
-                ?>
-            </td>
-        </tr>
-    <?php endif;?>
-</table>
-<hr />
 	<?php
 }
 
 function user_target_fields($user){
-    if(!is_admin()){ return; }
-
     $targetFields = GenesisTracker::getuserMetaTargetFields();
-	?>
+
+    if(!is_admin()):
+        ?>
+        <h4>Nutritional Targets</h4>
+    <?php
+    endif;
+    ?>
 	<table class="form-table">	
         <?php foreach($targetFields as $fieldKey => $data) : ?>
-        <tr>
         <?php $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); ?>
-            <th><label for="<?php echo $fullKey;?>"><?php _e("Target " . $data['name']); ?></label></th>
+        <?php $val = get_the_author_meta( $fullKey, $user->ID );?>
+        <?php if($val !== "" || is_admin()) :?>
+        <tr>
+
+            <th><label for="<?php echo $fullKey;?>"><?php _e((is_admin() ? "Target " : "") . $data['name']); ?></label></th>
             <td>
                 <?php
-                echo DP_HelperForm::createInput($fullKey, 'text', array(
-                    'id' => $fullKey,
-                     'value' => get_the_author_meta( $fullKey, $user->ID )
-                ));
+               
+                
+                if(is_admin()):
+                    echo DP_HelperForm::createInput($fullKey, 'text', array(
+                        'id' => $fullKey,
+                         'value' => $val
+                    ));
+                else:
+                    ?>
+                    <span class="stat"><?php echo $val;?></span>
+                    <?php
+                endif;
                 ?>
             </td>
         </tr>
+        <?php endif;?>
         <?php endforeach; ?>
     </table>
 	<?php
@@ -394,9 +468,9 @@ function save_extra_user_profile_fields($user_id){
 	update_user_meta( $user_id, 'tel', $tel );
 
     if(is_admin()){
-            $minHealthyWeight = isset($_POST[$minHealthyWeightKey]) ? $_POST[$minHealthyWeightKey] : '';
-            $maxHealthyWeight = isset($_POST[$maxHealthyWeightKey]) ? $_POST[$maxHealthyWeightKey] : '';
-            $targetWeight = isset($_POST[$weightTargetKey]) ? $_POST[$weightTargetKey] : '';
+            $minHealthyWeight = isset($_POST[$minHealthyWeightKey]) ? (float) $_POST[$minHealthyWeightKey] : '';
+            $maxHealthyWeight = isset($_POST[$maxHealthyWeightKey]) ? (float)$_POST[$maxHealthyWeightKey] : '';
+            $targetWeight = isset($_POST[$weightTargetKey]) ? (float)$_POST[$weightTargetKey] : '';
              
         	update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
         	update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );

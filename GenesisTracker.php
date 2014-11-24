@@ -662,6 +662,32 @@ class GenesisTracker{
 			 'pounds' => $pounds
 		 );
 	 }
+     
+     public static function niceFormatWeight($weight, $unit = "metric", $outputZero = false){
+         $weight = (float)$weight;
+         
+         if($weight <= 0 && $outputZero == false){
+             return "- -";
+         }
+         
+         if($unit == "metric"){
+             return $weight . " Kg";
+         }
+         
+         $imperial = self::kgToStone($weight);
+         $imperialString = "";
+         
+         if($imperial['stone'] > 0){
+             $imperialString = round($imperial['stone'], 2) . " st";
+         }
+         
+         if($imperial['pounds'] > 0){
+             $imperialString .= $imperialString ? ", " : "";
+             $imperialString .= round($imperial['pounds']) . " lbs";
+         }
+         
+         return $imperialString;
+     }
 	 
 	 public static function convertFormDate($formDate){
 		 preg_match("/(\d+)-(\d+)-(\d+)/", $formDate, $matches);
