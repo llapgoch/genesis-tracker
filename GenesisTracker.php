@@ -59,6 +59,8 @@ class GenesisTracker{
         "PLHC3B",
         "PLHC4H"
     );
+    
+  
 
 	
 	public static $pageData = array();
@@ -68,15 +70,16 @@ class GenesisTracker{
 
     
     protected static $_userMetaTargetFields = array(
-        "carbs" => array("name" => "Carbohydrate", "unit" => "portions"),
-        "protein" => array("name" => "Protein", "unit" => "portions"),
-        "dairy" => array("name" => "Dairy", "unit" => "portions"),
-        "vegetables" => array("name" => "Vegetables", "unit" => "portions"),
-        "fruit" => array("name" => "Fruit", "unit" => "portions"),
-        "fat" => array("name" => 'Fat', "unit" => "portions"),
-        "treat" => array("name" => "Treat", "unit" => "portions"),       
-        "alcohol" => array("name" => "Alcohol", "unit" => "units")
+        "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "med" => "0"),
+        "protein" => array("name" => "Protein", "unit" => "portions", "med" => "Between 4 and 12 a day"),
+        "dairy" => array("name" => "Dairy", "unit" => "portions", "med" => "3 a day"),
+        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "med" => "5 a day"),
+        "fruit" => array("name" => "Fruit", "unit" => "portions", "med" => "5 a day"),
+        "fat" => array("name" => 'Fat', "unit" => "portions", "med" =>  "Maximum of 5 a day"),
+        "treat" => array("name" => "Treat", "unit" => "portions", "med" => "0"),       
+        "alcohol" => array("name" => "Alcohol", "unit" => "units", "med" => "0")
     );
+
     
     protected static $_userTargetTimes = array(
         "breakfast" => array("name" => "Breakfast"),
@@ -85,6 +88,8 @@ class GenesisTracker{
         "snacks" => array("name" => "Snacks"),
         "drinks" => array("name" => "Drinks")
     );
+    
+    
 	
     public function populate(){
         global $wpdb;

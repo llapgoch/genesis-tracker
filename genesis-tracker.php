@@ -296,8 +296,26 @@ function extra_user_profile_fields($user){
             <hr />
         <?php endif;?>
         <div class="stats">
-            <h4><?php if(is_admin() == false): echo "Your"; endif;?> Target Data</h4>
+            <h4><?php if(is_admin() == false): echo "Your"; endif;?> Target Information</h4>
             <table class="form-table">
+                <?php if(is_admin() == false):?>
+                <tr>
+                    <th><label><?php _e('Your Start Weight')?></label></th>
+                    <td>
+                        <span class="stat">
+                            <?php if($isMetric):?>
+                                <span class="weight metric">
+                                    <?php echo GenesisTracker::niceFormatWeight(GenesisTracker::getInitialUserWeight($user->ID), "metric");?>
+                                </span>
+                            <?php else:?>
+                                <span class="weight imperial">
+                                    <?php echo GenesisTracker::niceFormatWeight(GenesisTracker::getInitialUserWeight($user->ID), "imperial");?>
+                                </span>
+                            <?php endif;?>
+                        </span>
+                    </td>
+                </tr>
+                <?php endif;?>
             <tr>
                 <th><label for="<?php echo $minHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Min)'); ?></label></th>
                 <td>
@@ -422,11 +440,20 @@ function user_target_fields($user){
     <?php
     endif;
     ?>
-	<table class="form-table">	
+	<table class="form-table food-table">	
+        
+        <?php if(!is_admin()):?>
+        <tr>
+            <th>&nbsp;</th>
+            <td><h4>Personal</h4></td>
+            <td><h4>Mediterranean</h4></td> 
+        </tr>
+        <?php endif;?>
+        
         <?php foreach($targetFields as $fieldKey => $data) : ?>
         <?php $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); ?>
         <?php $val = get_the_author_meta( $fullKey, $user->ID );?>
-        <?php if($val !== "" || is_admin()) :?>
+
         <tr>
 
             <th><label for="<?php echo $fullKey;?>"><?php _e((is_admin() ? "Target " : "") . $data['name']); ?></label></th>
@@ -441,13 +468,22 @@ function user_target_fields($user){
                     ));
                 else:
                     ?>
-                    <span class="stat"><?php echo $val;?></span>
+                    <span class="stat"><?php echo $val ? $val : "- -";?></span>
                     <?php
                 endif;
                 ?>
             </td>
+            
+            <?php if(!is_admin()):?>
+                <td><span class="stat">
+                        <?php
+                        echo isset($data['med']) ? $data['med'] : "- -";
+                        ?>
+                    </span>
+                </td>
+            <?php endif; ?>
         </tr>
-        <?php endif;?>
+
         <?php endforeach; ?>
     </table>
 	<?php
