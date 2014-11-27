@@ -1,7 +1,8 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
     "Welcome to the PROCAS Lifestyle Research Study",
-    "First, let's check that the clinical trial is for you.  Please read <a href='$eligibilityPdfUrl' target='_blank'>this document</a> before completing the form below."
+    "<p>The Procas lifestyle research study is a diet and exercise programme designed to support people with a BMI greater than 25 to lose weight.</p>
+<p>Before you decide to take part, let's check that the clinical trial is for you. Please read <a href='$eligibilityPdfUrl' target='_blank'>this document</a> before completing the form below.</p>"
 );
 
 echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
@@ -139,6 +140,23 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 				<p class="form-explanation"><?php _e('As part of the study you will receive feedback and support by phone and email, you will also be asked to log your progress using the website');?></p>
                 <?php
                 echo $form->dropdown('high_speed_internet', array(
+                    '' => '--- Please Select ---',
+                    "1" => 'Yes',
+                    "2" => 'No'
+                ), array(
+                    'default' => ''
+                ));
+                ?>
+            </div>
+        </div>
+        
+        <div class="inner-question-container">
+			<div class="question-container clearfix">
+				<div class="title">
+					<label class="general-label"><?php _e('6. Are you happy to follow our diet and exercise programme to help you lose weight?');?></label>
+				</div>
+                <?php
+                echo $form->dropdown('happy_to_follow', array(
                     '' => '--- Please Select ---',
                     "1" => 'Yes',
                     "2" => 'No'

@@ -304,11 +304,11 @@ function extra_user_profile_fields($user){
                     <td>
                         <span class="stat">
                             <?php if($isMetric):?>
-                                <span class="weight metric">
+                                <span class="weight">
                                     <?php echo GenesisTracker::niceFormatWeight(GenesisTracker::getInitialUserWeight($user->ID), "metric");?>
                                 </span>
                             <?php else:?>
-                                <span class="weight imperial">
+                                <span class="weight">
                                     <?php echo GenesisTracker::niceFormatWeight(GenesisTracker::getInitialUserWeight($user->ID), "imperial");?>
                                 </span>
                             <?php endif;?>
@@ -317,7 +317,11 @@ function extra_user_profile_fields($user){
                 </tr>
                 <?php endif;?>
             <tr>
-                <th><label for="<?php echo $minHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Min)'); ?></label></th>
+                <th>
+                    <?php if(!is_admin()):?>
+                        <a href="javascript:;" class="fa fa-question-circle help-icon weight-help" title="<strong>Healthy weight range</strong><p>This weight range will give you a healthy amount body fat</p>"></a>
+                    <?php endif;?>
+                    <label for="<?php echo $minHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Min)'); ?></label></th>
                 <td>
                     <?php
                     if(is_admin()):
@@ -331,11 +335,11 @@ function extra_user_profile_fields($user){
                         ?>
                         <span class="stat">
                             <?php if($isMetric):?>
-                                <span class="weight metric">
+                                <span class="weight">
                                     <?php echo GenesisTracker::niceFormatWeight($minHealthyWeightVal, "metric");?>
                                 </span>
                             <?php else:?>
-                                <span class="weight imperial">
+                                <span class="weight">
                                     <?php echo GenesisTracker::niceFormatWeight($minHealthyWeightVal, "imperial");?>
                                 </span>
                             <?php endif;?>
@@ -346,7 +350,7 @@ function extra_user_profile_fields($user){
                 </td>
             </tr>
             <tr>
-                <th><label for="<?php echo $maxHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Max)'); ?></label></th>
+                <th class="max-weight"><label for="<?php echo $maxHealthyWeightKey;?>"><?php _e('Healthy Weight Range (Max)'); ?></label></th>
                 <td>
                     <?php
                      if(is_admin()):
@@ -360,11 +364,11 @@ function extra_user_profile_fields($user){
                           ?>
                          <span class="stat">
                               <?php if($isMetric):?>
-                                 <span class="weight-check metric">
+                                 <span class="weight-check">
                                      <?php echo GenesisTracker::niceFormatWeight($maxHealthyWeightVal, "metric");?>
                                  </span>
                              <?php else:?>
-                                 <span class="weight-check imperial">
+                                 <span class="weight-check">
                                      <?php echo GenesisTracker::niceFormatWeight($maxHealthyWeightVal, "imperial");?>
                                  </span>
                              <?php endif; ?>
@@ -390,11 +394,11 @@ function extra_user_profile_fields($user){
                           ?>
                           <span class="stat">
                                <?php if($isMetric):?>
-                                  <span class="weight metric">
+                                  <span class="weight">
                                       <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "metric");?>
                                   </span>
                               <?php else:?>
-                                  <span class="weight imperial">
+                                  <span class="weight">
                                       <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "imperial");?>
                                   </span>
                               <?php endif;?>
@@ -445,8 +449,9 @@ function user_target_fields($user){
         <?php if(!is_admin()):?>
         <tr>
             <th>&nbsp;</th>
-            <td><h4>Personal</h4></td>
-            <td><h4>Mediterranean</h4></td> 
+            <th><h4>Mediterranean portions</h4></th> 
+            <th><h4>Personal portions</h4></th>
+           
         </tr>
         <?php endif;?>
         
@@ -457,6 +462,14 @@ function user_target_fields($user){
         <tr>
 
             <th><label for="<?php echo $fullKey;?>"><?php _e((is_admin() ? "Target " : "") . $data['name']); ?></label></th>
+            <?php if(!is_admin()):?>
+                <td><span class="stat">
+                        <?php
+                        echo isset($data['med']) ? $data['med'] : "- -";
+                        ?>
+                    </span>
+                </td>
+            <?php endif; ?>
             <td>
                 <?php
                
@@ -474,14 +487,7 @@ function user_target_fields($user){
                 ?>
             </td>
             
-            <?php if(!is_admin()):?>
-                <td><span class="stat">
-                        <?php
-                        echo isset($data['med']) ? $data['med'] : "- -";
-                        ?>
-                    </span>
-                </td>
-            <?php endif; ?>
+           
         </tr>
 
         <?php endforeach; ?>
@@ -686,11 +692,10 @@ function genesis_initial_weight_page(){
 }
 
 function genesis_prescription_page(){
-    ?>
+    return '
     <div class="physiotec">
     <script src="https://www.physiotec.ca/jscripts/iframe.js"></script>
-    </div>
-    <?php
+    </div>';
 }
 
 function genesis_physiotec_login(){

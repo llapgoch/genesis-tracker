@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.25";
+    const version = "1.27";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
@@ -190,6 +190,7 @@ class GenesisTracker{
           `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
           `question` text,
           `correct` tinyint(1) DEFAULT NULL,
+          `position` int(11) NOT NULL DEFAULT 0,
           PRIMARY KEY  (`id`)
         )");
         
@@ -201,6 +202,7 @@ class GenesisTracker{
           `height` decimal(10,6) DEFAULT NULL,
           `age` int(11) unsigned DEFAULT NULL,
           `high_speed_internet` tinyint(1) unsigned DEFAULT NULL,
+          `happy_to_follow` tinyint(1) unsigned DEFAULT NULL,
           `bmi` decimal(10,6) DEFAULT NULL,
           `date_created` datetime DEFAULT NULL,
           `is_eligible` tinyint(1) DEFAULT NULL,
@@ -231,6 +233,10 @@ class GenesisTracker{
               ),
               array(
                   'question' => 'Have you ever had <strong> angina, a mini stroke (TIA), stroke or heart attack</strong>?',
+                  'correct' => 2
+              ),
+              array(
+                  'question' => 'Have you ever been diagnosed with <strong>kidney disease</strong>?',
                   'correct' => 2
               ),
               array(
@@ -462,7 +468,9 @@ class GenesisTracker{
      
      public static function getEligibilityQuestions(){
          global $wpdb;
-         return $wpdb->get_results("SELECT * FROM " . self::getEligibilityQuestionsTableName());
+         return $wpdb->get_results("SELECT * FROM " . self::getEligibilityQuestionsTableName() . "
+             ORDER BY `position`
+        ");
      }
      
      public static function getEligibilityAnswersForResultHash($hashId){
@@ -755,6 +763,7 @@ class GenesisTracker{
              'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
              "height_main" => array('N', 'R', "VALUE-GREATER[0]"),
              "high_speed_internet" => array("N", "R"),
+             "happy_to_follow" => array("N", "R"),
              "passcode" => array("R")
          );
          
@@ -828,6 +837,10 @@ class GenesisTracker{
          }
          
          if((int)$form->getRawValue("high_speed_internet") !== 1){
+             $eligible = false;
+         }
+         
+         if((int)$form->getRawValue("happy_to_follow") !== 1){
              $eligible = false;
          }
          
@@ -916,6 +929,7 @@ class GenesisTracker{
           'passcode' => strtoupper($form->getRawValue('passcode')),
           'bmi' => $bmi,
           'high_speed_internet' => $form->getRawValue('high_speed_internet'),
+          'happy_to_follow' => $form->getRawValue('happy_to_follow'),
           'date_created' => current_time('Y-m-d H:i:s')
         ))){
             $resultId = $wpdb->insert_id;
@@ -2238,10 +2252,11 @@ class GenesisTracker{
                wp_enqueue_style('responsive-tables-css', plugins_url('css/responsive-tables.css', __FILE__));
          }
 		 	 
+	    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
+ 			'jquery'  
+		));
 		 if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage() || self::isOnEligibilityPage()){	
-		    wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
-	 			'jquery'  
-			));
+		   
 		    
 			wp_localize_script( 'progress', 'myAjax', array( 
 				'ajaxurl' => admin_url('admin-ajax.php')
@@ -2261,10 +2276,10 @@ class GenesisTracker{
                 wp_enqueue_script('eligibility');
             }
             
-		    wp_enqueue_script('progress');
+		    
            
 		}
-        
+        wp_enqueue_script('progress');
         
         if(self::isOnUserInputPage()){
             $minDate = strtotime(self::getInitialUserStartDate($user_id)) + 86400;

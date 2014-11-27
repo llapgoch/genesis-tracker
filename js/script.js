@@ -34,6 +34,19 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 	$(document).ready(function(){
 		$('.js-hide').hide();
 		$('.js-show').show();
+        
+        // Add popups for help
+        $.widget("ui.tooltip", $.ui.tooltip, {
+              options: {
+                  content: function () {
+                      return $(this).prop('title');
+                  },
+                  tooltipClass:'tooltipPopup',
+                  position:{ my: "left+15 center", at: "right center" }
+              }
+          });
+
+          $('.help-icon').tooltip();
 		
 		// User Input Page
 		$(document).ready(function(){
@@ -145,18 +158,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 				selectModeButton('weight');
 			}
 			
-            // Add popups for help
-            $.widget("ui.tooltip", $.ui.tooltip, {
-                  options: {
-                      content: function () {
-                          return $(this).prop('title');
-                      },
-                      tooltipClass:'tooltipPopup',
-                      position:{ my: "left+15 center", at: "right center" }
-                  }
-              });
-
-              $('.help-icon').tooltip();
+           
 
               
               $('.food-input').on('change, keyup', function(){
