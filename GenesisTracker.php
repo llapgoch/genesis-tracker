@@ -1958,7 +1958,7 @@ class GenesisTracker{
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
          
         if($averages === null){
-            $averages = self::generateAverageUsersGraphData(false);
+            $averages = self::generateAverageUsersGraphData(true);
         };
         
         if(!$averages){
@@ -2110,7 +2110,7 @@ class GenesisTracker{
          
          self::setCacheData(self::getOptionKey(self::averageDataKey), $averages, 86400);
          
-         mail("dave_preece@mac.com", "Regenerated Cache", "Regenerated");
+         // mail("dave_preece@mac.com", "Regenerated Cache", "Regenerated");
          
 		 return $averages;
 	 }
