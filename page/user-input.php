@@ -114,7 +114,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     
     	<div class="question-outer-container record-food-container">
     		<div class="title">
-    			<h3 class="general-label"><?php _e('Unrestricted Days Diet Tracker');?></h3>
+    			<h3 class="general-label"><?php _e('Days Diet Tracker');?></h3>
     		</div>
           
     		<?php echo $form->checkbox('record-food', 1, array(
@@ -251,12 +251,31 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     </div>
     			</div>
     			
+                <?php $_foods = GenesisTracker::getUserMetaTargetFields(); ?>
     			<div class="question-container clearfix targets">
     				<div class="title">
-    					<label for="targets" class="general-label"><?php _e('Your Targets');?></label>
+    					<label for="targets" class="general-label"><?php _e('Your Mediterranean Days Targets');?></label>
+    				</div>
+                    
+                    <div class="food-input-form">
+                    <?php foreach($_foods as $_foodIdentifier => $_food): ?>  
+
+                        <div class='input-box'>
+                            <label><?php echo $_food['name'];?></label>
+                            <span class="value">
+                                <?php
+                                echo $_food['med'];
+                                ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                    </div>
+                    
+    				<div class="title">
+    					<label for="targets" class="general-label"><?php _e('Your 2 Diet Days Targets');?></label>
     				</div>
                     <div class="food-input-form">
-                        <?php $_foods = GenesisTracker::getUserMetaTargetFields(); ?>
+                        
                     
                         <?php foreach($_foods as $_foodIdentifier => $_food): ?>  
                             <?php $fullKey = "total_" . $_foodIdentifier; ?>  

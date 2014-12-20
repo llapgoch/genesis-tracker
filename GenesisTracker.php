@@ -1683,15 +1683,16 @@ class GenesisTracker{
 		 
 		 $weightQ = '';
 		 $dateConstraint = '';
+        
 		 
 		 if($startWeight = self::getInitialUserWeight($user_id)){
 			 $weightQ = ", ($startWeight - weight) as weight_loss ";
 		 }
-		 
+		         
 		 if($startDate){
 			 $dateConstraint = "AND measure_date >= '$startDate'";
 		 }
-		 
+		
 		 if($endDate){
 			 $dateConstraint .= " AND measure_Date <= '$endDate'";
 		 }
@@ -2537,7 +2538,7 @@ class GenesisTracker{
      
      public static function getEmailHeaders(){
   		$headers = array();
-  		$headers[] = 'From: Procas Lifestyle Research<'. get_option('admin_email') .'>';
+  		$headers[] = 'From: Procas Lifestyle Research <'. get_option('admin_email') .'>';
   		$headers[] = 'MIME-Version: 1.0';
   		$headers[] = 'Content-type: text/html; charset=utf-8';
         
