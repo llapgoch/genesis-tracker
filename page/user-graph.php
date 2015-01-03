@@ -17,7 +17,7 @@
         </div>
     
         <div class="button-group food">
-            <h2>Unrestricted Days Diet</h2>
+            <h2>Diet Tracker</h2>
             <button class="blue button large" data-mode="unrestricted-days">View Your Most Recent Logs</button>
         </div>
     </div>
@@ -55,7 +55,7 @@
     
     <div class="genesis-food-table-container">
         <?php if($foodLogData && count($foodLogData)): ?>
-        <h3>Your Last <?php echo count($foodLogData) > 1 ? count($foodLogData) : "";?> Unrestricted Days Diet Tracker Entr<?php echo count($foodLogData) == 1 ? "y" : "ies";?></h3>
+        <h3>Your Last <?php echo count($foodLogData) > 1 ? count($foodLogData) : "";?> Diet Tracker Entr<?php echo count($foodLogData) == 1 ? "y" : "ies";?></h3>
         <table class="progress-food-log responsive">
             <thead>
                 <th>&nbsp;</th>

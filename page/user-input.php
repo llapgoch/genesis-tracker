@@ -114,7 +114,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     
     	<div class="question-outer-container record-food-container">
     		<div class="title">
-    			<h3 class="general-label"><?php _e('Days Diet Tracker');?></h3>
+    			<h3 class="general-label"><?php _e('Diet Tracker');?></h3>
     		</div>
           
     		<?php echo $form->checkbox('record-food', 1, array(

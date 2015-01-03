@@ -81,7 +81,7 @@
     
     <?php if($dietDays && count($dietDays)) : ?>
         <hr />
-        <h2>Last <?php echo count($dietDays) ?> Unrestricted Diet Days</h2>
+        <h2>Last <?php echo count($dietDays) ?> Diet Tracker</h2>
         <table class="wp-list-table widefat ">
             <thead>
                 <th>Date</th>
