@@ -87,14 +87,14 @@ function UserGraph(){
 			},
 			'weight_loss':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Current Weight',
+				'label':'Your Weight Change',
 				'avgLabel':"Average weight loss for other women on the study",
 				'color':'rgb(118,47,152)',
                 'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
 			},
 			'weight_loss_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
-				'label':'Your Current Weight',
+				'label':'Your Weight Change',
 				'avgLabel':"Average weight loss for other women on the study",
 				'color':'rgb(118,47,152)',
                 'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
@@ -231,12 +231,16 @@ function UserGraph(){
 		this.yMax = yMax;
 		
         var xMargin = this.mode == "exercise_minutes" ? 46400000 : 0;
-	    
+	    var fill = true;
+        
+        if(mode == 'weight_loss' || mode == 'weight_loss_imperial'){
+            fill = false;
+        }
 		
 		var options = {
 			lines: {
 				show: this.mode == 'exercise_minutes' ? false : true,
-				fill: true
+				fill: fill
 			},
 			points: {
 				show: this.mode == 'exercise_minutes' ? false : true,
