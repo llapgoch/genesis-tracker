@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.27";
+    const version = "1.28";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
@@ -26,6 +26,7 @@ class GenesisTracker{
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
     const weightTargetKey        = "weight_target";
+    const sixMonthWeightTargetKey = "weight_target_six_months";
     
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -139,6 +140,7 @@ class GenesisTracker{
 		  measure_date datetime DEFAULT NULL,
 		  weight decimal(10,6) unsigned DEFAULT NULL,
 		  exercise_minutes int(11) DEFAULT NULL,
+          exercise_minutes_resistance int(11) DEFAULT NULL,
           weight_unit tinyint(1) unsigned DEFAULT 1,
 		  PRIMARY KEY  (tracker_id),
 		  KEY user_id (user_id)
@@ -1264,6 +1266,7 @@ class GenesisTracker{
 		 
 		 if($form->getRawValue('record-exercise')){
 			 $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
+             $rules['exercise_minutes_resistance'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
 		 }
 		 
          if($form->getRawValue('record-food')){
@@ -1349,7 +1352,13 @@ class GenesisTracker{
 		 }
 		 
 		 if($form->hasValue('record-exercise')){
-			 $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
+			 if((float)$form->getRawValue('exercise_minutes') > 0){
+                 $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
+             }
+             
+             if((float)$form->getRawValue('exercise_minutes_resistance') > 0){
+                 $data['exercise_minutes_resistance'] = (float)$form->getRawValue('exercise_minutes_resistance');
+             }
 		 }
 		 
          // Remove Food Logs
@@ -1744,6 +1753,7 @@ class GenesisTracker{
 		 $valsToCollate = array(
 			 'weight',
              'exercise_minutes',
+             'exercise_minutes_resistance',
 			 'weight_loss',
              'fat',
              'carbs',
@@ -2134,7 +2144,8 @@ class GenesisTracker{
              $measureDetails->weight_imperial['stone'] = round($measureDetails->weight_imperial['stone'], 2);
              $measureDetails->weight_imperial['pounds'] = round($measureDetails->weight_imperial['pounds'], 2); 
          }
-         
+
+
          // Look up food targets using the tracker_id if we have one
          $foodData = array();
          $foodDescriptions = array();

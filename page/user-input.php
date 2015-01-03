@@ -311,13 +311,28 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     		<div class="inner-question-container exercise-container js-hide">
     			<div class="question-container clearfix">
     				<div class="title">
-    					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Exercise');?></label>
+    					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Aerobic Exercise');?></label>
 					
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the minutes of exercise you completed on the day you are recording');?></p>
+    				<p class="form-explanation"><?php _e('Enter the minutes of aerobic exercise you completed on the day you are recording');?></p>
     				<?php
     				echo $form->input('exercise_minutes', 'text', array(
     					'id' => 'exercise_minutes',
+    					'class' => 'general-input'
+    				));
+    				?>
+    				<p class="input-suffix"><?php _e('minutes');?></p>
+    			</div>
+                
+    			<div class="question-container clearfix">
+    				<div class="title">
+    					<label for="exercise_minutes_resistance" class="general-label"><?php _e('Minutes of Resistance Exercise');?></label>
+					
+    				</div>
+    				<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed on the day you are recording');?></p>
+    				<?php
+    				echo $form->input('exercise_minutes_resistance', 'text', array(
+    					'id' => 'exercise_minutes_resistance',
     					'class' => 'general-input'
     				));
     				?>

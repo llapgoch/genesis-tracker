@@ -257,9 +257,19 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     // Set the diet days
 					$('.diet-days').html(data.date_picker);
 
+                    if(isNaN(parseFloat(measures.exercise_minutes))){
+                        measures.exercise_minutes = 0;
+                    }
+                    
+                    if(isNaN(parseFloat(measures.exercise_minutes_resistance))){
+                        measures.exercise_minutes_resistance = 0;
+                    }
+                    
+                    $form.find('input[name="exercise_minutes"]').val(measures.exercise_minutes);
+                    $form.find('input[name="exercise_minutes_resistance"]').val(measures.exercise_minutes_resistance);
+
                     // Set the exercise values
-                    if(measures.exercise_minutes){
-                        $form.find('input[name="exercise_minutes"]').val(measures.exercise_minutes);
+                    if(measures.exercise_minutes || measures.exercise_minutes_resistance){
                         $form.find('input[name="record-exercise"]').prop('checked', true).trigger('change');
                     }
                     

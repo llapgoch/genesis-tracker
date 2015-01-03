@@ -3,7 +3,7 @@
 Plugin Name: Genesis Tracker
 Plugin URI: http://carbolowdrates.com
 Description: Tracks user's weight, calories, and exercise
-Version: 1.16
+Version: 1.28
 Author: Dave Preece
 Author URI: http://www.scumonline.co.uk
 License: GPL
@@ -229,10 +229,12 @@ function extra_user_profile_fields($user){
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
+    $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
 
     $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
     $maxHealthyWeightVal = get_the_author_meta($maxHealthyWeightKey, $user->ID );
     $weightTargetVal     = get_the_author_meta($weightTargetKey, $user->ID );
+    $sixMonthTargetVal   = get_the_author_meta($sixMonthTargetKey, $user->ID ); 
 
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
@@ -382,7 +384,7 @@ function extra_user_profile_fields($user){
             </tr>
         
             <tr>
-                <th><label for="<?php echo $weightTargetKey;?>"><?php _e('Target Weight'); ?></label></th>
+                <th><label for="<?php echo $weightTargetKey;?>"><?php _e('Three Month Target Weight'); ?></label></th>
                 <td>
                     <?php
                     if(is_admin()):
@@ -410,6 +412,37 @@ function extra_user_profile_fields($user){
                     ?>
                 </td>
             </tr>
+            
+            <tr>
+                <th><label for="<?php echo $sixMonthTargetKey;?>"><?php _e('Six Month Target Weight'); ?></label></th>
+                <td>
+                    <?php
+                    if(is_admin()):
+                        echo $form->input($sixMonthTargetKey, 'text', array(
+                              'autocomplete' => 'off',
+                              'id' => $sixMonthTargetKey,
+                              'class' => '',
+                              'value' => $sixMonthTargetVal  
+                          ));
+                      else:
+                          ?>
+                          <span class="stat">
+                               <?php if($isMetric):?>
+                                  <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($sixMonthTargetVal, "metric");?>
+                                  </span>
+                              <?php else:?>
+                                  <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($sixMonthTargetVal, "imperial");?>
+                                  </span>
+                              <?php endif;?>
+                          </span>
+                      <?php
+                      endif;
+                    ?>
+                </td>
+            </tr>
+            
         </table>
 	    <?php if(is_admin()):?>
             <hr />
@@ -504,6 +537,7 @@ function save_extra_user_profile_fields($user_id){
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
+    $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
     
 	$val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
 	$tel = isset($_POST['tel']) ? $_POST['tel'] : '';
@@ -515,10 +549,12 @@ function save_extra_user_profile_fields($user_id){
             $minHealthyWeight = isset($_POST[$minHealthyWeightKey]) ? (float) $_POST[$minHealthyWeightKey] : '';
             $maxHealthyWeight = isset($_POST[$maxHealthyWeightKey]) ? (float)$_POST[$maxHealthyWeightKey] : '';
             $targetWeight = isset($_POST[$weightTargetKey]) ? (float)$_POST[$weightTargetKey] : '';
+            $sixMonthTargetWeight = isset($_POST[$sixMonthTargetKey]) ? (float)$_POST[$sixMonthTargetKey] : '';
              
         	update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
         	update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
             update_user_meta( $user_id, $weightTargetKey, $targetWeight );
+            update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
     }
     
     

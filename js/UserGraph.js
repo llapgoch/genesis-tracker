@@ -80,10 +80,16 @@ function UserGraph(){
                 'color':'rgb(179,179,179)'
 			},
 			'exercise_minutes':{
-				'noresults':"You have not recorded any minutes of exercise yet.",
-				'label':'Minutes You\'ve Exercised',
+				'noresults':"You have not recorded any minutes of aerobic exercise yet.",
+				'label':'Aerobic Minutes You\'ve Exercised',
 				'avgLabel':'Average Minutes Exercised',
 				'color':'rgb(255,201,107)'
+			},
+			'exercise_minutes_resistance':{
+				'noresults':"You have not recorded any minutes of resistance exercise yet.",
+				'label':'Resistance Minutes You\'ve Exercised',
+				'avgLabel':'Average Minutes Exercised',
+				'color':'rgb(174,218,74)'
 			},
 			'weight_loss':{
 				'noresults':"You haven't made any weight measurements yet.",
@@ -113,6 +119,8 @@ function UserGraph(){
 		this.mode = mode;
 		this.unit = unit;
         this.averages = averages == true ? true : false;
+        
+        var isExercise = this.mode == 'exercise_minutes' || this.mode == 'exercise_minutes_resistance';
 		
 		if(unit && (mode == 'weight' || mode == 'weight_loss')){
 			mode = mode + "_" + unit;
@@ -230,7 +238,7 @@ function UserGraph(){
 		this.yMin = yMin;
 		this.yMax = yMax;
 		
-        var xMargin = this.mode == "exercise_minutes" ? 46400000 : 0;
+        var xMargin = isExercise ? 46400000 : 0;
 	    var fill = true;
         
         if(mode == 'weight_loss' || mode == 'weight_loss_imperial'){
@@ -239,16 +247,16 @@ function UserGraph(){
 		
 		var options = {
 			lines: {
-				show: this.mode == 'exercise_minutes' ? false : true,
+				show: isExercise ? false : true,
 				fill: fill
 			},
 			points: {
-				show: this.mode == 'exercise_minutes' ? false : true,
+				show: isExercise ? false : true,
 				fill: true,
-                radius: this.mode == 'exercise_minutes' ? 7 : 3
+                radius: isExercise ? 7 : 3
 			},
             bars : {
-                show: this.mode == 'exercise_minutes' ? true : false,
+                show: isExercise ? true : false,
                 barWidth:46400000,
                 align:"center"
             },
@@ -441,6 +449,7 @@ function UserGraph(){
 				return (st ? (st + " st ") : "") + (p + " lb"); 
 
 			case 'exercise_minutes' :
+            case 'exercise_minutes_resistance' :
 				return val + " minutes";
 			case 'calories' :
 				return val + " kcals";

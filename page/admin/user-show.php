@@ -64,7 +64,8 @@
          <thead>
              <th>Date</th>
              <th>Weight</th>
-             <th>Exercise Minutes</th>
+             <th>Aerobic Exercise Minutes</th>
+             <th>Resistance Exercise Minutes</th>
          </thead>
          <tbody>
              <?php foreach($measurementLogs as $log): ?>
@@ -72,6 +73,7 @@
                      <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
                      <td><?php echo $log->weight ? round($log->weight, 2) : "- -"; ?></td>
                      <td><?php echo $log->exercise_minutes ? $log->exercise_minutes : "- -";?></td>
+                     <td><?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance : "- -";?></td>
                  </tr>
              <?php endforeach; ?>
              </tbody>
