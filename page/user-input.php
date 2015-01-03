@@ -235,7 +235,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
             
     			<div class="question-container clearfix totals">
     				<div class="title">
-    					<label for="total" class="general-label"><?php _e('Totals');?></label>
+    					<label for="total" class="general-label"><?php _e('Your total portions for this day');?></label>
     				</div>
                     <div class="food-input-form">
                         <?php $_foods = GenesisTracker::getUserMetaTargetFields(); ?>
@@ -254,7 +254,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                 <?php $_foods = GenesisTracker::getUserMetaTargetFields(); ?>
     			<div class="question-container clearfix targets">
     				<div class="title">
-    					<label for="targets" class="general-label"><?php _e('Your Mediterranean Days Targets');?></label>
+    					<label for="targets" class="general-label"><?php _e('Your 2 Diet Days Targets');?></label>
     				</div>
                     
                     <div class="food-input-form">
@@ -272,7 +272,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     </div>
                     
     				<div class="title">
-    					<label for="targets" class="general-label"><?php _e('Your 2 Diet Days Targets');?></label>
+    					<label for="targets" class="general-label"><?php _e('Your Mediterranean Days Targets');?></label>
     				</div>
                     <div class="food-input-form">
                         

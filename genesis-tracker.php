@@ -451,8 +451,8 @@ function user_target_fields($user){
         <?php if(!is_admin()):?>
         <tr>
             <th>&nbsp;</th>
-            <th><h4>Mediterranean portions</h4></th> 
-            <th><h4>Personal portions</h4></th>
+            <th><h4>Personal portions</h4></th> 
+            <th><h4>Mediterranean portions</h4></th>
            
         </tr>
         <?php endif;?>

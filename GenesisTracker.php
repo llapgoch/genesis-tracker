@@ -68,7 +68,7 @@ class GenesisTracker{
     
     protected static $_initialUserUnit;
 
-    
+    // NOTE: It appears these have switched - med values are actually personal portions!
     protected static $_userMetaTargetFields = array(
         "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "med" => "0"),
         "protein" => array("name" => "Protein", "unit" => "portions", "med" => "Between 4 and 12 a day"),
