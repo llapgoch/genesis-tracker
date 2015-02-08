@@ -75,7 +75,7 @@ class GenesisTracker{
         "protein" => array("name" => "Protein", "unit" => "portions", "med" => "Between 4 and 12 a day"),
         "dairy" => array("name" => "Dairy", "unit" => "portions", "med" => "3 a day"),
         "vegetables" => array("name" => "Vegetables", "unit" => "portions", "med" => "5 a day"),
-        "fruit" => array("name" => "Fruit", "unit" => "portions", "med" => "5 a day"),
+        "fruit" => array("name" => "Fruit", "unit" => "portions", "med" => "1 a day"),
         "fat" => array("name" => 'Fat', "unit" => "portions", "med" =>  "Maximum of 5 a day"),
         "treat" => array("name" => "Treat", "unit" => "portions", "med" => "0"),       
         "alcohol" => array("name" => "Alcohol", "unit" => "units", "med" => "0")
