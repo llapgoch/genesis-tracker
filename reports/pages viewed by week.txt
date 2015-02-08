@@ -1,0 +1,4 @@
+SELECT user_id, `display_name`, YEARWEEK(FROM_UNIXTIME(`time`)) theweek, count(*) FROM genwp_lbakut_activity_log
+WHERE page LIKE '%/wp-login.php%' AND user_id <> 0
+GROUP BY `user_id`, theweek
+ORDER BY theweek

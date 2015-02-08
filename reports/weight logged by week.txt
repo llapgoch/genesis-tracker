@@ -1,0 +1,8 @@
+SELECT t.user_id, um.meta_value, YEARWEEK(`measure_date`) theweek, count(*), MIN(weight), MAX(weight), AVG(weight) 
+FROM genwp_genesis_tracker t
+LEFT JOIN genwp_usermeta um 
+	ON um.user_id = t.`user_id`
+		AND um.`meta_key` = 'first_name' 
+WHERE NOT isNull(weight)
+GROUP BY `user_id`, theweek
+ORDER BY theweek
