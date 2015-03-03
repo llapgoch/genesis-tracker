@@ -7,5 +7,5 @@ SELECT el.id, el.date_created, el.weight, el.height, el.age, el.bmi,
 		ON res.`result_id` = el.`id`
 			INNER JOIN `genwp_genesis_eligibility_questions` q
 		ON res.question_id = q.id
-	WHERE is_eligible = 'No'
+	WHERE is_eligible = 0
 	ORDER BY el.id, q.`id`
