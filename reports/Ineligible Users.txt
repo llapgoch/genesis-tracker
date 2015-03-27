@@ -1,5 +1,7 @@
-SELECT el.id, el.date_created, el.weight, el.height, el.age, el.bmi, 
+SELECT el.id, el.date_created, el.passcode, el.weight, el.height, el.age, el.bmi, 
 	IF(el.is_eligible = 1, 'Yes', 'No') is_eligible,
+	IF(el.high_speed_internet = 1, 'Yes', 'No') high_speed_internet,
+	IF(ISNULL(el.happy_to_follow), 'N/A', IF(el.happy_to_follow = 1, 'Yes', 'No')) happy_to_follow_our_diet,
 	q.`question`, 
 	IF(res.answer = 2, 'No', "Yes") answer
 		FROM `genwp_genesis_eligibility_result_answers` res
@@ -8,4 +10,6 @@ SELECT el.id, el.date_created, el.weight, el.height, el.age, el.bmi,
 			INNER JOIN `genwp_genesis_eligibility_questions` q
 		ON res.question_id = q.id
 	WHERE is_eligible = 0
+		AND `date_created` < '2015-03-03'
+		AND `date_created` >= '2015-02-12'
 	ORDER BY el.id, q.`id`
