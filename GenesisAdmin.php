@@ -49,6 +49,7 @@ class GenesisAdmin{
                 passcode_group.`meta_value` as passcode_group,
             	IFNULL(account_active.`meta_value`, 1) as account_active,
                 IFNULL(user_contacted.`meta_value`, 0) as user_contacted,
+                IFNULL(withdrawn.`meta_value`, 0) as withdrawn,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
@@ -81,6 +82,9 @@ class GenesisAdmin{
                 LEFT JOIN " . $wpdb->usermeta . " as user_contacted 
                     ON user_contacted.user_id = u.ID
                     AND user_contacted.meta_key = %s
+                LEFT JOIN " . $wpdb->usermeta . " as withdrawn 
+                    ON withdrawn.user_id = u.ID
+                    AND withdrawn.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -89,7 +93,8 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey),
             GenesisTracker::getOptionKey(GenesisTracker::userActiveKey),
             GenesisTracker::getOptionKey(GenesisTracker::eligibilityGroupSessionKey),
-            GenesisTracker::getOptionKey(GenesisTracker::userContactedKey)
+            GenesisTracker::getOptionKey(GenesisTracker::userContactedKey),
+            GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey)
         ), ARRAY_A);
        
 

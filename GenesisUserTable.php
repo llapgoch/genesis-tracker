@@ -61,6 +61,8 @@ class GenesisUserTable extends WP_List_Table {
              case 'user_contacted' :
              case 'account_active' :
                  return (int)$item[$column_name] ? 'Yes' : $this->wrapRed('No');
+             case 'withdrawn' : 
+                 return $item[$column_name] ? $this->wrapRed('Yes') : 'No';
              default:
                  return $item[$column_name] ? $item[$column_name] : $noValue;
          }
@@ -98,6 +100,7 @@ class GenesisUserTable extends WP_List_Table {
                     'passcode_group'        => 'Passcode Group',
 		            'unix_timestamp'        => 'Last Measurement Date',
                     'user_contacted'        => 'Contacted',
+                    'withdrawn'             => 'Withdrawn',
 					 'account_active'       => 'Active',
                      'initial_weight'       => 'Start Weight (Kg)',
                      'weight'               => 'Current Weight (Kg)',
@@ -116,6 +119,7 @@ class GenesisUserTable extends WP_List_Table {
 		               'initial_weight'     => array('initial_weight',false),
                        'weight'             => array('weight', false),
                        'user_contacted'     => array('user_contacted', false),
+                       'withdrawn'          => array('withdrawn', false),
                        'account_active'     => array('account_active', false),
                        'weight_change'      => array('weight_change', false),
                        'unix_timestamp'     => array('unix_timestamp', true)

@@ -28,6 +28,9 @@ class GenesisTracker{
     const weightTargetKey        = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
     
+    const userWithdrawnKey = "withdrawn";
+    const userNotesKey     = "notes";
+    
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
@@ -519,6 +522,8 @@ class GenesisTracker{
          // Check whether the user has been activated
          $activeKey = self::getOptionKey(self::userActiveKey);
          $contactedKey = self::getOptionKey(self::userContactedKey);
+         $withdrawnKey = self::getOptionKey(self::userWithdrawnKey);
+         $notesKey     = self::getOptionKey(self::userNotesKey);
          
          
          if(isset($_POST[$activeKey])){
@@ -536,6 +541,16 @@ class GenesisTracker{
          if(isset($_POST[$contactedKey])){
              $contacted = (int) $_POST[$contactedKey];
              update_user_meta( $user_id, $contactedKey, $contacted);
+         }
+         
+         if(isset($_POST[$withdrawnKey])){
+             $withdrawn = (int) $_POST[$withdrawnKey];
+             update_user_meta( $user_id, $withdrawnKey, $withdrawn);
+         }
+         
+         if(isset($_POST[$notesKey])){
+             $notes = (string) $_POST[$notesKey];
+             update_user_meta( $user_id, $notesKey, $notes);
          }
      }
      

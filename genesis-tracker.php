@@ -226,6 +226,12 @@ function extra_user_profile_fields($user){
     $contactedKey = GenesisTracker::getOptionKey(GenesisTracker::userContactedKey);
     $contactedVal = get_the_author_meta($contactedKey, $user->ID );
     
+    $withdrawnKey = GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey);
+    $withdrawnVal = get_the_author_meta($withdrawnKey, $user->ID );
+    
+    $notesKey = GenesisTracker::getOptionKey(GenesisTracker::userNotesKey);
+    $notesVal = get_the_author_meta($notesKey, $user->ID);
+    
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
@@ -287,6 +293,35 @@ function extra_user_profile_fields($user){
         	 ), array(
         	     'default' => $contactedVal,
                  'id' => $contactedKey
+        	 ));
+        	?>
+        	</td>
+        </tr>
+        
+        <tr>
+        	<th><label for="<?php echo $withdrawnKey; ?>"><?php _e("User has withdrawn"); ?></label></th>
+        	<td>
+        	<?php
+        	 echo $form->dropdown($withdrawnKey, array(
+        	 '0' => 'No',
+        	 '1' => 'Yes'
+        	 ), array(
+        	     'default' => $withdrawnVal,
+                 'id' => $withdrawnKey
+        	 ));
+        	?>
+        	</td>
+        </tr>
+        
+        <tr>
+        	<th><label for="<?php echo $notesKey; ?>"><?php _e("Notes"); ?></label></th>
+        	<td>
+        	<?php
+        	 echo $form->textarea($notesKey, array(
+        	     'default' => $notesVal,
+                 'id' => $notesKey,
+                 'cols' => 30,
+                 'rows' => 5
         	 ));
         	?>
         	</td>
