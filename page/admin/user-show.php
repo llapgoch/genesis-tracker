@@ -19,6 +19,10 @@
         <dd><?php echo (int) $userDetails['user_contacted'] == 0 ? 'No' : 'Yes'?></dd>
         <dt>Account Active</dt>
         <dd><?php echo (int) $userDetails['account_active'] == 0  ? 'No' : 'Yes';?></dd>
+        <dt>User Withdrawn</dt>
+        <dd><?php echo (int) $userDetails['withdrawn'] == 0 ? 'No' : 'Yes'?></dd>
+        <dt>Comments</dt>
+        <dd><?php echo $userDetails['notes']?></dd>
         <dt>Last Measurement Date</dt>
         <dd><?php 
             if(isset($userDetails['measure_date']) && $userDetails['measure_date']) :
@@ -56,22 +60,41 @@
         </dt>
     </dl>
     
+	<?php if($weightLogs && count($weightLogs)) : ?>
+		<hr />
+		<h2>All Weight Logs (<?php echo count($weightLogs) ?>)</h2>
+		<p>If there are more than ten logs, the table will scroll</p>
+		<div class="table-scroller">
+        <table class="wp-list-table widefat">
+            <thead>
+                <th>Date</th>
+                <th>Weight</th>
+            </thead>
+            <tbody>
+                <?php foreach($weightLogs as $log): ?>
+                    <tr>
+                        <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
+                        <td><?php echo $log->weight ? $log->weight : "- -";?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+        </table>
+	</div>
+	<?php endif;  ?>
     
-    <?php if($measurementLogs && count($measurementLogs)) : ?>
+    <?php if($exerciseLogs && count($exerciseLogs)) : ?>
         <hr />
-    <h2>Last <?php echo count($measurementLogs); ?> Measurement Logs</h2>
+    <h2>Last <?php echo count($exerciseLogs); ?> Exercise Logs</h2>
      <table class="wp-list-table widefat ">
          <thead>
              <th>Date</th>
-             <th>Weight</th>
              <th>Aerobic Exercise Minutes</th>
              <th>Resistance Exercise Minutes</th>
          </thead>
          <tbody>
-             <?php foreach($measurementLogs as $log): ?>
+             <?php foreach($exerciseLogs as $log): ?>
                  <tr>
                      <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
-                     <td><?php echo $log->weight ? round($log->weight, 2) : "- -"; ?></td>
                      <td><?php echo $log->exercise_minutes ? $log->exercise_minutes : "- -";?></td>
                      <td><?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance : "- -";?></td>
                  </tr>
@@ -83,7 +106,7 @@
     
     <?php if($dietDays && count($dietDays)) : ?>
         <hr />
-        <h2>Last <?php echo count($dietDays) ?> Diet Tracker</h2>
+        <h2>Last <?php echo count($dietDays) ?> Diet Tracker Entries</h2>
         <table class="wp-list-table widefat ">
             <thead>
                 <th>Date</th>

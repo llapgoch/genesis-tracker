@@ -12,15 +12,27 @@ class GenesisAdmin{
         
         return $results;
     }
+	
+	public static function getWeightLogsForUser($user_id){
+        global $wpdb;
+        
+        $results = $wpdb->get_results($wpdb->prepare(
+        'SELECT * FROM ' . GenesisTracker::getTrackerTableName() . '
+         WHERE weight IS NOT NULL
+			AND user_id=%d
+         ORDER BY measure_date DESC'
+            , $user_id));
+        
+        return $results;
+	}
     
-    public static function getMeasurementLogsForUser($user_id){
+    public static function getExerciseLogsForUser($user_id){
         global $wpdb;
         
         $results = $wpdb->get_results($wpdb->prepare(
         'SELECT * FROM ' . GenesisTracker::getTrackerTableName() . '
          WHERE (exercise_minutes IS NOT NULL
-            OR exercise_minutes_resistance IS NOT NULL
-            OR weight IS NOT NULL)
+            OR exercise_minutes_resistance IS NOT NULL)
             AND user_id=%d
          ORDER BY measure_date DESC
          LIMIT 10'
@@ -50,6 +62,7 @@ class GenesisAdmin{
             	IFNULL(account_active.`meta_value`, 1) as account_active,
                 IFNULL(user_contacted.`meta_value`, 0) as user_contacted,
                 IFNULL(withdrawn.`meta_value`, 0) as withdrawn,
+                notes.`meta_value` as notes,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
@@ -85,6 +98,9 @@ class GenesisAdmin{
                 LEFT JOIN " . $wpdb->usermeta . " as withdrawn 
                     ON withdrawn.user_id = u.ID
                     AND withdrawn.meta_key = %s
+                LEFT JOIN " . $wpdb->usermeta . " as notes 
+                    ON notes.user_id = u.ID
+                    AND notes.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -94,7 +110,8 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::userActiveKey),
             GenesisTracker::getOptionKey(GenesisTracker::eligibilityGroupSessionKey),
             GenesisTracker::getOptionKey(GenesisTracker::userContactedKey),
-            GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey)
+            GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey),
+            GenesisTracker::getOptionKey(GenesisTracker::userNotesKey)
         ), ARRAY_A);
        
 

@@ -314,7 +314,7 @@ function extra_user_profile_fields($user){
         </tr>
         
         <tr>
-        	<th><label for="<?php echo $notesKey; ?>"><?php _e("Notes"); ?></label></th>
+        	<th><label for="<?php echo $notesKey; ?>"><?php _e("Comments"); ?></label></th>
         	<td>
         	<?php
         	 echo $form->textarea($notesKey, array(
@@ -640,7 +640,8 @@ function genesis_admin_user_show($user){
     $foodLogs = GenesisAdmin::getFoodLogs($user->ID);
     $foodTypes = GenesisTracker::getuserMetaTargetFields();
     $foodTimes = GenesisTracker::getUserTargetTimes();
-    $measurementLogs = GenesisAdmin::getMeasurementLogsForUser($user->ID);
+    $exerciseLogs = GenesisAdmin::getExerciseLogsForUser($user->ID);
+	$weightLogs = GenesisAdmin::getWeightLogsForUser($user->ID);
     $dietDays = GenesisAdmin::getDietDaysForUser($user->ID);
     
     include('page/admin/user-show.php');
