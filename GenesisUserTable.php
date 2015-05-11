@@ -28,6 +28,11 @@ class GenesisUserTable extends WP_List_Table {
          }
           
          switch($column_name){
+			 case 'gained_more_than_one_kg' :
+				 if($item[$column_name]){
+					 return '<span class="flag">F</span>';
+				 }
+				 return "";
              case 'user_email':
                  $email = "<a href='mailto:" . $item[$column_name] . "'>" . $item[$column_name] . "</a>";
 
@@ -94,6 +99,7 @@ class GenesisUserTable extends WP_List_Table {
 			
 		    function get_columns(){
 		        $columns = array(
+					'gained_more_than_one_kg' => '',
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
@@ -111,6 +117,7 @@ class GenesisUserTable extends WP_List_Table {
     
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
+					   'gained_more_than_one_kg' => array('gained_more_than_one_kg', false),
                        'user_name'          => array('user_name', false),
 		               'user_email'         => array('user_email',false),
                        'user_registered_timestamp' => array('user_registered_timestamp', false),
