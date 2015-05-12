@@ -58,6 +58,18 @@
              endif;
             ?>     
         </dt>
+		<dt>Lowest Weight (Kg)</dt>
+		<dd>
+			
+            <?php if(isset($userDetails['least_weight']) && $userDetails['least_weight']) :
+                echo round($userDetails['least_weight'], 2);
+            else :
+                echo "- -";
+            endif;
+			?>
+		</dd>
+		<dt>User Flagged (Registered for six months and gained 1kg from lowest point)</dt>
+		<dd><?php echo (int) $userDetails['gained_more_than_one_kg'] == 0 ? 'No' : '<span style="color:red">Yes</span>' ?>
     </dl>
     
 	<?php if($weightLogs && count($weightLogs)) : ?>

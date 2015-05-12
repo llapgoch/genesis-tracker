@@ -54,10 +54,12 @@ class GenesisAdmin{
         
         $results = $wpdb->get_results($sql = $wpdb->prepare( 
             "SELECT *, IFNULL(weight - initial_weight, 0) weight_change,
-			IF(weight - LEAST(lowest_weight, initial_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month) , 1, 0) as gained_more_than_one_kg FROM 
+			IF(weight - LEAST(lowest_weight, initial_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month), 1, 0) as gained_more_than_one_kg,
+			/* Use lease_weight instead of lowest_weight in result sets as it takes into account the initial weight */
+			LEAST(lowest_weight, initial_weight) as least_weight
+			 FROM 
                 (SELECT u.user_registered, u.user_email, u.ID user_id,  
             	MAX(measure_date) as measure_date, 
-				
 				MIN(weight) as lowest_weight,
                 UNIX_TIMESTAMP(MAX(measure_date)) unix_timestamp,
             	initial_weight.`meta_value` as initial_weight,
