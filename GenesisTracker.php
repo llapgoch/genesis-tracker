@@ -253,7 +253,7 @@ class GenesisTracker{
                   'correct' => 2
               ),
               array(
-                  'question' => 'Do you have any other  health problems that could be  made worse by taking exercise or could make it  very difficult for you to exercise  (e.g. exercise induced epilepsy, balance problems, unstable back problems or other muscle or bone problems)?',
+                  'question' => 'Has a medical professional advised you not to exercise for health reasons?',
                   'correct' => 2
               ),
               array(
