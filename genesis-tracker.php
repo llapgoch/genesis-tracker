@@ -329,8 +329,30 @@ function extra_user_profile_fields($user){
         
        
     </table>
+	
+	
     
     <?php } ?>
+	
+	
+    <?php if(is_admin()):?>
+        <hr />
+    <?php endif;?>
+	
+    <table class="form-table">
+	<tr>
+	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of reminder emails"); ?></label></th>
+	<td>
+	<?php
+	 echo $form->createInput($reminderKey, 'checkbox', array(
+	 'id' => $reminderKey,
+	 'value' => 1
+	 ), $storedVal);
+	?>
+	</td>
+	</tr>
+    </table>
+	
 	    <?php if(is_admin()):?>
             <hr />
         <?php endif;?>
@@ -486,22 +508,7 @@ function extra_user_profile_fields($user){
         <?php user_target_fields($user); ?>
     </div>
     
-    <?php if(is_admin()):?>
-        <hr />
-    <?php endif;?>
-    <table class="form-table">
-	<tr>
-	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of reminder emails"); ?></label></th>
-	<td>
-	<?php
-	 echo $form->createInput($reminderKey, 'checkbox', array(
-	 'id' => $reminderKey,
-	 'value' => 1
-	 ), $storedVal);
-	?>
-	</td>
-	</tr>
-    </table>
+  
 	<?php
 }
 
@@ -519,7 +526,7 @@ function user_target_fields($user){
         <?php if(!is_admin()):?>
         <tr>
             <th>&nbsp;</th>
-            <th><h4>Personal portions</h4></th> 
+            <th><h4>Restricted day portions</h4></th> 
             <th><h4>Mediterranean portions</h4></th>
            
         </tr>
