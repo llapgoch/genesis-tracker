@@ -60,7 +60,7 @@
            
            
            <h2>Can I Still Follow The Diet?</h2>
-<p>If you are overweight and are still interested in losing weight you can follow our evidence-based 2 day diet. The diet is designed to be part of a healthy lifestyle that includes exercise and they and a diet that is:</p>
+<p>If you are overweight and are still interested in losing weight you can follow our evidence-based 2 day diet. The diet is designed to be part of a healthy lifestyle that includes exercise and a diet that is:</p>
 
 <ul>
                 <li>Low enough in calories to enable you to lose weight, but without leaving you feeling hungry.</li>

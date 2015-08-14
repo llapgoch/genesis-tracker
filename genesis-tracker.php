@@ -211,7 +211,7 @@ function genesis_add_registration_fields(){
   		</label>
   	</p>
       
-      <p class="message"><?php _e('You will recieve an email containing your registration details.<br />Keep this safe, you will need them when your account has been activated.'); ?></p>
+      <p class="message"><?php _e('You will receive an email containing your registration details.<br />Keep this safe, you will need them when your account has been activated.'); ?></p>
       <?php
 }
 
