@@ -97,7 +97,7 @@
     <?php if($exerciseLogs && count($exerciseLogs)) : ?>
         <hr />
     <h2>Last <?php echo count($exerciseLogs); ?> Exercise Logs</h2>
-     <table class="wp-list-table widefat ">
+     <table class="wp-list-table widefat">
          <thead>
              <th>Date</th>
              <th>Aerobic Exercise Minutes</th>
@@ -118,19 +118,21 @@
     
     <?php if($dietDays && count($dietDays)) : ?>
         <hr />
-        <h2>Last <?php echo count($dietDays) ?> Diet Tracker Entries</h2>
-        <table class="wp-list-table widefat ">
-            <thead>
-                <th>Date</th>
-            </thead>
-            <tbody>
-                <?php foreach($dietDays as $dietDay) : ?>
-                    <tr>
-                        <td><?php echo date('j M Y', strtotime($dietDay->day)); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
+        <h2>Diet Tracker Entries</h2>
+        <div class="table-scroller">
+			<table class="wp-list-table widefat ">
+	            <thead>
+	                <th>Date</th>
+	            </thead>
+	            <tbody>
+	                <?php foreach($dietDays as $dietDay) : ?>
+	                    <tr>
+	                        <td><?php echo date('j M Y', strtotime($dietDay->day)); ?></td>
+	                    </tr>
+	                <?php endforeach; ?>
+	                </tbody>
             </table>
+		</div>
     <?php endif; ?>
     
     <hr />

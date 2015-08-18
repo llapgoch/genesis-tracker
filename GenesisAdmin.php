@@ -6,10 +6,9 @@ class GenesisAdmin{
         $results = $wpdb->get_results($wpdb->prepare(
         'SELECT * FROM ' . GenesisTracker::getDietDayTableName() . '
             WHERE user_id=%d
-            ORDER BY day DESC
-            LIMIT 10', $user_id
+            ORDER BY day DESC', $user_id
         ));
-        
+
         return $results;
     }
 	
