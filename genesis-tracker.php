@@ -527,7 +527,7 @@ function user_target_fields($user){
         <tr>
             <th>&nbsp;</th>
             <th><h4>Restricted day portions</h4></th> 
-            <th><h4>Mediterranean portions</h4></th>
+            <th><h4>Mediterranean day portions</h4></th>
            
         </tr>
         <?php endif;?>
