@@ -118,7 +118,7 @@
     
     <?php if($dietDays && count($dietDays)) : ?>
         <hr />
-        <h2>Diet Tracker Entries</h2>
+        <h2>All Diet Tracker Entries</h2>
         <div class="table-scroller">
 			<table class="wp-list-table widefat ">
 	            <thead>
