@@ -27,7 +27,8 @@ class GenesisTracker{
     const maxHealthyWeightKey = "max_healthy_weight";
     const weightTargetKey        = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
-    
+    const sixMonthWeightKey		= "weight_six_months";
+	
     const userWithdrawnKey = "withdrawn";
     const userNotesKey     = "notes";
     
@@ -1634,6 +1635,13 @@ class GenesisTracker{
      
 	 public static function getInitialUserStartDate($user_id){
 		 return get_user_meta($user_id, self::getOptionKey(self::userStartDateKey), true);
+	 }
+	 
+	 public static function isUserSixMonths($user_id){
+	 	$initialDate = strtotime(self::getInitialUserStartDate($user_id));
+		$nowDate = strtotime(date('Y-m-d'));
+		
+		return floor(($nowDate - $initialDate)/2628000) > 6;
 	 }
      
 	 public static function getInitialUserUnit($user_id){
