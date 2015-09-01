@@ -1106,6 +1106,11 @@ class GenesisTracker{
 		 }
 	 }
 	 
+	 public static function makeValidWeight($weight){
+		 $weight = (float)$weight;
+		 return min(max(self::MIN_VALID_WEIGHT, $weight), self::MAX_VALID_WEIGHT);
+	 }
+	 
 	 public static function isValidWeight($weight){
 		 $weight = (float)$weight;
 		 return $weight >= self::MIN_VALID_WEIGHT && $weight <= self::MAX_VALID_WEIGHT;
