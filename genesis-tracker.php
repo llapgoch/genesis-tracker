@@ -251,10 +251,33 @@ function extra_user_profile_fields($user){
 
     $tel = get_the_author_meta('tel', $user->ID );
     $form = DP_HelperForm::createForm('userRegister');
+	
+	$initalUnit  = GenesisTracker::getInitialUserUnit($user->ID);
     
+	if($lastSavedUnit = get_the_author_meta(GenesisTracker::getOptionKey('last_profile_unit'), $user->ID)){
+		$isMetric = $lastSavedUnit == GenesisTracker::UNIT_METRIC;
+	}
+	
+	if(is_admin()){
+		$isMetric = true;
+	}
+	
+	$sixMonthWeightMain = "";
+	$sixMonthWeightPounds = "";
+	
+	if($sixMonthWeightVal){
+		if($isMetric){
+			$sixMonthWeightMain = $sixMonthWeightVal;
+		}else{
+			$weight = GenesisTracker::kgToStone($sixMonthWeightVal);
+		
+			$sixMonthWeightMain = $weight['stone'];
+			$sixMonthWeightPounds = $weight['pounds'];
+		}
+	}
 	
 	?>
-    <table class="form-table">
+    <table class="form-table input-form">
     	<tr>
     	<th><label for="tel"><?php _e("Telephone"); ?></label></th>
     	    <td>
@@ -274,15 +297,49 @@ function extra_user_profile_fields($user){
 		<?php if(GenesisTracker::isUserSixMonths($user->ID)):?>
 		<tr>
 			<th>
-				<label for="<?php echo $sixMonthWeightKey?>"><?php _e('Six Month Weight')?></label>
+				<label for="weight-main"><?php _e('Six Month Weight')?></label>
 			</th>
 			<td>
-				<?php echo $form->input($sixMonthWeightKey, 'text', array(
-					'default' => $sixMonthWeightVal,
-					'id' => $sixMonthWeightKey,
-					'class' => 'input regular-text',
-				));
-				?>
+				<?php if(is_admin() == false):?>
+				<div>
+					<?php
+					echo $form->dropdown('weight_unit', array(
+						'1' => 'Stone and Pounds',
+						'2' => 'Kilograms'
+					), array(
+						'class' => 'weight-unit',
+						'default' => $isMetric ? GenesisTracker::UNIT_METRIC : GenesisTracker::UNIT_IMPERIAL
+					));
+					?>
+				</div>
+				<?php endif;?>
+				<div class="input-wrapper">
+					<?php
+					echo $form->input('weight_main', 'text', array(
+						'class' => 'general-input weight-input regular-text',
+						'id' => 'weight-main',
+						'value' => $sixMonthWeightMain
+						));
+					?>
+					<?php if(is_admin() == false):?>
+					<p class="input-suffix weight metric <?php echo (!$isMetric ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
+					<p class="input-suffix weight imperial <?php echo ($isMetric ? 'hidden' : '');?>"><?php _e('stone');?></p>
+				<?php endif; ?>
+				</div>
+				<?php if(is_admin() == false):?>
+				<div class="input-wrapper">
+					<?php
+					echo $form->input('weight_pounds', 'text', array(
+						'class' => 'general-input regular-text weight-input weight imperial  ' . ($isMetric ? "hidden" : ""),
+						'id' => 'weight-pounds',
+						'value' => round($sixMonthWeightPounds, 2)
+						));
+					?>
+		
+					<p class="input-suffix weight imperial <?php echo ($isMetric ? 'hidden' : '');?>"><?php _e('pounds');?></p>
+				</div>
+				<?php endif; ?>
+				
 			</td>
 		</tr>
 		<?php endif; ?>
@@ -625,10 +682,24 @@ function save_extra_user_profile_fields($user_id){
 	update_user_meta( $user_id, $reminderKey, $val );
 	update_user_meta( $user_id, 'tel', $tel );
 	
-	if(GenesisTracker::isUserSixMonths($user_id) && isset($_POST[$sixMonthWeightKey])){
-		$startWeight = GenesisTracker::isValidWeight($_POST[$sixMonthWeightKey]) ? $_POST[$sixMonthWeightKey] : '';
+	if(GenesisTracker::isUserSixMonths($user_id) ){
+		$sixMonthWeight = $_POST['weight_main'];
 		
-		update_user_meta( $user_id, $sixMonthWeightKey, $startWeight );
+		if(is_admin() == false){
+			if($_POST['weight_unit'] == GenesisTracker::UNIT_METRIC){
+				$sixMonthWeight = $_POST['weight_main'];
+			}else{
+				$sixMonthWeight = GenesisTracker::stoneToKg($_POST['weight_main'], $_POST['weight_pounds']);
+			}
+		}
+		
+		if(GenesisTracker::isValidWeight($sixMonthWeight)){
+			update_user_meta( $user_id, $sixMonthWeightKey, $sixMonthWeight );
+			
+			if(is_admin() == false){
+				update_user_meta( $user_id, GenesisTracker::getOptionKey('last_profile_unit'), $_POST['weight_unit']);
+			}
+		}
 	}
 
     if(is_admin()){
