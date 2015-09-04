@@ -54,8 +54,12 @@ class GenesisAdmin{
         $results = $wpdb->get_results($sql = $wpdb->prepare( 
             "SELECT *, IFNULL(weight - initial_weight, 0) weight_change,
 			IF(weight - LEAST(lowest_weight, initial_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month), 1, 0) as gained_more_than_one_kg,
+			IF(user_registered < date_sub(now(), interval 6 month) 
+				AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change,
 			/* Use lease_weight instead of lowest_weight in result sets as it takes into account the initial weight */
-			LEAST(lowest_weight, initial_weight) as least_weight
+			LEAST(lowest_weight, initial_weight) as least_weight,
+			/* SET TO 10000 so we don't get a null value as min */
+			LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight) as benchmark_weight
 			 FROM 
                 (SELECT u.user_registered, u.user_email, u.ID user_id,  
             	MAX(measure_date) as measure_date, 
@@ -67,6 +71,7 @@ class GenesisAdmin{
                 IFNULL(user_contacted.`meta_value`, 0) as user_contacted,
                 IFNULL(withdrawn.`meta_value`, 0) as withdrawn,
                 notes.`meta_value` as notes,
+				six_month_weight.`meta_value` as six_month_weight,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
@@ -76,8 +81,13 @@ class GenesisAdmin{
                 WHERE NOT ISNULL(weight) 
                     AND user_id=u.ID
                 ORDER BY measure_date DESC 
-                LIMIT 1) as weight
-
+                LIMIT 1) as weight,
+        		(SELECT min(weight)
+                    FROM " . GenesisTracker::getTrackerTableName() . " 
+                WHERE NOT ISNULL(weight) 
+                    AND user_id=u.ID
+					AND measure_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+				) as min_weight_after_six_months
             FROM " . $wpdb->users . " u
                 LEFT JOIN " . GenesisTracker::getTrackerTableName() . " t
                 	ON u.ID = t.user_id
@@ -105,6 +115,9 @@ class GenesisAdmin{
                 LEFT JOIN " . $wpdb->usermeta . " as notes 
                     ON notes.user_id = u.ID
                     AND notes.meta_key = %s
+				LEFT JOIN " . $wpdb->usermeta . " as six_month_weight
+					ON six_month_weight.user_id = u.ID
+					AND six_month_weight.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -115,9 +128,11 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::eligibilityGroupSessionKey),
             GenesisTracker::getOptionKey(GenesisTracker::userContactedKey),
             GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey),
-            GenesisTracker::getOptionKey(GenesisTracker::userNotesKey)
+            GenesisTracker::getOptionKey(GenesisTracker::userNotesKey),
+			GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey)
         ), ARRAY_A);
        
+		echo $sql;
         // Return results for a single user
         if($user && $results){
             return $results[0];

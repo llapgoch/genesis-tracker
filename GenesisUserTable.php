@@ -29,7 +29,7 @@ class GenesisUserTable extends WP_List_Table {
           
          switch($column_name){
 			 case 'gained_more_than_one_kg' :
-				 if($item[$column_name]){
+				 if($item['six_month_benchmark_change'] >= 1){
 					 return '<span class="flag">F</span>';
 				 }
 				 return "";

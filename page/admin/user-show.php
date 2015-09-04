@@ -35,15 +35,19 @@
         <dt>Initial Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['initial_weight']) && $userDetails['initial_weight']) :
-                echo round($userDetails['initial_weight'], 2);
+                echo round($userDetails['initial_weight'], 4);
             else :
                 echo "- -";
             endif;
         ?></dd>
+		<dt>Six Month Weight (Kg)</dt>
+		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
+		<dt>Benchmark Weight(Kg)</dt>
+		<dd><?php echo ($userDetails['benchmark_weight'] ? $userDetails['benchmark_weight'] : "- -"); ?></dd>
         <dt>Current Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['weight']) && $userDetails['weight']) :
-                echo round($userDetails['weight'], 2);
+                echo round($userDetails['weight'], 4);
             else :
                 echo "- -";
             endif;
@@ -52,24 +56,26 @@
         <dt>Weight Change</dt>
         <dd><?php 
              if(isset($userDetails['weight_change']) && $userDetails['weight_change']) :
-                 echo round($userDetails['weight_change'], 2);
+                 echo round($userDetails['weight_change'], 4);
              else :
                  echo "- -";
              endif;
             ?>     
         </dt>
+		<dt>Benchmark Weight - Current Weight</dt>
+		<dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?></dd>
 		<dt>Lowest Weight (Kg)</dt>
 		<dd>
 			
             <?php if(isset($userDetails['least_weight']) && $userDetails['least_weight']) :
-                echo round($userDetails['least_weight'], 2);
+                echo round($userDetails['least_weight'], 4);
             else :
                 echo "- -";
             endif;
 			?>
 		</dd>
-		<dt>User Flagged (Registered for six months and gained 1kg from lowest point)</dt>
-		<dd><?php echo (int) $userDetails['gained_more_than_one_kg'] == 0 ? 'No' : '<span style="color:red">Yes</span>' ?>
+		<dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
+		<dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
     </dl>
     
 	<?php if($weightLogs && count($weightLogs)) : ?>
