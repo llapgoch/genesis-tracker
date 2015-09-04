@@ -246,7 +246,8 @@ function extra_user_profile_fields($user){
     $maxHealthyWeightVal = get_the_author_meta($maxHealthyWeightKey, $user->ID );
     $weightTargetVal     = get_the_author_meta($weightTargetKey, $user->ID );
     $sixMonthTargetVal   = get_the_author_meta($sixMonthTargetKey, $user->ID ); 
-	$sixMonthWeightVal   = get_the_author_meta($sixMonthWeightKey, $user->ID ); 
+	$sixMonthWeightVal   = GenesisTracker::getUserSixMonthWeight( $user->ID );
+	
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
     $tel = get_the_author_meta('tel', $user->ID );

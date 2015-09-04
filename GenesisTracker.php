@@ -382,6 +382,8 @@ class GenesisTracker{
              $message . '<a href="' . self::getUserPagePermalink() . '" class="button large blue">Go to your progress graph</a>'
          );
      }
+	 
+
      
      public static function userHasJustRegistered(){
          return isset($_GET['checkemail']) && $_GET['checkemail'] == 'registered';
@@ -1642,6 +1644,29 @@ class GenesisTracker{
 		$nowDate = strtotime(date('Y-m-d'));
 		
 		return floor(($nowDate - $initialDate)/2628000) > 6;
+	 }
+	 
+	 public function getUserSixMonthWeight($user_id){
+		 return get_the_author_meta(self::getOptionKey(self::sixMonthWeightKey), $user_id ); 
+	 }
+	 
+	 public function getBenchmarkWeight($user_id){
+		 if(!self::isUserSixMonths($user_id)){
+			 return false;
+		 }
+		 
+		 $res = $wpdb->get_row(
+			 $sql = $wpdb->prepare($sql = "SELECT MIN(weight) weight FROM " . self::getTrackerTableName() . " 
+				 	WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+			 		AND user_id = %d", $user_id)
+		);
+		
+		var_dump($res);
+		
+		$sixMonthWeight = self::getUserSixMonthWeight($user_id);
+		
+		
+			
 	 }
      
 	 public static function getInitialUserUnit($user_id){
