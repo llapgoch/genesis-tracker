@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 session_start();
 require_once('includes.php');
 
-
+DEFINE(DS, DIRECTORY_SEPARATOR);
 
 register_activation_hook( __FILE__, array('GenesisTracker', 'install'));
 
@@ -147,6 +147,10 @@ if(!is_admin()){
         
         return $message;
     });
+}else{
+	// ADMIN HOOK - EXECUTE BEFORE HEADERS -- USE THIS TO CALL ADMIN METHODS AND THEN REDIRECT FOR EXAMPLE
+	add_action('admin_init', array('GenesisAdmin', 'doAdminInitHook'));
+	add_action('admin_notices', array('GenesisAdmin', 'doAdminNotices'));
 }
 
 
@@ -155,8 +159,6 @@ add_action( 'show_user_profile', 'extra_user_profile_fields',1 );
 
 add_action( 'edit_user_profile', 'extra_user_profile_fields' ,1);
 //add_action( 'edit_user_profile', 'user_target_fields' ,2);
-
-
 
 
 add_action( 'personal_options_update', 'save_extra_user_profile_fields' );
@@ -756,6 +758,24 @@ function genesis_admin_page(){
     }
     
 	genesis_admin_user_list();
+}
+
+function genesis_admin_send_red_flag_email(){
+	global $wpdb;
+	
+	if(isset($_POST['user'])){
+		$result = GenesisTracker::sendRedFlagEmail($_POST['user_id']);
+		
+		if(is_array($result)){
+			GenesisAdmin::addAdminNotice('error', $result['message']);
+		}else{
+			GenesisAdmin::addAdminNotice('updated', 'A red flag email has been successfully sent to this user');
+		}
+		
+		wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
+		// Exit so we go no further after the redirect
+		exit;
+	}
 }
 
 function genesis_admin_user_list(){

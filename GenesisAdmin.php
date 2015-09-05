@@ -1,5 +1,35 @@
 <?php
 class GenesisAdmin{
+	public static function doAdminInitHook(){
+		// Use get as the function name to execute
+		if(isset($_GET['sub']) && is_admin()){
+			if(strpos($_GET['sub'], "genesis_admin_") === 0){
+				if(function_exists($_GET['sub'])){
+					call_user_func($_GET['sub']);
+				}
+			}
+		}
+	}
+	
+	public static function doAdminNotices(){
+		$key = GenesisTracker::getOptionKey(GenesisTracker::adminNoticesSessionKey);
+		if(isset($_SESSION[$key])){
+			foreach($_SESSION[$key] as $notice){
+				echo '<div class=' . $notice["type"] . '><p>' . $notice["message"] . '</p></div>';
+			}
+			unset($_SESSION[$key]);
+		}
+	}
+	
+	public static function addAdminNotice($type = 'updated', $message){
+		$key = GenesisTracker::getOptionKey(GenesisTracker::adminNoticesSessionKey);
+		if(!isset($_SESSION[$key])){
+			$_SESSION[$key] = array();
+		}
+		
+		$_SESSION[$key][] = array("type" => $type, "message" => $message);
+	}
+	
     public static function getDietDaysForUser($user_id){
         global $wpdb;
         
@@ -53,9 +83,13 @@ class GenesisAdmin{
         
         $results = $wpdb->get_results($sql = $wpdb->prepare( 
             "SELECT *, IFNULL(weight - initial_weight, 0) weight_change,
-			IF(weight - LEAST(lowest_weight, initial_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month), 1, 0) as gained_more_than_one_kg,
+			/* IF(weight - LEAST(lowest_weight, initial_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month), 1, 0) as gained_more_than_one_kg, */
+			/* This first one is without the red flag email check */
 			IF(user_registered < date_sub(now(), interval 6 month) 
 				AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change,
+			/* This one is with the red flag email check */
+			IF(red_flag_email_date IS NULL AND user_registered < date_sub(now(), interval 6 month) 
+					AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change_email_check,
 			/* Use lease_weight instead of lowest_weight in result sets as it takes into account the initial weight */
 			LEAST(lowest_weight, initial_weight) as least_weight,
 			/* SET TO 10000 so we don't get a null value as min */
@@ -72,6 +106,7 @@ class GenesisAdmin{
                 IFNULL(withdrawn.`meta_value`, 0) as withdrawn,
                 notes.`meta_value` as notes,
 				six_month_weight.`meta_value` as six_month_weight,
+				red_flag_email_date.`meta_value` as red_flag_email_date,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
@@ -86,7 +121,7 @@ class GenesisAdmin{
                     FROM " . GenesisTracker::getTrackerTableName() . " 
                 WHERE NOT ISNULL(weight) 
                     AND user_id=u.ID
-					AND measure_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+					AND measure_date >= DATE_ADD(user_registered, INTERVAL 6 MONTH)
 				) as min_weight_after_six_months
             FROM " . $wpdb->users . " u
                 LEFT JOIN " . GenesisTracker::getTrackerTableName() . " t
@@ -118,6 +153,9 @@ class GenesisAdmin{
 				LEFT JOIN " . $wpdb->usermeta . " as six_month_weight
 					ON six_month_weight.user_id = u.ID
 					AND six_month_weight.meta_key = %s
+				LEFT JOIN " . $wpdb->usermeta . " as red_flag_email_date
+					ON red_flag_email_date.user_id = u.ID
+					AND red_flag_email_date.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -129,10 +167,10 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::userContactedKey),
             GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey),
             GenesisTracker::getOptionKey(GenesisTracker::userNotesKey),
-			GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey)
+			GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey),
+			GenesisTracker::getOptionKey(GenesisTracker::redFlagEmailDateKey)
         ), ARRAY_A);
        
-		echo $sql;
         // Return results for a single user
         if($user && $results){
             return $results[0];

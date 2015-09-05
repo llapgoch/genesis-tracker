@@ -23,13 +23,11 @@ class GenesisUserTable extends WP_List_Table {
 	  public function column_default($item, $column_name){
          $noValue = '- -';
          
-         if(!isset($item[$column_name])){
-             return $noValue;
-         }
+        
           
          switch($column_name){
 			 case 'gained_more_than_one_kg' :
-				 if($item['six_month_benchmark_change'] >= 1){
+				 if($item['six_month_benchmark_change_email_check'] >= 1){
 					 return '<span class="flag">F</span>';
 				 }
 				 return "";
@@ -69,6 +67,9 @@ class GenesisUserTable extends WP_List_Table {
              case 'withdrawn' : 
                  return $item[$column_name] ? $this->wrapRed('Yes') : 'No';
              default:
+	         	if(!isset($item[$column_name])){
+	            	 return $noValue;
+	         	}
                  return $item[$column_name] ? $item[$column_name] : $noValue;
          }
      }
@@ -117,7 +118,7 @@ class GenesisUserTable extends WP_List_Table {
     
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
-					   'gained_more_than_one_kg' => array('gained_more_than_one_kg', false),
+					   'gained_more_than_one_kg' => array('six_month_benchmark_change_email_check', false),
                        'user_name'          => array('user_name', false),
 		               'user_email'         => array('user_email',false),
                        'user_registered_timestamp' => array('user_registered_timestamp', false),

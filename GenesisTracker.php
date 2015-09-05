@@ -17,7 +17,9 @@ class GenesisTracker{
 	const weightEnterSessionKey = "___WEIGHT_ENTER___";
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
+	const adminNoticesSessionKey 	 = "___ADMIN_NOTICES";
 	const targetPageId = "tracker_page";
+	const alternateContactEmail = "lifestyleresearch@nhs.net";
 	
     const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
@@ -28,6 +30,7 @@ class GenesisTracker{
     const weightTargetKey        = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const sixMonthWeightKey		= "weight_six_months";
+	const redFlagEmailDateKey = "red_flag_email_date";
 	
     const userWithdrawnKey = "withdrawn";
     const userNotesKey     = "notes";
@@ -729,6 +732,10 @@ class GenesisTracker{
 	 
 	 public static function convertDBDate($dbDate){
 		 return date("d-m-Y", strtotime($dbDate));
+	 }
+	 
+	 public static function convertDBDatetime($dbDate){
+		 return date("d/m/Y H:i:s", strtotime($dbDate));
 	 }
 	 
 	 public static function userInputPageAction(){
@@ -1650,25 +1657,6 @@ class GenesisTracker{
 		 return get_the_author_meta(self::getOptionKey(self::sixMonthWeightKey), $user_id ); 
 	 }
 	 
-	 public function getBenchmarkWeight($user_id){
-		 if(!self::isUserSixMonths($user_id)){
-			 return false;
-		 }
-		 
-		 $res = $wpdb->get_row(
-			 $sql = $wpdb->prepare($sql = "SELECT MIN(weight) weight FROM " . self::getTrackerTableName() . " 
-				 	WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-			 		AND user_id = %d", $user_id)
-		);
-		
-		var_dump($res);
-		
-		$sixMonthWeight = self::getUserSixMonthWeight($user_id);
-		
-		
-			
-	 }
-     
 	 public static function getInitialUserUnit($user_id){
          if(!self::$_initialUserUnit){
              self::$_initialUserUnit = get_user_meta($user_id, self::getOptionKey(self::userInitialUnitSelectionKey), true);
@@ -2612,6 +2600,57 @@ class GenesisTracker{
      public static function getLogoUrl(){
          return plugins_url('images/genesis-logo@2x.png', __FILE__);
      }
+	 
+	 public static function sendRedFlagEmail($userId){
+		 
+ 		if($userDetails = GenesisAdmin::getUserLogDetails(null, $_POST['user'])){
+ 			if($userDetails['six_month_benchmark_change_email_check'] >= 1){
+ 				$uploadsDir = wp_upload_dir();
+				$user = get_userdata($_POST['user']);
+				$body = self::getTemplateContents('red-flag');
+				
+				$body = str_replace(array(
+					'%genesis_logo%',
+					'%user_nicename%',
+					'%two_day_diet_link%',
+					'%contact_email%',
+					'%hints_and_tips_link%',
+					'%diet_day_link%',
+					'%mediterranean_day_link',
+					'%newsletters_link%',
+				),
+				array(
+					self::getLogoUrl(),
+					$user->user_firstname,
+					$uploadsDir['url'] . '2015/06/PROCAS-Lifestyle-The-2-Day-Diet-Keeping-weight-off-V1-27.5.15.pdf',
+					self::alternateContactEmail,
+					site_url('faq'),
+					site_url('2-day-recipes'),
+					site_url('mediterranean-recipes'),
+					site_url('newsletters')
+				), $body);
+				
+				 if(wp_mail($user->user_email, 'Red Flag Notification', $body, self::getEmailHeaders())){
+					 // Mark user's account
+					update_user_meta( $user->ID, self::getOptionKey(self::redFlagEmailDateKey),  current_time('Y-m-d H:i:s'));
+					return true;
+					
+				}else{
+					return array(
+						'message' => 'The email failed to send'
+					);
+				}
+ 			}else{
+ 				return array(
+					'message' => 'The user is not eligible for a red flag email'
+ 				);
+ 			}
+ 		}else{
+ 			return array(
+ 				'message' => 'No logs for this user could be found'
+ 			);
+ 		}
+	 }
 	 
 	 public static function sendReminderEmail(){
 		 // Sends a reminder email to all users
