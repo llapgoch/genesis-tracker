@@ -42,8 +42,17 @@
         ?></dd>
 		<dt>Six Month Weight (Kg)</dt>
 		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
-		<dt>Benchmark Weight(Kg)</dt>
-		<dd><?php echo ($userDetails['benchmark_weight'] ? $userDetails['benchmark_weight'] : "- -"); ?></dd>
+		<dt>Lowest Recorded Weight (Kg)</dt>
+		<dd>
+            <?php if(isset($userDetails['least_weight']) && $userDetails['least_weight']) :
+                echo round($userDetails['least_weight'], 4);
+            else :
+                echo "- -";
+            endif;
+			?>
+		</dd>
+		<dt>Benchmark Weight (Kg)</dt>
+		<dd><?php echo ($userDetails['benchmark_weight'] ? round($userDetails['benchmark_weight'], 4) : "- -"); ?></dd>
         <dt>Current Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['weight']) && $userDetails['weight']) :
@@ -53,7 +62,7 @@
             endif;
             ?>  
         </dd>
-        <dt>Weight Change</dt>
+        <dt>Weight Change (Kg)</dt>
         <dd><?php 
              if(isset($userDetails['weight_change']) && $userDetails['weight_change']) :
                  echo round($userDetails['weight_change'], 4);
@@ -62,18 +71,19 @@
              endif;
             ?>     
         </dt>
-		<dt>Benchmark Weight - Current Weight</dt>
-		<dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?></dd>
-		<dt>Lowest Weight (Kg)</dt>
+		<dt>Current Weight Minus Benchmark Weight (Kg)</dt>
 		<dd>
-			
-            <?php if(isset($userDetails['least_weight']) && $userDetails['least_weight']) :
-                echo round($userDetails['least_weight'], 4);
-            else :
-                echo "- -";
-            endif;
-			?>
+			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_red_flag_email')); ?>" method="post">
+			<?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
+
+				<input type="hidden" name="user" value="<?php echo $user->ID;?>" />
+				<button <?php echo $userDetails['six_month_benchmark_change_email_check'] < 1 ? 'disabled="disabled"' : '';?> type="submit">Send Red Flag Email</button>
+				<?php if($dateSent = $userDetails['red_flag_email_date']): ?>
+					<span style="font-style:italic;margin-left:5px">Sent at: <strong><?php echo GenesisTracker::convertDBDatetime($userDetails['red_flag_email_date']); ?></strong></span>
+				<?php endif; ?>
+			</form>
 		</dd>
+		
 		<dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
 		<dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
     </dl>
