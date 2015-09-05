@@ -2616,7 +2616,7 @@ class GenesisTracker{
 					'%contact_email%',
 					'%hints_and_tips_link%',
 					'%diet_day_link%',
-					'%mediterranean_day_link',
+					'%mediterranean_day_link%',
 					'%newsletters_link%',
 				),
 				array(
