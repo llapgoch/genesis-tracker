@@ -612,13 +612,14 @@ function save_extra_user_profile_fields($user_id){
             $targetWeight = isset($_POST[$weightTargetKey]) ? (float)$_POST[$weightTargetKey] : '';
             $sixMonthTargetWeight = isset($_POST[$sixMonthTargetKey]) ? (float)$_POST[$sixMonthTargetKey] : '';
             
-			$initialWeight = GenesisTracker::makeValidWeight($_POST[$startWeightKey]);
+			if((float) $_POST[$startWeightKey]){
+				update_user_meta( $user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]) );
+			}
 			
         	update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
         	update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
             update_user_meta( $user_id, $weightTargetKey, $targetWeight );
             update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
-			update_user_meta( $user_id, $startWeightKey, $initialWeight );
     }
     
     
