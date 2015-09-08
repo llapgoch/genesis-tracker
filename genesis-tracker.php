@@ -278,10 +278,15 @@ function extra_user_profile_fields($user){
 				<label for="<?php echo $startWeightKey?>"><?php _e("Initial Weight (Kg)")?></label>
 			</th>
 			<td>
-				<?php echo $form->input($startWeightKey, 'text', array(
+				<?php $settings = array(
 					'default' => $startWeight,
 					'id' => $startWeightKey
-				));
+				);
+				
+				if(!$startWeight){
+					$settings['disabled'] = 'disabled';
+				}
+				echo $form->input($startWeightKey, 'text', $settings);
 				?>
 			</td>
 		</tr>
