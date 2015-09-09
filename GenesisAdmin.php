@@ -90,6 +90,9 @@ class GenesisAdmin{
 			/* This one is with the red flag email check */
 			IF(red_flag_email_date IS NULL AND user_registered < date_sub(now(), interval 6 month) 
 					AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change_email_check,
+			IF(six_month_weight IS NOT NULL AND user_registered + INTERVAL 6 MONTH + INTERVAL 4 WEEK < NOW(), 
+				IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
+			NULL) as four_week_required_to_send,
 			/* Use lease_weight instead of lowest_weight in result sets as it takes into account the initial weight */
 			LEAST(lowest_weight, initial_weight) as least_weight,
 			/* SET TO 10000 so we don't get a null value as min */
@@ -107,6 +110,8 @@ class GenesisAdmin{
                 notes.`meta_value` as notes,
 				six_month_weight.`meta_value` as six_month_weight,
 				red_flag_email_date.`meta_value` as red_flag_email_date,
+				four_weekly_date.`meta_value` as four_weekly_date,
+				UNIX_TIMESTAMP(four_weekly_date.`meta_value`) as four_weekly_date_timestamp,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
@@ -156,6 +161,9 @@ class GenesisAdmin{
 				LEFT JOIN " . $wpdb->usermeta . " as red_flag_email_date
 					ON red_flag_email_date.user_id = u.ID
 					AND red_flag_email_date.meta_key = %s
+				LEFT JOIN " . $wpdb->usermeta . " as four_weekly_date
+					ON four_weekly_date.user_id = u.ID
+					AND four_weekly_date.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -168,9 +176,11 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey),
             GenesisTracker::getOptionKey(GenesisTracker::userNotesKey),
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey),
-			GenesisTracker::getOptionKey(GenesisTracker::redFlagEmailDateKey)
+			GenesisTracker::getOptionKey(GenesisTracker::redFlagEmailDateKey),
+			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey)
         ), ARRAY_A);
        
+
         // Return results for a single user
         if($user && $results){
             return $results[0];

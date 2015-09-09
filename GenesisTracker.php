@@ -31,6 +31,7 @@ class GenesisTracker{
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const sixMonthWeightKey		= "weight_six_months";
 	const redFlagEmailDateKey = "red_flag_email_date";
+	const fourWeekleyEmailDateKey = "four_weekly_email_date";
 	
     const userWithdrawnKey = "withdrawn";
     const userNotesKey     = "notes";
@@ -1661,6 +1662,10 @@ class GenesisTracker{
 	 
 	 public function getUserSixMonthWeight($user_id){
 		 return get_the_author_meta(self::getOptionKey(self::sixMonthWeightKey), $user_id ); 
+	 }
+	 
+	 public function getUserFourWeekleyEmailDate($user_id){
+		 return get_the_author_meta(self::getOptionKey(self::fourWeekleyEmailDateKey), $user_id);
 	 }
 	 
 	 public static function getInitialUserUnit($user_id){

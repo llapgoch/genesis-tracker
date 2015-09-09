@@ -66,6 +66,17 @@ class GenesisUserTable extends WP_List_Table {
                  return (int)$item[$column_name] ? 'Yes' : $this->wrapRed('No');
              case 'withdrawn' : 
                  return $item[$column_name] ? $this->wrapRed('Yes') : 'No';
+			 case 'four_weekly_date_timestamp' :
+				 if($item['four_week_required_to_send'] && !$item['four_weekly_date_timestamp']){
+					 return $this->wrapRed('Never');
+				 }
+				 
+				 if(!$item['four_weekly_date_timestamp']){
+					 return '- -';
+				 }
+				 $date = gmdate('d M Y', strtotime($item['four_weekly_date_timestamp']));
+				 
+				 return $item['four_week_required_to_send'] ? $this->wrapRed($date) : $date;
              default:
 	         	if(!isset($item[$column_name])){
 	            	 return $noValue;
@@ -106,6 +117,7 @@ class GenesisUserTable extends WP_List_Table {
                     'user_registered_timestamp'       => 'Register Date',
                     'passcode_group'        => 'Passcode Group',
 		            'unix_timestamp'        => 'Last Measurement Date',
+					'four_weekly_date_timestamp' => 'Last Four Week Email',
                     'user_contacted'        => 'Contacted',
                     'withdrawn'             => 'Withdrawn',
 					 'account_active'       => 'Active',
@@ -130,7 +142,8 @@ class GenesisUserTable extends WP_List_Table {
                        'withdrawn'          => array('withdrawn', false),
                        'account_active'     => array('account_active', false),
                        'weight_change'      => array('weight_change', false),
-                       'unix_timestamp'     => array('unix_timestamp', true)
+                       'unix_timestamp'     => array('unix_timestamp', true),
+					   'four_weekly_date_timestamp' => array('four_week_required_to_send')
 		           );
 		           return $sortable_columns;
 		       }
