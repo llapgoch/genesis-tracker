@@ -1,6 +1,11 @@
 <?php
 class GenesisAdmin{
 	public static function doAdminInitHook(){
+		global $pagenow;
+		
+		wp_enqueue_script('jquery-ui-datepicker');
+		wp_enqueue_style('jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+			
 		// Use get as the function name to execute
 		if(isset($_GET['sub']) && is_admin()){
 			if(strpos($_GET['sub'], "genesis_admin_") === 0){
@@ -8,6 +13,12 @@ class GenesisAdmin{
 					call_user_func($_GET['sub']);
 				}
 			}
+		}
+		
+		if($pagenow == 'profile.php'){
+            wp_register_script('genesis-admin-profile', plugins_url('js/admin-profile.js', __FILE__), array('jquery-ui-datepicker'));
+			
+			wp_enqueue_script('genesis-admin-profile');
 		}
 	}
 	
