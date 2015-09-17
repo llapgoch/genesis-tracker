@@ -96,12 +96,12 @@ class GenesisAdmin{
             "SELECT *, IFNULL(weight - initial_weight, 0) weight_change,
 			/* IF(weight - LEAST(lowest_weight, initial_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month), 1, 0) as gained_more_than_one_kg, */
 			/* This first one is without the red flag email check */
-			IF(user_registered < date_sub(now(), interval 6 month) 
+			IF(six_month_date IS NOT NULL 
 				AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change,
 			/* This one is with the red flag email check */
-			IF(red_flag_email_date IS NULL AND user_registered < date_sub(now(), interval 6 month) 
+			IF(red_flag_email_date IS NULL AND six_month_date IS NOT NULL
 					AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change_email_check,
-			IF(six_month_weight IS NOT NULL AND user_registered + INTERVAL 6 MONTH + INTERVAL 4 WEEK < NOW(), 
+			IF(six_month_weight IS NOT NULL AND six_month_date IS NOT NULL AND six_month_date + INTERVAL 4 WEEK < NOW(), 
 				IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
 			NULL) as four_week_required_to_send,
 			/* Use lease_weight instead of lowest_weight in result sets as it takes into account the initial weight */
@@ -125,6 +125,7 @@ class GenesisAdmin{
 				UNIX_TIMESTAMP(four_weekly_date.`meta_value`) as four_weekly_date_timestamp,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
+				six_month_date.meta_value as six_month_date,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
                 UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
         		(SELECT weight 
@@ -175,6 +176,9 @@ class GenesisAdmin{
 				LEFT JOIN " . $wpdb->usermeta . " as four_weekly_date
 					ON four_weekly_date.user_id = u.ID
 					AND four_weekly_date.meta_key = %s
+				LEFT JOIN " . $wpdb->usermeta . " as six_month_date
+					ON six_month_date.user_id = u.ID
+					AND six_month_date.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -188,7 +192,8 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::userNotesKey),
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey),
 			GenesisTracker::getOptionKey(GenesisTracker::redFlagEmailDateKey),
-			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey)
+			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey),
+			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
         ), ARRAY_A);
        
 
