@@ -825,6 +825,8 @@ function genesis_admin_user_show($user){
 	$weightLogs = GenesisAdmin::getWeightLogsForUser($user->ID);
     $dietDays = GenesisAdmin::getDietDaysForUser($user->ID);
     
+	var_dump($userDetails['user_id']);
+	
     include('page/admin/user-show.php');
 }
 

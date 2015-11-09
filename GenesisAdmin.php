@@ -1,20 +1,25 @@
 <?php
 class GenesisAdmin{
-	public static function getFourWeekEmailTypes(){
+	const WEIGHT_GAINING = "GAINING";
+	const WEIGHT_LOSING  = "LOSING";
+	const WEIGHT_MAINTAINING = "MAINTAINING";
+	
+	public static function getFourWeekEmailTypes(){		
 		return array(
 			'GAINING' 	=> 'Weight gaining',
 			'LOSING' 	=> 'Weight losing',
-			'MAINTAIN'	=> 'Weight maintaining'
+			'MAINTAINING'	=> 'Weight maintaining',
 			'NOTHING'	=> 'No weight recorded'
 		);
 	}
 	
-	public static function userIsClassedAsLosing(){
+	public static function userIsClassedAsLosing($user_id){
 		// This is for the four weekly emails.
 		// A user is considered as losing if their two consecutive weights
 		// prior to their newest log indicate a downward trend
+		global $wpdb;
 		
-		$results = $wpdb->get_results( $wpdb->prepare("
+		$results = $wpdb->get_results( $wpdb->prepare($sql = "
 			SELECT *
 		 FROM
 			(SELECT measure_date, weight, 
@@ -24,12 +29,26 @@ class GenesisAdmin{
 				ON um.`user_id` = t.`user_id`
 				AND um.`meta_key` = %s
 				WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+				AND t.user_id = %d
 			ORDER BY measure_date) as weight_data
 		WHERE
 			measure_date >= six_month_date",
-			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
-		);
+			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
+			$user_id
+		));
 		
+		// Remove the latest weight
+		array_pop($results);
+		
+		if(count($results) < 2){
+			return false;
+		}
+		
+		$last = array_pop($results);
+		$penultimate = array_pop($results);
+		
+		// Not sure what inducates a downward trend
+		return $last->weight < $penultimate->weight;
 	}
 	
 	public static function doAdminInitHook(){
@@ -137,8 +156,15 @@ class GenesisAdmin{
 				IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
 			NULL) as four_week_required_to_send,
 			/* Use least_weight instead of lowest_weight in result sets as it takes into account the initial weight */
-			LEAST(lowest_weight, initial_weight) as least_weight
-			/* SET TO 10000 so we don't get a null value as min */
+			LEAST(lowest_weight, initial_weight) as least_weight,
+			IF(four_weekly_weight IS NULL, 'NOTHING', 
+				IF(six_month_weight - four_weekly_weight >= 1, 'LOSING',
+					IF(six_month_weight - four_weekly_weight <= -1, 'GAINING',
+						'MAINTAINING'
+					)
+				)
+			) as four_week_outcome
+			
 			 FROM 
                 (SELECT u.user_registered, u.user_email, u.ID user_id,  
             	MAX(measure_date) as measure_date, 
@@ -174,6 +200,7 @@ class GenesisAdmin{
 				(SELECT weight 
 					FROM " . GenesisTracker::getTrackerTableName() . "
 					WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+						AND measure_date > six_month_date
 						AND weight IS NOT NULL
 					ORDER BY measure_date DESC
 					LIMIT 1
@@ -234,6 +261,19 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey),
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
         ), ARRAY_A);
+		
+		foreach($results as $result){
+			// Do the four weekly logic
+			
+			if($result['four_week_outcome'] !== self::WEIGHT_MAINTAINING){
+				continue;
+			}
+			
+			if($isLosingResult = self:userIsClassedAsLosing($result['user_id'])){
+				$result['four_week_outcome'] = self::WEIGHT_LOSING;
+			}
+			
+		}
 
         // Return results for a single user
         if($user && $results){
