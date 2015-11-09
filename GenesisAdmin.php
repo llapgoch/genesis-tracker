@@ -1,5 +1,37 @@
 <?php
 class GenesisAdmin{
+	public static function getFourWeekEmailTypes(){
+		return array(
+			'GAINING' 	=> 'Weight gaining',
+			'LOSING' 	=> 'Weight losing',
+			'MAINTAIN'	=> 'Weight maintaining'
+			'NOTHING'	=> 'No weight recorded'
+		);
+	}
+	
+	public static function userIsClassedAsLosing(){
+		// This is for the four weekly emails.
+		// A user is considered as losing if their two consecutive weights
+		// prior to their newest log indicate a downward trend
+		
+		$results = $wpdb->get_results( $wpdb->prepare("
+			SELECT *
+		 FROM
+			(SELECT measure_date, weight, 
+			um.`meta_value` as six_month_date
+			FROM " . GenesisTracker::getTrackerTableName() . " t
+			LEFT JOIN " . $wpdb->usermeta . " um
+				ON um.`user_id` = t.`user_id`
+				AND um.`meta_key` = %s
+				WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+			ORDER BY measure_date) as weight_data
+		WHERE
+			measure_date >= six_month_date",
+			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
+		);
+		
+	}
+	
 	public static function doAdminInitHook(){
 		global $pagenow;
 		
@@ -104,10 +136,9 @@ class GenesisAdmin{
 			IF(six_month_weight IS NOT NULL AND six_month_date IS NOT NULL AND six_month_date + INTERVAL 4 WEEK < NOW(), 
 				IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
 			NULL) as four_week_required_to_send,
-			/* Use lease_weight instead of lowest_weight in result sets as it takes into account the initial weight */
-			LEAST(lowest_weight, initial_weight) as least_weight,
+			/* Use least_weight instead of lowest_weight in result sets as it takes into account the initial weight */
+			LEAST(lowest_weight, initial_weight) as least_weight
 			/* SET TO 10000 so we don't get a null value as min */
-			LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight) as benchmark_weight
 			 FROM 
                 (SELECT u.user_registered, u.user_email, u.ID user_id,  
             	MAX(measure_date) as measure_date, 
@@ -139,7 +170,15 @@ class GenesisAdmin{
                 WHERE NOT ISNULL(weight) 
                     AND user_id=u.ID
 					AND measure_date >= DATE_ADD(user_registered, INTERVAL 6 MONTH)
-				) as min_weight_after_six_months
+				) as min_weight_after_six_months,
+				(SELECT weight 
+					FROM " . GenesisTracker::getTrackerTableName() . "
+					WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+						AND weight IS NOT NULL
+					ORDER BY measure_date DESC
+					LIMIT 1
+				) as four_weekly_weight
+				
             FROM " . $wpdb->users . " u
                 LEFT JOIN " . GenesisTracker::getTrackerTableName() . " t
                 	ON u.ID = t.user_id
@@ -195,7 +234,6 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey),
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
         ), ARRAY_A);
-       
 
         // Return results for a single user
         if($user && $results){
