@@ -86,6 +86,35 @@
 		
 		<dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
 		<dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
+			
+			
+		<dt>Four Weekly Emails</dt>
+		<dd>
+			<?php if($userDetails['four_week_required_to_send']):?>
+			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_four_weekly_email'))?>">
+				<table class="four-weekly">
+					<?php foreach(GenesisAdmin::getFourWeekEmailTypes() as $key => $label): ?>
+						<?php $suggested = $key == $userDetails['four_week_outcome'] ?>
+						<tr class="<?php echo $suggested ? 'suggested' : '' ?>">
+							<td><?php echo $label ?></td>
+							<td><button type="submit" value="<?php echo $key;?>">Send</td>
+							<td>
+								<?php if($suggested): ?>
+									<em>The system suggests this email. Please check against their log data before sending</em>
+								<?php else: ?>
+									&nbsp;
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				</table>
+			</form>
+		<?php elseif($userDetails['four_weekly_date']): ?>
+			<em>This user was last sent a four weekly email on the <?php echo $userDetails['four_weekly_date']?></em>
+		<?php else: ?>
+			<em>This user has not been subscribed long enough or has not been given a six month date</em>
+		<?php endif; ?>
+		</dd>
     </dl>
     
 	<?php if($weightLogs && count($weightLogs)) : ?>

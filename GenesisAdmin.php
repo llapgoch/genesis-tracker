@@ -48,7 +48,7 @@ class GenesisAdmin{
 		$penultimate = array_pop($results);
 		
 		// Not sure what inducates a downward trend
-		return $last->weight < $penultimate->weight;
+		return (float) $last->weight < (float) $penultimate->weight;
 	}
 	
 	public static function doAdminInitHook(){
@@ -262,14 +262,14 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
         ), ARRAY_A);
 		
-		foreach($results as $result){
+		foreach($results as &$result){
 			// Do the four weekly logic
 			
 			if($result['four_week_outcome'] !== self::WEIGHT_MAINTAINING){
 				continue;
 			}
 			
-			if($isLosingResult = self:userIsClassedAsLosing($result['user_id'])){
+			if($isLosingResult = self::userIsClassedAsLosing($result['user_id'])){
 				$result['four_week_outcome'] = self::WEIGHT_LOSING;
 			}
 			
