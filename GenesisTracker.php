@@ -2613,12 +2613,65 @@ class GenesisTracker{
          return plugins_url('images/genesis-logo@2x.png', __FILE__);
      }
 	 
+	 public static function sendFourWeeklyEmail($userId, $type){
+		 if(!in_array($type, array_keys(GenesisAdmin::getFourWeekEmailTypes()))){
+			 return array(
+				 'message' => 'Invalid type'
+			 );
+		 }
+		 
+		 if(!$user = get_userdata($userId)){
+			 return array(
+				 'message' => 'Invalid user'
+			 );
+		 }
+		 
+		$uploadsDir = wp_upload_dir();
+		$body = self::getTemplateContents('four-weekly-' . strtolower($type));
+		
+		$body = str_replace(array(
+			'%genesis_logo%',
+			'%user_nicename%',
+			'%contact_email%',
+			'%healthy_weight_range_link%',
+			'%keeping_the_weight_off_link%',
+			'%hints_and_tips_link%',
+			'%diet_day_link%',
+			'%med_day_link%',
+			'%newsletters_link%',
+			
+		),
+		array(
+			self::getLogoUrl(),
+			$user->user_firstname,
+			self::alternateContactEmail,
+			site_url('your-profile'),
+			$uploadsDir['url'] . '2015/06/PROCAS-Lifestyle-The-2-Day-Diet-Keeping-weight-off-V1-27.5.15.pdf',
+			site_url('faq'),
+			site_url('2-day-recipes'),
+			site_url('mediterranean-recipes'),
+			site_url('newsletters')
+		), $body);
+		
+	 	if(wp_mail($user->user_email, 'Four Weekly Emails', $body, self::getEmailHeaders())){
+		 // Mark user's account
+			update_user_meta( $user->ID, self::getOptionKey(self::fourWeekleyEmailDateKey),  current_time('Y-m-d H:i:s'));
+			return true;
+		}else{
+		
+			return array(
+				'message' => 'The email failed to send'
+			);
+		}
+		
+	 }
+	 
 	 public static function sendRedFlagEmail($userId){
 		 
- 		if($userDetails = GenesisAdmin::getUserLogDetails(null, $_POST['user'])){
+ 		if($userDetails = GenesisAdmin::getUserLogDetails(null, $userId)){
  			if($userDetails['six_month_benchmark_change_email_check'] >= 1){
  				$uploadsDir = wp_upload_dir();
-				$user = get_userdata($_POST['user']);
+				$user = get_userdata($userId);
 				$body = self::getTemplateContents('red-flag');
 				
 				$body = str_replace(array(

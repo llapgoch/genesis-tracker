@@ -828,6 +828,23 @@ function genesis_admin_user_show($user){
     include('page/admin/user-show.php');
 }
 
+function genesis_admin_send_four_weekly_email(){
+	global $wpdb;
+	if(!get_user_by('id', $_POST['user'])){
+		wp_redirect(GenesisTracker::getAdminUrl());
+		exit;
+	}
+	
+	if(($response = GenesisTracker::sendFourWeeklyEmail($_POST['user'], $_POST['action'])) === true){
+		GenesisAdmin::addAdminNotice('updated', 'The email sent successfully');
+	}else{
+		GenesisAdmin::addAdminNotice('error', $response['message']);
+	}
+
+	wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => 1)));
+	exit;
+}
+
 function genesis_user_graph(){
 	ob_start();
 	$foodLogDays = 7;

@@ -71,6 +71,12 @@ class GenesisAdmin{
 			
 			wp_enqueue_script('genesis-admin-profile');
 		}
+		
+		if(isset($_GET['page']) && $_GET['page'] == 'genesis-tracker'){
+			wp_register_script('genesis-admin-global', plugins_url('js/admin-global.js', __FILE__), array('jquery'));
+			
+			wp_enqueue_script('genesis-admin-global');
+		}
 	}
 	
 	public static function doAdminNotices(){

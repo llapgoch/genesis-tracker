@@ -91,13 +91,14 @@
 		<dt>Four Weekly Emails</dt>
 		<dd>
 			<?php if($userDetails['four_week_required_to_send']):?>
-			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_four_weekly_email'))?>">
+			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_four_weekly_email'))?>" class="confirm-submit" method="post">
+				<input type="hidden" name="user" value="<?php echo $userDetails['user_id']; ?>">
 				<table class="four-weekly">
 					<?php foreach(GenesisAdmin::getFourWeekEmailTypes() as $key => $label): ?>
 						<?php $suggested = $key == $userDetails['four_week_outcome'] ?>
 						<tr class="<?php echo $suggested ? 'suggested' : '' ?>">
 							<td><?php echo $label ?></td>
-							<td><button type="submit" value="<?php echo $key;?>">Send</td>
+							<td><button type="submit" name="action" value="<?php echo $key;?>">Send</td>
 							<td>
 								<?php if($suggested): ?>
 									<em>The system suggests this email. Please check against their log data before sending</em>
