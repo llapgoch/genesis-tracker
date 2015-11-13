@@ -279,7 +279,7 @@ class GenesisAdmin{
 			}
 			
 		}
-
+;
         // Return results for a single user
         if($user && $results){
             return $results[0];

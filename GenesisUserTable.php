@@ -144,7 +144,8 @@ class GenesisUserTable extends WP_List_Table {
                        'account_active'     => array('account_active', false),
                        'weight_change'      => array('weight_change', false),
                        'unix_timestamp'     => array('unix_timestamp', true),
-					   'four_weekly_date' => array('four_week_required_to_send')
+					   'four_weekly_date' => array('four_week_required_to_send'),
+					   'four_week_required_to_send' => array('four_week_required_to_send', true)
 		           );
 		           return $sortable_columns;
 		       }
