@@ -38,17 +38,15 @@ class GenesisAdmin{
 		));
 		
 		// Remove the latest weight
-		array_pop($results);
-		
-		if(count($results) < 2){
+		if(count($results) < 3){
 			return false;
 		}
 		
-		$last = array_pop($results);
-		$penultimate = array_pop($results);
+		$count = count($results) - 1;
 		
 		// Not sure what inducates a downward trend
-		return (float) $last->weight < (float) $penultimate->weight;
+		return (float) $results[$count]->weight < (float) $results[$count - 1]->weight 
+			&& $results[$count - 1]->weight < $results[$count - 2]->weight;
 	}
 	
 	public static function doAdminInitHook(){
