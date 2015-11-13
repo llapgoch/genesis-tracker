@@ -161,13 +161,16 @@ class GenesisAdmin{
 			NULL) as four_week_required_to_send,
 			/* Use least_weight instead of lowest_weight in result sets as it takes into account the initial weight */
 			LEAST(lowest_weight, initial_weight) as least_weight,
+			
 			IF(four_weekly_weight IS NULL, 'NOTHING', 
 				IF(six_month_weight - four_weekly_weight >= 1, 'LOSING',
 					IF(six_month_weight - four_weekly_weight <= -1, 'GAINING',
 						'MAINTAINING'
 					)
 				)
-			) as four_week_outcome
+			) as four_week_outcome,
+			
+			LEAST(min_weight_after_six_months, six_month_weight) as benchmark_weight
 			
 			 FROM 
                 (SELECT u.user_registered, u.user_email, u.ID user_id,  
@@ -200,13 +203,14 @@ class GenesisAdmin{
                     FROM " . GenesisTracker::getTrackerTableName() . " 
                 WHERE NOT ISNULL(weight) 
                     AND user_id=u.ID
-					AND measure_date >= DATE_ADD(user_registered, INTERVAL 6 MONTH)
+					AND measure_date >= six_month_date.`meta_value`
 				) as min_weight_after_six_months,
 				(SELECT weight 
 					FROM " . GenesisTracker::getTrackerTableName() . "
 					WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
 						AND measure_date > six_month_date.`meta_value`
 						AND weight IS NOT NULL
+						AND user_id=u.ID
 					ORDER BY measure_date DESC
 					LIMIT 1
 				) as four_weekly_weight
@@ -279,7 +283,7 @@ class GenesisAdmin{
 			}
 			
 		}
-;
+
         // Return results for a single user
         if($user && $results){
             return $results[0];

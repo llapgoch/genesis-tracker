@@ -55,6 +55,10 @@ class GenesisUserTable extends WP_List_Table {
              case 'user_registered_timestamp' :
                  return gmdate('d M Y', strtotime($item['user_registered']));
              case 'unix_timestamp' : 
+				 if(!$item['measure_date']){
+					 return "- -";
+				 }
+				 
                  $time = strtotime($item['measure_date']);
                  $date = gmdate('d M Y', strtotime($item['measure_date']));
                  if(time() - $item[$column_name] > self::ONE_WEEK){
