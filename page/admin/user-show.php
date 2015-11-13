@@ -87,7 +87,8 @@
 		<dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
 		<dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
 			
-			
+		<dt>Weeks Registered</dt>
+		<dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
 		<dt>Four Weekly Emails</dt>
 		<dd>
 			<?php if($userDetails['four_week_required_to_send']):?>

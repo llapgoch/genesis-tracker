@@ -191,6 +191,7 @@ class GenesisAdmin{
 				six_month_date.meta_value as six_month_date,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
                 UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
+				FLOOR(DATEDIFF(NOW(), u.user_registered)/7) as weeks_registered,
         		(SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
                 WHERE NOT ISNULL(weight) 

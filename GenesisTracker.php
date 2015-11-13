@@ -2626,6 +2626,8 @@ class GenesisTracker{
 			 );
 		 }
 		 
+		$userDetails = GenesisAdmin::getUserLogDetails(null, $userId);
+		 
 		$uploadsDir = wp_upload_dir();
 		$body = self::getTemplateContents('four-weekly-' . strtolower($type));
 		
@@ -2653,7 +2655,7 @@ class GenesisTracker{
 			site_url('newsletters')
 		), $body);
 		
-	 	if(wp_mail($user->user_email, 'Four Weekly Emails', $body, self::getEmailHeaders())){
+	 	if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'], $body, self::getEmailHeaders())){
 		 // Mark user's account
 			update_user_meta( $user->ID, self::getOptionKey(self::fourWeekleyEmailDateKey),  current_time('Y-m-d H:i:s'));
 			return true;
