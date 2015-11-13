@@ -64,7 +64,7 @@ class GenesisAdmin{
 			}
 		}
 		
-		if($pagenow == 'profile.php'){
+		if($pagenow == 'profile.php' || $pagenow == 'user-edit.php'){
             wp_register_script('genesis-admin-profile', plugins_url('js/admin-profile.js', __FILE__), array('jquery-ui-datepicker'));
 			
 			wp_enqueue_script('genesis-admin-profile');

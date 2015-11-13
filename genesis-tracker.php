@@ -307,7 +307,7 @@ function extra_user_profile_fields($user){
 				</th>
 				<td>
 					<?php $settings = array(
-						'default' => GenesisTracker::convertDBDate($sixMonthDateValue),
+						'default' => $sixMonthDateValue ? GenesisTracker::convertDBDate($sixMonthDateValue) : '',
 						'id' => $sixMonthDateKey,
 						'readonly' => 'readonly',
 						'class' => 'datepicker'
