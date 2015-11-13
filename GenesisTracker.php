@@ -2695,7 +2695,7 @@ class GenesisTracker{
 					site_url('newsletters')
 				), $body);
 				
-				 if(wp_mail($user->user_email, 'Red Flag Notification', $body, self::getEmailHeaders())){
+				 if(wp_mail($user->user_email, 'Your recent weight', $body, self::getEmailHeaders())){
 					 // Mark user's account
 					update_user_meta( $user->ID, self::getOptionKey(self::redFlagEmailDateKey),  current_time('Y-m-d H:i:s'));
 					return true;
