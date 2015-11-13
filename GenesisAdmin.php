@@ -206,7 +206,7 @@ class GenesisAdmin{
 				(SELECT weight 
 					FROM " . GenesisTracker::getTrackerTableName() . "
 					WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
-						AND measure_date > six_month_date
+						AND measure_date > six_month_date.`meta_value`
 						AND weight IS NOT NULL
 					ORDER BY measure_date DESC
 					LIMIT 1
