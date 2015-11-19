@@ -72,9 +72,13 @@
             ?>     
         </dt>
 		<dt>Current Weight Minus Benchmark Weight (Kg)</dt>
-		<dd>
+		<dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
+		</dd>
+		
+		<dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
+		<dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
 			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_red_flag_email')); ?>" method="post">
-			<?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
+			
 
 				<input type="hidden" name="user" value="<?php echo $user->ID;?>" />
 				<button <?php echo $userDetails['six_month_benchmark_change_email_check'] < 1 ? 'disabled="disabled"' : '';?> type="submit">Send Red Flag Email</button>
@@ -82,11 +86,6 @@
 					<span style="font-style:italic;margin-left:5px">Sent at: <strong><?php echo GenesisTracker::convertDBDatetime($userDetails['red_flag_email_date']); ?></strong></span>
 				<?php endif; ?>
 			</form>
-		</dd>
-		
-		<dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
-		<dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
-			
 		<dt>Weeks Registered</dt>
 		<dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
 		<dt>Four Weekly Emails</dt>

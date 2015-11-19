@@ -1648,17 +1648,8 @@ class GenesisTracker{
 		 return get_user_meta($user_id, self::getOptionKey(self::userStartDateKey), true);
 	 }
 	 
-	 public static function isUserSixMonths($user_id){
-		 // Change this to use DATE_SUB + SQL Query
-		global $wpdb;
-		
-		$res = $wpdb->get_row($sql = $wpdb->prepare(
-		"SELECT * FROM {$wpdb->users} u 
-			WHERE u.ID=%s 
-			AND u.user_registered < DATE_SUB(NOW(), INTERVAL 6 MONTH)"
-		, $user_id));
-
-		return (bool) $res;
+	 public static function isUserSixMonths($user_id){		
+		return (bool) get_user_meta($user_id, self::getOptionKey(self::sixMonthDateKey), true);
 	 }
 	 
 	 public function getUserSixMonthWeight($user_id){

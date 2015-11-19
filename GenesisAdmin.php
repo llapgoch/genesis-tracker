@@ -163,8 +163,8 @@ class GenesisAdmin{
 			LEAST(lowest_weight, initial_weight) as least_weight,
 			
 			IF(four_weekly_weight IS NULL, 'NOTHING', 
-				IF(six_month_weight - four_weekly_weight >= 1, 'LOSING',
-					IF(six_month_weight - four_weekly_weight <= -1, 'GAINING',
+				IF(LEAST(min_weight_after_six_months, six_month_weight) - four_weekly_weight >= 1, 'LOSING',
+					IF(LEAST(min_weight_after_six_months, six_month_weight) - four_weekly_weight <= -1, 'GAINING',
 						'MAINTAINING'
 					)
 				)
@@ -269,7 +269,7 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::redFlagEmailDateKey),
 			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey),
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
-        ), ARRAY_A);
+        ), ARRAY_A);		
 		
 		foreach($results as &$result){
 			// Do the four weekly logic

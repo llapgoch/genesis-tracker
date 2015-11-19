@@ -320,7 +320,7 @@ function extra_user_profile_fields($user){
 		<?php endif; ?>
 		
 		
-		<?php if(GenesisTracker::isUserSixMonths($user->ID)):?>
+		<?php if(GenesisTracker::isUserSixMonths($user->ID) || is_admin()):?>
 			
 		<tr>
 			<th>
@@ -715,25 +715,25 @@ function save_extra_user_profile_fields($user_id){
 	update_user_meta( $user_id, $reminderKey, $val );
 	update_user_meta( $user_id, 'tel', $tel );
 	
-	if(GenesisTracker::isUserSixMonths($user_id) ){
-		$sixMonthWeight = $_POST['weight_main'];
-		
-		if(is_admin() == false){
-			if($_POST['weight_unit'] == GenesisTracker::UNIT_METRIC){
-				$sixMonthWeight = $_POST['weight_main'];
-			}else{
-				$sixMonthWeight = GenesisTracker::stoneToKg($_POST['weight_main'], $_POST['weight_pounds']);
-			}
-		}
-		
-		if(GenesisTracker::isValidWeight($sixMonthWeight)){
-			update_user_meta( $user_id, $sixMonthWeightKey, $sixMonthWeight );
-			
-			if(is_admin() == false){
-				update_user_meta( $user_id, GenesisTracker::getOptionKey('last_profile_unit'), $_POST['weight_unit']);
-			}
+
+	$sixMonthWeight = $_POST['weight_main'];
+	
+	if(is_admin() == false){
+		if($_POST['weight_unit'] == GenesisTracker::UNIT_METRIC){
+			$sixMonthWeight = $_POST['weight_main'];
+		}else{
+			$sixMonthWeight = GenesisTracker::stoneToKg($_POST['weight_main'], $_POST['weight_pounds']);
 		}
 	}
+	
+	if(GenesisTracker::isValidWeight($sixMonthWeight)){
+		update_user_meta( $user_id, $sixMonthWeightKey, $sixMonthWeight );
+		
+		if(is_admin() == false){
+			update_user_meta( $user_id, GenesisTracker::getOptionKey('last_profile_unit'), $_POST['weight_unit']);
+		}
+	}
+	
 
     if(is_admin()){
             $minHealthyWeight = isset($_POST[$minHealthyWeightKey]) ? (float) $_POST[$minHealthyWeightKey] : '';
