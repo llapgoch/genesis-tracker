@@ -40,9 +40,7 @@
                 echo "- -";
             endif;
         ?></dd>
-		<dt>Six Month Weight (Kg)</dt>
-		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
-		<dt>Lowest Recorded Weight (Kg)</dt>
+		<dt>Lowest Recorded Weight of All Time (Kg)</dt>
 		<dd>
             <?php if(isset($userDetails['least_weight']) && $userDetails['least_weight']) :
                 echo round($userDetails['least_weight'], 4);
@@ -51,6 +49,8 @@
             endif;
 			?>
 		</dd>
+		<dt>Six Month Weight (Kg)</dt>
+		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
 		<dt>Benchmark Weight (Kg)</dt>
 		<dd><?php echo ($userDetails['benchmark_weight'] ? round($userDetails['benchmark_weight'], 4) : "- -"); ?></dd>
         <dt>Current Weight (Kg)</dt>

@@ -160,7 +160,7 @@ class GenesisAdmin{
 				IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
 			NULL) as four_week_required_to_send,
 			/* Use least_weight instead of lowest_weight in result sets as it takes into account the initial weight */
-			LEAST(lowest_weight, initial_weight) as least_weight,
+			LEAST(lowest_weight, initial_weight, IFNULL(six_month_weight, 10000)) as least_weight,
 			
 			IF(four_weekly_weight IS NULL, 'NOTHING', 
 				IF(IF(min_weight_after_six_months IS NULL, six_month_weight, LEAST(min_weight_after_six_months, six_month_weight)) - four_weekly_weight >= 1, 'LOSING',
