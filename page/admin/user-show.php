@@ -90,6 +90,10 @@
 		<dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
 		<dt>Four Weekly Emails</dt>
 		<dd>
+			<?php if($userDetails['four_weekly_date']): ?>
+					<em><strong>This user was last sent a four weekly email on the <?php echo $userDetails['four_weekly_date']?></strong></em>
+			<?php endif; ?>
+			
 			<?php if($userDetails['four_week_required_to_send']):?>
 			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_four_weekly_email'))?>" class="confirm-submit" method="post">
 				<input type="hidden" name="user" value="<?php echo $userDetails['user_id']; ?>">
@@ -110,9 +114,8 @@
 					<?php endforeach; ?>
 				</table>
 			</form>
-		<?php elseif($userDetails['four_weekly_date']): ?>
-			<em>This user was last sent a four weekly email on the <?php echo $userDetails['four_weekly_date']?></em>
-		<?php else: ?>
+		<?php endif; ?>
+		<?php if(!$userDetails['four_weekly_date'] && !$userDetails['four_week_required_to_send']): ?>
 			<em>This user has not been subscribed long enough or has not been given a six month date</em>
 		<?php endif; ?>
 		</dd>
