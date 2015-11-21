@@ -739,6 +739,10 @@ class GenesisTracker{
 	 public static function convertDBDatetime($dbDate){
 		 return date("d/m/Y H:i:s", strtotime($dbDate));
 	 }
+     
+     public static function prettyDBDate($dbDate){
+          return date('d M Y', strtotime($dbDate));
+     }
 	 
 	 public static function userInputPageAction(){
 		 $form = DP_HelperForm::createForm('user-input');

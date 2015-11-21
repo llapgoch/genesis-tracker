@@ -26,7 +26,7 @@
         <dt>Last Measurement Date</dt>
         <dd><?php 
             if(isset($userDetails['measure_date']) && $userDetails['measure_date']) :
-                echo gmdate('d M Y', strtotime($userDetails['measure_date']));
+                echo GenesisTracker::prettyDBDate($userDetails['measure_date']);
             else :
                 echo "- -";
             endif;
@@ -49,6 +49,8 @@
             endif;
 			?>
 		</dd>
+		<dt>Six Month Date</dt>
+		<dd><?php echo ($userDetails['six_month_date'] ? GenesisTracker::prettyDBDate($userDetails['six_month_date']) : "- -");?></dd>
 		<dt>Six Month Weight (Kg)</dt>
 		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
 		<dt>Benchmark Weight (Kg)</dt>

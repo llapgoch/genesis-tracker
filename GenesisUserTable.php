@@ -205,6 +205,11 @@ class GenesisUserTable extends WP_List_Table {
                    $cols = $this->get_sortable_columns();
                    $orderBy = isset($cols[$_REQUEST['orderby']]) ? $_REQUEST['orderby'] : 'measure_date';
                    $order = strtoupper($_REQUEST['order']) == 'ASC' ? 'ASC' : 'DESC';
+                   
+                   if($orderBy == 'four_week_required_to_send'){
+                       $orderBy .= ' DESC, four_weekly_date';
+                   }
+                   
 		           $data = GenesisAdmin::getUserLogDetails($orderBy . " " . $order);
 
         
