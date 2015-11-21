@@ -845,7 +845,7 @@ function genesis_admin_send_four_weekly_email(){
 		GenesisAdmin::addAdminNotice('error', $response['message']);
 	}
 
-	wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => 1)));
+	wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
 	exit;
 }
 
