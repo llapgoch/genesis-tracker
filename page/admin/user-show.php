@@ -118,7 +118,12 @@
 			</form>
 		<?php endif; ?>
 		<?php if(!$userDetails['four_weekly_date'] && !$userDetails['four_week_required_to_send']): ?>
-			<em>This user has not been subscribed long enough or has not been given a six month date</em>
+			<em><strong>This user is not eligible for a four weekly email. Either:</strong></em>
+            <ul style="list-style:circle">
+                <li>They haven't been subscribed for long enough</li>
+                <li>They haven't been given a six month date or six month weight</li>
+                <li>They have opted out of reminder emails</li>
+            </ul>
 		<?php endif; ?>
 		</dd>
     </dl>

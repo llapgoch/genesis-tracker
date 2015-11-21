@@ -2738,7 +2738,7 @@ class GenesisTracker{
 		  $users = get_users( array("user_login" => 'admin') );
 
 		  foreach($users as $user){
-			 $optOut = (bool)get_user_meta( $user->ID, 'genesis___tracker___omit_reminder_email', true);
+			 $optOut = (bool)get_user_meta( $user->ID, self::getOptionKey(self::omitUserReminderEmailKey), true);
              $isActive = get_user_meta($user->ID, self::getOptionKey(self::userActiveKey), true ); 
              $isActive = $isActive == "" ? 1 : (int)$isActive;
              

@@ -154,10 +154,9 @@ class GenesisAdmin{
 			IF(six_month_date IS NOT NULL 
 				AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change,
 			/* This one is with the red flag email check */
-			IF(red_flag_email_date IS NULL AND six_month_date IS NOT NULL
+			IF(red_flag_email_date IS NULL AND email_opt_out<>1 AND six_month_date IS NOT NULL
 					AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change_email_check,
-			IF(six_month_weight IS NOT NULL AND six_month_date IS NOT NULL AND six_month_date + INTERVAL 4 WEEK < NOW(), 
-				IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
+			IF(six_month_weight IS NOT NULL AND six_month_date IS NOT NULL AND email_opt_out <> 1 AND six_month_date + INTERVAL 4 WEEK < NOW(), IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
 			NULL) as four_week_required_to_send,
 			/* Use least_weight instead of lowest_weight in result sets as it takes into account the initial weight */
 			LEAST(lowest_weight, initial_weight, IFNULL(six_month_weight, 10000)) as least_weight,
@@ -186,6 +185,7 @@ class GenesisAdmin{
 				six_month_weight.`meta_value` as six_month_weight,
 				red_flag_email_date.`meta_value` as red_flag_email_date,
 				four_weekly_date.`meta_value` as four_weekly_date,
+                email_opt_out.`meta_value` as email_opt_out,
 				UNIX_TIMESTAMP(four_weekly_date.`meta_value`) as four_weekly_date_timestamp,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
@@ -255,6 +255,9 @@ class GenesisAdmin{
 				LEFT JOIN " . $wpdb->usermeta . " as six_month_date
 					ON six_month_date.user_id = u.ID
 					AND six_month_date.meta_key = %s
+                LEFT JOIN " . $wpdb->usermeta . " as email_opt_out
+                    ON email_opt_out.user_id = u.ID
+                    AND email_opt_out.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -269,7 +272,8 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey),
 			GenesisTracker::getOptionKey(GenesisTracker::redFlagEmailDateKey),
 			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey),
-			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey)
+			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
+            GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey)
         ), ARRAY_A);
 		
 		foreach($results as &$result){
