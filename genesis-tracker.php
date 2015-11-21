@@ -306,6 +306,7 @@ function extra_user_profile_fields($user){
 					<label for="<?php echo $sixMonthDateKey?>"><?php _e("Six Month Start Date")?></label>
 				</th>
 				<td>
+                   
 					<?php $settings = array(
 						'default' => $sixMonthDateValue ? GenesisTracker::convertDBDate($sixMonthDateValue) : '',
 						'id' => $sixMonthDateKey,
@@ -315,6 +316,9 @@ function extra_user_profile_fields($user){
 				
 					echo $form->input($sixMonthDateKey, 'text', $settings);
 					?>
+                    <div>
+                        <em>Registration Date: <?php echo GenesisTracker::convertDBDate($user->user_registered)?></em>
+                    </div>
 				</td>
 			</tr>
 		<?php endif; ?>
