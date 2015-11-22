@@ -154,8 +154,8 @@ class GenesisAdmin{
 			IF(six_month_date IS NOT NULL 
 				AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change,
 			/* This one is with the red flag email check */
-			IF(red_flag_email_date IS NULL AND email_opt_out<>1 AND six_month_date IS NOT NULL
-					AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change_email_check,
+			GREATEST(IF(red_flag_email_date IS NULL AND email_opt_out<>1 AND six_month_date IS NOT NULL
+					AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0), 0) as six_month_benchmark_change_email_check,
 			IF(six_month_weight IS NOT NULL AND six_month_date IS NOT NULL AND email_opt_out <> 1 AND six_month_date + INTERVAL 4 WEEK < NOW(), IF(four_weekly_date < DATE_SUB(NOW(), INTERVAL 4 WEEK) OR four_weekly_date IS NULL, 1, 0), 
 			NULL) as four_week_required_to_send,
 			/* Use least_weight instead of lowest_weight in result sets as it takes into account the initial weight */
@@ -275,7 +275,8 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey)
         ), ARRAY_A);
-		
+        
+        
 		foreach($results as &$result){
 			// Do the four weekly logic
 			
@@ -288,7 +289,7 @@ class GenesisAdmin{
 			}
 			
 		}
-
+     
         // Return results for a single user
         if($user && $results){
             return $results[0];

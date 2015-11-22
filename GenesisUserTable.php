@@ -149,7 +149,8 @@ class GenesisUserTable extends WP_List_Table {
                        'weight_change'      => array('weight_change', false),
                        'unix_timestamp'     => array('unix_timestamp', true),
 					   'four_weekly_date' => array('four_week_required_to_send'),
-					   'four_week_required_to_send' => array('four_week_required_to_send', true)
+					   'four_week_required_to_send' => array('four_week_required_to_send', true),
+                       'six_month_benchmark_change_email_check' => array('six_month_benchmark_change_email_check', true)
 		           );
 		           return $sortable_columns;
 		       }
@@ -208,6 +209,11 @@ class GenesisUserTable extends WP_List_Table {
                    
                    if($orderBy == 'four_week_required_to_send'){
                        $orderBy .= ' DESC, four_weekly_date';
+                   }
+                   
+                   // There's no point in sorting the other way
+                   if($orderBy == 'six_month_benchmark_change_email_check'){
+                       $order = 'DESC';
                    }
                    
 		           $data = GenesisAdmin::getUserLogDetails($orderBy . " " . $order);
