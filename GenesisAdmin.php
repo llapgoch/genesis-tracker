@@ -152,9 +152,12 @@ class GenesisAdmin{
 			/* IF(weight - LEAST(lowest_weight, initial_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month), 1, 0) as gained_more_than_one_kg, */
 			/* This first one is without the red flag email check */
 			IF(six_month_date IS NOT NULL 
-				AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) as six_month_benchmark_change,
+                AND registered_for_year = 0 
+				AND six_month_weight IS NOT NULL, IF(weight IS NULL, six_month_weight, weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) 
+                as six_month_benchmark_change,
 			/* This, for some reason wouldn't work with six_month_opt_out <> 1, hence the IS NULL OR = 0 */
-			GREATEST(IF(red_flag_email_date IS NULL AND (six_month_email_opt_out IS NULL OR six_month_email_opt_out = 0) AND six_month_date IS NOT NULL
+			IF(registered_for_year = 0, 
+                GREATEST(IF(red_flag_email_date IS NULL AND (six_month_email_opt_out IS NULL OR six_month_email_opt_out = 0) AND six_month_date IS NOT NULL
 					AND six_month_weight IS NOT NULL, 
                         IF(weight IS NULL, 
                             six_month_weight, weight
@@ -163,9 +166,11 @@ class GenesisAdmin{
                             , 10000), 
                         six_month_weight), 
                     0), 
+                  0),
                 0) as six_month_benchmark_change_email_check,
                 
-			IF(six_month_weight IS NOT NULL 
+			IF( registered_for_year = 0 
+                AND six_month_weight IS NOT NULL 
                 AND six_month_date IS NOT NULL 
                 /* This, for some reason wouldn't work with six_month_opt_out <> 1, hence the IS NULL OR = 0 */
                 AND (six_month_email_opt_out IS NULL 
@@ -212,6 +217,7 @@ class GenesisAdmin{
                 start_date.meta_value as start_date,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
                 UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
+                IF(DATE_ADD(six_month_date.`meta_value`, INTERVAL 6 MONTH) < NOW(), 1, 0) as registered_for_year,
                 /* The weeks registered goes from the start date, not registration date */
 				FLOOR(DATEDIFF(NOW(), start_date.meta_value)/7) as weeks_registered,
         		(SELECT weight 
@@ -300,6 +306,7 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::userStartDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey)
         ), ARRAY_A);
+        
         
 		foreach($results as &$result){
 			// Do the four weekly logic
