@@ -30,6 +30,7 @@ class GenesisTracker{
     const weightTargetKey        = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const sixMonthWeightKey		= "weight_six_months";
+    const twelveMonthWeightTargetKey = "weight_target_twelve_months";
 	const redFlagEmailDateKey = "red_flag_email_date";
 	const fourWeekleyEmailDateKey = "four_weekly_email_date";
 	const sixMonthDateKey = "six_month_date";

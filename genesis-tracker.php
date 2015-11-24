@@ -238,6 +238,9 @@ function extra_user_profile_fields($user){
     $notesKey = GenesisTracker::getOptionKey(GenesisTracker::userNotesKey);
     $notesVal = get_the_author_meta($notesKey, $user->ID);
     
+    $twelveMonthTargetKey = GenesisTracker::getOptionKey(GenesisTracker::twelveMonthWeightTargetKey);
+    $twelveMonthTargetVal = get_the_author_meta($twelveMonthTargetKey, $user->ID);
+    
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
@@ -643,6 +646,36 @@ function extra_user_profile_fields($user){
                 </td>
             </tr>
             
+            <tr>
+                <th><label for="<?php echo $twelveMonthTargetKey;?>"><?php _e('Twelve Month Target Weight'); ?></label></th>
+                <td>
+                    <?php
+                    if(is_admin()):
+                        echo $form->input($twelveMonthTargetKey, 'text', array(
+                              'autocomplete' => 'off',
+                              'id' => $twelveMonthTargetKey,
+                              'class' => '',
+                              'value' => $twelveMonthTargetVal  
+                          ));
+                      else:
+                          ?>
+                          <span class="stat">
+                               <?php if($isMetric):?>
+                                  <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($twelveMonthTargetVal, "metric");?>
+                                  </span>
+                              <?php else:?>
+                                  <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($twelveMonthTargetVal, "imperial");?>
+                                  </span>
+                              <?php endif;?>
+                          </span>
+                      <?php
+                      endif;
+                    ?>
+                </td>
+            </tr>
+            
         </table>
 	    <?php if(is_admin()):?>
             <hr />
@@ -729,6 +762,8 @@ function save_extra_user_profile_fields($user_id){
 	
 	$startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
     
+    $twelveMonthTargetKey = GenesisTracker::getOptionKey(GenesisTracker::twelveMonthWeightTargetKey);
+    
 	$val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
 	$tel = isset($_POST['tel']) ? $_POST['tel'] : '';
     
@@ -761,10 +796,15 @@ function save_extra_user_profile_fields($user_id){
             $targetWeight = isset($_POST[$weightTargetKey]) ? (float)$_POST[$weightTargetKey] : '';
             $sixMonthTargetWeight = isset($_POST[$sixMonthTargetKey]) ? (float)$_POST[$sixMonthTargetKey] : '';
             $omitSixMonthEmailValue = isset($_POST[$omitSixMonthEmailKey]) ? (int)$_POST[$omitSixMonthEmailKey] : 0;
+            $twelveMonthTargetValue = isset($_POST[$twelveMonthTargetKey]) ? (int)$_POST[$twelveMonthTargetKey] : '';
             
 			if((float) $_POST[$startWeightKey]){
 				update_user_meta( $user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]) );
 			}
+            
+           if((float) $_POST[$twelveMonthTargetKey]){
+                update_user_meta( $user_id, $twelveMonthTargetKey, GenesisTracker::makeValidWeight($_POST[$twelveMonthTargetKey]) );
+            }
 			
 			if($_POST[$sixMonthDateKey]){
 				update_user_meta( $user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
@@ -775,6 +815,8 @@ function save_extra_user_profile_fields($user_id){
             update_user_meta( $user_id, $weightTargetKey, $targetWeight );
             update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
             update_user_meta( $user_id, $omitSixMonthEmailKey, $omitSixMonthEmailValue );
+
+          
     }
     
     
