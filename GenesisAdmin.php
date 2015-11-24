@@ -190,9 +190,11 @@ class GenesisAdmin{
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
 				six_month_date.meta_value as six_month_date,
+                start_date.meta_value as start_date,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
                 UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
-				FLOOR(DATEDIFF(NOW(), u.user_registered)/7) as weeks_registered,
+                /* The weeks registered goes from the start date, not registration date */
+				FLOOR(DATEDIFF(NOW(), start_date.meta_value)/7) as weeks_registered,
         		(SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
                 WHERE NOT ISNULL(weight) 
@@ -258,6 +260,9 @@ class GenesisAdmin{
                 LEFT JOIN " . $wpdb->usermeta . " as email_opt_out
                     ON email_opt_out.user_id = u.ID
                     AND email_opt_out.meta_key = %s
+                LEFT JOIN " . $wpdb->usermeta . " as start_date
+                    ON start_date.user_id = u.ID
+                    AND start_date.meta_key = %s
                 $where
                 GROUP BY ID
                 
@@ -273,7 +278,8 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::redFlagEmailDateKey),
 			GenesisTracker::getOptionKey(GenesisTracker::fourWeekleyEmailDateKey),
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
-            GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey)
+            GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey),
+            GenesisTracker::getOptionKey(GenesisTracker::userStartDateKey)
         ), ARRAY_A);
         
         
