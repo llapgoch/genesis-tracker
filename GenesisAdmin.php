@@ -305,8 +305,7 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::userStartDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey)
-        ), ARRAY_A);
-        
+        ), ARRAY_A);        
         
 		foreach($results as &$result){
 			// Do the four weekly logic
