@@ -33,6 +33,7 @@ class GenesisTracker{
 	const redFlagEmailDateKey = "red_flag_email_date";
 	const fourWeekleyEmailDateKey = "four_weekly_email_date";
 	const sixMonthDateKey = "six_month_date";
+    const omitSixMonthEmailKey = "omit_six_month_email_key";
 	
     const userWithdrawnKey = "withdrawn";
     const userNotesKey     = "notes";

@@ -244,6 +244,7 @@ function extra_user_profile_fields($user){
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
 	$sixMonthWeightKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
 	$sixMonthDateKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
+    $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
 
     $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
     $maxHealthyWeightVal = get_the_author_meta($maxHealthyWeightKey, $user->ID );
@@ -251,6 +252,7 @@ function extra_user_profile_fields($user){
     $sixMonthTargetVal   = get_the_author_meta($sixMonthTargetKey, $user->ID ); 
 	$sixMonthWeightVal   = GenesisTracker::getUserSixMonthWeight( $user->ID );
 	$sixMonthDateValue	 = get_the_author_meta( $sixMonthDateKey, $user->ID );
+    $omitSixMonthEmailVaue = get_the_author_meta( $omitSixMonthEmailKey, $user->ID );
 	
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
@@ -479,6 +481,19 @@ function extra_user_profile_fields($user){
 	?>
 	</td>
 	</tr>
+    
+	<tr>
+	<th><label for="<?php echo $omitSixMonthEmailKey ?>"><?php _e("Opt out of 6 - 12 month emails"); ?></label></th>
+	<td>
+	<?php
+	 echo $form->createInput($omitSixMonthEmailKey, 'checkbox', array(
+	 'id' => $omitSixMonthEmailKey,
+	 'value' => 1
+	 ), $omitSixMonthEmailVaue);
+	?>
+	</td>
+	</tr>
+    
     </table>
 	
 	    <?php if(is_admin()):?>
@@ -709,7 +724,8 @@ function save_extra_user_profile_fields($user_id){
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
 	$sixMonthWeightKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
-	$sixMonthDateKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey); 
+	$sixMonthDateKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
+    $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
 	
 	$startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
     
@@ -744,6 +760,7 @@ function save_extra_user_profile_fields($user_id){
             $maxHealthyWeight = isset($_POST[$maxHealthyWeightKey]) ? (float)$_POST[$maxHealthyWeightKey] : '';
             $targetWeight = isset($_POST[$weightTargetKey]) ? (float)$_POST[$weightTargetKey] : '';
             $sixMonthTargetWeight = isset($_POST[$sixMonthTargetKey]) ? (float)$_POST[$sixMonthTargetKey] : '';
+            $omitSixMonthEmailValue = isset($_POST[$omitSixMonthEmailKey]) ? (int)$_POST[$omitSixMonthEmailKey] : 0;
             
 			if((float) $_POST[$startWeightKey]){
 				update_user_meta( $user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]) );
@@ -757,6 +774,7 @@ function save_extra_user_profile_fields($user_id){
         	update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
             update_user_meta( $user_id, $weightTargetKey, $targetWeight );
             update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
+            update_user_meta( $user_id, $omitSixMonthEmailKey, $omitSixMonthEmailValue );
     }
     
     

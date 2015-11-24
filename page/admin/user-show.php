@@ -122,7 +122,7 @@
             <ul style="list-style:circle">
                 <li>They haven't been subscribed for long enough</li>
                 <li>They haven't been given a six month date or six month weight</li>
-                <li>They have opted out of reminder emails</li>
+                <li>They have opted out of 6 - 12 month reminder emails</li>
             </ul>
 		<?php endif; ?>
 		</dd>
