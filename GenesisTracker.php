@@ -4,7 +4,7 @@ class GenesisTracker{
 	const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.28";
+    const version = "1.29";
     const userIdForAutoCreatedPages = 1;
 	const prefixId = "genesis___tracker___";
 	const userPageId = "user_page";
@@ -229,6 +229,14 @@ class GenesisTracker{
           `result_id` int(11) unsigned DEFAULT NULL,
           `question_id` int(11) unsigned DEFAULT NULL,
           `answer` int(11) unsigned DEFAULT NULL,
+          PRIMARY KEY  (`id`)
+        )");
+        
+        dbDelta($sql = "CREATE TABLE ". self::getFourWeekEmailLogTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `user_id` int(11) unsigned DEFAULT NULL,
+          `type` VARCHAR(255) DEFAULT NULL,
+          `log_date` datetime DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
         
@@ -665,6 +673,11 @@ class GenesisTracker{
      public static function getEligibilityResultAnswersTableName(){
          global $wpdb;
          return $wpdb->base_prefix . "genesis_eligibility_result_answers";
+     }
+     
+     public static function getFourWeekEmailLogTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_eligibility_four_week_log";
      }
      
      public static function checkTableExists($tableName){
@@ -2611,6 +2624,8 @@ class GenesisTracker{
      }
 	 
 	 public static function sendFourWeeklyEmail($userId, $type){
+         global $wpdb;
+         
 		 if(!in_array($type, array_keys(GenesisAdmin::getFourWeekEmailTypes()))){
 			 return array(
 				 'message' => 'Invalid type'
@@ -2655,6 +2670,11 @@ class GenesisTracker{
 	 	if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'], $body, self::getEmailHeaders())){
 		 // Mark user's account
 			update_user_meta( $user->ID, self::getOptionKey(self::fourWeekleyEmailDateKey),  current_time('Y-m-d H:i:s'));
+            $wpdb->insert(self::getFourWeekEmailLogTableName(), array(
+               'user_id' => $userId,
+               'type' => $type,
+               'log_date' => current_time('Y-m-d H:i:s')
+            ));
 			return true;
 		}else{
 		
