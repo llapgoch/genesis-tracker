@@ -231,7 +231,11 @@ class GenesisAdmin{
                 WHERE NOT ISNULL(weight) 
                     AND user_id=u.ID
 					AND measure_date >= six_month_date.`meta_value`
-					AND measure_date <= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+				    AND measure_date < (
+                        SELECT MAX(measure_date) 
+                            FROM genwp_genesis_tracker 
+                            WHERE user_id = u.ID
+                    ) 
 				) as min_weight_after_six_months,
 				(SELECT weight 
 					FROM " . GenesisTracker::getTrackerTableName() . "
@@ -305,7 +309,8 @@ class GenesisAdmin{
 			GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::userStartDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey)
-        ), ARRAY_A);        
+        ), ARRAY_A);   
+        
         
 		foreach($results as &$result){
 			// Do the four weekly logic
