@@ -308,7 +308,7 @@ function extra_user_profile_fields($user){
 		<?php if(is_admin()): ?>
 			<tr>
 				<th>
-					<label for="<?php echo $sixMonthDateKey?>"><?php _e("Six Month Start Date")?></label>
+					<label for="<?php echo $sixMonthDateKey?>"><?php _e("Six Month Start Date <br />(on or around week 26)")?></label>
 				</th>
 				<td>
                    
@@ -322,7 +322,7 @@ function extra_user_profile_fields($user){
 					echo $form->input($sixMonthDateKey, 'text', $settings);
 					?>
                     <div>
-                        <em>Registration Date: <?php echo GenesisTracker::convertDBDate($user->user_registered)?></em>
+                        <em>Actual Start Date (First Monday after activation): <?php echo GenesisTracker::convertDBDate($user->user_registered)?></em>
                     </div>
 				</td>
 			</tr>
