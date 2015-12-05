@@ -857,7 +857,7 @@ function genesis_admin_send_red_flag_email(){
 	global $wpdb;
 	
 	if(isset($_POST['user'])){
-		$result = GenesisTracker::sendRedFlagEmail($_POST['user_id']);
+		$result = GenesisTracker::sendRedFlagEmail($_POST['user']);
 		
 		if(is_array($result)){
 			GenesisAdmin::addAdminNotice('error', $result['message']);
