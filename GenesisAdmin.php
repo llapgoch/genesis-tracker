@@ -218,8 +218,9 @@ class GenesisAdmin{
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
                 UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
                 IF(DATE_ADD(six_month_date.`meta_value`, INTERVAL 6 MONTH) < NOW(), 1, 0) as registered_for_year,
-                /* The weeks registered goes from the start date, not registration date */
-				FLOOR(DATEDIFF(NOW(), start_date.meta_value)/7) as weeks_registered,
+                /* The weeks registered goes from the monday after the start date, not registration date */
+				FLOOR(DATEDIFF(NOW(), DATE_ADD(start_date.`meta_value`, INTERVAL (7 - WEEKDAY(start_date.`meta_value`)) DAY))/7) as weeks_registered,
+                DATE_ADD(start_date.`meta_value`, INTERVAL (7 - WEEKDAY(start_date.`meta_value`)) DAY) as actual_start_date,
         		(SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
                 WHERE NOT ISNULL(weight) 
