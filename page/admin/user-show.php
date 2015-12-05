@@ -77,7 +77,7 @@
              endif;
             ?>     
         </dt>
-		<dt>Current Weight Minus Benchmark Weight (Kg)</dt>
+		<dt>Current Weight Minus Benchmark Weight (Kg) <br /><small>(positive value indicates weight gain; negative value indicates weight loss)</small></dt>
 		<dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
 		</dd>
 		
@@ -92,7 +92,7 @@
 					<span style="font-style:italic;margin-left:5px">Sent at: <strong><?php echo GenesisTracker::convertDBDatetime($userDetails['red_flag_email_date']); ?></strong></span>
 				<?php endif; ?>
 			</form>
-		<dt>Weeks Registered</dt>
+		<dt>Week Number</dt>
 		<dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
 		<dt>Four Weekly Emails</dt>
 		<dd>
