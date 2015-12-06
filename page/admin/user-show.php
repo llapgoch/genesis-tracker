@@ -124,10 +124,11 @@
 		<?php if(!$userDetails['four_weekly_date'] && !$userDetails['four_week_required_to_send']): ?>
 			<em><strong>This user is not eligible for a four weekly email. Either:</strong></em>
             <ul style="list-style:circle">
+                <li>They have withdrawn</li>
                 <li>They haven't been subscribed for long enough</li>
                 <li>They haven't been given a six month date or six month weight</li>
                 <li>They have opted out of 6 - 12 month reminder emails</li>
-                <li>They have been subscribed for a year or more (their assigned six month date + six months)</li>
+                <li>They have been subscribed for a year or more (the Monday after their activation date + 52 weeks)</li>
             </ul>
 		<?php endif; ?>
 		</dd>

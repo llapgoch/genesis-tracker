@@ -474,7 +474,7 @@ function extra_user_profile_fields($user){
 	
     <table class="form-table">
 	<tr>
-	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of reminder emails"); ?></label></th>
+	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of weekly reminder emails"); ?></label></th>
 	<td>
 	<?php
 	 echo $form->createInput($reminderKey, 'checkbox', array(
@@ -818,8 +818,7 @@ function save_extra_user_profile_fields($user_id){
             update_user_meta( $user_id, $weightTargetKey, $targetWeight );
             update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
             update_user_meta( $user_id, $omitSixMonthEmailKey, $omitSixMonthEmailValue );
-
-          
+                 
     }
     
     

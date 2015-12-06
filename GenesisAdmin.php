@@ -153,11 +153,12 @@ class GenesisAdmin{
 			/* This first one is without the red flag email check */
 			IF(six_month_date IS NOT NULL 
                 AND registered_for_year = 0 
+                AND withdrawn <> 1
 				AND six_month_weight IS NOT NULL, 
                     IF(last_six_month_weight IS NULL, six_month_weight, last_six_month_weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) 
                 as six_month_benchmark_change,
-			/* This, for some reason wouldn't work with six_month_opt_out <> 1, hence the IS NULL OR = 0 */
-			IF(registered_for_year = 0, 
+			/* This, for some reason wouldn't work with six_month_email_opt_out <> 1, hence the IS NULL OR = 0 */
+			IF(registered_for_year = 0 AND withdrawn <> 1, 
                 GREATEST(IF(red_flag_email_date IS NULL AND (six_month_email_opt_out IS NULL OR six_month_email_opt_out = 0) AND six_month_date IS NOT NULL
 					AND six_month_weight IS NOT NULL, 
                         IF(last_six_month_weight IS NULL, 
@@ -170,10 +171,10 @@ class GenesisAdmin{
                   0),
                 0) as six_month_benchmark_change_email_check,
                 
-			IF( registered_for_year = 0 
+			IF( registered_for_year = 0 AND withdrawn <> 1
                 AND six_month_weight IS NOT NULL 
                 AND six_month_date IS NOT NULL 
-                /* This, for some reason wouldn't work with six_month_opt_out <> 1, hence the IS NULL OR = 0 */
+                /* This, for some reason wouldn't work with six_month_email_opt_out <> 1, hence the IS NULL OR = 0 */
                 AND (six_month_email_opt_out IS NULL 
                     OR six_month_email_opt_out = 0
                 ) AND six_month_date + INTERVAL 4 WEEK < NOW(), 
