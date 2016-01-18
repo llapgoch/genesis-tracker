@@ -336,6 +336,10 @@ function extra_user_profile_fields($user){
                 <label for="weight-main"><?php _e('Six Month Weight')?></label>
             </th>
             <td>
+                <?php 
+                    // It's currently impossible to execute this bit - leaving it in in case they
+                    // want this bit to be non-admin again
+                ?>
                 <?php if(is_admin() == false):?>
                 <div>
                     <?php
