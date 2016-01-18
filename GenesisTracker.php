@@ -2667,7 +2667,7 @@ class GenesisTracker{
             site_url('newsletters')
         ), $body);
         
-         if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'], $body, self::getEmailHeaders())){
+         if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'] . ' feedback', $body, self::getEmailHeaders())){
          // Mark user's account
             update_user_meta( $user->ID, self::getOptionKey(self::fourWeekleyEmailDateKey),  current_time('Y-m-d H:i:s'));
             $wpdb->insert(self::getFourWeekEmailLogTableName(), array(
