@@ -61,7 +61,7 @@ function remove_profile_contact_methods( $contactmethods ) {
 //wp_unschedule_event(1414618561, 'genesis_send_reminder_email');
 
 if(!wp_next_scheduled('genesis_send_reminder_email')){
-	wp_schedule_event(1414259174, 'weekly', 'genesis_send_reminder_email');
+    wp_schedule_event(1414259174, 'weekly', 'genesis_send_reminder_email');
 }
 
 //wp_unschedule_event(1412121600, 'genesis_generate_average_user_data');
@@ -79,15 +79,15 @@ add_action('template_redirect', function(){
     $urlParts = parse_url($_SERVER['REQUEST_URI']);
     $path = $urlParts['path'];
     
-	$logins = array(
-		home_url( 'wp-login.php', 'relative' ),
-		home_url( 'login', 'relative' ),
-		site_url( 'login', 'relative' ),
-	);
-	if ( in_array( untrailingslashit($path), $logins ) ) {
-		wp_redirect( site_url( 'wp-login.php', 'login' ) );
-		exit;
-	}
+    $logins = array(
+        home_url( 'wp-login.php', 'relative' ),
+        home_url( 'login', 'relative' ),
+        site_url( 'login', 'relative' ),
+    );
+    if ( in_array( untrailingslashit($path), $logins ) ) {
+        wp_redirect( site_url( 'wp-login.php', 'login' ) );
+        exit;
+    }
 }, 900 );
 
 //GenesisTracker::populate();
@@ -97,30 +97,30 @@ add_action('template_redirect', function(){
 
  if( $timestamp = wp_next_scheduled( 'genesis_send_reminder_email' )){
 
-// 	wp_unschedule_event($timestamp, 'genesis_send_reminder_email');
+//     wp_unschedule_event($timestamp, 'genesis_send_reminder_email');
  }
 
 // add once 10 minute interval to wp schedules
 function new_interval($interval) {
     $interval['minutes_10'] = array('interval' => 10*60, 'display' => 'Once 10 minutes');
-	$interval['second_1'] = array('interval' => 1, 'display' => '1 second');
-	$interval['minute_1'] = array('interval' => 60, 'display' => '1 minute');
-	$interval['weekly'] = array('interval' => 604800, 'display' => __('Once Weekly'));
-	
+    $interval['second_1'] = array('interval' => 1, 'display' => '1 second');
+    $interval['minute_1'] = array('interval' => 60, 'display' => '1 minute');
+    $interval['weekly'] = array('interval' => 604800, 'display' => __('Once Weekly'));
+    
     return $interval;
 }
 
 
 function send_reminder_email(){
-	GenesisTracker::sendReminderEmail();
+    GenesisTracker::sendReminderEmail();
 }
 
 if(!is_admin()){
-	add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
-	add_action('wp', array('GenesisTracker', 'addHeaderElements'));
-	add_action('wp', array('GenesisTracker', 'doActions'));
-	add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
-	add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
+    add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
+    add_action('wp', array('GenesisTracker', 'addHeaderElements'));
+    add_action('wp', array('GenesisTracker', 'doActions'));
+    add_action('wp_login', array('GenesisTracker', 'checkLoginWeightEntered'), 1000, 2);
+    add_action('wp', array('GenesisTracker', 'checkWeightEntered'), 1000);
     add_filter('registration_errors', array('GenesisTracker', 'checkRegistrationErrors'), 10, 3);
     add_action('user_register', array('GenesisTracker', 'checkRegistrationPost'), 10, 1);
     add_filter('wp_authenticate_user', array('GenesisTracker', 'checkLoginAction'), 10, 2);
@@ -148,10 +148,10 @@ if(!is_admin()){
         return $message;
     });
 }else{
-	// ADMIN HOOK - EXECUTE BEFORE HEADERS -- USE THIS TO CALL ADMIN METHODS AND THEN REDIRECT FOR EXAMPLE
-	add_action('admin_init', array('GenesisAdmin', 'doAdminInitHook'));
-	// add the datepicker to the admin pages
-	add_action('admin_notices', array('GenesisAdmin', 'doAdminNotices'));
+    // ADMIN HOOK - EXECUTE BEFORE HEADERS -- USE THIS TO CALL ADMIN METHODS AND THEN REDIRECT FOR EXAMPLE
+    add_action('admin_init', array('GenesisAdmin', 'doAdminInitHook'));
+    // add the datepicker to the admin pages
+    add_action('admin_notices', array('GenesisAdmin', 'doAdminNotices'));
 }
 
 
@@ -187,13 +187,13 @@ add_action('login_enqueue_scripts', function(){
 function genesis_add_registration_fields(){
     $tel = ( isset( $_POST['tel'] ) ) ? $_POST['tel'] : '';
       $first_name = ( isset( $_POST['first_name'] ) ) ? stripslashes(trim($_POST['first_name'])) : '';
- 	 $last_name = ( isset( $_POST['first_name'] ) ) ? stripslashes(trim($_POST['last_name'])) : '';
+      $last_name = ( isset( $_POST['first_name'] ) ) ? stripslashes(trim($_POST['last_name'])) : '';
       ?>
       <p>
           <label for="first_name"><?php _e('First Name') ?><br />
           <input type="text" autocomplete="off" name="first_name" id="first_name" class="input" value="<?php echo esc_attr($first_name);?>" size="25" /></label>
       </p>
-	 
+     
       <p>
           <label for="last_name"><?php _e('Last Name') ?><br />
           <input type="text" autocomplete="off" name="last_name" id="last_name" class="input" value="<?php echo esc_attr($last_name); ?>" size="25" /></label>
@@ -203,32 +203,32 @@ function genesis_add_registration_fields(){
               <input type="text" autocomplete="off" name="tel" id="tel" class="input" value="<?php echo esc_attr( stripslashes( $tel ) ); ?>" size="25" /></label>
       </p>
       
-  	<p>
-  		<label for="password">Password<br/>
-  		<input id="password" autocomplete="off" class="input" type="password" size="25" value="" name="password" />
-  		</label>
-  	</p>
-  	<p>
-  		<label for="repeat_password">Repeat password<br/>
-  		<input id="repeat_password" autocomplete="off" class="input" type="password" size="25" value="" name="repeat_password" />
-  		</label>
-  	</p>
+      <p>
+          <label for="password">Password<br/>
+          <input id="password" autocomplete="off" class="input" type="password" size="25" value="" name="password" />
+          </label>
+      </p>
+      <p>
+          <label for="repeat_password">Repeat password<br/>
+          <input id="repeat_password" autocomplete="off" class="input" type="password" size="25" value="" name="repeat_password" />
+          </label>
+      </p>
       
       <p class="message"><?php _e('You will receive an email containing your registration details.<br />Keep this safe, you will need them when your account has been activated.'); ?></p>
       <?php
 }
 
 function extra_user_profile_fields($user){
-	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
-	$storedVal = get_the_author_meta($reminderKey, $user->ID );
+    $reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
+    $storedVal = get_the_author_meta($reminderKey, $user->ID );
     
-	$activeKey = GenesisTracker::getOptionKey(GenesisTracker::userActiveKey) ;
-	$activeVal = get_the_author_meta($activeKey, $user->ID );
+    $activeKey = GenesisTracker::getOptionKey(GenesisTracker::userActiveKey) ;
+    $activeVal = get_the_author_meta($activeKey, $user->ID );
     $activeVal = $activeVal == "" ? 1 : (int)$activeVal;
-	
-	$startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
-	$startWeight = get_the_author_meta($startWeightKey, $user->ID);
-	
+    
+    $startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
+    $startWeight = get_the_author_meta($startWeightKey, $user->ID);
+    
     $contactedKey = GenesisTracker::getOptionKey(GenesisTracker::userContactedKey);
     $contactedVal = get_the_author_meta($contactedKey, $user->ID );
     
@@ -245,52 +245,52 @@ function extra_user_profile_fields($user){
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
-	$sixMonthWeightKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
-	$sixMonthDateKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
+    $sixMonthWeightKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
+    $sixMonthDateKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
     $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
 
     $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
     $maxHealthyWeightVal = get_the_author_meta($maxHealthyWeightKey, $user->ID );
     $weightTargetVal     = get_the_author_meta($weightTargetKey, $user->ID );
     $sixMonthTargetVal   = get_the_author_meta($sixMonthTargetKey, $user->ID ); 
-	$sixMonthWeightVal   = GenesisTracker::getUserSixMonthWeight( $user->ID );
-	$sixMonthDateValue	 = get_the_author_meta( $sixMonthDateKey, $user->ID );
+    $sixMonthWeightVal   = GenesisTracker::getUserSixMonthWeight( $user->ID );
+    $sixMonthDateValue     = get_the_author_meta( $sixMonthDateKey, $user->ID );
     $omitSixMonthEmailVaue = get_the_author_meta( $omitSixMonthEmailKey, $user->ID );
-	
+    
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
     $tel = get_the_author_meta('tel', $user->ID );
     $form = DP_HelperForm::createForm('userRegister');
-	
-	$initalUnit  = GenesisTracker::getInitialUserUnit($user->ID);
     
-	if($lastSavedUnit = get_the_author_meta(GenesisTracker::getOptionKey('last_profile_unit'), $user->ID)){
-		$isMetric = $lastSavedUnit == GenesisTracker::UNIT_METRIC;
-	}
-	
-	if(is_admin()){
-		$isMetric = true;
-	}
-	
-	$sixMonthWeightMain = "";
-	$sixMonthWeightPounds = "";
-	
-	if($sixMonthWeightVal){
-		if($isMetric){
-			$sixMonthWeightMain = $sixMonthWeightVal;
-		}else{
-			$weight = GenesisTracker::kgToStone($sixMonthWeightVal);
-		
-			$sixMonthWeightMain = $weight['stone'];
-			$sixMonthWeightPounds = $weight['pounds'];
-		}
-	}
-	
-	?>
+    $initalUnit  = GenesisTracker::getInitialUserUnit($user->ID);
+    
+    if($lastSavedUnit = get_the_author_meta(GenesisTracker::getOptionKey('last_profile_unit'), $user->ID)){
+        $isMetric = $lastSavedUnit == GenesisTracker::UNIT_METRIC;
+    }
+    
+    if(is_admin()){
+        $isMetric = true;
+    }
+    
+    $sixMonthWeightMain = "";
+    $sixMonthWeightPounds = "";
+    
+    if($sixMonthWeightVal){
+        if($isMetric){
+            $sixMonthWeightMain = $sixMonthWeightVal;
+        }else{
+            $weight = GenesisTracker::kgToStone($sixMonthWeightVal);
+        
+            $sixMonthWeightMain = $weight['stone'];
+            $sixMonthWeightPounds = $weight['pounds'];
+        }
+    }
+    
+    ?>
     <table class="form-table input-form">
-    	<tr>
-    	<th><label for="tel"><?php _e("Telephone"); ?></label></th>
-    	    <td>
+        <tr>
+        <th><label for="tel"><?php _e("Telephone"); ?></label></th>
+            <td>
             <?php 
             echo $form->input('tel', 'text', array(
               'autocomplete' => 'off',
@@ -303,206 +303,206 @@ function extra_user_profile_fields($user){
            </label>
             </td>
         </tr>
-		
-		
-		<?php if(is_admin()): ?>
-			<tr>
-				<th>
-					<label for="<?php echo $sixMonthDateKey?>"><?php _e("Six Month Start Date <br />(on or around week 26)")?></label>
-				</th>
-				<td>
+        
+        
+        <?php if(is_admin()): ?>
+            <tr>
+                <th>
+                    <label for="<?php echo $sixMonthDateKey?>"><?php _e("Six Month Start Date <br />(on or around week 26)")?></label>
+                </th>
+                <td>
                    
-					<?php $settings = array(
-						'default' => $sixMonthDateValue ? GenesisTracker::convertDBDate($sixMonthDateValue) : '',
-						'id' => $sixMonthDateKey,
-						'readonly' => 'readonly',
-						'class' => 'datepicker'
-					);
-				
-					echo $form->input($sixMonthDateKey, 'text', $settings);
-					?>
+                    <?php $settings = array(
+                        'default' => $sixMonthDateValue ? GenesisTracker::convertDBDate($sixMonthDateValue) : '',
+                        'id' => $sixMonthDateKey,
+                        'readonly' => 'readonly',
+                        'class' => 'datepicker'
+                    );
+                
+                    echo $form->input($sixMonthDateKey, 'text', $settings);
+                    ?>
                     <div>
                         <em>Actual Start Date (First Monday after activation): <?php echo GenesisTracker::convertDBDate($user->user_registered)?></em>
                     </div>
-				</td>
-			</tr>
-		<?php endif; ?>
-		
-		
-		<?php if(GenesisTracker::isUserSixMonths($user->ID) || is_admin()):?>
-			
-		<tr>
-			<th>
-				<label for="weight-main"><?php _e('Six Month Weight')?></label>
-			</th>
-			<td>
-				<?php if(is_admin() == false):?>
-				<div>
-					<?php
-					echo $form->dropdown('weight_unit', array(
-						'1' => 'Stone and Pounds',
-						'2' => 'Kilograms'
-					), array(
-						'class' => 'weight-unit',
-						'default' => $isMetric ? GenesisTracker::UNIT_METRIC : GenesisTracker::UNIT_IMPERIAL
-					));
-					?>
-				</div>
-				<?php endif;?>
-				<div class="input-wrapper">
-					<?php
-					echo $form->input('weight_main', 'text', array(
-						'class' => 'general-input weight-input regular-text',
-						'id' => 'weight-main',
-						'value' => $sixMonthWeightMain
-						));
-					?>
-					<?php if(is_admin() == false):?>
-					<p class="input-suffix weight metric <?php echo (!$isMetric ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
-					<p class="input-suffix weight imperial <?php echo ($isMetric ? 'hidden' : '');?>"><?php _e('stone');?></p>
-				<?php endif; ?>
-				</div>
-				<?php if(is_admin() == false):?>
-				<div class="input-wrapper">
-					<?php
-					echo $form->input('weight_pounds', 'text', array(
-						'class' => 'general-input regular-text weight-input weight imperial  ' . ($isMetric ? "hidden" : ""),
-						'id' => 'weight-pounds',
-						'value' => round($sixMonthWeightPounds, 2)
-						));
-					?>
-		
-					<p class="input-suffix weight imperial <?php echo ($isMetric ? 'hidden' : '');?>"><?php _e('pounds');?></p>
-				</div>
-				<?php endif; ?>
-				
-			</td>
-		</tr>
-		<?php endif; ?>
+                </td>
+            </tr>
+        <?php endif; ?>
+        
+        
+        <?php if(is_admin()):?>
+            
+        <tr>
+            <th>
+                <label for="weight-main"><?php _e('Six Month Weight')?></label>
+            </th>
+            <td>
+                <?php if(is_admin() == false):?>
+                <div>
+                    <?php
+                    echo $form->dropdown('weight_unit', array(
+                        '1' => 'Stone and Pounds',
+                        '2' => 'Kilograms'
+                    ), array(
+                        'class' => 'weight-unit',
+                        'default' => $isMetric ? GenesisTracker::UNIT_METRIC : GenesisTracker::UNIT_IMPERIAL
+                    ));
+                    ?>
+                </div>
+                <?php endif;?>
+                <div class="input-wrapper">
+                    <?php
+                    echo $form->input('weight_main', 'text', array(
+                        'class' => 'general-input weight-input regular-text',
+                        'id' => 'weight-main',
+                        'value' => $sixMonthWeightMain
+                        ));
+                    ?>
+                    <?php if(is_admin() == false):?>
+                    <p class="input-suffix weight metric <?php echo (!$isMetric ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
+                    <p class="input-suffix weight imperial <?php echo ($isMetric ? 'hidden' : '');?>"><?php _e('stone');?></p>
+                <?php endif; ?>
+                </div>
+                <?php if(is_admin() == false):?>
+                <div class="input-wrapper">
+                    <?php
+                    echo $form->input('weight_pounds', 'text', array(
+                        'class' => 'general-input regular-text weight-input weight imperial  ' . ($isMetric ? "hidden" : ""),
+                        'id' => 'weight-pounds',
+                        'value' => round($sixMonthWeightPounds, 2)
+                        ));
+                    ?>
+        
+                    <p class="input-suffix weight imperial <?php echo ($isMetric ? 'hidden' : '');?>"><?php _e('pounds');?></p>
+                </div>
+                <?php endif; ?>
+                
+            </td>
+        </tr>
+        <?php endif; ?>
     </table>
     
     <?php if(is_admin()){ ?>
-		<hr />
+        <hr />
     <table class="form-table">
-		<tr>
-			<th>
-				<label for="<?php echo $startWeightKey?>"><?php _e("Initial Weight (Kg)")?></label>
-			</th>
-			<td>
-				<?php $settings = array(
-					'default' => $startWeight,
-					'id' => $startWeightKey
-				);
-				
-				if(!$startWeight){
-					$settings['disabled'] = 'disabled';
-				}
-				echo $form->input($startWeightKey, 'text', $settings);
-				?>
-			</td>
-		</tr>
-		
-    	<tr>
-    	<th><label for="<?php echo $activeKey?>"><?php _e("Genesis Activate User"); ?></label></th>
-    	<td>
-    	<?php
-    	 echo $form->dropdown($activeKey, array(
-    	 '0' => 'Disabled',
-    	 '1' => 'Active'
-    	 ), array(
-    	     'default' => $activeVal,
+        <tr>
+            <th>
+                <label for="<?php echo $startWeightKey?>"><?php _e("Initial Weight (Kg)")?></label>
+            </th>
+            <td>
+                <?php $settings = array(
+                    'default' => $startWeight,
+                    'id' => $startWeightKey
+                );
+                
+                if(!$startWeight){
+                    $settings['disabled'] = 'disabled';
+                }
+                echo $form->input($startWeightKey, 'text', $settings);
+                ?>
+            </td>
+        </tr>
+        
+        <tr>
+        <th><label for="<?php echo $activeKey?>"><?php _e("Genesis Activate User"); ?></label></th>
+        <td>
+        <?php
+         echo $form->dropdown($activeKey, array(
+         '0' => 'Disabled',
+         '1' => 'Active'
+         ), array(
+             'default' => $activeVal,
              'id' => $activeKey
-    	 ));
-    	?>
-    	</td>
-    	</tr>
+         ));
+        ?>
+        </td>
+        </tr>
         <tr>
-        	<th><label for="<?php echo $contactedKey; ?>"><?php _e("User has been contacted"); ?></label></th>
-        	<td>
-        	<?php
-        	 echo $form->dropdown($contactedKey, array(
-        	 '0' => 'No',
-        	 '1' => 'Yes'
-        	 ), array(
-        	     'default' => $contactedVal,
+            <th><label for="<?php echo $contactedKey; ?>"><?php _e("User has been contacted"); ?></label></th>
+            <td>
+            <?php
+             echo $form->dropdown($contactedKey, array(
+             '0' => 'No',
+             '1' => 'Yes'
+             ), array(
+                 'default' => $contactedVal,
                  'id' => $contactedKey
-        	 ));
-        	?>
-        	</td>
+             ));
+            ?>
+            </td>
         </tr>
         
         <tr>
-        	<th><label for="<?php echo $withdrawnKey; ?>"><?php _e("User has withdrawn"); ?></label></th>
-        	<td>
-        	<?php
-        	 echo $form->dropdown($withdrawnKey, array(
-        	 '0' => 'No',
-        	 '1' => 'Yes'
-        	 ), array(
-        	     'default' => $withdrawnVal,
+            <th><label for="<?php echo $withdrawnKey; ?>"><?php _e("User has withdrawn"); ?></label></th>
+            <td>
+            <?php
+             echo $form->dropdown($withdrawnKey, array(
+             '0' => 'No',
+             '1' => 'Yes'
+             ), array(
+                 'default' => $withdrawnVal,
                  'id' => $withdrawnKey
-        	 ));
-        	?>
-        	</td>
+             ));
+            ?>
+            </td>
         </tr>
         
         <tr>
-        	<th><label for="<?php echo $notesKey; ?>"><?php _e("Comments"); ?></label></th>
-        	<td>
-        	<?php
-        	 echo $form->textarea($notesKey, array(
-        	     'default' => $notesVal,
+            <th><label for="<?php echo $notesKey; ?>"><?php _e("Comments"); ?></label></th>
+            <td>
+            <?php
+             echo $form->textarea($notesKey, array(
+                 'default' => $notesVal,
                  'id' => $notesKey,
                  'cols' => 30,
                  'rows' => 5
-        	 ));
-        	?>
-        	</td>
+             ));
+            ?>
+            </td>
         </tr>
         
        
     </table>
-	
-	
+    
+    
     
     <?php } ?>
-	
-	
+    
+    
     <?php if(is_admin()):?>
         <hr />
     <?php endif;?>
-	
+    
     <table class="form-table">
-	<tr>
-	<th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of weekly reminder emails"); ?></label></th>
-	<td>
-	<?php
-	 echo $form->createInput($reminderKey, 'checkbox', array(
-	 'id' => $reminderKey,
-	 'value' => 1
-	 ), $storedVal);
-	?>
-	</td>
-	</tr>
+    <tr>
+    <th><label for="<?php echo $reminderKey ?>"><?php _e("Opt out of weekly reminder emails"); ?></label></th>
+    <td>
+    <?php
+     echo $form->createInput($reminderKey, 'checkbox', array(
+     'id' => $reminderKey,
+     'value' => 1
+     ), $storedVal);
+    ?>
+    </td>
+    </tr>
     
     <?php
     if(is_admin()):?>
-	<tr>
-	<th><label for="<?php echo $omitSixMonthEmailKey ?>"><?php _e("Opt out of 6 - 12 month emails"); ?></label></th>
-	<td>
-	<?php
-	 echo $form->createInput($omitSixMonthEmailKey, 'checkbox', array(
-	 'id' => $omitSixMonthEmailKey,
-	 'value' => 1
-	 ), $omitSixMonthEmailVaue);
-	?>
-	</td>
-	</tr>
+    <tr>
+    <th><label for="<?php echo $omitSixMonthEmailKey ?>"><?php _e("Opt out of 6 - 12 month emails"); ?></label></th>
+    <td>
+    <?php
+     echo $form->createInput($omitSixMonthEmailKey, 'checkbox', array(
+     'id' => $omitSixMonthEmailKey,
+     'value' => 1
+     ), $omitSixMonthEmailVaue);
+    ?>
+    </td>
+    </tr>
     <?php endif; ?>
     
     </table>
-	
-	    <?php if(is_admin()):?>
+    
+        <?php if(is_admin()):?>
             <hr />
         <?php endif;?>
         <div class="stats">
@@ -680,7 +680,7 @@ function extra_user_profile_fields($user){
             </tr>
             
         </table>
-	    <?php if(is_admin()):?>
+        <?php if(is_admin()):?>
             <hr />
             <h4>Nutritional Targets</h4>
         <?php endif;?>
@@ -688,7 +688,7 @@ function extra_user_profile_fields($user){
     </div>
     
   
-	<?php
+    <?php
 }
 
 function user_target_fields($user){
@@ -700,7 +700,7 @@ function user_target_fields($user){
     <?php
     endif;
     ?>
-	<table class="form-table food-table">	
+    <table class="form-table food-table">    
         
         <?php if(!is_admin()):?>
         <tr>
@@ -748,50 +748,50 @@ function user_target_fields($user){
 
         <?php endforeach; ?>
     </table>
-	<?php
+    <?php
 }
 
 function save_extra_user_profile_fields($user_id){
-	if ( !current_user_can( 'edit_user', $user_id ) ) { return false; }
-	
-	$reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
+    if ( !current_user_can( 'edit_user', $user_id ) ) { return false; }
+    
+    $reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
-	$sixMonthWeightKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
-	$sixMonthDateKey	 = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
+    $sixMonthWeightKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
+    $sixMonthDateKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
     $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
-	
-	$startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
+    
+    $startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
     
     $twelveMonthTargetKey = GenesisTracker::getOptionKey(GenesisTracker::twelveMonthWeightTargetKey);
     
-	$val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
-	$tel = isset($_POST['tel']) ? $_POST['tel'] : '';
+    $val = isset($_POST[$reminderKey]) ? $_POST[$reminderKey] : 0;
+    $tel = isset($_POST['tel']) ? $_POST['tel'] : '';
     
-	update_user_meta( $user_id, $reminderKey, $val );
-	update_user_meta( $user_id, 'tel', $tel );
-	
+    update_user_meta( $user_id, $reminderKey, $val );
+    update_user_meta( $user_id, 'tel', $tel );
+    
 
-	$sixMonthWeight = $_POST['weight_main'];
-	
-	if(is_admin() == false){
-		if($_POST['weight_unit'] == GenesisTracker::UNIT_METRIC){
-			$sixMonthWeight = $_POST['weight_main'];
-		}else{
-			$sixMonthWeight = GenesisTracker::stoneToKg($_POST['weight_main'], $_POST['weight_pounds']);
-		}
-	}
-	
-	if(GenesisTracker::isValidWeight($sixMonthWeight)){
-		update_user_meta( $user_id, $sixMonthWeightKey, $sixMonthWeight );
-		
-		if(is_admin() == false){
-			update_user_meta( $user_id, GenesisTracker::getOptionKey('last_profile_unit'), $_POST['weight_unit']);
-		}
-	}
-	
+    $sixMonthWeight = $_POST['weight_main'];
+    
+    if(is_admin() == false){
+        if($_POST['weight_unit'] == GenesisTracker::UNIT_METRIC){
+            $sixMonthWeight = $_POST['weight_main'];
+        }else{
+            $sixMonthWeight = GenesisTracker::stoneToKg($_POST['weight_main'], $_POST['weight_pounds']);
+        }
+    }
+    
+    if(GenesisTracker::isValidWeight($sixMonthWeight)){
+        update_user_meta( $user_id, $sixMonthWeightKey, $sixMonthWeight );
+        
+        if(is_admin() == false){
+            update_user_meta( $user_id, GenesisTracker::getOptionKey('last_profile_unit'), $_POST['weight_unit']);
+        }
+    }
+    
 
     if(is_admin()){
             $minHealthyWeight = isset($_POST[$minHealthyWeightKey]) ? (float) $_POST[$minHealthyWeightKey] : '';
@@ -801,20 +801,20 @@ function save_extra_user_profile_fields($user_id){
             $omitSixMonthEmailValue = isset($_POST[$omitSixMonthEmailKey]) ? (int)$_POST[$omitSixMonthEmailKey] : 0;
             $twelveMonthTargetValue = isset($_POST[$twelveMonthTargetKey]) ? (int)$_POST[$twelveMonthTargetKey] : '';
             
-			if((float) $_POST[$startWeightKey]){
-				update_user_meta( $user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]) );
-			}
+            if((float) $_POST[$startWeightKey]){
+                update_user_meta( $user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]) );
+            }
             
            if((float) $_POST[$twelveMonthTargetKey]){
                 update_user_meta( $user_id, $twelveMonthTargetKey, GenesisTracker::makeValidWeight($_POST[$twelveMonthTargetKey]) );
             }
-			
-			if($_POST[$sixMonthDateKey]){
-				update_user_meta( $user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
-			}
-			
-        	update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
-        	update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
+            
+            if($_POST[$sixMonthDateKey]){
+                update_user_meta( $user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
+            }
+            
+            update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
+            update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
             update_user_meta( $user_id, $weightTargetKey, $targetWeight );
             update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
             update_user_meta( $user_id, $omitSixMonthEmailKey, $omitSixMonthEmailValue );
@@ -831,15 +831,15 @@ add_action('admin_menu', 'genesisAdminMenu');
 add_action('wp_ajax_genesis_get_form_values', 'genesis_post_form_values');
 
 function genesisAdminMenu(){
-	add_menu_page('Procas Admin', 'Procas Admin', GenesisTracker::editCapability, 'genesis-tracker', genesis_admin_page, null, 5);
+    add_menu_page('Procas Admin', 'Procas Admin', GenesisTracker::editCapability, 'genesis-tracker', genesis_admin_page, null, 5);
 }
 
 
 // Because the ajax functionality doesn't pass parameters, we get them here
 function genesis_post_form_values(){
-	$day = $_POST['day'];
-	$month = $_POST['month'];
-	$year = $_POST['year'];
+    $day = $_POST['day'];
+    $month = $_POST['month'];
+    $year = $_POST['year'];
     
     die(json_encode(GenesisTracker::getUserFormValues($day, $month, $year)));
 }
@@ -852,31 +852,31 @@ function genesis_admin_page(){
         }
     }
     
-	genesis_admin_user_list();
+    genesis_admin_user_list();
 }
 
 function genesis_admin_send_red_flag_email(){
-	global $wpdb;
-	
-	if(isset($_POST['user'])){
-		$result = GenesisTracker::sendRedFlagEmail($_POST['user']);
-		
-		if(is_array($result)){
-			GenesisAdmin::addAdminNotice('error', $result['message']);
-		}else{
-			GenesisAdmin::addAdminNotice('updated', 'A red flag email has been successfully sent to this user');
-		}
-		
-		wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
-		// Exit so we go no further after the redirect
-		exit;
-	}
+    global $wpdb;
+    
+    if(isset($_POST['user'])){
+        $result = GenesisTracker::sendRedFlagEmail($_POST['user']);
+        
+        if(is_array($result)){
+            GenesisAdmin::addAdminNotice('error', $result['message']);
+        }else{
+            GenesisAdmin::addAdminNotice('updated', 'A red flag email has been successfully sent to this user');
+        }
+        
+        wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
+        // Exit so we go no further after the redirect
+        exit;
+    }
 }
 
 function genesis_admin_user_list(){
-	global $wpdb;
-	$tbl = new GenesisUserTable();
-	include('page/admin/user-list.php');
+    global $wpdb;
+    $tbl = new GenesisUserTable();
+    include('page/admin/user-list.php');
 }
 
 function genesis_admin_user_show($user){
@@ -888,145 +888,145 @@ function genesis_admin_user_show($user){
     $foodTypes = GenesisTracker::getuserMetaTargetFields();
     $foodTimes = GenesisTracker::getUserTargetTimes();
     $exerciseLogs = GenesisAdmin::getExerciseLogsForUser($user->ID);
-	$weightLogs = GenesisAdmin::getWeightLogsForUser($user->ID);
+    $weightLogs = GenesisAdmin::getWeightLogsForUser($user->ID);
     $dietDays = GenesisAdmin::getDietDaysForUser($user->ID);
-	
+    
     include('page/admin/user-show.php');
 }
 
 function genesis_admin_send_four_weekly_email(){
-	global $wpdb;
-	if(!get_user_by('id', $_POST['user'])){
-		wp_redirect(GenesisTracker::getAdminUrl());
-		exit;
-	}
-	
-	if(($response = GenesisTracker::sendFourWeeklyEmail($_POST['user'], $_POST['action'])) === true){
-		GenesisAdmin::addAdminNotice('updated', 'The email sent successfully');
-	}else{
-		GenesisAdmin::addAdminNotice('error', $response['message']);
-	}
+    global $wpdb;
+    if(!get_user_by('id', $_POST['user'])){
+        wp_redirect(GenesisTracker::getAdminUrl());
+        exit;
+    }
+    
+    if(($response = GenesisTracker::sendFourWeeklyEmail($_POST['user'], $_POST['action'])) === true){
+        GenesisAdmin::addAdminNotice('updated', 'The email sent successfully');
+    }else{
+        GenesisAdmin::addAdminNotice('error', $response['message']);
+    }
 
-	wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
-	exit;
+    wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
+    exit;
 }
 
 function genesis_user_graph(){
-	ob_start();
-	$foodLogDays = 7;
-	$userGraphPage = GenesisTracker::getUserPagePermalink();
-	$userInputPage = GenesisTracker::getUserInputPagePermalink();
-	
-	$weightChange = GenesisTracker::getUserWeightChange(get_current_user_id());
+    ob_start();
+    $foodLogDays = 7;
+    $userGraphPage = GenesisTracker::getUserPagePermalink();
+    $userInputPage = GenesisTracker::getUserInputPagePermalink();
+    
+    $weightChange = GenesisTracker::getUserWeightChange(get_current_user_id());
     $foodLogData = GenesisTracker::getTotalFoodLogs(get_current_user_id(), $foodLogDays);
     $foodTypes = GenesisTracker::getuserMetaTargetFields();
     
-	$weightChangeInButter = 0;
+    $weightChangeInButter = 0;
 
-	
-	if(abs($weightChange) > -0.1){
-		$butterWeight = 0.25;
-		$weightChangeInButter = round(($weightChange) / $butterWeight,2);
-	}
-	
-	include('page/user-graph.php');
-	$output = ob_get_contents();
-	
-	ob_end_clean();
-	return $output;
+    
+    if(abs($weightChange) > -0.1){
+        $butterWeight = 0.25;
+        $weightChangeInButter = round(($weightChange) / $butterWeight,2);
+    }
+    
+    include('page/user-graph.php');
+    $output = ob_get_contents();
+    
+    ob_end_clean();
+    return $output;
 }
 
 // PAGES
 function genesis_user_input_page(){
-	ob_start();
-	$form = DP_HelperForm::getForm('user-input');
-	$outputBody = false;
-	$userGraphPage = GenesisTracker::getUserPagePermalink();
-	$userInputPage = GenesisTracker::getUserInputPagePermalink();
-	
-	$dateListPicker = '';
-	
-	if($form->wasPosted()){
-		// Get the date list picker html with selected post values
-		$date = GenesisTracker::convertFormDate($form->getRawValue('measure_date'));
+    ob_start();
+    $form = DP_HelperForm::getForm('user-input');
+    $outputBody = false;
+    $userGraphPage = GenesisTracker::getUserPagePermalink();
+    $userInputPage = GenesisTracker::getUserInputPagePermalink();
+    
+    $dateListPicker = '';
+    
+    if($form->wasPosted()){
+        // Get the date list picker html with selected post values
+        $date = GenesisTracker::convertFormDate($form->getRawValue('measure_date'));
 
-		$dateParts = date_parse($date);
-		$selectedDates = is_array($form->getRawValue('diet_days')) ? $form->getRawValue('diet_days') : array();
-		$dateListPicker = GenesisTracker::getDateListPicker($dateParts['day'], $dateParts['month'], $dateParts['year'], false, $selectedDates);
-	}
-	
-	if(GenesisTracker::getPageData('user-input-save') == true){
-		require('page/user-input-success.php');
-		$outputBody = true;
-	}
-	
-	if(GenesisTracker::getPageData('user-input-duplicate') == true){
-		require('page/user-input-duplicate.php');
-		$outputBody = true;
-	}
-	
-	// Default form output
-	if(!$outputBody){
-		$metricUnits = $form->getRawValue('weight_unit') == GenesisTracker::UNIT_METRIC;
-		require('page/user-input.php');
-	}
-	
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
+        $dateParts = date_parse($date);
+        $selectedDates = is_array($form->getRawValue('diet_days')) ? $form->getRawValue('diet_days') : array();
+        $dateListPicker = GenesisTracker::getDateListPicker($dateParts['day'], $dateParts['month'], $dateParts['year'], false, $selectedDates);
+    }
+    
+    if(GenesisTracker::getPageData('user-input-save') == true){
+        require('page/user-input-success.php');
+        $outputBody = true;
+    }
+    
+    if(GenesisTracker::getPageData('user-input-duplicate') == true){
+        require('page/user-input-duplicate.php');
+        $outputBody = true;
+    }
+    
+    // Default form output
+    if(!$outputBody){
+        $metricUnits = $form->getRawValue('weight_unit') == GenesisTracker::UNIT_METRIC;
+        require('page/user-input.php');
+    }
+    
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
 }
 
 function genesis_tracker_page(){
-	ob_start();
-	$form = DP_HelperForm::getForm('tracker');
-	$outputBody = false;
-	$userGraphPage = GenesisTracker::getUserPagePermalink();
-	$userInputPage = GenesisTracker::getUserInputPagePermalink();
-	
-	if(GenesisTracker::getPageData('target-save') == true){
-		require('page/target-save-success.php');
-		$outputBody = true;
-	}
-	
-	
-	// Default form output
-	if(!$outputBody){
-		$metricUnits = $form->getRawValue('weight_unit') == GenesisTracker::UNIT_METRIC;
-		if($currentWeight = GenesisTracker::getUserLastEnteredWeight(get_current_user_id())){
-			$imperial = GenesisTracker::kgToStone($currentWeight);
-			$weight = array(
-				'metric' => round($currentWeight, 2) . ' kilograms',
-				'imperial' => round($imperial['stone'], 2) . " stone" . ($imperial['pounds'] ? ", " . round($imperial['pounds'], 2) . " pounds" : "")
-			);
-		}
-		
-		
-		require('page/tracker-input.php');
-	}
-	
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
+    ob_start();
+    $form = DP_HelperForm::getForm('tracker');
+    $outputBody = false;
+    $userGraphPage = GenesisTracker::getUserPagePermalink();
+    $userInputPage = GenesisTracker::getUserInputPagePermalink();
+    
+    if(GenesisTracker::getPageData('target-save') == true){
+        require('page/target-save-success.php');
+        $outputBody = true;
+    }
+    
+    
+    // Default form output
+    if(!$outputBody){
+        $metricUnits = $form->getRawValue('weight_unit') == GenesisTracker::UNIT_METRIC;
+        if($currentWeight = GenesisTracker::getUserLastEnteredWeight(get_current_user_id())){
+            $imperial = GenesisTracker::kgToStone($currentWeight);
+            $weight = array(
+                'metric' => round($currentWeight, 2) . ' kilograms',
+                'imperial' => round($imperial['stone'], 2) . " stone" . ($imperial['pounds'] ? ", " . round($imperial['pounds'], 2) . " pounds" : "")
+            );
+        }
+        
+        
+        require('page/tracker-input.php');
+    }
+    
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
 }
 
 function genesis_initial_weight_page(){
-	ob_start();
+    ob_start();
     $userGraphPage = GenesisTracker::getUserPagePermalink();
-	$form = DP_HelperForm::getForm('initial-weight');
-	$outputBody = false;
-	
-	if(GenesisTracker::getPageData('weight-save') == true){
-		require('page/initial-weight-success.php');
-		$outputBody = true;
-	}
-	
-	if(!$outputBody){
-		require('page/initial-weight.php');
-	}
-	
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
+    $form = DP_HelperForm::getForm('initial-weight');
+    $outputBody = false;
+    
+    if(GenesisTracker::getPageData('weight-save') == true){
+        require('page/initial-weight-success.php');
+        $outputBody = true;
+    }
+    
+    if(!$outputBody){
+        require('page/initial-weight.php');
+    }
+    
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
 }
 
 function genesis_prescription_page(){
@@ -1051,9 +1051,9 @@ function genesis_eligibility_page(){
     require('page/eligibility.php');
     $outputBody = true;
     
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
 }
 
 function genesis_ineligible_page(){
@@ -1066,7 +1066,7 @@ function genesis_ineligible_page(){
     require('page/ineligible.php');
     $outputBody = true;
     
-	$output = ob_get_contents();
-	ob_end_clean();
-	return $output;
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
 }
