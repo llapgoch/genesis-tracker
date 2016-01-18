@@ -129,6 +129,7 @@
                 <li>They haven't been given a six month date or six month weight</li>
                 <li>They have opted out of 6 - 12 month reminder emails</li>
                 <li>They have been subscribed for a year or more (the Monday after their activation date + 52 weeks)</li>
+                <li>The weeks they've been registered is not one of the four week email points</li>
             </ul>
 		<?php endif; ?>
 		</dd>

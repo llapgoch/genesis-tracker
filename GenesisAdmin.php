@@ -319,8 +319,10 @@ class GenesisAdmin{
             GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::userStartDateKey),
             GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey)
-        ), ARRAY_A);   
-        
+        ), ARRAY_A);
+
+        $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
+
         foreach($results as &$result){
             // Do the four weekly logic
             
@@ -330,6 +332,11 @@ class GenesisAdmin{
             
             if($isLosingResult = self::userIsClassedAsLosing($result['user_id'])){
                 $result['four_week_outcome'] = self::WEIGHT_LOSING;
+            }
+            
+            // Change the output if the user's week doesn't fit with a four week point
+            if(!in_array($result['weeks_registered'], $fourWeekPoints)){
+                $result['four_week_required_to_send'] = 0;
             }
             
         }

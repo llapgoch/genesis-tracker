@@ -101,6 +101,10 @@ class GenesisTracker{
         "drinks" => array("name" => "Drinks")
     );
     
+    protected static $_fourWeekPoints = array(
+        30, 34, 38, 42, 46
+    );
+    
     
     
     public function populate(){
@@ -304,6 +308,10 @@ class GenesisTracker{
          if($role){
              $role->add_cap(self::editCapability);
          }
+     }
+     
+     public static function getFourWeeklyPoints(){
+         return self::$_fourWeekPoints;
      }
      
      public static function checkVersionUpgrade(){
@@ -2639,6 +2647,12 @@ class GenesisTracker{
          }
          
         $userDetails = GenesisAdmin::getUserLogDetails(null, $userId);
+        
+        if(!in_array($userDetails['weeks_registered'], $this->fourWeekPoints)){
+            return array(
+                'message' => 'This user has not been registered for a correct four weekly point'
+            );
+        }
          
         $uploadsDir = wp_upload_dir();
         $body = self::getTemplateContents('four-weekly-' . strtolower($type));
