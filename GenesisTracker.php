@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.29";
+    const version = "1.30";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -241,6 +241,7 @@ class GenesisTracker{
           `user_id` int(11) unsigned DEFAULT NULL,
           `type` VARCHAR(255) DEFAULT NULL,
           `log_date` datetime DEFAULT NULL,
+          `week` TINYINT(4) DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
         
@@ -2648,7 +2649,7 @@ class GenesisTracker{
          
         $userDetails = GenesisAdmin::getUserLogDetails(null, $userId);
         
-        if(!in_array($userDetails['weeks_registered'], $this->fourWeekPoints)){
+        if(!in_array($userDetails['weeks_registered'], self::$_fourWeekPoints)){
             return array(
                 'message' => 'This user has not been registered for a correct four weekly point'
             );
@@ -2687,7 +2688,8 @@ class GenesisTracker{
             $wpdb->insert(self::getFourWeekEmailLogTableName(), array(
                'user_id' => $userId,
                'type' => $type,
-               'log_date' => current_time('Y-m-d H:i:s')
+               'log_date' => current_time('Y-m-d H:i:s'),
+               'week' => $userDetails['weeks_registered']
             ));
             return true;
         }else{

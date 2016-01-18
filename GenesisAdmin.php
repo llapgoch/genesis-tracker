@@ -324,19 +324,16 @@ class GenesisAdmin{
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
 
         foreach($results as &$result){
-            // Do the four weekly logic
-            
-            if($result['four_week_outcome'] !== self::WEIGHT_MAINTAINING){
-                continue;
-            }
-            
-            if($isLosingResult = self::userIsClassedAsLosing($result['user_id'])){
-                $result['four_week_outcome'] = self::WEIGHT_LOSING;
-            }
-            
             // Change the output if the user's week doesn't fit with a four week point
             if(!in_array($result['weeks_registered'], $fourWeekPoints)){
                 $result['four_week_required_to_send'] = 0;
+            }
+            
+            // Do the four weekly logic
+            if($result['four_week_outcome'] == self::WEIGHT_MAINTAINING){
+                if($isLosingResult = self::userIsClassedAsLosing($result['user_id'])){
+                    $result['four_week_outcome'] = self::WEIGHT_LOSING;
+                }
             }
             
         }
