@@ -221,7 +221,7 @@ class GenesisAdmin{
                 UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
                 IF(DATE_ADD(DATE_ADD(start_date.`meta_value`, INTERVAL (7 - WEEKDAY(start_date.`meta_value`)) DAY), INTERVAL 52 WEEK) < NOW(), 1, 0) as registered_for_year,
                 /* The weeks registered goes from the monday after the start date, not registration date */
-                FLOOR(DATEDIFF(NOW(), DATE_ADD(start_date.`meta_value`, INTERVAL (7 - WEEKDAY(start_date.`meta_value`)) DAY))/7) as weeks_registered,
+                FLOOR(DATEDIFF(NOW(), DATE_ADD(start_date.`meta_value`, INTERVAL (7 - WEEKDAY(start_date.`meta_value`)) DAY))/7) + 1 as weeks_registered,
                 DATE_ADD(start_date.`meta_value`, INTERVAL (7 - WEEKDAY(start_date.`meta_value`)) DAY) as actual_start_date,
                 (SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
