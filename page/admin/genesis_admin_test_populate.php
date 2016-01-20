@@ -85,6 +85,7 @@ function migrate_users(){
     echo "<pre>";
     
     
+    // VAULES TO BRING ACROSS FROM WP'S user meta table to our user details table.
     $valsToMigrate = array(
         'initial_weight', 
         'account_active',
