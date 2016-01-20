@@ -856,8 +856,22 @@ function genesis_admin_page(){
         }
     }
     
+    // Load a sub page (this uses pagesub whereas executing a function before rendering uses sub)
+    if(isset($_GET['pagesub']) && is_admin()){
+        if(strpos($_GET['pagesub'], "genesis_admin_") === 0){
+            if(function_exists($_GET['pagesub'])){
+                return call_user_func($_GET['pagesub']);
+            }else{
+                include('page/admin/' . $_GET['pagesub'] . '.php');
+                return;
+            }
+        }
+    }
+    
+    // Default
     genesis_admin_user_list();
 }
+
 
 function genesis_admin_send_red_flag_email(){
     global $wpdb;
