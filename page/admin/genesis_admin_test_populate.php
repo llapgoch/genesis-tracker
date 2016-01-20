@@ -11,7 +11,7 @@ function migrate_users(){
                    passcode_group.`meta_value`
                    AS passcode_group,
                    user_contacted.`meta_value`
-                   AS user_contacted,
+                   AS contacted,
                    withdrawn.`meta_value`
                    AS withdrawn,
                    notes.`meta_value`
@@ -89,7 +89,7 @@ function migrate_users(){
         'initial_weight', 
         'account_active',
         'passcode_group',
-        'user_contacted',
+        'contacted',
         'withdrawn',
         'notes',
         'red_flag_email_date',
@@ -99,9 +99,12 @@ function migrate_users(){
         'omit_six_month_email_key'
     );
     
-    $results = $wpdb->get_results($q));
+    $results = $wpdb->get_results($q);
     
-    foreach()
+    foreach($results as $result){
+        // Get the result set from the DB, update if it's there and insert if it's not.
+        var_dump($result->id);
+    }
     
 }
 
