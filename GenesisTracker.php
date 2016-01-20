@@ -654,6 +654,11 @@ class GenesisTracker{
          return $wpdb->base_prefix . "genesis_tracker";
      }
      
+     public static function getUserDataTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_userdata";
+     }
+     
      public static function getDietDayTableName(){
          global $wpdb;
          return $wpdb->base_prefix . "genesis_diet_day";

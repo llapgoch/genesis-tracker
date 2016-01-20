@@ -4,8 +4,8 @@ MIGRATION FOR USERS TO THE NEW SYSTEM
 function migrate_users(){
     global $wpdb;
     
-    $q = "(SELECT u.id, initial_weight.`meta_value`
-                   AS initial_weight,
+    $q = "(SELECT u.id as user_id, initial_weight.`meta_value`
+                   AS start_weight,
                    account_active.`meta_value`
                    AS account_active,
                    passcode_group.`meta_value`
@@ -23,7 +23,9 @@ function migrate_users(){
                    six_month_date.`meta_value`
                    AS six_month_date,
                    start_date.`meta_value`
-                   AS start_date
+                   AS start_date,
+                   six_month_email_opt_out.`meta_value`
+                   as omit_six_month_email_key
 
             FROM   genwp_users u
                    LEFT JOIN genwp_genesis_tracker t
@@ -81,30 +83,48 @@ function migrate_users(){
                           ON six_month_email_opt_out.user_id = u.id
                              AND six_month_email_opt_out.meta_key =
                                  'genesis___tracker___omit_six_month_email_key'
-            GROUP  BY id)";
-    echo "<pre>";
-    
+            GROUP  BY id)";    
     
     // VAULES TO BRING ACROSS FROM WP'S user meta table to our user details table.
     $valsToMigrate = array(
-        'initial_weight', 
+        'start_weight', 
         'account_active',
         'passcode_group',
         'contacted',
         'withdrawn',
         'notes',
         'red_flag_email_date',
-        'four_weekly_date',
+        'four_weekly_email_date',
         'six_month_date',
         'start_date',
-        'omit_six_month_email_key'
+        'omit_six_month_email_key',
+        'user_id'
     );
     
     $results = $wpdb->get_results($q);
-    
+
     foreach($results as $result){
         // Get the result set from the DB, update if it's there and insert if it's not.
-        var_dump($result->id);
+        $data = array();
+        foreach($valsToMigrate as $val){
+            $data[$val] = $result->$val; 
+        }
+        
+        
+        $userData = $wpdb->get_results(
+            $q = $wpdb->prepare(
+                'SELECT * FROM ' . GenesisTracker::getUserDataTableName() . '
+                 WHERE user_id=%d', $result->user_id
+            )
+        );
+        
+        
+        if(count($userData)){
+            $wpdb->update(GenesisTracker::getUserDataTableName(), $data, array('user_id' => $result->user_id));
+        }else{
+            $wpdb->insert(GenesisTracker::getUserDataTableName(), $data);
+            var_dump($wpdb->last_error);
+        }
     }
     
 }
