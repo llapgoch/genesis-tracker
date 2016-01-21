@@ -219,13 +219,15 @@ function genesis_add_registration_fields(){
 }
 
 function extra_user_profile_fields($user){
+    $userData = GenesisTracker::getUserData($user->ID);
+
     $reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
     $storedVal = get_the_author_meta($reminderKey, $user->ID );
     
-    $activeKey = GenesisTracker::getOptionKey(GenesisTracker::userActiveKey) ;
-    $activeVal = get_the_author_meta($activeKey, $user->ID );
+   
+    $activeVal = $userData[GenesisTracker::userActiveKey];
     $activeVal = $activeVal == "" ? 1 : (int)$activeVal;
-    
+
     $startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
     $startWeight = get_the_author_meta($startWeightKey, $user->ID);
     

@@ -23,8 +23,8 @@ class GenesisTracker{
     
     const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
-    const userActiveKey = "active";
-    const userContactedKey = "contacted";
+    const userActiveKey = "account_active";
+    const userContactedKey = "user_contacted";
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
     const weightTargetKey        = "weight_target";
@@ -33,6 +33,7 @@ class GenesisTracker{
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
     const redFlagEmailDateKey = "red_flag_email_date";
     const fourWeekleyEmailDateKey = "four_weekly_email_date";
+    const passcodeGroupKey = "passcode_group";
     const sixMonthDateKey = "six_month_date";
     const omitSixMonthEmailKey = "omit_six_month_email_key";
     
@@ -434,7 +435,7 @@ class GenesisTracker{
              return;
          }
          
-         $isActive = get_the_author_meta(self::getOptionKey(self::userActiveKey), $user->ID);
+         $isActive = GenesisTracker::getUserDetails($user->ID, GenesisTracker::userActiveKey);
 
           if(is_numeric($isActive) && $isActive == 0){
               return new WP_Error( 'user_inactive',  __( '<strong>ERROR</strong>: Sorry, your account has not been activated yet.'));
@@ -2400,6 +2401,53 @@ class GenesisTracker{
      public static function ajaxRequest($data){
          var_dump($data);
          exit;
+     }
+     
+     // An alternative to using WP's user meta tables as when joining, they're sloooow
+     public static function getUserData($user_id, $key = null){
+         global $wpdb;
+         
+         $result = $wpdb->get_row(
+             $wpdb->prepare("SELECT * FROM ". self::getUserDataTableName() . 
+                 " WHERE user_id=%d", $user_id
+             ), ARRAY_A
+         );
+         
+         if(!$key){
+             return $result;
+         }
+         
+         return $result[$key];
+     }
+     
+     public static function setUserData($user_id, $key, $value){
+         // Check the user has a row
+         global $wpdb;
+         
+         $result = $wpdb->get_row(
+             $wpdb->prepare(
+                 "SELECT * FROM " . self::getUserDataTableName() . " WHERE
+                     user_id=%d", $user_id
+             )
+         );
+         
+         if($result){
+             $wpdb->update(
+                 self::getUserDataTableName(),
+                 array($key => $value),
+                 array('user_id' => $user_id)
+             );
+             
+         }else{
+             $wpdb->insert(
+                 self::getUserDataTableName(),
+                 array(
+                     'user_id' => $user_id,
+                     $key => $value
+                 )
+             );
+         }
+         
      }
      
      // Part of the set up.  Adds the user page into the database

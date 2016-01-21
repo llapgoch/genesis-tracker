@@ -11,7 +11,7 @@ function migrate_users(){
                    passcode_group.`meta_value`
                    AS passcode_group,
                    user_contacted.`meta_value`
-                   AS contacted,
+                   AS user_contacted,
                    withdrawn.`meta_value`
                    AS withdrawn,
                    notes.`meta_value`
@@ -25,7 +25,7 @@ function migrate_users(){
                    start_date.`meta_value`
                    AS start_date,
                    six_month_email_opt_out.`meta_value`
-                   as omit_six_month_email_key
+                   as six_month_email_opt_out
 
             FROM   genwp_users u
                    LEFT JOIN genwp_genesis_tracker t
@@ -90,14 +90,14 @@ function migrate_users(){
         'start_weight', 
         'account_active',
         'passcode_group',
-        'contacted',
+        'user_contacted',
         'withdrawn',
         'notes',
         'red_flag_email_date',
-        'four_weekly_email_date',
+        'four_weekly_date',
         'six_month_date',
         'start_date',
-        'omit_six_month_email_key',
+        'six_month_email_opt_out',
         'user_id'
     );
     
@@ -107,8 +107,12 @@ function migrate_users(){
         // Get the result set from the DB, update if it's there and insert if it's not.
         $data = array();
         foreach($valsToMigrate as $val){
-            $data[$val] = $result->$val; 
+            if($result->$val){
+                $data[$val] = $result->$val;
+            }
         }
+
+        var_dump($data);
         
         
         $userData = $wpdb->get_results(
