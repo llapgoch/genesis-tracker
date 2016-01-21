@@ -37,6 +37,9 @@ class GenesisTracker{
     const sixMonthDateKey = "six_month_date";
     const omitSixMonthEmailKey = "omit_six_month_email_key";
     
+    // Migrate relevant keys to cols here
+    const userActiveCol = "account_active";
+    
     const userWithdrawnKey = "withdrawn";
     const userNotesKey     = "notes";
     
@@ -548,7 +551,7 @@ class GenesisTracker{
          }
     
          // Check whether the user has been activated
-         $activeKey = self::getOptionKey(self::userActiveKey);
+         $activeKey = self::userActiveKey;
          $contactedKey = self::getOptionKey(self::userContactedKey);
          $withdrawnKey = self::getOptionKey(self::userWithdrawnKey);
          $notesKey     = self::getOptionKey(self::userNotesKey);
@@ -558,7 +561,7 @@ class GenesisTracker{
              $active = (int) $_POST[$activeKey];
              $emailSent = (int) get_the_author_meta(self::getOptionKey(self::userActiveEmailSentKey), $user_id );
              
-             update_user_meta( $user_id, $activeKey, $active);
+             self::setUserData($user_id, $activeKey, $active);
 
              if(!$emailSent && $active){
                  self::sendUserActivateEmail($user_id);
@@ -2430,6 +2433,7 @@ class GenesisTracker{
                      user_id=%d", $user_id
              )
          );
+             
          
          if($result){
              $wpdb->update(

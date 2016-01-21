@@ -224,8 +224,8 @@ function extra_user_profile_fields($user){
     $reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
     $storedVal = get_the_author_meta($reminderKey, $user->ID );
     
-   
-    $activeVal = $userData[GenesisTracker::userActiveKey];
+    $activeKey = GenesisTracker::userActiveCol;
+    $activeVal = $userData[$activeKey];
     $activeVal = $activeVal == "" ? 1 : (int)$activeVal;
 
     $startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
