@@ -211,6 +211,7 @@ class GenesisAdmin{
                 red_flag_email_date,
                 four_weekly_date,
                 six_month_email_opt_out,
+                passcode_group,
                 UNIX_TIMESTAMP(four_weekly_date) as four_weekly_date_timestamp,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,

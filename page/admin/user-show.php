@@ -12,7 +12,7 @@
         <dt>Telephone Number</dt>
         <dd><?php echo $userTelephone; ?></dd>
         <dt>Passcode Group</dt>
-        <dd><?php echo $userDetails['passcode_group'] ? $userDetails['passcode_group'] : "- -"; ?></dd>
+        <dd><?php echo $userDetails[GenesisTracker::passcodeGroupCol] ? $userDetails[GenesisTracker::passcodeGroupCol] : "- -"; ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
         <dt>Activation Date</dt>

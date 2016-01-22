@@ -23,7 +23,7 @@ class GenesisTracker{
     
     const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
-    const userActiveKey = "account_active";
+
     const userContactedKey = "user_contacted";
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
@@ -33,12 +33,13 @@ class GenesisTracker{
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
     const redFlagEmailDateKey = "red_flag_email_date";
     const fourWeekleyEmailDateKey = "four_weekly_email_date";
-    const passcodeGroupKey = "passcode_group";
+
     const sixMonthDateKey = "six_month_date";
     const omitSixMonthEmailKey = "omit_six_month_email_key";
     
     // Migrate relevant keys to cols here
     const userActiveCol = "account_active";
+    const passcodeGroupCol = "passcode_group";
     
     const userWithdrawnKey = "withdrawn";
     const userNotesKey     = "notes";
@@ -438,7 +439,7 @@ class GenesisTracker{
              return;
          }
          
-         $isActive = GenesisTracker::getUserDetails($user->ID, GenesisTracker::userActiveKey);
+         $isActive = self::getUserData($user->ID, GenesisTracker::userActiveCol);
 
           if(is_numeric($isActive) && $isActive == 0){
               return new WP_Error( 'user_inactive',  __( '<strong>ERROR</strong>: Sorry, your account has not been activated yet.'));
@@ -471,8 +472,8 @@ class GenesisTracker{
          
          $user_id = wp_update_user( $userdata );
          update_user_option( $user_id, 'default_password_nag', 0, true );
-
-         update_user_meta($user_id, self::getOptionKey(self::userActiveKey), 0, true);
+         
+         GenesisTracker::setUserData($user_id, self::userActiveCol, 0);
          
          $plaintext_pass = trim($_POST['password']);
          
@@ -551,7 +552,7 @@ class GenesisTracker{
          }
     
          // Check whether the user has been activated
-         $activeKey = self::userActiveKey;
+         $activeKey = self::userActiveCol;
          $contactedKey = self::getOptionKey(self::userContactedKey);
          $withdrawnKey = self::getOptionKey(self::userWithdrawnKey);
          $notesKey     = self::getOptionKey(self::userNotesKey);
@@ -590,7 +591,6 @@ class GenesisTracker{
      }
      
      public static function sendUserActivateEmail($user_id){
-         $activeKey = self::getOptionKey(self::userActiveKey);
          $user = get_userdata($user_id);
          
          if(!$user){
@@ -2423,10 +2423,13 @@ class GenesisTracker{
          return $result[$key];
      }
      
+     // Use this instead of WP's meta fields for the following values:
+     // start_weight, account_active, passcode_group, user_contacted, withdrawn, notes,
+     // six_month_weight, red_flag_email_date, four_weekly_date, 
+     // six_month_date, start_date, six_month_email_opt_out
      public static function setUserData($user_id, $key, $value){
-         // Check the user has a row
          global $wpdb;
-         
+         // Check the user has an entry
          $result = $wpdb->get_row(
              $wpdb->prepare(
                  "SELECT * FROM " . self::getUserDataTableName() . " WHERE
@@ -2834,7 +2837,8 @@ class GenesisTracker{
 
           foreach($users as $user){
              $optOut = (bool)get_user_meta( $user->ID, self::getOptionKey(self::omitUserReminderEmailKey), true);
-             $isActive = get_user_meta($user->ID, self::getOptionKey(self::userActiveKey), true ); 
+
+             $isActive = self::getUserData($user->ID, self::userActiveCol);
              $isActive = $isActive == "" ? 1 : (int)$isActive;
              
               // Don't send reminders to users who have opted out of emails
