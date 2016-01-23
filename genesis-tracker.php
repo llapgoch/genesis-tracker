@@ -228,14 +228,14 @@ function extra_user_profile_fields($user){
     $activeVal = $userData[$activeKey];
     $activeVal = $activeVal == "" ? 1 : (int)$activeVal;
 
-    $startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
-    $startWeight = get_the_author_meta($startWeightKey, $user->ID);
+    $startWeightKey = GenesisTracker::userStartWeightCol;
+    $startWeight = GenesisTracker::getUserData($user->ID, $startWeightKey);
+
+    $contactedKey = GenesisTracker::userContactedCol;
+    $contactedVal = GenesisTracker::getUserData($user->ID, $contactedKey);
     
-    $contactedKey = GenesisTracker::getOptionKey(GenesisTracker::userContactedKey);
-    $contactedVal = get_the_author_meta($contactedKey, $user->ID );
-    
-    $withdrawnKey = GenesisTracker::getOptionKey(GenesisTracker::userWithdrawnKey);
-    $withdrawnVal = get_the_author_meta($withdrawnKey, $user->ID );
+    $withdrawnKey = GenesisTracker::userWithdrawnCol;
+    $withdrawnVal = GenesisTracker::getUserData($user->ID, $withdrawnKey);
     
     $notesKey = GenesisTracker::getOptionKey(GenesisTracker::userNotesKey);
     $notesVal = get_the_author_meta($notesKey, $user->ID);
@@ -769,7 +769,7 @@ function save_extra_user_profile_fields($user_id){
     $sixMonthDateKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
     $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
     
-    $startWeightKey = GenesisTracker::getOptionKey(GenesisTracker::userStartWeightKey);
+    $startWeightKey = GenesisTracker::userStartWeightCol;
     
     $twelveMonthTargetKey = GenesisTracker::getOptionKey(GenesisTracker::twelveMonthWeightTargetKey);
     
@@ -808,7 +808,7 @@ function save_extra_user_profile_fields($user_id){
             $twelveMonthTargetValue = isset($_POST[$twelveMonthTargetKey]) ? (int)$_POST[$twelveMonthTargetKey] : '';
             
             if((float) $_POST[$startWeightKey]){
-                update_user_meta( $user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]) );
+                GenesisTracker::setUserData($user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]));
             }
             
            if((float) $_POST[$twelveMonthTargetKey]){

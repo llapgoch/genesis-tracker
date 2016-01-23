@@ -21,10 +21,9 @@ class GenesisTracker{
     const targetPageId = "tracker_page";
     const alternateContactEmail = "lifestyleresearch@nhs.net";
     
-    const userStartWeightKey = "start_weight";
     const userStartDateKey = "start_date";
 
-    const userContactedKey = "user_contacted";
+    
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
     const weightTargetKey        = "weight_target";
@@ -40,8 +39,10 @@ class GenesisTracker{
     // Migrate relevant keys to cols here
     const userActiveCol = "account_active";
     const passcodeGroupCol = "passcode_group";
+    const userStartWeightCol = "start_weight";
+    const userContactedCol = "user_contacted";
+    const userWithdrawnCol = "withdrawn";
     
-    const userWithdrawnKey = "withdrawn";
     const userNotesKey     = "notes";
     
     const userActiveEmailSentKey = "active_email_sent";
@@ -553,8 +554,8 @@ class GenesisTracker{
     
          // Check whether the user has been activated
          $activeKey = self::userActiveCol;
-         $contactedKey = self::getOptionKey(self::userContactedKey);
-         $withdrawnKey = self::getOptionKey(self::userWithdrawnKey);
+         $contactedKey = self::userContactedCol;
+         $withdrawnKey = self::userWithdrawnCol;
          $notesKey     = self::getOptionKey(self::userNotesKey);
          
          
@@ -572,12 +573,12 @@ class GenesisTracker{
          // Check whether the user has been contacted
          if(isset($_POST[$contactedKey])){
              $contacted = (int) $_POST[$contactedKey];
-             update_user_meta( $user_id, $contactedKey, $contacted);
+             self::setUserData($user_id, $contactedKey, $contacted);
          }
          
          if(isset($_POST[$withdrawnKey])){
              $withdrawn = (int) $_POST[$withdrawnKey];
-             update_user_meta( $user_id, $withdrawnKey, $withdrawn);
+             self::setUserData($user_id, $withdrawnKey, $withdrawn);
          }
          
          if(isset($_POST[$notesKey])){
@@ -1139,19 +1140,12 @@ class GenesisTracker{
              // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
              $date = date('Y-m-d', current_time('timestamp') - 86400);
              
-              add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), $weight, true);
+             GenesisTracker::setUserData($user_id, self::userStartWeightCol, $weight);
              add_user_meta($user_id, self::getOptionKey(self::userStartDateKey), $date, true);
              add_user_meta($user_id, self::getOptionKey(self::userInitialUnitSelectionKey), $unit, true);
              
-             $data = array(
-                 'user_id' => $user_id,
-                 'measure_date' => $date,
-                 'weight' => $weight
-             );
-                
-             
              self::$pageData['weight-save'] = true;
-               unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
+             unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
          }
      }
      
@@ -1678,7 +1672,7 @@ class GenesisTracker{
      }
      
      public static function getInitialUserWeight($user_id){
-         return get_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), true);
+         return GenesisTracker::getUserData($user_id, self::userStartWeightCol);
      }
      
      public static function getInitialUserStartDate($user_id){
@@ -2839,10 +2833,11 @@ class GenesisTracker{
              $optOut = (bool)get_user_meta( $user->ID, self::getOptionKey(self::omitUserReminderEmailKey), true);
 
              $isActive = self::getUserData($user->ID, self::userActiveCol);
+             $withdrawn = (bool) self::getUserData($user->ID, self::userWithdrawnCol);
              $isActive = $isActive == "" ? 1 : (int)$isActive;
              
               // Don't send reminders to users who have opted out of emails
-               if( $optOut || !$isActive){
+               if( $optOut || !$isActive || $withdrawn){
                    continue;
                }
                
