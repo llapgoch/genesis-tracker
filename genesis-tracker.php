@@ -237,8 +237,8 @@ function extra_user_profile_fields($user){
     $withdrawnKey = GenesisTracker::userWithdrawnCol;
     $withdrawnVal = GenesisTracker::getUserData($user->ID, $withdrawnKey);
     
-    $notesKey = GenesisTracker::getOptionKey(GenesisTracker::userNotesKey);
-    $notesVal = get_the_author_meta($notesKey, $user->ID);
+    $notesKey = GenesisTracker::userNotesCol;
+    $notesVal = GenesisTracker::getUserData($user->ID, $notesKey);
     
     $twelveMonthTargetKey = GenesisTracker::getOptionKey(GenesisTracker::twelveMonthWeightTargetKey);
     $twelveMonthTargetVal = get_the_author_meta($twelveMonthTargetKey, $user->ID);

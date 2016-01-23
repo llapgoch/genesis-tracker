@@ -42,8 +42,7 @@ class GenesisTracker{
     const userStartWeightCol = "start_weight";
     const userContactedCol = "user_contacted";
     const userWithdrawnCol = "withdrawn";
-    
-    const userNotesKey     = "notes";
+    const userNotesCol     = "notes";
     
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -556,7 +555,7 @@ class GenesisTracker{
          $activeKey = self::userActiveCol;
          $contactedKey = self::userContactedCol;
          $withdrawnKey = self::userWithdrawnCol;
-         $notesKey     = self::getOptionKey(self::userNotesKey);
+         $notesKey     = self::userNotesCol;
          
          
          if(isset($_POST[$activeKey])){
@@ -583,7 +582,7 @@ class GenesisTracker{
          
          if(isset($_POST[$notesKey])){
              $notes = (string) $_POST[$notesKey];
-             update_user_meta( $user_id, $notesKey, $notes);
+             self::setUserData($user_id, $notesKey, $notes);
          }
      }
      
