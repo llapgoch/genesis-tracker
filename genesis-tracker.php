@@ -247,7 +247,7 @@ function extra_user_profile_fields($user){
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
-    $sixMonthWeightKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
+    $sixMonthWeightKey   = GenesisTracker::sixMonthWeightCol;
     $sixMonthDateKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
     $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
 
@@ -765,11 +765,11 @@ function save_extra_user_profile_fields($user_id){
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
-    $sixMonthWeightKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightKey);
     $sixMonthDateKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
     $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
     
     $startWeightKey = GenesisTracker::userStartWeightCol;
+    $sixMonthWeightKey   = GenesisTracker::sixMonthWeightCol;
     
     $twelveMonthTargetKey = GenesisTracker::getOptionKey(GenesisTracker::twelveMonthWeightTargetKey);
     
@@ -791,7 +791,7 @@ function save_extra_user_profile_fields($user_id){
     }
     
     if(GenesisTracker::isValidWeight($sixMonthWeight)){
-        update_user_meta( $user_id, $sixMonthWeightKey, $sixMonthWeight );
+        GenesisTracker::setUserData($user_id, $sixMonthWeightKey, $sixMonthWeight);
         
         if(is_admin() == false){
             update_user_meta( $user_id, GenesisTracker::getOptionKey('last_profile_unit'), $_POST['weight_unit']);

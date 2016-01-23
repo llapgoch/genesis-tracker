@@ -26,9 +26,8 @@ class GenesisTracker{
     
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
-    const weightTargetKey        = "weight_target";
+    const weightTargetKey     = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
-    const sixMonthWeightKey        = "weight_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
     const redFlagEmailDateKey = "red_flag_email_date";
     const fourWeekleyEmailDateKey = "four_weekly_email_date";
@@ -43,6 +42,7 @@ class GenesisTracker{
     const userContactedCol = "user_contacted";
     const userWithdrawnCol = "withdrawn";
     const userNotesCol     = "notes";
+    const sixMonthWeightCol = "six_month_weight";
     
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -1683,7 +1683,7 @@ class GenesisTracker{
      }
      
      public function getUserSixMonthWeight($user_id){
-         return get_the_author_meta(self::getOptionKey(self::sixMonthWeightKey), $user_id ); 
+         return self::getUserData($user_id, self::sixMonthWeightCol);
      }
      
      public function getUserFourWeekleyEmailDate($user_id){
