@@ -7,26 +7,27 @@ class GenesisMigration{
         $q = "(SELECT u.id as user_id, initial_weight.`meta_value`
                        AS start_weight,
                        account_active.`meta_value`
-                       AS account_active,
+                           AS account_active,
                        passcode_group.`meta_value`
-                       AS passcode_group,
+                           AS passcode_group,
                        user_contacted.`meta_value`
-                       AS user_contacted,
+                           AS user_contacted,
                        withdrawn.`meta_value`
-                       AS withdrawn,
+                           AS withdrawn,
                        notes.`meta_value`
-                       AS notes,
+                           AS notes,
                        red_flag_email_date.`meta_value`
-                       AS red_flag_email_date,
+                           AS red_flag_email_date,
                        four_weekly_date.`meta_value`
-                       AS four_weekly_date,
+                           AS four_weekly_date,
                        six_month_date.`meta_value`
-                       AS six_month_date,
+                           AS six_month_date,
                        start_date.`meta_value`
-                       AS start_date,
+                           AS start_date,
                        six_month_email_opt_out.`meta_value`
-                       as six_month_email_opt_out
-
+                           AS six_month_email_opt_out,
+                       six_month_weight.`meta_value`
+                           AS six_month_weight
                 FROM   genwp_users u
                        LEFT JOIN genwp_genesis_tracker t
                               ON u.id = t.user_id
@@ -96,10 +97,13 @@ class GenesisMigration{
             'red_flag_email_date',
             'four_weekly_date',
             'six_month_date',
+            'six_month_weight',
             'start_date',
             'six_month_email_opt_out',
             'user_id'
         );
+        
+        // echo $q;
     
         $results = $wpdb->get_results($q);
 
