@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.30";
+    const version = "1.31";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -203,6 +203,26 @@ class GenesisTracker{
           PRIMARY KEY  (`id`)
         )");
         
+        $userDataTableExists = self::checkTableExists(self::getUserDataTableName()); 
+        
+        dbDelta($sql = "CREATE TABLE " . self::getUserDataTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `user_id` int(11) DEFAULT NULL,
+          `start_weight` decimal(10,6) DEFAULT NULL,
+          `account_active` tinyint(1) DEFAULT NULL,
+          `passcode_group` varchar(255) DEFAULT NULL,
+          `user_contacted` tinyint(1) DEFAULT NULL,
+          `withdrawn` tinyint(1) DEFAULT NULL,
+          `notes` longtext,
+          `six_month_weight` decimal(10,6) DEFAULT NULL,
+          `red_flag_email_date` datetime DEFAULT NULL,
+          `four_weekly_date` datetime DEFAULT NULL,
+          `six_month_date` datetime DEFAULT NULL,
+          `start_date` datetime DEFAULT NULL,
+          `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
+          PRIMARY KEY  (`id`)
+        )");
+        
         $eligibilityQuestionsTableExists = self::checkTableExists(self::getEligibilityQuestionsTableName());
         
         dbDelta($sql = "CREATE TABLE " . self::getEligibilityQuestionsTableName() . " (
@@ -246,6 +266,11 @@ class GenesisTracker{
           `week` TINYINT(4) DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
+        
+        if(!$userDataTableExists){
+            // Migrate the data to the new table!
+            GenesisMigration::migrateUsers();
+        }
         
         // Don't install the questions again after the first time
         if($eligibilityQuestionsTableExists == false){
