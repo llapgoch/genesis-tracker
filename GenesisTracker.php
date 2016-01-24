@@ -29,8 +29,6 @@ class GenesisTracker{
     const weightTargetKey     = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
-    const redFlagEmailDateKey = "red_flag_email_date";
-    const fourWeekleyEmailDateKey = "four_weekly_email_date";
 
     const sixMonthDateKey = "six_month_date";
     const omitSixMonthEmailKey = "omit_six_month_email_key";
@@ -43,6 +41,8 @@ class GenesisTracker{
     const userWithdrawnCol = "withdrawn";
     const userNotesCol     = "notes";
     const sixMonthWeightCol = "six_month_weight";
+    const redFlagEmailDateCol = "red_flag_email_date";
+    const fourWeekleyEmailDateCol = "four_weekly_email_date";
     
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -1687,7 +1687,7 @@ class GenesisTracker{
      }
      
      public function getUserFourWeekleyEmailDate($user_id){
-         return get_the_author_meta(self::getOptionKey(self::fourWeekleyEmailDateKey), $user_id);
+         return self::getUserData($user_id, self::fourWeekleyEmailDateCol);
      }
      
      public static function getInitialUserUnit($user_id){
@@ -2736,8 +2736,9 @@ class GenesisTracker{
         ), $body);
         
          if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'] . ' feedback', $body, self::getEmailHeaders())){
-         // Mark user's account
-            update_user_meta( $user->ID, self::getOptionKey(self::fourWeekleyEmailDateKey),  current_time('Y-m-d H:i:s'));
+            // Mark user's account
+            self::setUserData($user->ID, self::fourWeekleyEmailDateCol, current_time('Y-m-d H:i:s'));
+            
             $wpdb->insert(self::getFourWeekEmailLogTableName(), array(
                'user_id' => $userId,
                'type' => $type,
@@ -2785,7 +2786,7 @@ class GenesisTracker{
                 
                  if(wp_mail($user->user_email, 'Your recent weight', $body, self::getEmailHeaders())){
                      // Mark user's account
-                    update_user_meta( $user->ID, self::getOptionKey(self::redFlagEmailDateKey),  current_time('Y-m-d H:i:s'));
+                     GenesisTracker::setUserData($user->ID, self::redFlagEmailDateCol, current_time('Y-m-d H:i:s'));
                     return true;
                     
                 }else{
