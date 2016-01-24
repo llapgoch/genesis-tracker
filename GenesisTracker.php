@@ -21,9 +21,6 @@ class GenesisTracker{
     const targetPageId = "tracker_page";
     const alternateContactEmail = "lifestyleresearch@nhs.net";
     
-    const userStartDateKey = "start_date";
-
-    
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
     const weightTargetKey     = "weight_target";
@@ -43,6 +40,7 @@ class GenesisTracker{
     const redFlagEmailDateCol = "red_flag_email_date";
     const fourWeekleyEmailDateCol = "four_weekly_email_date";
     const sixMonthDateCol = "six_month_date";
+    const userStartDateCol = "start_date";
     
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -1140,7 +1138,8 @@ class GenesisTracker{
              $date = date('Y-m-d', current_time('timestamp') - 86400);
              
              GenesisTracker::setUserData($user_id, self::userStartWeightCol, $weight);
-             add_user_meta($user_id, self::getOptionKey(self::userStartDateKey), $date, true);
+             GenesisTracker::setUserData($user_id, self::userStartDateCol, $date);
+
              add_user_meta($user_id, self::getOptionKey(self::userInitialUnitSelectionKey), $unit, true);
              
              self::$pageData['weight-save'] = true;
@@ -1675,7 +1674,7 @@ class GenesisTracker{
      }
      
      public static function getInitialUserStartDate($user_id){
-         return get_user_meta($user_id, self::getOptionKey(self::userStartDateKey), true);
+         return GenesisTracker::getUserData($user_id, self::userStartDateCol);
      }
      
      public static function isUserSixMonths($user_id){        

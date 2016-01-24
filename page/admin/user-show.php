@@ -16,7 +16,7 @@
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
         <dt>Activation Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails['start_date']));?></dd>
+        <dd><?php echo gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol]));?></dd>
         <dt>Actual Start Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['actual_start_date']));?></dd>
         <dt>User Contacted</dt>
