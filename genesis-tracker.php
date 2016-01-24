@@ -248,7 +248,7 @@ function extra_user_profile_fields($user){
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
     $sixMonthWeightKey   = GenesisTracker::sixMonthWeightCol;
-    $sixMonthDateKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
+    $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
     $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
 
     $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
@@ -256,7 +256,7 @@ function extra_user_profile_fields($user){
     $weightTargetVal     = get_the_author_meta($weightTargetKey, $user->ID );
     $sixMonthTargetVal   = get_the_author_meta($sixMonthTargetKey, $user->ID ); 
     $sixMonthWeightVal   = GenesisTracker::getUserSixMonthWeight( $user->ID );
-    $sixMonthDateValue     = get_the_author_meta( $sixMonthDateKey, $user->ID );
+    $sixMonthDateValue     = GenesisTracker::getUserData($user->ID, $sixMonthDateKey);
     $omitSixMonthEmailVaue = get_the_author_meta( $omitSixMonthEmailKey, $user->ID );
     
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
@@ -765,7 +765,7 @@ function save_extra_user_profile_fields($user_id){
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
-    $sixMonthDateKey     = GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey);
+    $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
     $omitSixMonthEmailKey = GenesisTracker::getOptionKey(GenesisTracker::omitSixMonthEmailKey);
     
     $startWeightKey = GenesisTracker::userStartWeightCol;
@@ -816,7 +816,7 @@ function save_extra_user_profile_fields($user_id){
             }
             
             if($_POST[$sixMonthDateKey]){
-                update_user_meta( $user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
+                GenesisTracker::setUserData($user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
             }
             
             update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
@@ -824,10 +824,7 @@ function save_extra_user_profile_fields($user_id){
             update_user_meta( $user_id, $weightTargetKey, $targetWeight );
             update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
             update_user_meta( $user_id, $omitSixMonthEmailKey, $omitSixMonthEmailValue );
-                 
     }
-    
-    
 }
 
 

@@ -54,7 +54,7 @@
 			?>
 		</dd>
 		<dt>Six Month Date</dt>
-		<dd><?php echo ($userDetails['six_month_date'] ? GenesisTracker::prettyDBDate($userDetails['six_month_date']) : "- -");?></dd>
+		<dd><?php echo ($userDetails[GenesisTracker::sixMonthDateCol] ? GenesisTracker::prettyDBDate($userDetails[GenesisTracker::sixMonthDateCol]) : "- -");?></dd>
 		<dt>Six Month Weight (Kg)</dt>
 		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
 		<dt>Benchmark Weight (Kg)</dt>

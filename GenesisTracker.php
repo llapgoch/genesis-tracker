@@ -30,7 +30,6 @@ class GenesisTracker{
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
 
-    const sixMonthDateKey = "six_month_date";
     const omitSixMonthEmailKey = "omit_six_month_email_key";
     
     // Migrate relevant keys to cols here
@@ -43,6 +42,7 @@ class GenesisTracker{
     const sixMonthWeightCol = "six_month_weight";
     const redFlagEmailDateCol = "red_flag_email_date";
     const fourWeekleyEmailDateCol = "four_weekly_email_date";
+    const sixMonthDateCol = "six_month_date";
     
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -2411,6 +2411,10 @@ class GenesisTracker{
          
          if(!$key){
              return $result;
+         }
+         
+         if(!isset($result[$key])){
+             return null;
          }
          
          return $result[$key];

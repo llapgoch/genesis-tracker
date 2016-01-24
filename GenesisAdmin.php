@@ -19,21 +19,20 @@ class GenesisAdmin{
         // prior to their newest log indicate a downward trend
         global $wpdb;
         
-        $results = $wpdb->get_results( $wpdb->prepare($sql = "
-            SELECT *
+        $results = $wpdb->get_results( $sql = $wpdb->prepare("
+         SELECT *
          FROM
             (SELECT measure_date, weight, 
-            um.`meta_value` as six_month_date
+            ud.six_month_weight,
+            ud.six_month_date
             FROM " . GenesisTracker::getTrackerTableName() . " t
-            LEFT JOIN " . $wpdb->usermeta . " um
-                ON um.`user_id` = t.`user_id`
-                AND um.`meta_key` = %s
-                WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+            LEFT JOIN " . GenesisTracker::getUserDataTableName() . " ud
+                ON ud.`user_id` = t.`user_id`
+            WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
                 AND t.user_id = %d
             ORDER BY measure_date) as weight_data
         WHERE
             measure_date >= six_month_date",
-            GenesisTracker::getOptionKey(GenesisTracker::sixMonthDateKey),
             $user_id
         ));
         
@@ -44,7 +43,7 @@ class GenesisAdmin{
         
         $count = count($results) - 1;
         
-        // Not sure what inducates a downward trend
+        // Not sure what indicates a downward trend
         return (float) $results[$count]->weight < (float) $results[$count - 1]->weight 
             && $results[$count - 1]->weight < $results[$count - 2]->weight;
     }
