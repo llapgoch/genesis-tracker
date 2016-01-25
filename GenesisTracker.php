@@ -619,6 +619,10 @@ class GenesisTracker{
              return;
          }
          
+         // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
+         $date = date('Y-m-d', current_time('timestamp') - 86400);
+
+         self::setUserData($user->ID, self::userStartDateCol, $date);
          update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
          
          $headers = self::getEmailHeaders();
@@ -1158,11 +1162,7 @@ class GenesisTracker{
                 return;
              }
              
-             // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
-             $date = date('Y-m-d', current_time('timestamp') - 86400);
-             
              GenesisTracker::setUserData($user_id, self::userStartWeightCol, $weight);
-             GenesisTracker::setUserData($user_id, self::userStartDateCol, $date);
 
              add_user_meta($user_id, self::getOptionKey(self::userInitialUnitSelectionKey), $unit, true);
              
