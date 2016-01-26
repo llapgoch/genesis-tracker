@@ -177,7 +177,7 @@ class GenesisAdmin{
                 /* This, for some reason wouldn't work with six_month_email_opt_out <> 1, hence the IS NULL OR = 0 */
                 AND (six_month_email_opt_out IS NULL 
                     OR six_month_email_opt_out = 0
-                ) AND six_month_date + INTERVAL 4 WEEK < NOW(), 
+                ) AND six_month_date + INTERVAL 4 WEEK <= NOW(), 
                     IF(four_weekly_date < DATE_SUB(NOW(), 
                         INTERVAL 4 WEEK
                     ) OR four_weekly_date IS NULL, 
