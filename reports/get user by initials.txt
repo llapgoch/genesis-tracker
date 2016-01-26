@@ -1,0 +1,7 @@
+select * from genwp_usermeta u
+	LEFT join genwp_usermeta ln
+	ON ln.meta_key = 'last_name'
+	AND ln.user_id = u.user_id
+WHERE u.`meta_key`='first_name' 
+	AND u.meta_value like 'k%'
+	AND ln.meta_value like 'h%'
