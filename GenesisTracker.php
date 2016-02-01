@@ -620,7 +620,7 @@ class GenesisTracker{
          }
          
          // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
-         $date = date('Y-m-d', current_time('timestamp') - 86400);
+         $date = date('Y-m-d', current_time('timestamp'));
 
          self::setUserData($user->ID, self::userStartDateCol, $date);
          update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
@@ -2391,7 +2391,7 @@ class GenesisTracker{
         wp_enqueue_script('progress');
         
         if(self::isOnUserInputPage()){
-            $minDate = strtotime(self::getInitialUserStartDate($user_id)) + 86400;
+            $minDate = strtotime(self::getInitialUserStartDate($user_id));
 
             wp_localize_script('progress', 'datePickerMin', array(
                 "day" => date("j", $minDate),
