@@ -146,6 +146,8 @@ class GenesisAdmin{
             $where = " WHERE u.ID = $user";
         }
         
+        $fourWeekZones = implode(GenesisTracker::getFourWeeklyPoints(), ", ");
+        
         $results = $wpdb->get_results($sql =  
             "SELECT *, IFNULL(weight - start_weight, 0) weight_change,
             /* IF(weight - LEAST(lowest_weight, start_weight) >= 1 AND user_registered < date_sub(now(), interval 6 month), 1, 0) as gained_more_than_one_kg, */
@@ -176,7 +178,8 @@ class GenesisAdmin{
                 /* This, for some reason wouldn't work with six_month_email_opt_out <> 1, hence the IS NULL OR = 0 */
                 AND (six_month_email_opt_out IS NULL 
                     OR six_month_email_opt_out = 0
-                ) AND six_month_date + INTERVAL 4 WEEK < NOW(), 
+                    /* CHANGE THIS */
+                ) AND in_four_week_zone = 1, 
                     IF(four_weekly_date < DATE_SUB(NOW(), 
                         INTERVAL 4 WEEK
                     ) OR four_weekly_date IS NULL, 
@@ -221,6 +224,7 @@ class GenesisAdmin{
                 IF(DATE_ADD(DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY), INTERVAL 52 WEEK) < NOW(), 1, 0) as registered_for_year,
                 /* The weeks registered goes from the monday after the start date, not registration date */
                 FLOOR(DATEDIFF(NOW(), DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY))/7) + 1 as weeks_registered,
+                IF((FLOOR(DATEDIFF(NOW(), DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY))/7) + 1) IN ($fourWeekZones), 1, 0) as in_four_week_zone,
                 DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY) as actual_start_date,
                 (SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
@@ -275,7 +279,9 @@ class GenesisAdmin{
             ARRAY_A);
 
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
-
+        
+        echo $sql;
+        
         foreach($results as &$result){
             // Change the output if the user's week doesn't fit with a four week point
             if(!in_array($result['weeks_registered'], $fourWeekPoints)){
