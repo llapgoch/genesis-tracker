@@ -179,10 +179,10 @@ class GenesisAdmin{
                 AND (six_month_email_opt_out IS NULL 
                     OR six_month_email_opt_out = 0
                     /* CHANGE THIS */
-                ) AND in_four_week_zone = 1, 
-                    IF(four_weekly_date < DATE_SUB(NOW(), 
-                        INTERVAL 4 WEEK
-                    ) OR four_weekly_date IS NULL, 
+                ) 
+                AND in_four_week_zone = 1, 
+                    IF(four_weekly_date <= DATE_SUB(NOW(), INTERVAL 4 WEEK) 
+                        OR four_weekly_date IS NULL, 
                 1, 0), 
             NULL) as four_week_required_to_send,
             
@@ -277,10 +277,10 @@ class GenesisAdmin{
             ) as mainQuery
             ORDER BY $sortBy",
             ARRAY_A);
+            
+          //  echo $sql;
 
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
-        
-        echo $sql;
         
         foreach($results as &$result){
             // Change the output if the user's week doesn't fit with a four week point

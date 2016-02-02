@@ -97,7 +97,7 @@
 		<dt>Four Weekly Emails</dt>
 		<dd>
 			<?php if($userDetails['four_weekly_date']): ?>
-					<em><strong>This user was last sent a four weekly email on the <?php echo $userDetails['four_weekly_date']?></strong></em>
+					<em><strong>This user was last sent a four weekly email on the <?php echo GenesisTracker::convertDBDatetime($userDetails['four_weekly_date'])?></strong></em>
 			<?php endif; ?>
 			
 			<?php if($userDetails['four_week_required_to_send']):?>

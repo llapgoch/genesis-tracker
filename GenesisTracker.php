@@ -36,7 +36,7 @@ class GenesisTracker{
     const userNotesCol     = "notes";
     const sixMonthWeightCol = "six_month_weight";
     const redFlagEmailDateCol = "red_flag_email_date";
-    const fourWeekleyEmailDateCol = "four_weekly_email_date";
+    const fourWeekleyEmailDateCol = "four_weekly_date";
     const sixMonthDateCol = "six_month_date";
     const userStartDateCol = "start_date";
     const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
