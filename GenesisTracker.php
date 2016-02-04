@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.30";
+    const version = "1.31";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -21,23 +21,25 @@ class GenesisTracker{
     const targetPageId = "tracker_page";
     const alternateContactEmail = "lifestyleresearch@nhs.net";
     
-    const userStartWeightKey = "start_weight";
-    const userStartDateKey = "start_date";
-    const userActiveKey = "active";
-    const userContactedKey = "contacted";
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
-    const weightTargetKey        = "weight_target";
+    const weightTargetKey     = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
-    const sixMonthWeightKey        = "weight_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
-    const redFlagEmailDateKey = "red_flag_email_date";
-    const fourWeekleyEmailDateKey = "four_weekly_email_date";
-    const sixMonthDateKey = "six_month_date";
-    const omitSixMonthEmailKey = "omit_six_month_email_key";
     
-    const userWithdrawnKey = "withdrawn";
-    const userNotesKey     = "notes";
+    // Migrate relevant keys to cols here
+    const userActiveCol = "account_active";
+    const passcodeGroupCol = "passcode_group";
+    const userStartWeightCol = "start_weight";
+    const userContactedCol = "user_contacted";
+    const userWithdrawnCol = "withdrawn";
+    const userNotesCol     = "notes";
+    const sixMonthWeightCol = "six_month_weight";
+    const redFlagEmailDateCol = "red_flag_email_date";
+    const fourWeekleyEmailDateCol = "four_weekly_date";
+    const sixMonthDateCol = "six_month_date";
+    const userStartDateCol = "start_date";
+    const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
     
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -201,6 +203,26 @@ class GenesisTracker{
           PRIMARY KEY  (`id`)
         )");
         
+        $userDataTableExists = self::checkTableExists(self::getUserDataTableName()); 
+        
+        dbDelta($sql = "CREATE TABLE " . self::getUserDataTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `user_id` int(11) DEFAULT NULL,
+          `start_weight` decimal(10,6) DEFAULT NULL,
+          `account_active` tinyint(1) DEFAULT NULL,
+          `passcode_group` varchar(255) DEFAULT NULL,
+          `user_contacted` tinyint(1) DEFAULT NULL,
+          `withdrawn` tinyint(1) DEFAULT NULL,
+          `notes` longtext,
+          `six_month_weight` decimal(10,6) DEFAULT NULL,
+          `red_flag_email_date` datetime DEFAULT NULL,
+          `four_weekly_date` datetime DEFAULT NULL,
+          `six_month_date` datetime DEFAULT NULL,
+          `start_date` datetime DEFAULT NULL,
+          `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
+          PRIMARY KEY  (`id`)
+        )");
+        
         $eligibilityQuestionsTableExists = self::checkTableExists(self::getEligibilityQuestionsTableName());
         
         dbDelta($sql = "CREATE TABLE " . self::getEligibilityQuestionsTableName() . " (
@@ -244,6 +266,11 @@ class GenesisTracker{
           `week` TINYINT(4) DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
+        
+        if(!$userDataTableExists){
+            // Migrate the data to the new table!
+            GenesisMigration::migrateUsers();
+        }
         
         // Don't install the questions again after the first time
         if($eligibilityQuestionsTableExists == false){
@@ -434,7 +461,7 @@ class GenesisTracker{
              return;
          }
          
-         $isActive = get_the_author_meta(self::getOptionKey(self::userActiveKey), $user->ID);
+         $isActive = self::getUserData($user->ID, GenesisTracker::userActiveCol);
 
           if(is_numeric($isActive) && $isActive == 0){
               return new WP_Error( 'user_inactive',  __( '<strong>ERROR</strong>: Sorry, your account has not been activated yet.'));
@@ -467,8 +494,8 @@ class GenesisTracker{
          
          $user_id = wp_update_user( $userdata );
          update_user_option( $user_id, 'default_password_nag', 0, true );
-
-         update_user_meta($user_id, self::getOptionKey(self::userActiveKey), 0, true);
+         
+         GenesisTracker::setUserData($user_id, self::userActiveCol, 0);
          
          $plaintext_pass = trim($_POST['password']);
          
@@ -547,17 +574,17 @@ class GenesisTracker{
          }
     
          // Check whether the user has been activated
-         $activeKey = self::getOptionKey(self::userActiveKey);
-         $contactedKey = self::getOptionKey(self::userContactedKey);
-         $withdrawnKey = self::getOptionKey(self::userWithdrawnKey);
-         $notesKey     = self::getOptionKey(self::userNotesKey);
+         $activeKey = self::userActiveCol;
+         $contactedKey = self::userContactedCol;
+         $withdrawnKey = self::userWithdrawnCol;
+         $notesKey     = self::userNotesCol;
          
          
          if(isset($_POST[$activeKey])){
              $active = (int) $_POST[$activeKey];
              $emailSent = (int) get_the_author_meta(self::getOptionKey(self::userActiveEmailSentKey), $user_id );
              
-             update_user_meta( $user_id, $activeKey, $active);
+             self::setUserData($user_id, $activeKey, $active);
 
              if(!$emailSent && $active){
                  self::sendUserActivateEmail($user_id);
@@ -567,17 +594,17 @@ class GenesisTracker{
          // Check whether the user has been contacted
          if(isset($_POST[$contactedKey])){
              $contacted = (int) $_POST[$contactedKey];
-             update_user_meta( $user_id, $contactedKey, $contacted);
+             self::setUserData($user_id, $contactedKey, $contacted);
          }
          
          if(isset($_POST[$withdrawnKey])){
              $withdrawn = (int) $_POST[$withdrawnKey];
-             update_user_meta( $user_id, $withdrawnKey, $withdrawn);
+             self::setUserData($user_id, $withdrawnKey, $withdrawn);
          }
          
          if(isset($_POST[$notesKey])){
              $notes = (string) $_POST[$notesKey];
-             update_user_meta( $user_id, $notesKey, $notes);
+             self::setUserData($user_id, $notesKey, $notes);
          }
      }
      
@@ -586,13 +613,16 @@ class GenesisTracker{
      }
      
      public static function sendUserActivateEmail($user_id){
-         $activeKey = self::getOptionKey(self::userActiveKey);
          $user = get_userdata($user_id);
          
          if(!$user){
              return;
          }
          
+         // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
+         $date = date('Y-m-d', current_time('timestamp'));
+
+         self::setUserData($user->ID, self::userStartDateCol, $date);
          update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
          
          $headers = self::getEmailHeaders();
@@ -652,6 +682,11 @@ class GenesisTracker{
      public static function getTrackerTableName(){
          global $wpdb;
          return $wpdb->base_prefix . "genesis_tracker";
+     }
+     
+     public static function getUserDataTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_userdata";
      }
      
      public static function getDietDayTableName(){
@@ -1127,22 +1162,12 @@ class GenesisTracker{
                 return;
              }
              
-             // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
-             $date = date('Y-m-d', current_time('timestamp') - 86400);
-             
-              add_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), $weight, true);
-             add_user_meta($user_id, self::getOptionKey(self::userStartDateKey), $date, true);
+             GenesisTracker::setUserData($user_id, self::userStartWeightCol, $weight);
+
              add_user_meta($user_id, self::getOptionKey(self::userInitialUnitSelectionKey), $unit, true);
              
-             $data = array(
-                 'user_id' => $user_id,
-                 'measure_date' => $date,
-                 'weight' => $weight
-             );
-                
-             
              self::$pageData['weight-save'] = true;
-               unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
+             unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
          }
      }
      
@@ -1669,11 +1694,11 @@ class GenesisTracker{
      }
      
      public static function getInitialUserWeight($user_id){
-         return get_user_meta($user_id, self::getOptionKey(self::userStartWeightKey), true);
+         return GenesisTracker::getUserData($user_id, self::userStartWeightCol);
      }
      
      public static function getInitialUserStartDate($user_id){
-         return get_user_meta($user_id, self::getOptionKey(self::userStartDateKey), true);
+         return GenesisTracker::getUserData($user_id, self::userStartDateCol);
      }
      
      public static function isUserSixMonths($user_id){        
@@ -1681,11 +1706,11 @@ class GenesisTracker{
      }
      
      public function getUserSixMonthWeight($user_id){
-         return get_the_author_meta(self::getOptionKey(self::sixMonthWeightKey), $user_id ); 
+         return self::getUserData($user_id, self::sixMonthWeightCol);
      }
      
      public function getUserFourWeekleyEmailDate($user_id){
-         return get_the_author_meta(self::getOptionKey(self::fourWeekleyEmailDateKey), $user_id);
+         return self::getUserData($user_id, self::fourWeekleyEmailDateCol);
      }
      
      public static function getInitialUserUnit($user_id){
@@ -2366,7 +2391,7 @@ class GenesisTracker{
         wp_enqueue_script('progress');
         
         if(self::isOnUserInputPage()){
-            $minDate = strtotime(self::getInitialUserStartDate($user_id)) + 86400;
+            $minDate = strtotime(self::getInitialUserStartDate($user_id));
 
             wp_localize_script('progress', 'datePickerMin', array(
                 "day" => date("j", $minDate),
@@ -2395,6 +2420,61 @@ class GenesisTracker{
      public static function ajaxRequest($data){
          var_dump($data);
          exit;
+     }
+     
+     // An alternative to using WP's user meta tables as when joining, they're sloooow
+     public static function getUserData($user_id, $key = null){
+         global $wpdb;
+         
+         $result = $wpdb->get_row(
+             $wpdb->prepare("SELECT * FROM ". self::getUserDataTableName() . 
+                 " WHERE user_id=%d", $user_id
+             ), ARRAY_A
+         );
+         
+         if(!$key){
+             return $result;
+         }
+         
+         if(!isset($result[$key])){
+             return null;
+         }
+         
+         return $result[$key];
+     }
+     
+     // Use this instead of WP's meta fields for the following values:
+     // start_weight, account_active, passcode_group, user_contacted, withdrawn, notes,
+     // six_month_weight, red_flag_email_date, four_weekly_date, 
+     // six_month_date, start_date, six_month_email_opt_out
+     public static function setUserData($user_id, $key, $value){
+         global $wpdb;
+         // Check the user has an entry
+         $result = $wpdb->get_row(
+             $wpdb->prepare(
+                 "SELECT * FROM " . self::getUserDataTableName() . " WHERE
+                     user_id=%d", $user_id
+             )
+         );
+             
+         
+         if($result){
+             $wpdb->update(
+                 self::getUserDataTableName(),
+                 array($key => $value),
+                 array('user_id' => $user_id)
+             );
+             
+         }else{
+             $wpdb->insert(
+                 self::getUserDataTableName(),
+                 array(
+                     'user_id' => $user_id,
+                     $key => $value
+                 )
+             );
+         }
+         
      }
      
      // Part of the set up.  Adds the user page into the database
@@ -2683,8 +2763,9 @@ class GenesisTracker{
         ), $body);
         
          if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'] . ' feedback', $body, self::getEmailHeaders())){
-         // Mark user's account
-            update_user_meta( $user->ID, self::getOptionKey(self::fourWeekleyEmailDateKey),  current_time('Y-m-d H:i:s'));
+            // Mark user's account
+            self::setUserData($user->ID, self::fourWeekleyEmailDateCol, current_time('Y-m-d H:i:s'));
+            
             $wpdb->insert(self::getFourWeekEmailLogTableName(), array(
                'user_id' => $userId,
                'type' => $type,
@@ -2732,7 +2813,7 @@ class GenesisTracker{
                 
                  if(wp_mail($user->user_email, 'Your recent weight', $body, self::getEmailHeaders())){
                      // Mark user's account
-                    update_user_meta( $user->ID, self::getOptionKey(self::redFlagEmailDateKey),  current_time('Y-m-d H:i:s'));
+                     GenesisTracker::setUserData($user->ID, self::redFlagEmailDateCol, current_time('Y-m-d H:i:s'));
                     return true;
                     
                 }else{
@@ -2777,11 +2858,13 @@ class GenesisTracker{
 
           foreach($users as $user){
              $optOut = (bool)get_user_meta( $user->ID, self::getOptionKey(self::omitUserReminderEmailKey), true);
-             $isActive = get_user_meta($user->ID, self::getOptionKey(self::userActiveKey), true ); 
+
+             $isActive = self::getUserData($user->ID, self::userActiveCol);
+             $withdrawn = (bool) self::getUserData($user->ID, self::userWithdrawnCol);
              $isActive = $isActive == "" ? 1 : (int)$isActive;
              
               // Don't send reminders to users who have opted out of emails
-               if( $optOut || !$isActive){
+               if( $optOut || !$isActive || $withdrawn){
                    continue;
                }
                

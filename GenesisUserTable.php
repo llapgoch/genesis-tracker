@@ -22,8 +22,6 @@ class GenesisUserTable extends WP_List_Table {
 	  
 	  public function column_default($item, $column_name){
          $noValue = '- -';
-         
-        
           
          switch($column_name){
 			 case 'gained_more_than_one_kg' :
@@ -120,7 +118,7 @@ class GenesisUserTable extends WP_List_Table {
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
-                    'passcode_group'        => 'Passcode Group',
+                    GenesisTracker::passcodeGroupCol        => 'Passcode Group',
 		            'unix_timestamp'        => 'Last Measurement Date',
 					'four_weekly_date' => 'Last Four Week Email',
                     'user_contacted'        => 'Contacted',
@@ -139,7 +137,7 @@ class GenesisUserTable extends WP_List_Table {
                        'user_name'          => array('user_name', false),
 		               'user_email'         => array('user_email',false),
                        'user_registered_timestamp' => array('user_registered_timestamp', false),
-                       'passcode_group'     => array('passcode_group', false),
+                       GenesisTracker::passcodeGroupCol     => array(GenesisTracker::passcodeGroupCol, false),
                             //true means it's already sorted
 		               'initial_weight'     => array('initial_weight',false),
                        'weight'             => array('weight', false),
@@ -217,8 +215,7 @@ class GenesisUserTable extends WP_List_Table {
                    }
                    
 		           $data = GenesisAdmin::getUserLogDetails($orderBy . " " . $order);
-
-        
+                   
 		           /**
 		            * This checks for sorting input and sorts the data in our array accordingly.
 		            * 

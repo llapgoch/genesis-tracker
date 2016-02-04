@@ -12,11 +12,11 @@
         <dt>Telephone Number</dt>
         <dd><?php echo $userTelephone; ?></dd>
         <dt>Passcode Group</dt>
-        <dd><?php echo $userDetails['passcode_group'] ? $userDetails['passcode_group'] : "- -"; ?></dd>
+        <dd><?php echo $userDetails[GenesisTracker::passcodeGroupCol] ? $userDetails[GenesisTracker::passcodeGroupCol] : "- -"; ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
         <dt>Activation Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails['start_date']));?></dd>
+        <dd><?php echo gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol]));?></dd>
         <dt>Actual Start Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['actual_start_date']));?></dd>
         <dt>User Contacted</dt>
@@ -54,7 +54,7 @@
 			?>
 		</dd>
 		<dt>Six Month Date</dt>
-		<dd><?php echo ($userDetails['six_month_date'] ? GenesisTracker::prettyDBDate($userDetails['six_month_date']) : "- -");?></dd>
+		<dd><?php echo ($userDetails[GenesisTracker::sixMonthDateCol] ? GenesisTracker::prettyDBDate($userDetails[GenesisTracker::sixMonthDateCol]) : "- -");?></dd>
 		<dt>Six Month Weight (Kg)</dt>
 		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
 		<dt>Benchmark Weight (Kg)</dt>
@@ -97,7 +97,7 @@
 		<dt>Four Weekly Emails</dt>
 		<dd>
 			<?php if($userDetails['four_weekly_date']): ?>
-					<em><strong>This user was last sent a four weekly email on the <?php echo $userDetails['four_weekly_date']?></strong></em>
+					<em><strong>This user was last sent a four weekly email on the <?php echo GenesisTracker::convertDBDatetime($userDetails['four_weekly_date'])?></strong></em>
 			<?php endif; ?>
 			
 			<?php if($userDetails['four_week_required_to_send']):?>
@@ -126,7 +126,7 @@
             <ul style="list-style:circle">
                 <li>They have withdrawn</li>
                 <li>They haven't been subscribed for long enough</li>
-                <li>They haven't been given a six month date or six month weight</li>
+                <li>They haven't been given a six month weight</li>
                 <li>They have opted out of 6 - 12 month reminder emails</li>
                 <li>They have been subscribed for a year or more (the Monday after their activation date + 52 weeks)</li>
                 <li>The weeks they've been registered is not one of the four week email points</li>
