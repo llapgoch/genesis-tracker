@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.31";
+    const version = "1.32";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -51,6 +51,7 @@ class GenesisTracker{
     const defaultFieldError = '<div class="form-input-error-container error-[FIELDFOR] field-[TYPE]">
                                 <span class="form-input-error">[ERROR]</span></div>';
     const editCapability = "edit_genesis";
+    const userDataCacheKey = "genesis_admin_user_data";
     
     // 7 Stone
     const MIN_VALID_WEIGHT = 44.4;
@@ -1562,6 +1563,7 @@ class GenesisTracker{
             }
         }      
          
+         self::clearCachedUserData(get_current_user_id());
          self::$pageData['user-input-save'] = true;
      }
      
@@ -2039,6 +2041,18 @@ class GenesisTracker{
          }
      }
      
+     public static function clearCacheData($key){
+         $encKey = base64_encode($key);
+         
+         if(file_exists(self::getCachePath() . $encKey . "_expire")){
+             unlink(self::getCachePath() . $encKey . "_expire");
+         }
+         
+         if(file_exists(self::getCachePath() . $encKey)){
+             unlink(self::getCachePath() . $encKey);
+         }
+     }
+     
      public static function getCacheData($key){
          if(!file_exists(self::getCachePath() . base64_encode($key))){
              return null;
@@ -2475,6 +2489,23 @@ class GenesisTracker{
              );
          }
          
+         self::clearCachedUserData($user_id);
+     }
+     
+     public static function clearCachedUserData($user_id){
+         self::clearCacheData(self::userDataCacheKey);
+         self::clearCacheData(self::userDataCacheKey . '-' . $user_id);
+         
+         foreach(GenesisUserTable::get_sortable_columns() as $k => $arr){
+             self::clearCacheData(self::userDataCacheKey . '-sb-' . $arr[0]);
+             self::clearCacheData(self::userDataCacheKey . '-sb-' . $arr[0] . ' DESC');
+             self::clearCacheData(self::userDataCacheKey . '-sb-' . $arr[0] . ' ASC');
+
+             // var_dump(self::userDataCacheKey . '-sb-' . $arr[0] . ' DESC');
+             // if('genesis_admin_user_data-sb-measure_date DESC' == self::userDataCacheKey . '-sb-' . $arr[0] . ' DESC'){
+   //
+   //           }
+         }
      }
      
      // Part of the set up.  Adds the user page into the database

@@ -85,7 +85,7 @@ class GenesisMigration{
                                  AND six_month_email_opt_out.meta_key =
                                      'genesis___tracker___omit_six_month_email_key'
                 GROUP  BY id)";    
-    
+                
         // VAULES TO BRING ACROSS FROM WP'S user meta table to our user details table.
         $valsToMigrate = array(
             'start_weight', 
@@ -103,7 +103,7 @@ class GenesisMigration{
             'user_id'
         );
         
-        // echo $q;
+         echo $sql;
     
         $results = $wpdb->get_results($q);
 
@@ -130,4 +130,6 @@ class GenesisMigration{
             }
         }
     }
+    
+    
 }

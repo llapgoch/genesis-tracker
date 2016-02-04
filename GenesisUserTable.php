@@ -133,13 +133,14 @@ class GenesisUserTable extends WP_List_Table {
     
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
+                       'measure_date' => array('measure_date', false),
 					   'gained_more_than_one_kg' => array('six_month_benchmark_change_email_check', false),
                        'user_name'          => array('user_name', false),
 		               'user_email'         => array('user_email',false),
                        'user_registered_timestamp' => array('user_registered_timestamp', false),
                        GenesisTracker::passcodeGroupCol     => array(GenesisTracker::passcodeGroupCol, false),
                             //true means it's already sorted
-		               'initial_weight'     => array('initial_weight',false),
+		               'initial_weight'     => array('start_weight',false),
                        'weight'             => array('weight', false),
                        'user_contacted'     => array('user_contacted', false),
                        'withdrawn'          => array('withdrawn', false),

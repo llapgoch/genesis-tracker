@@ -141,10 +141,16 @@ class GenesisAdmin{
         if(!$sortBy){
             $sortBy = 'measure_date';
         }
+        
 
         if($user){
             $where = " WHERE u.ID = $user";
         }
+        
+        if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
+            return $cache;
+        }
+        
         
         $fourWeekZones = implode(GenesisTracker::getFourWeeklyPoints(), ", ");
         
@@ -277,7 +283,7 @@ class GenesisAdmin{
             ORDER BY $sortBy",
             ARRAY_A);
             
-          //  echo $sql;
+           
 
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
         
@@ -296,11 +302,15 @@ class GenesisAdmin{
             
         }
      
+        
+     
         // Return results for a single user
         if($user && $results){
+            GenesisTracker::setCacheData(GenesisTracker::userDataCacheKey . '-' . $user, $results[0], 84600);
             return $results[0];
         }
         
+        GenesisTracker::setCacheData(GenesisTracker::userDataCacheKey . '-sb-' . $sortBy, $results);
         return $results;
     }
 
