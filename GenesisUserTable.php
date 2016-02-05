@@ -39,7 +39,7 @@ class GenesisUserTable extends WP_List_Table {
                  ), false);
                  
                  return $email;
-             case 'initial_weight':
+             case 'start_weight':
              case 'weight':
                  if(!(float)$item[$column_name]){
                      return $noValue;
@@ -124,7 +124,7 @@ class GenesisUserTable extends WP_List_Table {
                     'user_contacted'        => 'Contacted',
                     'withdrawn'             => 'Withdrawn',
 					 'account_active'       => 'Active',
-                     'initial_weight'       => 'Start Weight (Kg)',
+                     'start_weight'       => 'Start Weight (Kg)',
                      'weight'               => 'Current Weight (Kg)',
                      'weight_change'        => 'Weight Change (Kg)',
 		        );
@@ -140,7 +140,7 @@ class GenesisUserTable extends WP_List_Table {
                        'user_registered_timestamp' => array('user_registered_timestamp', false),
                        GenesisTracker::passcodeGroupCol     => array(GenesisTracker::passcodeGroupCol, false),
                             //true means it's already sorted
-		               'initial_weight'     => array('start_weight',false),
+		               'start_weight'     => array('start_weight',false),
                        'weight'             => array('weight', false),
                        'user_contacted'     => array('user_contacted', false),
                        'withdrawn'          => array('withdrawn', false),
