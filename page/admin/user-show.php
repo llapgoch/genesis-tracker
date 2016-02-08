@@ -38,8 +38,8 @@
         </dd>
         <dt>Initial Weight (Kg)</dt>
         <dd><?php 
-            if(isset($userDetails['initial_weight']) && $userDetails['initial_weight']) :
-                echo round($userDetails['initial_weight'], 4);
+            if(isset($userDetails['start_weight']) && $userDetails['start_weight']) :
+                echo round($userDetails['start_weight'], 4);
             else :
                 echo "- -";
             endif;
