@@ -1049,6 +1049,8 @@ class GenesisTracker{
      public function checkLoginWeightEntered($userLogin, $user){
          if(!GenesisTracker::getInitialUserWeight($user->ID)){
              $_SESSION[GenesisTracker::weightEnterSessionKey] = true;
+         }else{
+             unset($_SESSION[GenesisTracker::weightEnterSessionKey]);
          }
      }
 
