@@ -58,7 +58,7 @@
 		<dt>Six Month Weight (Kg)</dt>
 		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
 		<dt>Benchmark Weight (Kg)</dt>
-		<dd><?php echo ($userDetails['benchmark_weight'] ? round($userDetails['benchmark_weight'], 4) : "- -"); ?></dd>
+		<dd><?php echo ($userDetails['benchmark_weight'] ? $userDetails['benchmark_weight'] : "- -"); ?></dd>
         <dt>Current Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['weight']) && $userDetails['weight']) :
