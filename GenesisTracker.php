@@ -72,7 +72,9 @@ class GenesisTracker{
         "PLHC1L",
         "PLHC2A",
         "PLHC3B",
-        "PLHC4H"
+        "PLHC4H",
+        "PLHCX",
+        "PLSCX"
     );
     
   
@@ -2887,7 +2889,7 @@ class GenesisTracker{
         );
          
          // get all subscribers
-          $users = get_users( array("user_login" => 'admin') );
+          $users = get_users();
 
           foreach($users as $user){
              $optOut = (bool)get_user_meta( $user->ID, self::getOptionKey(self::omitUserReminderEmailKey), true);
