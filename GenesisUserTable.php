@@ -77,7 +77,7 @@ class GenesisUserTable extends WP_List_Table {
 					 return '- -';
 				 }
 
-				 $date = gmdate('d M Y', strtotime((int)$item['four_weekly_date']));
+				 $date = gmdate('d M Y', strtotime($item['four_weekly_date']));
 				 
 				 return $item['four_week_required_to_send'] ? $this->wrapRed($date) : $date;
              default:
