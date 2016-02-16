@@ -13,26 +13,24 @@ class GenesisAdmin{
         );
     }
     
-    public static function userIsClassedAsLosing($user_id){
+    public static function userIsLosingOrMaintaining($user_id){
         // This is for the four weekly emails.
         // A user is considered as losing if their two consecutive weights
         // prior to their newest log indicate a downward trend
         global $wpdb;
         
         $results = $wpdb->get_results( $sql = $wpdb->prepare("
-         SELECT *
-         FROM
-            (SELECT measure_date, weight, 
+        SELECT measure_date, weight, 
             ud.six_month_weight,
             ud.six_month_date
             FROM " . GenesisTracker::getTrackerTableName() . " t
             LEFT JOIN " . GenesisTracker::getUserDataTableName() . " ud
                 ON ud.`user_id` = t.`user_id`
             WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+                AND measure_date >= ud.six_month_date
                 AND t.user_id = %d
-            ORDER BY measure_date) as weight_data
-        WHERE
-            measure_date >= six_month_date",
+            ORDER BY measure_date
+            LIMIT 3",
             $user_id
         ));
         
@@ -41,11 +39,22 @@ class GenesisAdmin{
             return false;
         }
         
-        $count = count($results) - 1;
+        $lastWeight = (float) (array_pop($results)->weight);
+        $secondWeight = (float) (array_pop($results)->weight);
+        $thirdWeight = (float) (array_pop($results)->weight);
         
-        // Not sure what indicates a downward trend
-        return (float) $results[$count]->weight < (float) $results[$count - 1]->weight 
-            && $results[$count - 1]->weight < $results[$count - 2]->weight;
+        // To be losing, the last three weights must indicate a downward trend
+        if($lastWeight < $secondWeight && $secondWeight < $thirdWeight){
+            return self::WEIGHT_LOSING;
+        }
+        
+        // To be maintaining, a user must have their two previous weights within 1kg of the most recent weight
+        if($secondWeight >= ($lastWeight - 0.5) && $secondWeight <= ($lastWeight + 0.5) &&
+            $thirdWeight >= ($lastWeight - 0.5) && $thirdWeight <= ($lastWeight + 0.5)){
+                return self::WEIGHT_MAINTAINING;
+        }
+        
+        return false;
     }
     
     public static function doAdminInitHook(){
@@ -282,8 +291,6 @@ class GenesisAdmin{
             ) as mainQuery
             ORDER BY $sortBy",
             ARRAY_A);
-            
-           
 
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
         
@@ -294,9 +301,11 @@ class GenesisAdmin{
             }
             
             // Do the four weekly logic
-            if($result['four_week_outcome'] == self::WEIGHT_MAINTAINING){
-                if($isLosingResult = self::userIsClassedAsLosing($result['user_id'])){
-                    $result['four_week_outcome'] = self::WEIGHT_LOSING;
+            if($result['four_week_outcome'] == self::WEIGHT_MAINTAINING 
+                || $result['four_week_outcome'] == self::WEIGHT_GAINING){
+
+                if($losingOrMaintaining = self::userIsLosingOrMaintaining($result['user_id'])){
+                    $result['four_week_outcome'] = $losingOrMaintaining;
                 }
             }
             
@@ -306,7 +315,7 @@ class GenesisAdmin{
      
         // Return results for a single user
         if($user && $results){
-            GenesisTracker::setCacheData(GenesisTracker::userDataCacheKey . '-' . $user, $results[0], 84600);
+            GenesisTracker::setCacheData(GenesisTracker::userDataCacheKey . '-' . $user, $results[0], 3600);
             return $results[0];
         }
         
