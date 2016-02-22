@@ -29,29 +29,29 @@ class GenesisAdmin{
             WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
                 AND measure_date >= ud.six_month_date
                 AND t.user_id = %d
-            ORDER BY measure_date
-            LIMIT 3",
+            ORDER BY measure_date DESC
+            LIMIT 2",
             $user_id
         ));
         
         // Remove the latest weight
-        if(count($results) < 3){
+        if(count($results) < 2){
             return false;
         }
         
-        $lastWeight = (float) (array_pop($results)->weight);
         $secondWeight = (float) (array_pop($results)->weight);
-        $thirdWeight = (float) (array_pop($results)->weight);
+        $lastWeight = (float) (array_pop($results)->weight);
         
-        // To be losing, the last three weights must indicate a downward trend
-        if($lastWeight < $secondWeight && $secondWeight < $thirdWeight){
+        // To be losing, the last weight needs to be 1kg or under the previous weight
+        if($lastWeight + 1 <= $secondWeight){
             return self::WEIGHT_LOSING;
         }
         
+        
+        
         // To be maintaining, a user must have their two previous weights within 1kg of the most recent weight
-        if($secondWeight >= ($lastWeight - 0.5) && $secondWeight <= ($lastWeight + 0.5) &&
-            $thirdWeight >= ($lastWeight - 0.5) && $thirdWeight <= ($lastWeight + 0.5)){
-                return self::WEIGHT_MAINTAINING;
+        if($secondWeight >= ($lastWeight - 0.5) && $secondWeight <= ($lastWeight + 0.5)){
+            return self::WEIGHT_MAINTAINING;
         }
         
         return false;
@@ -151,7 +151,6 @@ class GenesisAdmin{
             $sortBy = 'measure_date';
         }
         
-
         if($user){
             $where = " WHERE u.ID = $user";
         }
@@ -159,7 +158,6 @@ class GenesisAdmin{
         if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
             return $cache;
         }
-        
         
         $fourWeekZones = implode(GenesisTracker::getFourWeeklyPoints(), ", ");
         

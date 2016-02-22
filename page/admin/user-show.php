@@ -130,6 +130,7 @@
                 <li>They have opted out of 6 - 12 month reminder emails</li>
                 <li>They have been subscribed for a year or more (the Monday after their activation date + 52 weeks)</li>
                 <li>The weeks they've been registered is not one of the four week email points</li>
+                <li>It is less than 28 days since they were last sent a 4-weekly email</li>
             </ul>
 		<?php endif; ?>
 		</dd>
