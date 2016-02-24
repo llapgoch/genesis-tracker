@@ -316,7 +316,7 @@ class GenesisAdmin{
             // Don't send a red flag email if the user is flagged as losing weight
             if($result['four_week_outcome'] == self::WEIGHT_LOSING){
                $result['six_month_benchmark_change_email_check'] = 0;
-               $result['red_flag_message'] = 'This user has recently lost weight so a red flag is not available to send';
+               $result['red_flag_message'] = 'This user has recently lost weight so a red flag is not available to send.';
             }else{
                 // If the user is not losing and a red flag has been flagged, don't mark the four week email.
                 if($result['six_month_benchmark_change_email_check'] >= 1){
