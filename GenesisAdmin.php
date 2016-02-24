@@ -188,6 +188,11 @@ class GenesisAdmin{
             IF( registered_for_year = 0 AND withdrawn <> 1
                 AND six_month_weight IS NOT NULL 
                 AND six_month_date IS NOT NULL 
+                /* Don't send a four week email if the red flag email was sent within the last week */
+                AND (
+                    red_flag_email_date IS NULL 
+                    OR red_flag_email_date < DATE_SUB(NOW(), INTERVAL 1 WEEK)
+                )
                 /* This, for some reason wouldn't work with six_month_email_opt_out <> 1, hence the IS NULL OR = 0 */
                 AND (six_month_email_opt_out IS NULL 
                     OR six_month_email_opt_out = 0
@@ -293,6 +298,7 @@ class GenesisAdmin{
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
         
         foreach($results as &$result){
+            $result['red_flag_message'] = '';
             // Change the output if the user's week doesn't fit with a four week point
             if(!in_array($result['weeks_registered'], $fourWeekPoints)){
                 $result['four_week_required_to_send'] = 0;
@@ -304,6 +310,17 @@ class GenesisAdmin{
 
                 if($losingOrMaintaining = self::userIsLosingOrMaintaining($result['user_id'])){
                     $result['four_week_outcome'] = $losingOrMaintaining;
+                }
+            }
+
+            // Don't send a red flag email if the user is flagged as losing weight
+            if($result['four_week_outcome'] == self::WEIGHT_LOSING){
+               $result['six_month_benchmark_change_email_check'] = 0;
+               $result['red_flag_message'] = 'This user has recently lost weight so a red flag is not available to send';
+            }else{
+                // If the user is not losing and a red flag has been flagged, don't mark the four week email.
+                if($result['six_month_benchmark_change_email_check'] >= 1){
+                    $result['four_week_required_to_send'] = 0;
                 }
             }
             
@@ -349,8 +366,6 @@ class GenesisAdmin{
                     if(!isset($result->foodLog[$foodKey . "_total"])){
                         $result->foodLog[$foodKey . "_total"] = 0;
                         $target = get_user_meta( $user_id, GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $foodKey ), true);
-                        
-                            
                         $result->foodLog[$foodKey . "_target"] = $target ? $target : "- -";
                     }
                     

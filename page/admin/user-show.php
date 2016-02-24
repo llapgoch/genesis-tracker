@@ -44,21 +44,21 @@
                 echo "- -";
             endif;
         ?></dd>
-		<dt>Lowest Recorded Weight of All Time (Kg)</dt>
-		<dd>
+        <dt>Lowest Recorded Weight of All Time (Kg)</dt>
+        <dd>
             <?php if(isset($userDetails['least_weight']) && $userDetails['least_weight']) :
                 echo round($userDetails['least_weight'], 4);
             else :
                 echo "- -";
             endif;
-			?>
-		</dd>
-		<dt>Six Month Date</dt>
-		<dd><?php echo ($userDetails[GenesisTracker::sixMonthDateCol] ? GenesisTracker::prettyDBDate($userDetails[GenesisTracker::sixMonthDateCol]) : "- -");?></dd>
-		<dt>Six Month Weight (Kg)</dt>
-		<dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
-		<dt>Benchmark Weight (Kg)</dt>
-		<dd><?php echo ($userDetails['benchmark_weight'] ? $userDetails['benchmark_weight'] : "- -"); ?></dd>
+            ?>
+        </dd>
+        <dt>Six Month Date</dt>
+        <dd><?php echo ($userDetails[GenesisTracker::sixMonthDateCol] ? GenesisTracker::prettyDBDate($userDetails[GenesisTracker::sixMonthDateCol]) : "- -");?></dd>
+        <dt>Six Month Weight (Kg)</dt>
+        <dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
+        <dt>Benchmark Weight (Kg)</dt>
+        <dd><?php echo ($userDetails['benchmark_weight'] ? $userDetails['benchmark_weight'] : "- -"); ?></dd>
         <dt>Current Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['weight']) && $userDetails['weight']) :
@@ -77,52 +77,55 @@
              endif;
             ?>     
         </dt>
-		<dt>Current Weight Minus Benchmark Weight (Kg) <br /><small>(positive value indicates weight gain; negative value indicates weight loss)</small></dt>
-		<dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
-		</dd>
-		
-		<dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
-		<dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
-			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_red_flag_email')); ?>" method="post">
-			
+        <dt>Current Weight Minus Benchmark Weight (Kg) <br /><small>(positive value indicates weight gain; negative value indicates weight loss)</small></dt>
+        <dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
+        </dd>
+        
+        <dt>User Flagged (Registered for six months and gained 1kg from benchmark weight)</dt>
+        <dd><?php echo (int) $userDetails['six_month_benchmark_change'] >= 1 ? '<span style="color:red">Yes</span>' : "No" ?>
+            <form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_red_flag_email')); ?>" method="post">
+            
 
-				<input type="hidden" name="user" value="<?php echo $user->ID;?>" />
-				<button <?php echo $userDetails['six_month_benchmark_change_email_check'] < 1 ? 'disabled="disabled"' : '';?> type="submit">Send Red Flag Email</button>
-				<?php if($dateSent = $userDetails['red_flag_email_date']): ?>
-					<span style="font-style:italic;margin-left:5px">Sent at: <strong><?php echo GenesisTracker::convertDBDatetime($userDetails['red_flag_email_date']); ?></strong></span>
-				<?php endif; ?>
-			</form>
-		<dt>Week Number</dt>
-		<dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
-		<dt>Four Weekly Emails</dt>
-		<dd>
-			<?php if($userDetails['four_weekly_date']): ?>
-					<em><strong>This user was last sent a four weekly email on the <?php echo GenesisTracker::convertDBDatetime($userDetails['four_weekly_date'])?></strong></em>
-			<?php endif; ?>
-			
-			<?php if($userDetails['four_week_required_to_send']):?>
-			<form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_four_weekly_email'))?>" class="confirm-submit" method="post">
-				<input type="hidden" name="user" value="<?php echo $userDetails['user_id']; ?>">
-				<table class="four-weekly">
-					<?php foreach(GenesisAdmin::getFourWeekEmailTypes() as $key => $label): ?>
-						<?php $suggested = $key == $userDetails['four_week_outcome'] ?>
-						<tr class="<?php echo $suggested ? 'suggested' : '' ?>">
-							<td><?php echo $label ?></td>
-							<td><button type="submit" name="action" value="<?php echo $key;?>">Send</td>
-							<td>
-								<?php if($suggested): ?>
-									<em>The system suggests this email. Please check against their log data before sending</em>
-								<?php else: ?>
-									&nbsp;
-								<?php endif; ?>
-							</td>
-						</tr>
-					<?php endforeach; ?>
-				</table>
-			</form>
-		<?php endif; ?>
-		<?php if(!$userDetails['four_weekly_date'] && !$userDetails['four_week_required_to_send']): ?>
-			<em><strong>This user is not eligible for a four weekly email. Either:</strong></em>
+                <input type="hidden" name="user" value="<?php echo $user->ID;?>" />
+                <button <?php echo $userDetails['six_month_benchmark_change_email_check'] < 1 ? 'disabled="disabled"' : '';?> type="submit">Send Red Flag Email</button>
+                <?php if ($userDetails['red_flag_message']): ?>
+                    <span style="font-style:italic;margin-left:5px"><?php echo $userDetails['red_flag_message']?></span>
+                <?php endif;?>
+                <?php if($dateSent = $userDetails['red_flag_email_date']): ?>
+                    <span style="font-style:italic;margin-left:5px">Sent at: <strong><?php echo GenesisTracker::convertDBDatetime($userDetails['red_flag_email_date']); ?></strong></span>
+                <?php endif; ?>
+            </form>
+        <dt>Week Number</dt>
+        <dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
+        <dt>Four Weekly Emails</dt>
+        <dd>
+            <?php if($userDetails['four_weekly_date']): ?>
+                    <em><strong>This user was last sent a four weekly email on the <?php echo GenesisTracker::convertDBDatetime($userDetails['four_weekly_date'])?></strong></em>
+            <?php endif; ?>
+            
+            <?php if($userDetails['four_week_required_to_send']):?>
+            <form action="<?php echo GenesisTracker::getAdminUrl(array('sub' => 'genesis_admin_send_four_weekly_email'))?>" class="confirm-submit" method="post">
+                <input type="hidden" name="user" value="<?php echo $userDetails['user_id']; ?>">
+                <table class="four-weekly">
+                    <?php foreach(GenesisAdmin::getFourWeekEmailTypes() as $key => $label): ?>
+                        <?php $suggested = $key == $userDetails['four_week_outcome'] ?>
+                        <tr class="<?php echo $suggested ? 'suggested' : '' ?>">
+                            <td><?php echo $label ?></td>
+                            <td><button type="submit" name="action" value="<?php echo $key;?>">Send</td>
+                            <td>
+                                <?php if($suggested): ?>
+                                    <em>The system suggests this email. Please check against their log data before sending</em>
+                                <?php else: ?>
+                                    &nbsp;
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </form>
+        <?php endif; ?>
+        <?php if(!$userDetails['four_week_required_to_send']): ?>
+            <em style="display:block"><strong>This user is not eligible for a four weekly email. Either:</strong></em>
             <ul style="list-style:circle">
                 <li>They have withdrawn</li>
                 <li>They haven't been subscribed for long enough</li>
@@ -131,16 +134,17 @@
                 <li>They have been subscribed for a year or more (the Monday after their activation date + 52 weeks)</li>
                 <li>The weeks they've been registered is not one of the four week email points</li>
                 <li>It is less than 28 days since they were last sent a 4-weekly email</li>
+                <li>A red flag email was send in the last 7 days <em><strong>or the user is flagged for a red flag email</strong></em></li>
             </ul>
-		<?php endif; ?>
-		</dd>
+        <?php endif; ?>
+        </dd>
     </dl>
     
-	<?php if($weightLogs && count($weightLogs)) : ?>
-		<hr />
-		<h2>All Weight Logs (<?php echo count($weightLogs) ?>)</h2>
-		<p>If there are more than ten logs, the table will scroll</p>
-		<div class="table-scroller">
+    <?php if($weightLogs && count($weightLogs)) : ?>
+        <hr />
+        <h2>All Weight Logs (<?php echo count($weightLogs) ?>)</h2>
+        <p>If there are more than ten logs, the table will scroll</p>
+        <div class="table-scroller">
         <table class="wp-list-table widefat">
             <thead>
                 <th>Date</th>
@@ -155,8 +159,8 @@
                 <?php endforeach; ?>
                 </tbody>
         </table>
-	</div>
-	<?php endif;  ?>
+    </div>
+    <?php endif;  ?>
     
     <?php if($exerciseLogs && count($exerciseLogs)) : ?>
         <hr />
@@ -184,19 +188,19 @@
         <hr />
         <h2>All Diet Tracker Entries</h2>
         <div class="table-scroller">
-			<table class="wp-list-table widefat ">
-	            <thead>
-	                <th>Date</th>
-	            </thead>
-	            <tbody>
-	                <?php foreach($dietDays as $dietDay) : ?>
-	                    <tr>
-	                        <td><?php echo date('j M Y', strtotime($dietDay->day)); ?></td>
-	                    </tr>
-	                <?php endforeach; ?>
-	                </tbody>
+            <table class="wp-list-table widefat ">
+                <thead>
+                    <th>Date</th>
+                </thead>
+                <tbody>
+                    <?php foreach($dietDays as $dietDay) : ?>
+                        <tr>
+                            <td><?php echo date('j M Y', strtotime($dietDay->day)); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
             </table>
-		</div>
+        </div>
     <?php endif; ?>
     
     <hr />
