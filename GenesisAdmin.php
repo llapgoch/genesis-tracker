@@ -265,6 +265,7 @@ class GenesisAdmin{
                         SELECT MAX(measure_date) 
                             FROM " . GenesisTracker::getTrackerTableName() . " 
                             WHERE user_id = u.ID
+                            AND NOT ISNULL(weight)
                     ) 
                 ) as min_weight_after_six_months,
                 (SELECT weight 
