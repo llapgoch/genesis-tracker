@@ -35,8 +35,6 @@ class GenesisAdmin{
             $user_id
         ));
         
-        echo $sql;
-        
         // Remove the latest weight
         if(count($results) < 2){
             return false;
@@ -159,7 +157,7 @@ class GenesisAdmin{
         }
         
         if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
-            //return $cache;
+            return $cache;
         }
         
         $fourWeekZones = implode(GenesisTracker::getFourWeeklyPoints(), ", ");
@@ -299,7 +297,6 @@ class GenesisAdmin{
             ORDER BY $sortBy",
             ARRAY_A);
 
-        // echo $sql;
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
         
         foreach($results as &$result){
