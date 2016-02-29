@@ -2892,7 +2892,7 @@ class GenesisTracker{
 
         // Send email reminders in batches for spam prevention
           $users = $wpdb->get_results($sql =
-              $wpdb->prepare("SELECT u.ID, last_date.`meta_value` 
+              $wpdb->prepare("SELECT u.ID, u.user_email, last_date.`meta_value` 
                   FROM " . $wpdb->users . " u
                 LEFT JOIN `" . $wpdb->usermeta . "` last_date
                     ON u.ID = last_date.user_id
@@ -2907,15 +2907,14 @@ class GenesisTracker{
                     AND (ud.`withdrawn` IS NULL OR ud.`withdrawn` <> 1)
                     AND ud.`account_active` = 1
                     AND (opt_out.meta_value IS NULL OR opt_out.meta_value = 0)
-                LIMIT 20",
+                LIMIT 90",
                     self::getOptionKey(self::lastReminderDateKey)
             )
           );
           
-          var_dump($sql);
 
           foreach($users as $user){   
-             // wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
+              wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
               update_user_meta($user->ID,  self::getOptionKey(self::lastReminderDateKey), current_time('Y-m-d H:i:s')); 
           }
         
