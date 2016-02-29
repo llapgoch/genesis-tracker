@@ -58,7 +58,7 @@ function remove_profile_contact_methods( $contactmethods ) {
   return $contactmethods;
 }
 
-wp_unschedule_event(1457199974, 'genesis_send_reminder_email');
+//wp_unschedule_event(1457199974, 'genesis_send_reminder_email');
 
 if(!wp_next_scheduled('genesis_send_reminder_email')){
     wp_schedule_event(1456833600, 'daily', 'genesis_send_reminder_email');
