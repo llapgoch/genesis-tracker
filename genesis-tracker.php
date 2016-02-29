@@ -58,10 +58,10 @@ function remove_profile_contact_methods( $contactmethods ) {
   return $contactmethods;
 }
 
-//wp_unschedule_event(1414618561, 'genesis_send_reminder_email');
+wp_unschedule_event(1414618561, 'genesis_send_reminder_email');
 
 if(!wp_next_scheduled('genesis_send_reminder_email')){
-    wp_schedule_event(1414259174, 'weekly', 'genesis_send_reminder_email');
+    wp_schedule_event(1456833600, 'daily', 'genesis_send_reminder_email');
 }
 
 //wp_unschedule_event(1412121600, 'genesis_generate_average_user_data');
@@ -94,6 +94,8 @@ add_action('template_redirect', function(){
 
 // For testing Email Reminders ---- CAREFUL!
 //add_action('wp', array('GenesisTracker', 'sendReminderEmail'));
+
+
 
  if( $timestamp = wp_next_scheduled( 'genesis_send_reminder_email' )){
 
@@ -180,6 +182,7 @@ add_action('login_enqueue_scripts', function(){
      }
      </style>
      <?php
+     
     }
 });
 

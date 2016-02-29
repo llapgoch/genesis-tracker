@@ -29,6 +29,7 @@ class GenesisAdmin{
             WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
                 AND measure_date >= ud.six_month_date
                 AND t.user_id = %d
+                AND weight IS NOT NULL
             ORDER BY measure_date DESC
             LIMIT 2",
             $user_id
@@ -265,6 +266,7 @@ class GenesisAdmin{
                         SELECT MAX(measure_date) 
                             FROM " . GenesisTracker::getTrackerTableName() . " 
                             WHERE user_id = u.ID
+                            AND NOT ISNULL(weight)
                     ) 
                 ) as min_weight_after_six_months,
                 (SELECT weight 
