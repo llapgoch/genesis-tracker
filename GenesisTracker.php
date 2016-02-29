@@ -26,6 +26,7 @@ class GenesisTracker{
     const weightTargetKey     = "weight_target";
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
+    const lastReminderDateKey = "last_reminder_date";
     
     // Migrate relevant keys to cols here
     const userActiveCol = "account_active";
@@ -622,7 +623,6 @@ class GenesisTracker{
              return;
          }
          
-         // Store the initial weight date for yesterday, so the user can make an entry if they like on log in.
          $date = date('Y-m-d', current_time('timestamp'));
 
          self::setUserData($user->ID, self::userStartDateCol, $date);
@@ -2869,6 +2869,7 @@ class GenesisTracker{
      }
      
      public static function sendReminderEmail(){
+         global $wpdb;
          // Sends a reminder email to all users
         $body = self::getTemplateContents('reminder');
         
@@ -2888,22 +2889,34 @@ class GenesisTracker{
             $body
         );
          
-         // get all subscribers
-          $users = get_users();
 
-          foreach($users as $user){
-             $optOut = (bool)get_user_meta( $user->ID, self::getOptionKey(self::omitUserReminderEmailKey), true);
+        // Send email reminders in batches for spam prevention
+          $users = $wpdb->get_results($sql =
+              $wpdb->prepare("SELECT u.ID, last_date.`meta_value` 
+                  FROM " . $wpdb->users . " u
+                LEFT JOIN `" . $wpdb->usermeta . "` last_date
+                    ON u.ID = last_date.user_id
+                    AND last_date.`meta_key` = '%s'
+                LEFT JOIN `" . $wpdb->usermeta . "` opt_out
+                    ON u.ID = opt_out.`user_id`
+                    AND opt_out.`meta_key` = 'opt_out'
+                LEFT JOIN `" . self::getUserDataTableName() . "` ud
+                    ON u.ID = ud.`user_id`
+                WHERE 
+                    (last_date.`meta_value` IS NULL OR last_date.`meta_value` <= DATE_SUB(NOW(), INTERVAL 1 WEEK))
+                    AND (ud.`withdrawn` IS NULL OR ud.`withdrawn` <> 1)
+                    AND ud.`account_active` = 1
+                    AND (opt_out.meta_value IS NULL OR opt_out.meta_value = 0)
+                LIMIT 20",
+                    self::getOptionKey(self::lastReminderDateKey)
+            )
+          );
+          
+          var_dump($sql);
 
-             $isActive = self::getUserData($user->ID, self::userActiveCol);
-             $withdrawn = (bool) self::getUserData($user->ID, self::userWithdrawnCol);
-             $isActive = $isActive == "" ? 1 : (int)$isActive;
-             
-              // Don't send reminders to users who have opted out of emails
-               if( $optOut || !$isActive || $withdrawn){
-                   continue;
-               }
-               
-              wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
+          foreach($users as $user){   
+             // wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
+              update_user_meta($user->ID,  self::getOptionKey(self::lastReminderDateKey), current_time('Y-m-d H:i:s')); 
           }
         
      }
