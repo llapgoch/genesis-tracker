@@ -348,7 +348,7 @@ class GenesisTracker{
      
      public static function checkVersionUpgrade(){
          $installedVersion = self::getOption(self::versionKey);
-
+         
          if($installedVersion !== self::version){
              self::install();             
          }
@@ -2899,7 +2899,7 @@ class GenesisTracker{
                     AND last_date.`meta_key` = '%s'
                 LEFT JOIN `" . $wpdb->usermeta . "` opt_out
                     ON u.ID = opt_out.`user_id`
-                    AND opt_out.`meta_key` = 'opt_out'
+                    AND opt_out.`meta_key` = '%s'
                 LEFT JOIN `" . self::getUserDataTableName() . "` ud
                     ON u.ID = ud.`user_id`
                 WHERE 
@@ -2908,10 +2908,10 @@ class GenesisTracker{
                     AND ud.`account_active` = 1
                     AND (opt_out.meta_value IS NULL OR opt_out.meta_value = 0)
                 LIMIT 90",
-                    self::getOptionKey(self::lastReminderDateKey)
+                    self::getOptionKey(self::lastReminderDateKey),
+                    self::getOptionKey(self::omitUserReminderEmailKey)
             )
           );
-          
 
           foreach($users as $user){   
               wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
