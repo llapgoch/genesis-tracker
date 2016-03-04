@@ -489,7 +489,7 @@ class GenesisTracker{
          }
          
          if( isset( $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]) ){
-             update_user_meta($user_id, self::getOptionKey(self::eligibilityGroupSessionKey), $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
+             GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
          }
          
          $userdata = array();
