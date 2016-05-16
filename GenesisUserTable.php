@@ -215,7 +215,7 @@ class GenesisUserTable extends WP_List_Table {
                        $order = 'DESC';
                    }
                    
-		           $data = GenesisAdmin::getUserLogDetails($orderBy . " " . $order);
+		           $data = GenesisAdmin::getUserLogDetails($orderBy . " " . $order, null, true);
                    
 		           /**
 		            * This checks for sorting input and sorts the data in our array accordingly.

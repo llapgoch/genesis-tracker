@@ -916,7 +916,7 @@ function genesis_admin_send_red_flag_email(){
     global $wpdb;
     
     if(isset($_POST['user'])){
-        $result = GenesisTracker::sendRedFlagEmail($_POST['user']);
+        $result = GenesisTracker::sendRedFlagEmail($_POST['user'], true);
         
         if(is_array($result)){
             GenesisAdmin::addAdminNotice('error', $result['message']);
@@ -938,7 +938,7 @@ function genesis_admin_user_list(){
 
 function genesis_admin_user_show($user){
     global $wpdb;
-    $userDetails = GenesisAdmin::getUserLogDetails(null, $user->ID);
+    $userDetails = GenesisAdmin::getUserLogDetails(null, $user->ID, true);
     $userTelephone = get_user_meta($user->ID, 'tel', true);
     $userEditLink = get_edit_user_link($user->ID);
     $foodLogs = GenesisAdmin::getFoodLogs($user->ID);
@@ -958,7 +958,7 @@ function genesis_admin_send_four_weekly_email(){
         exit;
     }
     
-    if(($response = GenesisTracker::sendFourWeeklyEmail($_POST['user'], $_POST['action'])) === true){
+    if(($response = GenesisTracker::sendFourWeeklyEmail($_POST['user'], $_POST['action'], true)) === true){
         GenesisAdmin::addAdminNotice('updated', 'The email sent successfully');
     }else{
         GenesisAdmin::addAdminNotice('error', $response['message']);
