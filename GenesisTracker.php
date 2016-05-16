@@ -2747,7 +2747,7 @@ class GenesisTracker{
          return plugins_url('images/genesis-logo@2x.png', __FILE__);
      }
      
-     public static function sendFourWeeklyEmail($userId, $type){
+     public static function sendFourWeeklyEmail($userId, $type, $manualMode = false){
          global $wpdb;
          
          if(!in_array($type, array_keys(GenesisAdmin::getFourWeekEmailTypes()))){
@@ -2762,7 +2762,7 @@ class GenesisTracker{
              );
          }
          
-        $userDetails = GenesisAdmin::getUserLogDetails(null, $userId);
+        $userDetails = GenesisAdmin::getUserLogDetails(null, $userId, $manualMode);
         
         if(!in_array($userDetails['weeks_registered'], self::$_fourWeekPoints)){
             return array(
@@ -2817,9 +2817,9 @@ class GenesisTracker{
         
      }
      
-     public static function sendRedFlagEmail($userId){
+     public static function sendRedFlagEmail($userId, $manualMode = false){
          
-         if($userDetails = GenesisAdmin::getUserLogDetails(null, $userId)){
+         if($userDetails = GenesisAdmin::getUserLogDetails(null, $userId, $manualMode)){
              if($userDetails['six_month_benchmark_change_email_check'] >= 1){
                  $uploadsDir = wp_upload_dir();
                 $user = get_userdata($userId);

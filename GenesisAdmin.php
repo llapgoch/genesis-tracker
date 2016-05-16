@@ -13,7 +13,7 @@ class GenesisAdmin{
         );
     }
     
-    public static function userIsLosingOrMaintaining($user_id){
+    public static function userIsLosingOrMaintaining($user_id, $weeksBetweenEmail = 4){
         // This is for the four weekly emails.
         // A user is considered as losing if their two consecutive weights
         // prior to their newest log indicate a downward trend
@@ -26,7 +26,7 @@ class GenesisAdmin{
             FROM " . GenesisTracker::getTrackerTableName() . " t
             LEFT JOIN " . GenesisTracker::getUserDataTableName() . " ud
                 ON ud.`user_id` = t.`user_id`
-            WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+            WHERE measure_date >= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK)
                 AND measure_date >= ud.six_month_date
                 AND t.user_id = %d
                 AND weight IS NOT NULL
@@ -145,7 +145,7 @@ class GenesisAdmin{
         return $results;
     }
     
-    public static function getUserLogDetails($sortBy = 'measure_date', $user = null){
+    public static function getUserLogDetails($sortBy = 'measure_date', $user = null, $manualMode = false){
         global $wpdb;
         
         if(!$sortBy){
@@ -160,7 +160,22 @@ class GenesisAdmin{
             return $cache;
         }
         
-        $fourWeekZones = implode(GenesisTracker::getFourWeeklyPoints(), ", ");
+        $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
+        
+        $newFourWeekZones = array();
+        $weeksBetweenEmail = $manualMode ? 3 : 4;
+        
+        // Make the sending more flexible
+        if($manualMode){
+            foreach($fourWeekArray as $zone){
+                $newFourWeekZones[] = $zone;
+                $newFourWeekZones[] = $zone + 1;
+            }
+            
+            $fourWeekArray = $newFourWeekZones;
+        }
+        
+         $fourWeekZones = implode($fourWeekArray, ", ");
         
         $results = $wpdb->get_results($sql =  
             "SELECT *, IFNULL(weight - start_weight, 0) weight_change,
@@ -199,7 +214,7 @@ class GenesisAdmin{
                     OR six_month_email_opt_out = 0
                 ) 
                 AND in_four_week_zone = 1, 
-                    IF(four_weekly_date <= DATE_SUB(NOW(), INTERVAL 4 WEEK) 
+                    IF(four_weekly_date <= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK) 
                         OR four_weekly_date IS NULL, 
                 1, 0), 
             NULL) as four_week_required_to_send,
@@ -271,7 +286,7 @@ class GenesisAdmin{
                 ) as min_weight_after_six_months,
                 (SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . "
-                    WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+                    WHERE measure_date >= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK)
                         AND measure_date > six_month_date
                         AND weight IS NOT NULL
                         AND user_id=u.ID
@@ -310,7 +325,7 @@ class GenesisAdmin{
             if($result['four_week_outcome'] == self::WEIGHT_MAINTAINING 
                 || $result['four_week_outcome'] == self::WEIGHT_GAINING){
 
-                if($losingOrMaintaining = self::userIsLosingOrMaintaining($result['user_id'])){
+                if($losingOrMaintaining = self::userIsLosingOrMaintaining($result['user_id'], $weeksBetweenEmail)){
                     $result['four_week_outcome'] = $losingOrMaintaining;
                 }
             }
