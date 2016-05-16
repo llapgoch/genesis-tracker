@@ -108,7 +108,7 @@ class GenesisTracker{
     );
     
     protected static $_fourWeekPoints = array(
-        30, 34, 38, 42, 46
+        30, 34, 38, 42, 46, 50
     );
     
     
