@@ -157,7 +157,7 @@ class GenesisAdmin{
         }
         
         if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
-            return $cache;
+           return $cache;
         }
         
         $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
@@ -169,7 +169,7 @@ class GenesisAdmin{
         if($manualMode){
             foreach($fourWeekArray as $zone){
                 $newFourWeekZones[] = $zone;
-                $newFourWeekZones[] = $zone + 1;
+                $newFourWeekZones[] = $zone - 1;
             }
             
             $fourWeekArray = $newFourWeekZones;
@@ -311,6 +311,7 @@ class GenesisAdmin{
             ) as mainQuery
             ORDER BY $sortBy",
             ARRAY_A);
+            
 
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
         
