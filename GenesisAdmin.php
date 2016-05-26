@@ -163,7 +163,7 @@ class GenesisAdmin{
         $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
         
         $newFourWeekZones = array();
-        $weeksBetweenEmail = $manualMode ? 3 : 4;
+        $weeksBetweenEmail = /* $manualMode ? 3 : */ 4;
         
         // Make the sending more flexible
         if($manualMode){
