@@ -163,7 +163,7 @@ class GenesisAdmin{
         $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
         
         $newFourWeekZones = array();
-        $weeksBetweenEmail = /* $manualMode ? 3 : */ 4;
+        $weeksBetweenEmail = $manualMode ? 3 : 4;
         
         // Make the sending more flexible
         if($manualMode){
@@ -286,7 +286,8 @@ class GenesisAdmin{
                 ) as min_weight_after_six_months,
                 (SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . "
-                    WHERE measure_date >= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK)
+                    /* Change this back to four weeks when getting the user's weight */
+                    WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
                         AND measure_date > six_month_date
                         AND weight IS NOT NULL
                         AND user_id=u.ID
@@ -325,8 +326,9 @@ class GenesisAdmin{
             // Do the four weekly logic
             if($result['four_week_outcome'] == self::WEIGHT_MAINTAINING 
                 || $result['four_week_outcome'] == self::WEIGHT_GAINING){
-
-                if($losingOrMaintaining = self::userIsLosingOrMaintaining($result['user_id'], $weeksBetweenEmail)){
+                
+                // Put this back to four weeks as we still want to get the weight for the last month
+                if($losingOrMaintaining = self::userIsLosingOrMaintaining($result['user_id'], 4)){
                     $result['four_week_outcome'] = $losingOrMaintaining;
                 }
             }
