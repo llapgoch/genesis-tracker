@@ -35,6 +35,10 @@ class GenesisAdmin{
             $user_id
         ));
         
+        if($_GET['debug'] == 1){
+            echo $sql;
+        }
+        
         // Remove the latest weight
         if(count($results) < 2){
             return false;
@@ -157,7 +161,7 @@ class GenesisAdmin{
         }
         
         if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
-           return $cache;
+           // return $cache;
         }
         
         $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
