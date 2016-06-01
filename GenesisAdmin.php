@@ -26,14 +26,18 @@ class GenesisAdmin{
             FROM " . GenesisTracker::getTrackerTableName() . " t
             LEFT JOIN " . GenesisTracker::getUserDataTableName() . " ud
                 ON ud.`user_id` = t.`user_id`
-            WHERE measure_date >= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK)
-                AND measure_date >= ud.six_month_date
+            WHERE /* measure_date >= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK) */
+               /* AND  */ measure_date >= ud.six_month_date 
                 AND t.user_id = %d
                 AND weight IS NOT NULL
             ORDER BY measure_date DESC
             LIMIT 2",
             $user_id
         ));
+        
+        if($_GET['debug'] == 1){
+            echo $sql;
+        }
         
         // Remove the latest weight
         if(count($results) < 2){
@@ -157,7 +161,7 @@ class GenesisAdmin{
         }
         
         if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
-           return $cache;
+           // return $cache;
         }
         
         $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
