@@ -144,6 +144,18 @@ class GenesisAdmin{
         
         return $results;
     }
+
+    public static function getFourWeekLogsForUser($user_id){
+        global $wpdb;
+
+        $results = $wpdb->get_results($wpdb->prepare(
+            'SELECT * FROM ' . GenesisTracker::getFourWeekEmailLogTableName() . '
+            WHERE user_id=%d 
+            ORDER BY log_date DESC'
+        , $user_id));
+
+        return $results;
+    }
     
     public static function getUserLogDetails($sortBy = 'measure_date', $user = null, $manualMode = false){
         global $wpdb;

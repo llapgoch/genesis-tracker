@@ -139,6 +139,31 @@
         <?php endif; ?>
         </dd>
     </dl>
+
+    <?php if($fourWeekLogs && count($fourWeekLogs)) : ?>
+        <hr />
+        <h2>Four Week Email Logs (<?php echo count($fourWeekLogs);?>)</h2>
+        <p>If there are more than ten logs, the table will scroll</p>
+
+        <div class="table-scroller">
+            <table class="wp-list-table widefat">
+                <thead>
+                    <th>Date</th>
+                    <th>Week</th>
+                    <th>Type</th>
+                </thead>
+                <tbody>
+                <?php foreach($fourWeekLogs as $log): ?>
+                    <tr>
+                        <td><?php echo date( 'j M Y', strtotime($log->log_date) ); ?></td>
+                        <td><?php echo $log->week;?></td>
+                        <td><?php echo isset($fourWeekTypes[$log->type]) ? $fourWeekTypes[$log->type] : '- -';?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
     
     <?php if($weightLogs && count($weightLogs)) : ?>
         <hr />

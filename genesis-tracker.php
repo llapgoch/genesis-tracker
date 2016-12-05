@@ -947,6 +947,8 @@ function genesis_admin_user_show($user){
     $exerciseLogs = GenesisAdmin::getExerciseLogsForUser($user->ID);
     $weightLogs = GenesisAdmin::getWeightLogsForUser($user->ID);
     $dietDays = GenesisAdmin::getDietDaysForUser($user->ID);
+    $fourWeekLogs = GenesisAdmin::getFourWeekLogsForUser($user->ID);
+    $fourWeekTypes = GenesisAdmin::getFourWeekEmailTypes();
     
     include('page/admin/user-show.php');
 }
