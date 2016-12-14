@@ -161,7 +161,7 @@ class GenesisUserTable extends WP_List_Table {
 		           /**
 		            * First, lets decide how many records per page to show
 		            */
-		           $per_page = 200;
+		           $per_page = 100;
         
         
 		           /**
