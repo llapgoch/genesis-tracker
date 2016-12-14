@@ -256,6 +256,7 @@ function extra_user_profile_fields($user){
     $sixMonthWeightKey   = GenesisTracker::sixMonthWeightCol;
     $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
     $omitSixMonthEmailKey = GenesisTracker::sixMonthEmailOptOutCol;
+    $studyGroupKey       = GenesisTracker::studyGroupCol;
     
     $isActive = GenesisTracker::getUserData($user->ID, GenesisTracker::userActiveCol);
 
@@ -266,6 +267,7 @@ function extra_user_profile_fields($user){
     $sixMonthWeightVal   = GenesisTracker::getUserSixMonthWeight( $user->ID );
     $sixMonthDateValue     = GenesisTracker::getUserData($user->ID, $sixMonthDateKey);
     $omitSixMonthEmailValue = GenesisTracker::getUserData($user->ID, $omitSixMonthEmailKey);
+    $studyGroupVal       = GenesisTracker::getUserStudyGroup($user->ID);
     
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
@@ -316,6 +318,23 @@ function extra_user_profile_fields($user){
         
         
         <?php if(is_admin()): ?>
+            <tr>
+                <th>
+                    <label for="<?php echo $studyGroupKey ?>"><?php _e("Study Group Number")?></label>
+                </th>
+                <td>
+
+                    <?php $settings = array(
+                        'default' => $studyGroupVal,
+                        'id' => $studyGroupKey
+                    );
+
+                    echo $form->input($studyGroupKey, 'text', $settings);
+                    ?>
+                </td>
+            </tr>
+            
+            
             <tr>
                 <th>
                     <label for="<?php echo $startDateKey?>"><?php _e("Activation Date")?></label>
@@ -800,6 +819,7 @@ function save_extra_user_profile_fields($user_id){
     $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
     $omitSixMonthEmailKey = GenesisTracker::sixMonthEmailOptOutCol;
     $startDateKey         = GenesisTracker::userStartDateCol;
+    $studyGroupKey        = GenesisTracker::studyGroupCol;
     $isActive             = (bool) GenesisTracker::getUserData($user_id, GenesisTracker::userActiveCol);
     
     $startWeightKey = GenesisTracker::userStartWeightCol;
@@ -840,6 +860,7 @@ function save_extra_user_profile_fields($user_id){
         $sixMonthTargetWeight = isset($_POST[$sixMonthTargetKey]) ? (float)$_POST[$sixMonthTargetKey] : '';
         $omitSixMonthEmailValue = isset($_POST[$omitSixMonthEmailKey]) ? (int)$_POST[$omitSixMonthEmailKey] : 0;
         $twelveMonthTargetValue = isset($_POST[$twelveMonthTargetKey]) ? (int)$_POST[$twelveMonthTargetKey] : '';
+        $studyGroupValue = isset($_POST[$studyGroupKey]) ? $_POST[$studyGroupKey] : '';
         
         if(isset($_POST[$startWeightKey]) && ((float) $_POST[$startWeightKey])){
             GenesisTracker::setUserData($user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]));
@@ -852,6 +873,7 @@ function save_extra_user_profile_fields($user_id){
         if(isset($_POST[$sixMonthDateKey]) && $_POST[$sixMonthDateKey]){
             GenesisTracker::setUserData($user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
         }
+
         
         if($isActive && isset($_POST[$startDateKey]) && $_POST[$startDateKey]){
             GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
@@ -862,6 +884,7 @@ function save_extra_user_profile_fields($user_id){
         update_user_meta( $user_id, $weightTargetKey, $targetWeight );
         update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
         GenesisTracker::setUserData($user_id, $omitSixMonthEmailKey, $omitSixMonthEmailValue);
+        GenesisTracker::setUserData($user_id, $studyGroupKey, $studyGroupValue);
     }
     
     GenesisTracker::clearCachedUserData($user_id);

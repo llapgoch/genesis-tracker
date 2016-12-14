@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.32";
+    const version = "1.33";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -27,6 +27,7 @@ class GenesisTracker{
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
     const lastReminderDateKey = "last_reminder_date";
+
     
     // Migrate relevant keys to cols here
     const userActiveCol = "account_active";
@@ -40,6 +41,7 @@ class GenesisTracker{
     const fourWeekleyEmailDateCol = "four_weekly_date";
     const sixMonthDateCol = "six_month_date";
     const userStartDateCol = "start_date";
+    const studyGroupCol = "study_group";
     const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
     
     const userActiveEmailSentKey = "active_email_sent";
@@ -224,6 +226,7 @@ class GenesisTracker{
           `six_month_date` datetime DEFAULT NULL,
           `start_date` datetime DEFAULT NULL,
           `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
+          `study_group` varchar(255) DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
         
@@ -1706,6 +1709,10 @@ class GenesisTracker{
      public static function getInitialUserStartDate($user_id){
          return GenesisTracker::getUserData($user_id, self::userStartDateCol);
      }
+
+    public static function getUserStudyGroup($user_id){
+        return GenesisTracker::getUserData($user_id, self::studyGroupCol);
+    }
      
      public static function isUserSixMonths($user_id){        
         return (bool) get_user_meta($user_id, self::getOptionKey(self::sixMonthDateKey), true);
@@ -2457,7 +2464,7 @@ class GenesisTracker{
          if(!isset($result[$key])){
              return null;
          }
-         
+
          return $result[$key];
      }
      

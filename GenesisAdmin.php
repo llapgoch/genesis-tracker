@@ -268,6 +268,7 @@ class GenesisAdmin{
                 user_last_name.meta_value as last_name,
                 six_month_date,
                 start_date,
+                study_group,
                 CONCAT(user_first_name.meta_value, ' ' , user_last_name.meta_value) as user_name,
                 UNIX_TIMESTAMP(u.user_registered) as user_registered_timestamp,
                 IF(DATE_ADD(DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY), INTERVAL 52 WEEK) < NOW(), 1, 0) as registered_for_year,

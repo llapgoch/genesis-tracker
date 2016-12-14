@@ -115,6 +115,7 @@ class GenesisUserTable extends WP_List_Table {
 		    function get_columns(){
 		        $columns = array(
 					'gained_more_than_one_kg' => '',
+					'study_group'			=> 'Study Group',
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
@@ -133,6 +134,7 @@ class GenesisUserTable extends WP_List_Table {
     
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
+					   'study_group'	=> array('study_group', false),
                        'measure_date' => array('measure_date', false),
 					   'gained_more_than_one_kg' => array('six_month_benchmark_change_email_check', false),
                        'user_name'          => array('user_name', false),
