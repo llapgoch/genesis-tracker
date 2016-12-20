@@ -168,6 +168,13 @@ class GenesisTracker{
           PRIMARY KEY  (tracker_id),
           KEY user_id (user_id)
         )");
+
+        dbDelta($sql = "CREATE TABLE " . self::getLogTableName() . " (
+          id int(11) unsigned NOT NULL AUTO_INCREMENT,
+          type varchar(255) DEFAULT NULL,
+          message text,
+          PRIMARY KEY  (id)
+        )");
         
         $wpdb->query($sql =  "ALTER TABLE " . self::getTrackerTableName() . " 
             DROP COLUMN calories" );
@@ -344,6 +351,15 @@ class GenesisTracker{
              $role->add_cap(self::editCapability);
          }
      }
+
+    public static function logMessage($message, $type = ''){
+        global $wpdb;
+
+        $wpdb->insert(self::getLogTableName(), array(
+            'message' => $message,
+            'type' => $type
+        ));
+    }
      
      public static function getFourWeeklyPoints(){
          return self::$_fourWeekPoints;
@@ -688,6 +704,11 @@ class GenesisTracker{
      public static function getTrackerTableName(){
          global $wpdb;
          return $wpdb->base_prefix . "genesis_tracker";
+     }
+
+     protected function getLogTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_log";
      }
      
      public static function getUserDataTableName(){
