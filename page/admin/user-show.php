@@ -13,6 +13,8 @@
         <dd><?php echo $userTelephone; ?></dd>
         <dt>Passcode Group</dt>
         <dd><?php echo $userDetails[GenesisTracker::passcodeGroupCol] ? $userDetails[GenesisTracker::passcodeGroupCol] : "- -"; ?></dd>
+        <dt>Study Group</dt>
+        <dd><?php echo $userDetails[GenesisTracker::studyGroupCol] ? $userDetails[GenesisTracker::studyGroupCol] : "- -"; ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
         <dt>Activation Date</dt>
