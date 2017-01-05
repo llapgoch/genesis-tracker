@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.35";
+    const version = "1.38";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -174,6 +174,7 @@ class GenesisTracker{
           id int(11) unsigned NOT NULL AUTO_INCREMENT,
           type varchar(255) DEFAULT NULL,
           message text,
+          date_created datetime DEFAULT NULL,
           PRIMARY KEY  (id)
         )");
         
@@ -359,7 +360,8 @@ class GenesisTracker{
 
         $wpdb->insert(self::getLogTableName(), array(
             'message' => $message,
-            'type' => $type
+            'type' => $type,
+            'date_created' => current_time('Y-m-d H:i:s')
         ));
     }
      

@@ -165,6 +165,8 @@ class GenesisAdmin{
     public static function sendAllWeightEmails(){
         $logs = self::getUserLogDetails();
 
+        GenesisTracker::logMessage("Attempting send of four week emails");
+
         foreach($logs as $log){
             // Red Flag
             if($log['six_month_benchmark_change_email_check'] >= 1){
