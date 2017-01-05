@@ -2838,6 +2838,9 @@ class GenesisTracker{
                 'week' => $userDetails['weeks_registered'],
                 'send_type' => $manualMode ? self::FOUR_WEEK_SEND_TYPE_MANUAL : self::FOUR_WEEK_SEND_TYPE_AUTOMATIC
             ));
+
+             self::clearCachedUserData($userId);
+
             return true;
         }else{
         

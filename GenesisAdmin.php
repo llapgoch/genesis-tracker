@@ -189,7 +189,7 @@ class GenesisAdmin{
         }
     }
 
-    public static function getUserLogDetails($sortBy = 'measure_date', $user = null, $manualMode = false){
+    public static function getUserLogDetails($sortBy = 'measure_date', $user = null, $manualMode = false, $useCache = false){
         global $wpdb;
         
         if(!$sortBy){
@@ -200,7 +200,7 @@ class GenesisAdmin{
             $where = " WHERE u.ID = $user";
         }
         
-        if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
+        if($useCache && $cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
             return $cache;
         }
         
