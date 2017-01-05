@@ -167,20 +167,23 @@ class GenesisAdmin{
 
         foreach($logs as $log){
             // Red Flag
-            if($log['six_month_benchmark_change_email_check']){
-                $result = GenesisTracker::sendRedFlagEmail($log['user_id']);
+            if($log['six_month_benchmark_change_email_check'] >= 1){
+                var_dump("SEND RED FLAG" . $log['user_id']);
 
-                if(is_array($result)){
-                    GenesisTracker::logMessage($result['message']);
-                }
+                // $result = GenesisTracker::sendRedFlagEmail($log['user_id']);
+
+//                if(is_array($result)){
+//                    GenesisTracker::logMessage($result['message']);
+//                }
             }
 
             if($log['four_week_required_to_send']){
-                $result = GenesisTracker::sendFourWeeklyEmail($log['user_id'], $log['four_week_outcome']);
-
-                if(is_array($result)){
-                    GenesisTracker::logMessage($result['message']);
-                }
+                var_dump("SEND FOUR WEEK " . $log['user_id']);
+//                $result = GenesisTracker::sendFourWeeklyEmail($log['user_id'], $log['four_week_outcome']);
+//
+//                if(is_array($result)){
+//                    GenesisTracker::logMessage($result['message']);
+//                }
             }
 
         }
@@ -217,6 +220,10 @@ class GenesisAdmin{
         }
         
          $fourWeekZones = implode($fourWeekArray, ", ");
+
+        // Use this when executing the SQL in the GUI:
+        //set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+        // set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
         
         $results = $wpdb->get_results($sql =  
             "SELECT *, IFNULL(weight - start_weight, 0) weight_change,
@@ -354,7 +361,6 @@ class GenesisAdmin{
             ) as mainQuery
             ORDER BY $sortBy",
             ARRAY_A);
-            
 
         $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
         

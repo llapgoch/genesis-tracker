@@ -151,6 +151,7 @@
                     <th>Date</th>
                     <th>Week</th>
                     <th>Type</th>
+                    <th>Send Type</th>
                 </thead>
                 <tbody>
                 <?php foreach($fourWeekLogs as $log): ?>
@@ -158,6 +159,7 @@
                         <td><?php echo date( 'j M Y', strtotime($log->log_date) ); ?></td>
                         <td><?php echo $log->week;?></td>
                         <td><?php echo isset($fourWeekTypes[$log->type]) ? $fourWeekTypes[$log->type] : '- -';?></td>
+                        <td><?php echo $log->send_type; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

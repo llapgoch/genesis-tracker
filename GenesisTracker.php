@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.34";
+    const version = "1.35";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -64,6 +64,9 @@ class GenesisTracker{
     // 0.5 - 3m
     const MIN_VALID_HEIGHT = 0.5;
     const MAX_VALID_HEIGHT = 2.5;
+
+    const FOUR_WEEK_SEND_TYPE_MANUAL = 'MANUAL';
+    const FOUR_WEEK_SEND_TYPE_AUTOMATIC = 'AUTOMATIC';
     
     const CACHE_DIR = "genesis-tracker";
     
@@ -80,9 +83,7 @@ class GenesisTracker{
         "PLSCX"
     );
     
-  
 
-    
     public static $pageData = array();
     public static $dietDaysToDisplay = 7;
     
@@ -278,6 +279,7 @@ class GenesisTracker{
           `type` VARCHAR(255) DEFAULT NULL,
           `log_date` datetime DEFAULT NULL,
           `week` TINYINT(4) DEFAULT NULL,
+          `send_type` varchar(255) DEFAULT 'MANUAL',
           PRIMARY KEY  (`id`)
         )");
         
@@ -2830,10 +2832,11 @@ class GenesisTracker{
             self::setUserData($user->ID, self::fourWeekleyEmailDateCol, current_time('Y-m-d H:i:s'));
             
             $wpdb->insert(self::getFourWeekEmailLogTableName(), array(
-               'user_id' => $userId,
-               'type' => $type,
-               'log_date' => current_time('Y-m-d H:i:s'),
-               'week' => $userDetails['weeks_registered']
+                'user_id' => $userId,
+                'type' => $type,
+                'log_date' => current_time('Y-m-d H:i:s'),
+                'week' => $userDetails['weeks_registered'],
+                'send_type' => $manualMode ? self::FOUR_WEEK_SEND_TYPE_MANUAL : self::FOUR_WEEK_SEND_TYPE_AUTOMATIC
             ));
             return true;
         }else{
