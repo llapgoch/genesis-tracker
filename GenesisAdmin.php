@@ -201,7 +201,7 @@ class GenesisAdmin{
         }
         
         if($cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
-           // return $cache;
+            return $cache;
         }
         
         $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
