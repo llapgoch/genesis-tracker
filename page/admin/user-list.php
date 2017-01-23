@@ -1,7 +1,7 @@
 <?php
 
 if($_GET['send_test'] == '1'){
-    GenesisAdmin::sendAllWeightEmails();
+    //GenesisAdmin::sendAllWeightEmails();
     exit;
 }
 ?>

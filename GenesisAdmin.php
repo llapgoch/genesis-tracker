@@ -170,22 +170,20 @@ class GenesisAdmin{
         foreach($logs as $log){
             // Red Flag
             if($log['six_month_benchmark_change_email_check'] >= 1){
-                var_dump("SEND RED FLAG" . $log['user_id']);
 
-                // $result = GenesisTracker::sendRedFlagEmail($log['user_id']);
+                $result = GenesisTracker::sendRedFlagEmail($log['user_id']);
 
-//                if(is_array($result)){
-//                    GenesisTracker::logMessage($result['message']);
-//                }
+                if(is_array($result)){
+                    GenesisTracker::logMessage($result['message']);
+                }
             }
 
             if($log['four_week_required_to_send']){
-                var_dump("SEND FOUR WEEK " . $log['user_id']);
-//                $result = GenesisTracker::sendFourWeeklyEmail($log['user_id'], $log['four_week_outcome']);
-//
-//                if(is_array($result)){
-//                    GenesisTracker::logMessage($result['message']);
-//                }
+                $result = GenesisTracker::sendFourWeeklyEmail($log['user_id'], $log['four_week_outcome']);
+
+                if(is_array($result)){
+                    GenesisTracker::logMessage($result['message']);
+                }
             }
 
         }

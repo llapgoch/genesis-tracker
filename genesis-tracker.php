@@ -66,13 +66,25 @@ if(!wp_next_scheduled('genesis_send_reminder_email')){
 
 //wp_unschedule_event(1412121600, 'genesis_generate_average_user_data');
 
+
 // Regenerates all cache data for graph averages
 if(!wp_next_scheduled('genesis_generate_average_user_data')){
     wp_schedule_event(mktime(0,0,0,9,1,2014), 'daily', 'genesis_generate_average_user_data');
 }
 
+
+// Add cron for sending four week emails
+if(!wp_next_scheduled('send_automatic_four_week_emails')){
+    wp_schedule_event(mktime(13,0,0,1,24,2017), 'daily', 'genesis_send_automatic_four_week_emails');
+}
+
+
+
+
 add_action('genesis_send_reminder_email', 'send_reminder_email');
 add_action('genesis_generate_average_user_data', array('GenesisTracker', 'generateAverageUsersGraphData'));
+add_action('genesis_send_automatic_four_week_emails', array('GenesisAdmin', 'sendAllWeightEmails'));
+
 
 // Caters for if reauth=1 is on the URL.  wp_redirect_admin_locations didn't do this
 add_action('template_redirect', function(){

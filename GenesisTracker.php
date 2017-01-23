@@ -2885,7 +2885,8 @@ class GenesisTracker{
                  if(wp_mail($user->user_email, 'Your recent weight', $body, self::getEmailHeaders())){
                      // Mark user's account
                      GenesisTracker::setUserData($user->ID, self::redFlagEmailDateCol, current_time('Y-m-d H:i:s'));
-                    return true;
+                     GenesisTracker::logMessage('Sent Red Flag Email ' . $user->ID);
+                     return true;
                     
                 }else{
                     return array(
