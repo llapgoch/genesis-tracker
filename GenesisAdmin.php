@@ -164,12 +164,17 @@ class GenesisAdmin{
     // Needs testing - for automatically sending four week and red flag emails
     public static function sendAllWeightEmails(){
         $logs = self::getUserLogDetails();
+        $headers = GenesisTracker::getEmailHeaders();
 
         GenesisTracker::logMessage("Attempting send of four week emails");
 
         foreach($logs as $log){
             // Red Flag
             if($log['six_month_benchmark_change_email_check'] >= 1){
+
+                $contents = "A red flag email has been sent to user: " . $log['user_email'];
+
+                wp_mail(GenesisTracker::alternateContactEmail, 'A Red Flag Email Has Been Sent', $contents, $headers);
 
                 $result = GenesisTracker::sendRedFlagEmail($log['user_id']);
 
@@ -179,6 +184,7 @@ class GenesisAdmin{
             }
 
             if($log['four_week_required_to_send']){
+
                 $result = GenesisTracker::sendFourWeeklyEmail($log['user_id'], $log['four_week_outcome']);
 
                 if(is_array($result)){
