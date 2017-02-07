@@ -72,9 +72,11 @@ if(!wp_next_scheduled('genesis_generate_average_user_data')){
     wp_schedule_event(mktime(0,0,0,9,1,2014), 'daily', 'genesis_generate_average_user_data');
 }
 
+wp_unschedule_event(mktime(13,0,0,1,24,2017), 'send_automatic_four_week_emails');
+
 
 // Add cron for sending four week emails
-if(!wp_next_scheduled('send_automatic_four_week_emails')){
+if(!wp_next_scheduled('genesis_send_automatic_four_week_emails')){
     wp_schedule_event(mktime(13,0,0,1,24,2017), 'daily', 'genesis_send_automatic_four_week_emails');
 }
 
