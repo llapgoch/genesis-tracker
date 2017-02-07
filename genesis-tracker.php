@@ -334,7 +334,7 @@ function extra_user_profile_fields($user){
         <?php if(is_admin()): ?>
             <tr>
                 <th>
-                    <label for="<?php echo $studyGroupKey ?>"><?php _e("Study Group Number")?></label>
+                    <label for="<?php echo $studyGroupKey ?>"><?php _e("Study Number")?></label>
                 </th>
                 <td>
 

@@ -115,7 +115,7 @@ class GenesisUserTable extends WP_List_Table {
 		    function get_columns(){
 		        $columns = array(
 					'gained_more_than_one_kg' => '',
-					'study_group'			=> 'Study Group',
+					'study_group'			=> 'Study Number',
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
