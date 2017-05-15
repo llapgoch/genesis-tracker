@@ -1,0 +1,34 @@
+# MAIN USER DATA
+SELECT * FROM genwp_users u
+JOIN genwp_genesis_userdata
+	ON genwp_genesis_userdata.user_id = u.ID
+WHERE `study_group` LIKE "1%" OR `study_group` LIKE "2%"
+
+#TRACKER ENTRIES
+SELECT main.* FROM genwp_genesis_tracker main
+JOIN genwp_genesis_userdata ud
+	ON ud.user_id = main.user_id
+WHERE ud.`study_group` LIKE "1%" OR ud.`study_group` LIKE "2%"
+
+# FOOD LOGS
+SELECT main.*, tracker.user_id, tracker.`measure_date` FROM genwp_genesis_food_log main
+JOIN genwp_genesis_tracker tracker
+	ON main.`tracker_id` = tracker.`tracker_id`
+JOIN genwp_genesis_userdata ud
+	ON ud.user_id = tracker.user_id
+WHERE (ud.`study_group` LIKE "1%" OR ud.`study_group` LIKE "2%")
+AND main.value > 0
+
+# FOOD DESCRIPTIONS
+SELECT main.*, tracker.user_id, tracker.`measure_date` FROM genwp_genesis_food_description main
+JOIN genwp_genesis_tracker tracker
+	ON main.`tracker_id` = tracker.`tracker_id`
+JOIN genwp_genesis_userdata ud
+	ON ud.user_id = tracker.user_id
+WHERE (ud.`study_group` LIKE "1%" OR ud.`study_group` LIKE "2%")
+
+# DIET DAYS
+SELECT main.* FROM genwp_genesis_diet_day main
+JOIN genwp_genesis_userdata ud
+	ON ud.user_id = main.user_id
+WHERE ud.`study_group` LIKE "1%" OR ud.`study_group` LIKE "2%"
