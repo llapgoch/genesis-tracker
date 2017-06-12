@@ -75,17 +75,12 @@ if(!wp_next_scheduled('genesis_generate_average_user_data')){
 wp_unschedule_event(mktime(13,0,0,1,24,2017), 'send_automatic_four_week_emails');
 
 
-// Add cron for sending four week emails
-if(!wp_next_scheduled('genesis_send_automatic_four_week_emails')){
-    wp_schedule_event(mktime(13,0,0,1,24,2017), 'daily', 'genesis_send_automatic_four_week_emails');
-}
-
+wp_unschedule_event(mktime(13,0,0,1,24,2017), 'genesis_send_automatic_four_week_emails');
 
 
 
 add_action('genesis_send_reminder_email', 'send_reminder_email');
 add_action('genesis_generate_average_user_data', array('GenesisTracker', 'generateAverageUsersGraphData'));
-add_action('genesis_send_automatic_four_week_emails', array('GenesisAdmin', 'sendAllWeightEmails'));
 
 
 // Caters for if reauth=1 is on the URL.  wp_redirect_admin_locations didn't do this
@@ -949,23 +944,7 @@ function genesis_admin_page(){
 }
 
 
-function genesis_admin_send_red_flag_email(){
-    global $wpdb;
-    
-    if(isset($_POST['user'])){
-        $result = GenesisTracker::sendRedFlagEmail($_POST['user'], true);
-        
-        if(is_array($result)){
-            GenesisAdmin::addAdminNotice('error', $result['message']);
-        }else{
-            GenesisAdmin::addAdminNotice('updated', 'A red flag email has been successfully sent to this user');
-        }
-        
-        wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
-        // Exit so we go no further after the redirect
-        exit;
-    }
-}
+
 
 function genesis_admin_user_list(){
     global $wpdb;
@@ -984,27 +963,9 @@ function genesis_admin_user_show($user){
     $exerciseLogs = GenesisAdmin::getExerciseLogsForUser($user->ID);
     $weightLogs = GenesisAdmin::getWeightLogsForUser($user->ID);
     $dietDays = GenesisAdmin::getDietDaysForUser($user->ID);
-    $fourWeekLogs = GenesisAdmin::getFourWeekLogsForUser($user->ID);
     $fourWeekTypes = GenesisAdmin::getFourWeekEmailTypes();
     
     include('page/admin/user-show.php');
-}
-
-function genesis_admin_send_four_weekly_email(){
-    global $wpdb;
-    if(!get_user_by('id', $_POST['user'])){
-        wp_redirect(GenesisTracker::getAdminUrl());
-        exit;
-    }
-    
-    if(($response = GenesisTracker::sendFourWeeklyEmail($_POST['user'], $_POST['action'], true)) === true){
-        GenesisAdmin::addAdminNotice('updated', 'The email sent successfully');
-    }else{
-        GenesisAdmin::addAdminNotice('error', $response['message']);
-    }
-
-    wp_redirect(GenesisTracker::getAdminUrl(array('edit_user' => $_POST['user'])));
-    exit;
 }
 
 function genesis_user_graph(){
