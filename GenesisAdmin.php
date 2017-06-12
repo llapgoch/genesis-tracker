@@ -128,23 +128,7 @@ class GenesisAdmin{
         if($useCache && $cache = GenesisTracker::getCacheData(GenesisTracker::userDataCacheKey . ($user ? '-' . $user : '-sb-' . $sortBy))){
             return $cache;
         }
-
-        $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
         
-        $newFourWeekZones = array();
-        $weeksBetweenEmail = $manualMode ? 3 : 4;
-        
-        // Make the sending more flexible
-        if($manualMode){
-            foreach($fourWeekArray as $zone){
-                $newFourWeekZones[] = $zone;
-                $newFourWeekZones[] = $zone - 1;
-            }
-            
-            $fourWeekArray = $newFourWeekZones;
-        }
-        
-         $fourWeekZones = implode($fourWeekArray, ", ");
 
         // Use this when executing the SQL in the GUI:
         //set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
