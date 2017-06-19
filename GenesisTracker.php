@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.38";
+    const version = "1.40";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -327,12 +327,22 @@ class GenesisTracker{
          self::createInputPage();
          self::createTargetInputPage();
          self::createInitialWeightPage();
-         self::createEligibilityPage();
+         //self::createEligibilityPage();
          self::createIneligiblePage();
          self::createPrescriptionPage();
          self::createPhysiotecLoginPage();
+
+
+        // disable eligibility page
+        if($pageID = self::getOption(self::eligibilityPageId)){
+
+            wp_update_post(array(
+                'ID' => $pageID,
+                'post_status' => 'draft'
+            ));
+        }
          
-          self::updateOption("version", self::version);
+        self::updateOption("version", self::version);
          
          $role = get_role('administrator');
          
@@ -493,9 +503,9 @@ class GenesisTracker{
              update_user_meta($user_id, 'tel', trim($_POST['tel']));
          }
          
-         if( isset( $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]) ){
-             GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
-         }
+//         if( isset( $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]) ){
+//             GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
+//         }
          
          $userdata = array();
          $userdata['ID'] = $user_id;
@@ -513,7 +523,7 @@ class GenesisTracker{
              return;
         }
         
-        unset($_SESSION[self::getOptionKey(self::eligibilitySessionKey)]);
+//        unset($_SESSION[self::getOptionKey(self::eligibilitySessionKey)]);
         
          $headers = self::getEmailHeaders();
         $contents = self::getTemplateContents('register');
@@ -588,28 +598,42 @@ class GenesisTracker{
          $withdrawnKey = self::userWithdrawnCol;
          $notesKey     = self::userNotesCol;
          $startDateKey = self::userStartDateCol;
-         $validStartDate = false;
 
-         if(isset($_POST[$startDateKey]) && $_POST[$startDateKey]) {
+         if(isset($_POST[$startDateKey])) {
              $dateParts = date_parse($_POST[$startDateKey]);
 
              if ($dateParts['day'] && $dateParts['month'] && $dateParts['year']) {
                  GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
+             }else{
                  $_POST[$activeKey] = false;
+                 GenesisTracker::setUserData($user_id, $startDateKey, '');
              }
+         }
+
+
+         $startDate = $_POST[self::userStartDateCol];
+         $parsedDate = date_parse($startDate);
+         
+
+         // Don't allow the user to be marked as active if they have no start date set
+         if(!$parsedDate['year'] || !$parsedDate['month'] || !$parsedDate['day']){
+             $_POST[$activeKey] = false;
          }
          
          
          if(isset($_POST[$activeKey])){
              $active = (int) $_POST[$activeKey];
              $emailSent = (int) get_the_author_meta(self::getOptionKey(self::userActiveEmailSentKey), $user_id );
-             
+
              self::setUserData($user_id, $activeKey, $active);
 
              if(!$emailSent && $active){
                  self::sendUserActivateEmail($user_id);
              }
          }
+
+
+         self::setUserData($user->ID, self::userStartDateCol, $date);
          
          // Check whether the user has been contacted
          if(isset($_POST[$contactedKey])){
@@ -640,7 +664,9 @@ class GenesisTracker{
          if(!$user){
              return;
          }
-         
+
+         update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
+
          $headers = self::getEmailHeaders();
          $body = self::getTemplateContents('activated');
          
@@ -808,7 +834,13 @@ class GenesisTracker{
      }
      
      public static function convertDBDate($dbDate){
-         return date("d-m-Y", strtotime($dbDate));
+         $dateParts = date_parse($dbDate);
+
+         if($dateParts['day'] && $dateParts['month'] && $dateParts['year']){
+             return date("d-m-Y", strtotime($dbDate));
+         }
+
+         return false;
      }
      
      public static function convertDBDatetime($dbDate){
@@ -1634,6 +1666,10 @@ class GenesisTracker{
      public static function updateOption($option, $value){
          update_option(self::prefixId . $option, $value);
      }
+
+    public static function removeOption($option){
+        delete_option(self::prefixId . $option);
+    }
      
      public static function getUserPagePermalink(){
          return get_permalink(self::getOption(self::userPageId));
@@ -2614,7 +2650,7 @@ class GenesisTracker{
           self::updateOption(self::targetPageId, $post_id);
      } 
      
-     public static function createEligibilityPage($overite = false){
+     public static function createEligibilityPage($overwrite = false){
          // Create the page which allows users to enter a target weight and date
          $pageID = self::getOption(self::eligibilityPageId);
           $post = get_post($pageID);

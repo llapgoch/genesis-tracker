@@ -34,7 +34,7 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::userPageId), 'genesis
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId), 'genesis_user_input_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genesis_tracker_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
-add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), 'genesis_eligibility_page');
+//add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), 'genesis_eligibility_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligiblePageId), 'genesis_ineligible_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::prescriptionPageId), 'genesis_prescription_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::physiotecLoginPageId), 'genesis_physiotec_login');
@@ -253,7 +253,7 @@ function extra_user_profile_fields($user){
     $notesVal = GenesisTracker::getUserData($user->ID, $notesKey);
     
     $startDateKey = GenesisTracker::userStartDateCol;
-    $startDateVal = GenesisTracker::getUserData($user->ID, $startDateKey);
+    $startDateVal = GenesisTracker::convertDBDate(GenesisTracker::getUserData($user->ID, $startDateKey));
     
     $twelveMonthTargetKey = GenesisTracker::getOptionKey(GenesisTracker::twelveMonthWeightTargetKey);
     $twelveMonthTargetVal = get_the_author_meta($twelveMonthTargetKey, $user->ID);
@@ -349,17 +349,12 @@ function extra_user_profile_fields($user){
                     <label for="<?php echo $startDateKey?>"><?php _e("Activation Date")?></label>
                 </th>
                 <td>
-                   
                     <?php $settings = array(
-                        'default' => $startDateVal ? GenesisTracker::convertDBDate($startDateVal) : '',
+                        'default' => $startDateVal ? $startDateVal : '',
                         'id' => $startDateKey,
                         'readonly' => 'readonly',
                         'class' => 'datepicker'
                     );
-                    
-                    if(!$isActive){
-                        $settings['disabled'] = 'disabled';
-                    }
                 
                     echo $form->input($startDateKey, 'text', $settings);
                     ?>
