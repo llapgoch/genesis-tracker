@@ -587,6 +587,17 @@ class GenesisTracker{
          $contactedKey = self::userContactedCol;
          $withdrawnKey = self::userWithdrawnCol;
          $notesKey     = self::userNotesCol;
+         $startDateKey = self::userStartDateCol;
+         $validStartDate = false;
+
+         if(isset($_POST[$startDateKey]) && $_POST[$startDateKey]) {
+             $dateParts = date_parse($_POST[$startDateKey]);
+
+             if ($dateParts['day'] && $dateParts['month'] && $dateParts['year']) {
+                 GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
+                 $_POST[$activeKey] = false;
+             }
+         }
          
          
          if(isset($_POST[$activeKey])){
@@ -615,6 +626,8 @@ class GenesisTracker{
              $notes = (string) $_POST[$notesKey];
              self::setUserData($user_id, $notesKey, $notes);
          }
+
+
      }
      
      public static function getAdminUrl($query = array()){
@@ -627,11 +640,6 @@ class GenesisTracker{
          if(!$user){
              return;
          }
-         
-         $date = date('Y-m-d', current_time('timestamp'));
-
-         self::setUserData($user->ID, self::userStartDateCol, $date);
-         update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
          
          $headers = self::getEmailHeaders();
          $body = self::getTemplateContents('activated');

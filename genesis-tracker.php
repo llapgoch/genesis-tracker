@@ -884,10 +884,6 @@ function save_extra_user_profile_fields($user_id){
         }
 
         
-        if($isActive && isset($_POST[$startDateKey]) && $_POST[$startDateKey]){
-            GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
-        }
-        
         update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
         update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
         update_user_meta( $user_id, $weightTargetKey, $targetWeight );
