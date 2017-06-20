@@ -481,8 +481,9 @@ class GenesisTracker{
          }
          
          $isActive = self::getUserData($user->ID, GenesisTracker::userActiveCol);
+         $startDate = self::getUserData($user->ID, GenesisTracker::userStartDateCol);
 
-          if(is_numeric($isActive) && $isActive == 0){
+          if((is_numeric($isActive) && $isActive == 0) || !$startDate){
               return new WP_Error( 'user_inactive',  __( '<strong>ERROR</strong>: Sorry, your account has not been activated yet.'));
           }
           
