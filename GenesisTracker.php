@@ -494,10 +494,6 @@ class GenesisTracker{
              update_user_meta($user_id, 'tel', trim($_POST['tel']));
          }
          
-//         if( isset( $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]) ){
-//             GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
-//         }
-         
          $userdata = array();
          $userdata['ID'] = $user_id;
          $userdata['user_pass'] = trim($_POST['password']);

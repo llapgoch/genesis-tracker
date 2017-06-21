@@ -101,7 +101,6 @@ class GenesisUserTable extends WP_List_Table {
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
-                    GenesisTracker::passcodeGroupCol        => 'Passcode Group',
 		            'unix_timestamp'        => 'Last Measurement Date',
                     'user_contacted'        => 'Contacted',
                     'withdrawn'             => 'Withdrawn',
@@ -120,7 +119,6 @@ class GenesisUserTable extends WP_List_Table {
                        'user_name'          => array('user_name', false),
 		               'user_email'         => array('user_email',false),
                        'user_registered_timestamp' => array('user_registered_timestamp', false),
-                       GenesisTracker::passcodeGroupCol     => array(GenesisTracker::passcodeGroupCol, false),
                             //true means it's already sorted
 		               'start_weight'     => array('start_weight',false),
                        'weight'             => array('weight', false),
