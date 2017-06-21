@@ -600,16 +600,6 @@ class GenesisTracker{
                  GenesisTracker::setUserData($user_id, $startDateKey, '');
              }
          }
-
-
-         $startDate = $_POST[self::userStartDateCol];
-         $parsedDate = date_parse($startDate);
-         
-
-         // Don't allow the user to be marked as active if they have no start date set
-         if(!$parsedDate['year'] || !$parsedDate['month'] || !$parsedDate['day']){
-             $_POST[$activeKey] = false;
-         }
          
          
          if(isset($_POST[$activeKey])){

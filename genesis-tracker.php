@@ -62,6 +62,9 @@ function remove_profile_contact_methods( $contactmethods ) {
 
 /* remove the wp-core-ui class on the login page */
 function adjust_body_classes($classes){
+    if(!GenesisTracker::isOnRegistrationPage() && !isset($_GET['checkemail'])){
+        return $classes;
+    }
     $index = array_search('wp-core-ui', $classes);
 
     if($index !== false){
