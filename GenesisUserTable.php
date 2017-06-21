@@ -24,11 +24,6 @@ class GenesisUserTable extends WP_List_Table {
          $noValue = '- -';
           
          switch($column_name){
-			 case 'gained_more_than_one_kg' :
-				 if($item['six_month_benchmark_change_email_check'] >= 1){
-					 return '<span class="flag">F</span>';
-				 }
-				 return "";
              case 'user_email':
                  $email = "<a href='mailto:" . $item[$column_name] . "'>" . $item[$column_name] . "</a>";
 
@@ -68,18 +63,6 @@ class GenesisUserTable extends WP_List_Table {
                  return (int)$item[$column_name] ? 'Yes' : $this->wrapRed('No');
              case 'withdrawn' : 
                  return $item[$column_name] ? $this->wrapRed('Yes') : 'No';
-			 case 'four_weekly_date' :
-				 if($item['four_week_required_to_send'] && !$item['four_weekly_date']){
-					 return $this->wrapRed('Never');
-				 }
-				 
-				 if(!$item['four_weekly_date']){
-					 return '- -';
-				 }
-
-				 $date = gmdate('d M Y', strtotime($item['four_weekly_date']));
-				 
-				 return $item['four_week_required_to_send'] ? $this->wrapRed($date) : $date;
              default:
 	         	if(!isset($item[$column_name])){
 	            	 return $noValue;
@@ -114,14 +97,12 @@ class GenesisUserTable extends WP_List_Table {
 			
 		    function get_columns(){
 		        $columns = array(
-					'gained_more_than_one_kg' => '',
 					'study_group'			=> 'Study Number',
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
                     GenesisTracker::passcodeGroupCol        => 'Passcode Group',
 		            'unix_timestamp'        => 'Last Measurement Date',
-					'four_weekly_date' => 'Last Four Week Email',
                     'user_contacted'        => 'Contacted',
                     'withdrawn'             => 'Withdrawn',
 					 'account_active'       => 'Active',
@@ -136,7 +117,6 @@ class GenesisUserTable extends WP_List_Table {
 		           $sortable_columns = array(
 					   'study_group'	=> array('study_group', false),
                        'measure_date' => array('measure_date', false),
-					   'gained_more_than_one_kg' => array('six_month_benchmark_change_email_check', false),
                        'user_name'          => array('user_name', false),
 		               'user_email'         => array('user_email',false),
                        'user_registered_timestamp' => array('user_registered_timestamp', false),
@@ -148,10 +128,7 @@ class GenesisUserTable extends WP_List_Table {
                        'withdrawn'          => array('withdrawn', false),
                        'account_active'     => array('account_active', false),
                        'weight_change'      => array('weight_change', false),
-                       'unix_timestamp'     => array('unix_timestamp', true),
-					   'four_weekly_date' => array('four_week_required_to_send'),
-					   'four_week_required_to_send' => array('four_week_required_to_send', true),
-                       'six_month_benchmark_change_email_check' => array('six_month_benchmark_change_email_check', true)
+                       'unix_timestamp'     => array('unix_timestamp', true)
 		           );
 		           return $sortable_columns;
 		       }
@@ -207,15 +184,7 @@ class GenesisUserTable extends WP_List_Table {
                    $cols = $this->get_sortable_columns();
                    $orderBy = isset($cols[$_REQUEST['orderby']]) ? $_REQUEST['orderby'] : 'measure_date';
                    $order = strtoupper($_REQUEST['order']) == 'ASC' ? 'ASC' : 'DESC';
-                   
-                   if($orderBy == 'four_week_required_to_send'){
-                       $orderBy .= ' DESC, four_weekly_date';
-                   }
-                   
-                   // There's no point in sorting the other way
-                   if($orderBy == 'six_month_benchmark_change_email_check'){
-                       $order = 'DESC';
-                   }
+				   
                    
 		           $data = GenesisAdmin::getUserLogDetails($orderBy . " " . $order, null, true, true);
                    

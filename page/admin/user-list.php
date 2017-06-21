@@ -1,11 +1,3 @@
-<?php
-
-if($_GET['send_test'] == '1'){
-    //GenesisAdmin::sendAllWeightEmails();
-    exit;
-}
-?>
-
 <div class="wrap">
     <h2>Procas Admin</h2>
     <ul>
