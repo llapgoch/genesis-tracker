@@ -391,11 +391,6 @@ class GenesisTracker{
          $registerUrl = wp_registration_url();
          $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
          
-         if(self::isOnRegistrationPage() && self::userIsEligible() == false){
-             wp_redirect(home_url());  
-             exit;
-         }
-         
          if(self::isOnRegistrationPage()){
             wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
          }
@@ -418,12 +413,6 @@ class GenesisTracker{
          }
          
          $errors->errors = $errs;
-         
-         if(!self::userIsEligible()){
-             $errors->errors = array();
-             $errors->add( 'eligible_error', __('<strong>ERROR</strong>: Sorry, you are not eligible for this research study.','mydomain') );
-             return $errors;
-         }
          
          if(empty($_POST['first_name'])){
             $errors->add( 'first_name_error', __('<strong>ERROR</strong>: You must include a first name.') );
@@ -479,7 +468,7 @@ class GenesisTracker{
          if(!$user){
              return;
          }
-         
+
          $isActive = self::getUserData($user->ID, GenesisTracker::userActiveCol);
          $startDate = self::getUserData($user->ID, GenesisTracker::userStartDateCol);
 
@@ -492,6 +481,7 @@ class GenesisTracker{
      
      public static function checkRegistrationPost($user_id){
          global $ezemails_options;
+
          if ( isset( $_POST['first_name'] ) ){
              update_user_meta($user_id, 'first_name', trim($_POST['first_name']));
          }
@@ -680,11 +670,7 @@ class GenesisTracker{
          
           wp_mail($user->user_email, 'Your Genesis PROCAS account has been activated', $body, self::getEmailHeaders());
      }
-     
-     public static function userIsEligible(){
-         return $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] == true;
-     }
-     
+
      public static function getuserMetaTargetFields(){
          return self::$_userMetaTargetFields;
      }
