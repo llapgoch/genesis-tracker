@@ -45,6 +45,8 @@ add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPasswo
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 add_filter('show_admin_bar', '__return_false');
 
+add_filter( 'login_body_class', 'adjust_body_classes');
+
 // Checks whether the install function needs to be called again for DB changes
 add_action( 'init', array('GenesisTracker', 'checkVersionUpgrade') );
 add_action( 'init', array('GenesisTracker', 'initActions') );
@@ -56,6 +58,19 @@ function remove_profile_contact_methods( $contactmethods ) {
   unset($contactmethods['jabber']);
   unset($contactmethods['yim']);
   return $contactmethods;
+}
+
+/* remove the wp-core-ui class on the login page */
+function adjust_body_classes($classes){
+    if(GenesisTracker::isOnLoginPage() && isset($_GET['checkemail'])) {
+        $index = array_search('wp-core-ui', $classes);
+
+        if ($index !== false) {
+            array_splice($classes, $index, 1);
+        }
+
+    }
+    return $classes;
 }
 
 //wp_unschedule_event(1457199974, 'genesis_send_reminder_email');
@@ -361,10 +376,6 @@ function extra_user_profile_fields($user){
                         'readonly' => 'readonly',
                         'class' => 'datepicker'
                     );
-                    
-                    if(!$isActive){
-                        $settings['disabled'] = 'disabled';
-                    }
                 
                     echo $form->input($startDateKey, 'text', $settings);
                     ?>

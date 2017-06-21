@@ -489,8 +489,9 @@ class GenesisTracker{
          }
          
          $isActive = self::getUserData($user->ID, GenesisTracker::userActiveCol);
+         $startDate = self::getUserData($user->ID, GenesisTracker::userStartDateCol);
 
-          if(is_numeric($isActive) && $isActive == 0){
+         if((is_numeric($isActive) && $isActive == 0) || !$startDate){
               return new WP_Error( 'user_inactive',  __( '<strong>ERROR</strong>: Sorry, your account has not been activated yet.'));
           }
           
@@ -605,6 +606,18 @@ class GenesisTracker{
          $contactedKey = self::userContactedCol;
          $withdrawnKey = self::userWithdrawnCol;
          $notesKey     = self::userNotesCol;
+         $startDateKey = self::userStartDateCol;
+
+         if(isset($_POST[$startDateKey])) {
+             $dateParts = date_parse($_POST[$startDateKey]);
+
+             if ($dateParts['day'] && $dateParts['month'] && $dateParts['year']) {
+                 GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
+             }else{
+                 $_POST[$activeKey] = false;
+                 GenesisTracker::setUserData($user_id, $startDateKey, '');
+             }
+         }
          
          
          if(isset($_POST[$activeKey])){
@@ -638,31 +651,27 @@ class GenesisTracker{
      public static function getAdminUrl($query = array()){
          return admin_url('admin.php?page=genesis-tracker') . "&" . build_query($query);
      }
-     
-     public static function sendUserActivateEmail($user_id){
-         $user = get_userdata($user_id);
-         
-         if(!$user){
-             return;
-         }
-         
-         $date = date('Y-m-d', current_time('timestamp'));
 
-         self::setUserData($user->ID, self::userStartDateCol, $date);
-         update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
-         
-         $headers = self::getEmailHeaders();
-         $body = self::getTemplateContents('activated');
-         
-         $body = str_replace(
-             array('%site_url%', '%genesis_logo%'),
-             array(get_site_url(),  self::getLogoUrl()),
-             $body
-         );
-         
-         
-          wp_mail($user->user_email, 'Your Genesis PROCAS account has been activated', $body, self::getEmailHeaders());
-     }
+    public static function sendUserActivateEmail($user_id){
+        $user = get_userdata($user_id);
+
+        if(!$user){
+            return;
+        }
+
+        update_user_meta( $user->ID, self::getOptionKey(self::userActiveEmailSentKey), 1);
+
+        $headers = self::getEmailHeaders();
+        $body = self::getTemplateContents('activated');
+
+        $body = str_replace(
+            array('%site_url%', '%genesis_logo%'),
+            array(get_site_url(),  self::getLogoUrl()),
+            $body
+        );
+
+        wp_mail($user->user_email, 'Your Genesis PROCAS account has been activated', $body, self::getEmailHeaders());
+    }
      
      public static function userIsEligible(){
          return $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] == true;
@@ -823,7 +832,13 @@ class GenesisTracker{
      }
      
      public static function convertDBDate($dbDate){
-         return date("d-m-Y", strtotime($dbDate));
+         $dateParts = date_parse($dbDate);
+
+         if($dateParts['day'] && $dateParts['month'] && $dateParts['year']){
+             return date("d-m-Y", strtotime($dbDate));
+          }
+
+          return false;
      }
      
      public static function convertDBDatetime($dbDate){
@@ -2629,7 +2644,7 @@ class GenesisTracker{
           self::updateOption(self::targetPageId, $post_id);
      } 
      
-     public static function createEligibilityPage($overite = false){
+     public static function createEligibilityPage($overwrite = false){
          // Create the page which allows users to enter a target weight and date
          $pageID = self::getOption(self::eligibilityPageId);
           $post = get_post($pageID);
