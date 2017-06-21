@@ -19,7 +19,7 @@ class GenesisTracker{
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
     const adminNoticesSessionKey      = "___ADMIN_NOTICES";
     const targetPageId = "tracker_page";
-    const alternateContactEmail = "lifestyleresearch@nhs.net";
+    const alternateContactEmail = "dave_preece@mac.com";
     
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
