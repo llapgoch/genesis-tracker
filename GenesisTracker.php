@@ -2289,20 +2289,66 @@ class GenesisTracker{
 
          // Look up food targets using the tracker_id if we have one
          $foodData = array();
-         $foodDescriptions = array();
+         $foodDescription = array();
+         $autofillFoods = self::getAutofillFoods($user_id);
          
          if($measureDetails->tracker_id){
              $foodData = self::getUserFoodLogsForTracker($measureDetails->tracker_id);
              $foodDescription = self::getUserFoodDescriptionsForTracker($measureDetails->tracker_id);
          }
+
+         // Get previously entered foods for
          
          return array(
              "date_picker" =>self::getDateListPicker($day, $month, $year),
              "measure_details" => $measureDetails,
              "food_log" => $foodData,
-             "food_descriptions" => $foodDescription 
+             "food_descriptions" => $foodDescription,
+             "autofill_foods" => $autofillFoods
         );
      }
+
+
+    public static function getAutofillFoods($user_id){
+        global $wpdb;
+
+        $foodLogTableName = self::getFoodLogTableName();
+        $foodColumns = "";
+        $foodJoins = "";
+        $collated = array();
+
+        foreach(self::$_userMetaTargetFields as $target => $value){
+            $foodColumns .= ($foodColumns ? "," : "") . " food_log_{$target}.value as {$target}";
+            $foodJoins .= " LEFT JOIN {$foodLogTableName} food_log_{$target}
+            ON description.tracker_id = food_log_{$target}.tracker_id
+                AND food_log_{$target}.time = description.time
+                AND food_log_{$target}.food_type = '{$target}'";
+        }
+
+        $results = $wpdb->get_results(
+            $sql = $wpdb->prepare( "SELECT DISTINCT description.`tracker_id`, description.`time`, description.description as value, {$foodColumns}
+                  FROM " . self::getTrackerTableName() . " tracker
+                JOIN  " . self::getFoodDescriptionTableName() . " description
+                    ON description.tracker_id = tracker.tracker_id 
+                	AND description <> ''
+                {$foodJoins}
+                WHERE tracker.user_id=%d
+                ORDER BY time, description.`tracker_id` DESC", $user_id
+            )
+        );
+
+        echo $sql;
+
+        foreach($results as $res){
+            if(!isset($collated[$res->time])){
+                $collated[$res->time] = array();
+            }
+
+            $collated[$res->time][] = $res;
+        }
+
+        return $collated;
+    }
      
      public static function getDateListPicker($day, $month, $year, $forUser = true, $selected = array()){
          global $wpdb;
@@ -2408,6 +2454,9 @@ class GenesisTracker{
         wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
              'jquery'  
         ));
+
+
+
          if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage() || self::isOnEligibilityPage()){    
            
             

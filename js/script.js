@@ -245,6 +245,29 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     $('.food-container input.food-input[type="text"]:not([readonly="readonly"])').val(0);
                     // Clear the food descriptions
                     $('.food-container .food-description').val('');
+
+
+                    $('.food-container .food-description').each(function(){
+                        var $this = $(this),
+                            time = $this.data('time');
+
+                        if(data.autofill_foods[time]) {
+                            $this.autocomplete({
+                                source: data.autofill_foods[time],
+                                select: function( event, data ) {
+                                    var time = $(event.target).data('time');
+
+                                    for(var i in data.item) {
+                                        if(!data.item.hasOwnProperty(i)){
+                                            continue;
+                                        }
+
+                                        $("#" + time + "_" + i).val(parseFloat(data.item[i]));
+                                    }
+                                }
+                            });
+                        }
+                    });
                    
                     var unit = $weightUnit.val() == 1 ? "imperial" : "metric";
                     
