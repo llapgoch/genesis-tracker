@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.40";
+    const version = "1.41";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -202,6 +202,10 @@ class GenesisTracker{
           `time` varchar(255) DEFAULT NULL,
           `value` decimal(5,2) DEFAULT NULL,
           PRIMARY KEY  (`food_log_id`),
+          KEY `tracker_id` (`tracker_id`),
+          KEY `time` (`time`),
+          KEY `food_type_time` (`food_type`,`time`),
+          KEY `tracker_id_time_food_type` (`tracker_id`,`time`,`food_type`)
           KEY `tracker_id` (`tracker_id`)
         )");
         
@@ -210,7 +214,9 @@ class GenesisTracker{
           `tracker_id` int(10) unsigned NOT NULL,
           `time` varchar(255) DEFAULT NULL,
           `description` text,
-          PRIMARY KEY  (`id`)
+          PRIMARY KEY  (`id`),
+          KEY `time` (`time`),
+          KEY `tracker_id` (`tracker_id`)
         )");
         
         $userDataTableExists = self::checkTableExists(self::getUserDataTableName()); 
