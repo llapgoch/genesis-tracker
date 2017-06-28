@@ -2315,6 +2315,7 @@ class GenesisTracker{
         $foodLogTableName = self::getFoodLogTableName();
         $foodColumns = "";
         $foodJoins = "";
+        $outerColumns = "value, time, " . implode(",", array_keys(self::$_userMetaTargetFields));
         $collated = array();
 
         foreach(self::$_userMetaTargetFields as $target => $value){
@@ -2326,25 +2327,31 @@ class GenesisTracker{
         }
 
         $results = $wpdb->get_results(
-            $sql = $wpdb->prepare( "SELECT DISTINCT description.`tracker_id`, description.`time`, description.description as value, {$foodColumns}
+            $sql = $wpdb->prepare( "SELECT DISTINCT {$outerColumns} FROM
+              (SELECT DISTINCT description.`time`, description.description as value, {$foodColumns}
                   FROM " . self::getTrackerTableName() . " tracker
                 JOIN  " . self::getFoodDescriptionTableName() . " description
                     ON description.tracker_id = tracker.tracker_id 
                 	AND description <> ''
                 {$foodJoins}
                 WHERE tracker.user_id=%d
-                ORDER BY time, description.`tracker_id` DESC", $user_id
+                ORDER BY time, tracker.`tracker_id`) as orderer", $user_id
             )
         );
 
-        echo $sql;
+        // Only use the latest entry from any description so that we don't get duplicates with different values
+        $usedEntries = array();
 
         foreach($results as $res){
             if(!isset($collated[$res->time])){
                 $collated[$res->time] = array();
+                $usedEntries[$res->time] = array();
             }
 
-            $collated[$res->time][] = $res;
+            if(!in_array($res->value, $usedEntries[$res->time])) {
+                $collated[$res->time][] = $res;
+                $usedEntries[$res->time][] = $res->value;
+            }
         }
 
         return $collated;

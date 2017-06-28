@@ -256,13 +256,15 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                                 source: data.autofill_foods[time],
                                 select: function( event, data ) {
                                     var time = $(event.target).data('time');
+                                    var floatVal;
 
                                     for(var i in data.item) {
                                         if(!data.item.hasOwnProperty(i)){
                                             continue;
                                         }
 
-                                        $("#" + time + "_" + i).val(parseFloat(data.item[i]));
+                                        floatVal = parseFloat(data.item[i]);
+                                        $("#" + time + "_" + i).val(isNaN(floatVal) ? 0 : floatVal);
                                     }
                                 }
                             });
