@@ -2348,7 +2348,7 @@ class GenesisTracker{
                 	AND description <> ''
                 {$foodJoins}
                 WHERE tracker.user_id=%d
-                ORDER BY time, tracker.`tracker_id`) as orderer", $user_id
+                ORDER BY time, tracker.`tracker_id` DESC) as orderer", $user_id
             )
         );
 
