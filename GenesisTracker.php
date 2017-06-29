@@ -1393,6 +1393,8 @@ class GenesisTracker{
          if($form->getRawValue('record-exercise')){
              $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
              $rules['exercise_minutes_resistance'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
+             $rules['exercise_type'] = array('R');
+             $rules['exercise_type_resistance'] = array('R');
          }
          
          if($form->getRawValue('record-food')){
@@ -1480,11 +1482,16 @@ class GenesisTracker{
          if($form->hasValue('record-exercise')){
              if((float)$form->getRawValue('exercise_minutes') > 0){
                  $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
+                 $data['exercise_type'] = $form->getRawValue('exercise_type');
+                 $data['exercise_description'] = $form->getRawValue('exercise_description');
              }
              
              if((float)$form->getRawValue('exercise_minutes_resistance') > 0){
                  $data['exercise_minutes_resistance'] = (float)$form->getRawValue('exercise_minutes_resistance');
+                 $data['exercise_type_resistance'] = $form->getRawValue('exercise_type_resistance');
+                 $data['exercise_description_resistance'] = $form->getRawValue('exercise_description_resistance');
              }
+
          }
          
          // Remove Food Logs

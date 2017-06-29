@@ -372,7 +372,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<div class="question-container-small">
 						<p class="form-explanation"><?php _e('Enter a description for this exercise');?></p>
 						<?php
-						echo $form->textarea('exercise_resistance_description', array(
+						echo $form->textarea('exercise_description_resistance', array(
 							'default' => "",
 							'cols' => 30,
 							'rows' => 5,
