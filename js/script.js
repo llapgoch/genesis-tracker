@@ -293,6 +293,12 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     $form.find('input[name="exercise_minutes"]').val(measures.exercise_minutes);
                     $form.find('input[name="exercise_minutes_resistance"]').val(measures.exercise_minutes_resistance);
 
+                    $form.find('select[name="exercise_type"]').val(measures.exercise_type);
+                    $form.find('select[name="exercise_type_resistance"]').val(measures.exercise_type_resistance);
+
+                    $form.find('textarea[name="exercise_description"]').val(measures.exercise_description);
+                    $form.find('textarea[name="exercise_description_resistance"]').val(measures.exercise_description_resistance);
+
                     // Set the exercise values
                     if(measures.exercise_minutes || measures.exercise_minutes_resistance){
                         $form.find('input[name="record-exercise"]').prop('checked', true).trigger('change');
