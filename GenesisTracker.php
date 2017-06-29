@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.41";
+    const version = "1.42";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -109,6 +109,12 @@ class GenesisTracker{
         "snacks" => array("name" => "Snacks"),
         "drinks" => array("name" => "Drinks")
     );
+
+    protected static $_exerciseTypes = array(
+        "light" => array("name" => "Light"),
+        "moderate" => array("name" => "Moderate"),
+        "vigorous" => array("name" => "Vigorous")
+    );
     
     
     public function populate(){
@@ -160,6 +166,10 @@ class GenesisTracker{
           weight decimal(10,6) unsigned DEFAULT NULL,
           exercise_minutes int(11) DEFAULT NULL,
           exercise_minutes_resistance int(11) DEFAULT NULL,
+          exercise_type varchar(255) DEFAULT NULL,
+          exercise_type_resistance varchar(255) DEFAULT NULL,
+          exercise_description text DEFAULT NULL,
+          exercise_description_resistance text DEFAULT NULL,
           weight_unit tinyint(1) unsigned DEFAULT 1,
           PRIMARY KEY  (tracker_id),
           KEY user_id (user_id)
@@ -615,8 +625,6 @@ class GenesisTracker{
              }
          }
 
-
-         self::setUserData($user->ID, self::userStartDateCol, $date);
          
          // Check whether the user has been contacted
          if(isset($_POST[$contactedKey])){
@@ -670,6 +678,10 @@ class GenesisTracker{
      public static function getUserTargetTimes(){
          return self::$_userTargetTimes;
      }
+
+    public static function getExerciseTypes(){
+        return self::$_exerciseTypes;
+    }
      
      public static function getUserTargetLabel($key, $user_id = null){
          $user_id = !is_null($user_id) ? $user_id : get_current_user_id();

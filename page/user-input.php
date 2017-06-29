@@ -314,14 +314,36 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Aerobic Exercise');?></label>
 					
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the minutes of aerobic exercise you completed on the day you are recording');?></p>
-    				<?php
-    				echo $form->input('exercise_minutes', 'text', array(
-    					'id' => 'exercise_minutes',
-    					'class' => 'general-input'
-    				));
-    				?>
-    				<p class="input-suffix"><?php _e('minutes');?></p>
+
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter the minutes of aerobic exercise you completed and the type of exercise it was');?></p>
+
+						<?php
+						echo $form->input('exercise_minutes', 'text', array(
+							'id' => 'exercise_minutes',
+							'class' => 'general-input'
+						));
+						?>
+						<p class="input-suffix"><?php _e('minutes');?></p>
+
+						<?php
+						echo $form->dropdown('exercise_type',
+							$exerciseTypes,
+							array()
+						);
+						?>
+					</div>
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter a description for this exercise');?></p>
+						<?php
+						echo $form->textarea('exercise_description', array(
+							'default' => "",
+							'cols' => 30,
+							'rows' => 5,
+							'class' => 'general-input large-input'
+						));
+						?>
+					</div>
     			</div>
                 
     			<div class="question-container clearfix">
@@ -329,14 +351,35 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     					<label for="exercise_minutes_resistance" class="general-label"><?php _e('Minutes of Resistance Exercise');?></label>
 					
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed on the day you are recording');?></p>
-    				<?php
-    				echo $form->input('exercise_minutes_resistance', 'text', array(
-    					'id' => 'exercise_minutes_resistance',
-    					'class' => 'general-input'
-    				));
-    				?>
-    				<p class="input-suffix"><?php _e('minutes');?></p>
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed on the day you are recording');?></p>
+						<?php
+						echo $form->input('exercise_minutes_resistance', 'text', array(
+							'id' => 'exercise_minutes_resistance',
+							'class' => 'general-input'
+						));
+						?>
+						<p class="input-suffix"><?php _e('minutes');?></p>
+
+						<?php
+						echo $form->dropdown('exercise_type_resistance',
+							$exerciseTypes,
+							array()
+						);
+						?>
+					</div>
+
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter a description for this exercise');?></p>
+						<?php
+						echo $form->textarea('exercise_resistance_description', array(
+							'default' => "",
+							'cols' => 30,
+							'rows' => 5,
+							'class' => 'general-input large-input'
+						));
+						?>
+					</div>
     			</div>
     		</div>
     	</div>
