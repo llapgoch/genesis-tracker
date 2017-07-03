@@ -115,15 +115,23 @@
      <table class="wp-list-table widefat">
          <thead>
              <th>Date</th>
-             <th>Aerobic Exercise Minutes</th>
-             <th>Resistance Exercise Minutes</th>
+             <th>Aerobic Exercise</th>
+             <th>Resistance Exercise</th>
          </thead>
          <tbody>
              <?php foreach($exerciseLogs as $log): ?>
                  <tr>
                      <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
-                     <td><?php echo $log->exercise_minutes ? $log->exercise_minutes : "- -";?></td>
-                     <td><?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance : "- -";?></td>
+                     <td>
+                         <?php echo $log->exercise_minutes ? $log->exercise_minutes . " minutes" : "- -";?>
+                         <?php echo $log->exercise_type ? "<br /> <strong>Type: " . $log->exercise_type . "</strong>" : ""; ?>
+                         <?php echo $log->exercise_description ? "<br /> " . esc_html($log->exercise_description) : ""; ?>
+                     </td>
+                     <td>
+                         <?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance . " minutes"  : "- -";?>
+                         <?php echo $log->exercise_type_resistance ? "<br /> <strong>Type: " . $log->exercise_type_resistance . "</strong>" : ""; ?>
+                         <?php echo $log->exercise_description_resistance ? "<br /> " . esc_html($log->exercise_description_resistance) : ""; ?>
+                     </td>
                  </tr>
              <?php endforeach; ?>
              </tbody>
