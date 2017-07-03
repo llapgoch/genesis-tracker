@@ -124,13 +124,13 @@
                      <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
                      <td>
                          <?php echo $log->exercise_minutes ? $log->exercise_minutes . " minutes" : "- -";?>
-                         <?php echo $log->exercise_type ? "<br /> <strong>Type: " . $log->exercise_type . "</strong>" : ""; ?>
-                         <?php echo $log->exercise_description ? "<br /> " . esc_html($log->exercise_description) : ""; ?>
+                         <?php echo isset($exerciseTypes[$log->exercise_type]) ? "<br /> <strong>Type: " . $exerciseTypes[$log->exercise_type]['name'] . "</strong>" : ""; ?>
+                         <?php echo $log->exercise_description ? "<br /> <small>" . esc_html($log->exercise_description) . "</small>" : ""; ?>
                      </td>
                      <td>
                          <?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance . " minutes"  : "- -";?>
-                         <?php echo $log->exercise_type_resistance ? "<br /> <strong>Type: " . $log->exercise_type_resistance . "</strong>" : ""; ?>
-                         <?php echo $log->exercise_description_resistance ? "<br /> " . esc_html($log->exercise_description_resistance) : ""; ?>
+                         <?php echo isset($exerciseTypes[$log->exercise_type_resistance]) ? "<br /> <strong>Type: " . $exerciseTypes[$log->exercise_type_resistance]['name'] . "</strong>" : ""; ?>
+                         <?php echo $log->exercise_description_resistance ? "<br /> <small>" . esc_html($log->exercise_description_resistance) . "</small>" : ""; ?>
                      </td>
                  </tr>
              <?php endforeach; ?>
