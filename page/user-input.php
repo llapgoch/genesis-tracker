@@ -352,7 +352,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					
     				</div>
 					<div class="question-container-small">
-						<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed on the day you are recording');?></p>
+						<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed and the type of exercise it was');?></p>
 						<?php
 						echo $form->input('exercise_minutes_resistance', 'text', array(
 							'id' => 'exercise_minutes_resistance',
