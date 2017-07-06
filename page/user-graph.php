@@ -8,10 +8,10 @@
                 <button class="green button large" data-mode="exercise_minutes_resistance">Resistance Exercise</button>
     	        <div class="extended-button">
                     <button class="purple button large" data-mode="weight_loss">Weight Progress</button>
-                    <!-- <div class="averages">
+                     <div class="averages">
                         <input type="checkbox" name="averages" id="averages" />
-                        <label for="averages"><?php _e('Average weight loss for other women on the study'); ?></label>
-                    </div> -->
+                        <label for="averages"><?php _e('Average weight loss for other participants'); ?></label>
+                    </div>
                 </div>
             </div>
         	
