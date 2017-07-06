@@ -1832,10 +1832,22 @@ class GenesisTracker{
          if($startWeight = self::getInitialUserWeight($user_id)){
              $weightQ = ", ($startWeight - weight) as weight_loss ";
          }
-                 
+
+         // Always provide a from date, whichever's greater - the user start date or the passed in date
+         $userStartDate = self::getInitialUserStartDate($user_id);
+
          if($startDate){
-             $dateConstraint = "AND measure_date >= '$startDate'";
+             $startDateTimeStamp = strtotime($startDate);
+             $userStartDateTimeStamp = strtoTime($userStartDate);
+
+             if($userStartDateTimeStamp > $startDateTimeStamp){
+                 $startDate = $userStartDate;
+             }
+         }else{
+             $startDate = $userStartDate;
          }
+
+         $dateConstraint = "AND measure_date >= '$startDate'";
         
          if($endDate){
              $dateConstraint .= " AND measure_Date <= '$endDate'";
@@ -2114,8 +2126,9 @@ class GenesisTracker{
      public static function getAverageUsersGraphData($rangeDates){ 
          // Update to include admins
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
-         
-        if($averages === null){
+
+         // TODO: Turn caching back on
+        if($averages === null || true){
             $averages = self::generateAverageUsersGraphData(true);
         };
         
@@ -2129,48 +2142,48 @@ class GenesisTracker{
         foreach($averages as $averageKey => &$averageData){
             unset($averageData['yMin']);
             unset($averageData['yMax']);
-            
+
             $startTime = null;
             $endTime = null;
-            
+
             $minKey = $averageKey . "_min";
             $maxKey = $averageKey . "_max";
-            
+
             if($averageKey == 'weight_loss_imperial'){
                 $minKey = 'weight_loss_min';
                 $maxKey = 'weight_loss_max';
             }
-            
+
             if($rangeDates->$minKey){
                 $startTime = strtotime($rangeDates->$minKey) * 1000;
             }elseif($rangeDates->minDate){
                 $startTime = strtotime($rangeDates->minDate) * 1000;
             }
-            
+
             if($rangeDates->$maxKey){
                 $endTime = strtotime($rangeDates->$maxKey) * 1000;
             }elseif($rangeDates->maxDate){
                 $endTime = strtotime($rangeDates->maxDate) * 1000;
             }
-            
-            
+
+
             foreach($averageData['data'] as $dataKey => &$dataPoint){
-                
+
                 if($startTime !== null && $dataPoint[0] < $startTime){
                     unset($averageData['data'][$dataKey]);
                     continue;
                 }
-                
+
                 if($endTime !== null && $dataPoint[0] > $endTime){
                      unset($averageData['data'][$dataKey]);
                      continue;
                 }
-                
+
 
                 if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['yMin']){
                     $averageData['yMin'] = $dataPoint[1];
                 }
-                
+
                 if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['yMax']){
                     $averageData['yMax'] = $dataPoint[1];
                 }
@@ -2180,7 +2193,7 @@ class GenesisTracker{
             // So it becomes an assoc array (and object when json_encoded). Make it indexed here.
             $averageData['data'] = array_values($averageData['data']);
         }
-        
+
         return $averages;
      }
      
@@ -2205,6 +2218,7 @@ class GenesisTracker{
          // Get all of the values in an array with the timestamp as key so se can easily loop over them
          foreach($users as $user){
              $graphData = self::getUserGraphData($user->ID, true, $averageValues, true);
+             
               
              if(!$graphData){
                  continue;

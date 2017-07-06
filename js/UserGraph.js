@@ -17,7 +17,9 @@ function UserGraph(){
 	
 	this.initialise = function(mode, unit, averages, moveToEnd) {
 		var host = this;
-		
+
+		// console.log(averageUserGraphData);
+
 		var settings = {
 			'weight':{
 				'noresults':"You haven't made any weight measurements yet.",
