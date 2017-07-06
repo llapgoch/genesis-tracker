@@ -93,7 +93,6 @@ wp_unschedule_event(mktime(13,0,0,1,24,2017), 'send_automatic_four_week_emails')
 wp_unschedule_event(1497358800, 'genesis_send_automatic_four_week_emails');
 
 
-
 add_action('genesis_send_reminder_email', 'send_reminder_email');
 add_action('genesis_generate_average_user_data', array('GenesisTracker', 'generateAverageUsersGraphData'));
 

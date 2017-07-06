@@ -18,19 +18,17 @@ function UserGraph(){
 	this.initialise = function(mode, unit, averages, moveToEnd) {
 		var host = this;
 
-		// console.log(averageUserGraphData);
-
 		var settings = {
 			'weight':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight',
-				'avgLabel':'Average weight for other women on the study',
+				'avgLabel':'Average weight for all participants',
 				'color':'rgb(231,5,144)'
 			},
 			'weight_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight',
-				'avgLabel':'Average weight for other women on the study',
+				'avgLabel':'Average weight for all participants',
 				'color':'rgb(231,5,144)'
 			},
 			'fat':{
@@ -96,14 +94,14 @@ function UserGraph(){
 			'weight_loss':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight Change',
-				'avgLabel':"Average weight loss for other women on the study",
+				'avgLabel':"Average weight loss for all participants",
 				'color':'rgb(118,47,152)',
                 'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
 			},
 			'weight_loss_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight Change',
-				'avgLabel':"Average weight loss for other women on the study",
+				'avgLabel':"Average weight loss for all participants",
 				'color':'rgb(118,47,152)',
                 'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
 			}
@@ -214,6 +212,8 @@ function UserGraph(){
 			    yMax = Math.max(yMax, parseFloat(this.averageUserGraphData[mode].yMax));
             }
 		 }
+
+
 	
 		var yDiff = yMax - yMin;
 		yTick = (yDiff / 10);
@@ -333,7 +333,8 @@ function UserGraph(){
 	
 		// Plot the average user data for everyone on the site along side the user's data
 		// AVERAGE USER GRAPH DATA REMOVED TEMPORARILY
-		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined && this.averages){			
+
+		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined && this.averages){
 			data.push({
                 "label":settings[mode].avgLabel,
                 "data":this.averageUserGraphData[mode].data,
