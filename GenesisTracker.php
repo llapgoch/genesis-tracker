@@ -1908,9 +1908,14 @@ class GenesisTracker{
      
      // Pass in an array of keys to average in $avgVals
      public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
-         
 
-         $userData = self::getAllUserLogs($user_id, $startDate, $endDate);         
+         $userData = self::getAllUserLogs($user_id, $startDate, $endDate);
+         $userStartDate = self::getInitialUserStartDate($user_id);
+         $userStartDateTimestamp = strtotime($userStartDate);
+
+         // Day Length *= 1000
+         $dayLength = 86400000;
+
          $weightInitial = array();
          // Get the user's start weight in imperial and metric
          $weightInitial['initial_weight'] = self::getInitialUserWeight($user_id);
@@ -2012,6 +2017,8 @@ class GenesisTracker{
          
          if($fillAverages){
              $newCollated = array();
+
+
              
              foreach($avgVals as $avgVal){
                  $newCollated = array();
@@ -2030,8 +2037,6 @@ class GenesisTracker{
                     
                     // Subsequent loops, calculate the differences
                     $last =  end($newCollated);
-                    // Day Length *= 1000 
-                    $dayLength = 86400000;
                     // One day less to fill the gaps in
                     $daysBetween = max(1, floor(($data[0] - $last[0]) / $dayLength));
                     
@@ -2055,6 +2060,7 @@ class GenesisTracker{
                  
                  $collated[$avgVal]['data'] = $newCollated;
              }
+
          }
          
          if($keyAsDate){
@@ -2141,64 +2147,31 @@ class GenesisTracker{
          First, we get all user data and fill in the averages for each day inbetween, this could be expensive on its own.
          Then we key that data by date, then merge it into an array of all values using the date as key.  
          Then we average each value for the date.
+
+        $endDateRanges contain maximum dates which to get values for each type for, the points array will be capped using
+        this.
      */
-     public static function getAverageUsersGraphData($rangeDates){ 
+     public static function getAverageUsersGraphData($alignToStartDate = null, $endDateRanges = null){
          // Update to include admins
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
 
-         // TODO: Turn caching back on
-        if($averages === null || true){
+
+        if($averages === null){
             $averages = self::generateAverageUsersGraphData(true);
         };
         
         if(!$averages){
             return;
         }
-        
 
+         $dayLength = 86400;
         // Trim the data so we only have between the dates we need
         // This used to be done in the method which now caches all user data
         foreach($averages as $averageKey => &$averageData){
             unset($averageData['yMin']);
             unset($averageData['yMax']);
 
-            $startTime = null;
-            $endTime = null;
-
-            $minKey = $averageKey . "_min";
-            $maxKey = $averageKey . "_max";
-
-            if($averageKey == 'weight_loss_imperial'){
-                $minKey = 'weight_loss_min';
-                $maxKey = 'weight_loss_max';
-            }
-
-            if($rangeDates->$minKey){
-                $startTime = strtotime($rangeDates->$minKey) * 1000;
-            }elseif($rangeDates->minDate){
-                $startTime = strtotime($rangeDates->minDate) * 1000;
-            }
-
-            if($rangeDates->$maxKey){
-                $endTime = strtotime($rangeDates->$maxKey) * 1000;
-            }elseif($rangeDates->maxDate){
-                $endTime = strtotime($rangeDates->maxDate) * 1000;
-            }
-
-
             foreach($averageData['data'] as $dataKey => &$dataPoint){
-
-                if($startTime !== null && $dataPoint[0] < $startTime){
-                    unset($averageData['data'][$dataKey]);
-                    continue;
-                }
-
-                if($endTime !== null && $dataPoint[0] > $endTime){
-                     unset($averageData['data'][$dataKey]);
-                     continue;
-                }
-
-
                 if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['yMin']){
                     $averageData['yMin'] = $dataPoint[1];
                 }
@@ -2212,6 +2185,43 @@ class GenesisTracker{
             // So it becomes an assoc array (and object when json_encoded). Make it indexed here.
             $averageData['data'] = array_values($averageData['data']);
         }
+
+
+         // Change the indexed data points to date keys for the user ID
+         if($alignToStartDate && ($alignToStartDateTimestamp = strtotime($alignToStartDate))){
+
+
+             foreach($averages as $type => &$points){
+                 $endTime = null;
+
+                 if($type == 'weight_loss_imperial'){
+                     $maxKey = 'weight_loss_max';
+                 }else{
+                     $maxKey = $type . "_max";
+                 }
+
+                 if($endDateRanges->$maxKey){
+                     $endTime = strtotime($endDateRanges->$maxKey);
+                 }elseif($endDateRanges->maxDate){
+                     $endTime = strtotime($endDateRanges->maxDate);
+                 }
+
+                 $pointCount = 0;
+
+                 foreach($points['data'] as $index => &$point){
+                     $timestamp = ($alignToStartDateTimestamp + ($index * $dayLength));
+
+                     // Cap this type at the endTime if we have one
+                     if($endTime !== null && $timestamp > $endTime){
+                         array_splice($points['data'], $pointCount);
+                         break;
+                     }
+
+                     $point[0] = $timestamp * 1000;
+                     $pointCount++;
+                 }
+             }
+         }
 
         return $averages;
      }
@@ -2237,36 +2247,42 @@ class GenesisTracker{
          // Get all of the values in an array with the timestamp as key so se can easily loop over them
          foreach($users as $user){
              $graphData = self::getUserGraphData($user->ID, true, $averageValues, true);
-             
-              
+
              if(!$graphData){
                  continue;
              }
              
-             foreach($graphData as $key => &$measurementSet){ 
+             foreach($graphData as $key => &$measurementSet){
                  if(!isset($measurementSet['data']) || !in_array($key, $averageValues)){
                      continue;
                  }
                  if(!isset($structure[$key])){
                      $structure[$key] = array();
-                 }                 
-                 
-                 foreach($measurementSet['data'] as $date => $measurement){
-                     if(!isset($structure[$key][$date])){
-                         $structure[$key][$date] = array();
-                     }
-                     $structure[$key][$date][] = $measurement;
                  }
-                 
+
+
+                 // Average using an index as the key, rather than using the dates.
+                 // This way, we align each user's start date
+                 $index = 0;
+
+                 foreach($measurementSet['data'] as $date => $measurement){
+                     if(!isset($structure[$key][$index])){
+                         $structure[$key][$index] = array();
+                     }
+                     $structure[$key][$index][] = $measurement;
+
+                     $index++;
+                 }
              }
          }
+
          
          // Now average them!
          $averages = array();
          
-         foreach($structure as $key => $dates){
+         foreach($structure as $key => $items){
               
-             foreach($dates as $date => $measurements){
+             foreach($items as $item => $measurements){
                  
                  $avg = array_sum($measurements) / count($measurements);
                  
@@ -2278,25 +2294,10 @@ class GenesisTracker{
  //                      $averages[$key]['yMax'] = $avg;
  //                  }
                  
-                 $averages[$key]['data'][] = array($date, $avg);
+                 $averages[$key]['data'][] = array($item, $avg);
              }
 
-             // Sort by date
-             if(isset($averages[$key]['data'])){
-                  usort($averages[$key]['data'], function($a, $b){
-                     
-                     
-                      if($a[0] == $b[0]){
-                          return 0;
-                      }
-                  
-                      if($a[0] < $b[0]){
-                          return -1;
-                      }
-                  
-                      return 1;
-                  });
-              }
+
          }
          
          self::setCacheData(self::getOptionKey(self::averageDataKey), $averages, 86400);
@@ -2479,6 +2480,8 @@ class GenesisTracker{
          }
          
          if(self::isOnUserPage()){
+             $userId = get_current_user_id();
+
              add_action( 'wp_head', function() {
                 echo '<!--[if lt IE 9]><script src="' . plugins_url("js/excanvas.min.js", __FILE__) . '"></script><![endif]-->';
              });
@@ -2487,11 +2490,13 @@ class GenesisTracker{
               wp_enqueue_script('flot-time', plugins_url('js/jquery.flot.time.min.js', __FILE__), array('flot'));
               wp_enqueue_script('flot-navigate', plugins_url('js/jquery.flot.navigate.min.js', __FILE__), array('flot'));
               wp_enqueue_script('user-graph', plugins_url('js/UserGraph.js', __FILE__), array('flot-navigate'));
-              
-              $dateRange = self::getUserDateRange(get_current_user_id());
-              
+             
               wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
-              wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange));
+
+              $startDate = self::getInitialUserStartDate($userId);
+              $dateRanges = self::getUserDateRange($userId);
+
+              wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($startDate, $dateRanges));
               
                wp_enqueue_script('responsive-tables', plugins_url('js/responsive-tables.js', __FILE__));
                wp_enqueue_style('responsive-tables-css', plugins_url('css/responsive-tables.css', __FILE__));
@@ -2798,7 +2803,7 @@ class GenesisTracker{
           self::updateOption(self::prescriptionPageId, $post_id);
      }
      
-     public static function createIneligiblePage($overwite = false){
+     public static function createIneligiblePage($overwrite = false){
          // Create the page which allows users to enter a target weight and date
          $pageID = self::getOption(self::ineligiblePageId);
           $post = get_post($pageID);
