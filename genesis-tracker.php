@@ -82,7 +82,6 @@ if(!wp_next_scheduled('genesis_send_automatic_four_week_emails')){
 
 
 
-
 add_action('genesis_send_reminder_email', 'send_reminder_email');
 add_action('genesis_generate_average_user_data', array('GenesisTracker', 'generateAverageUsersGraphData'));
 add_action('genesis_send_automatic_four_week_emails', array('GenesisAdmin', 'sendAllWeightEmails'));

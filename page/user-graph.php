@@ -10,7 +10,7 @@
                     <button class="purple button large" data-mode="weight_loss">Weight Progress</button>
                      <div class="averages">
                         <input type="checkbox" name="averages" id="averages" />
-                        <label for="averages"><?php _e('Average weight loss for other participants'); ?></label>
+                        <label for="averages"><?php _e('Show weight loss for all participants'); ?></label>
                     </div>
                 </div>
             </div>
