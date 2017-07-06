@@ -79,7 +79,7 @@
         <?php else : ?>
         	<div class="alert-warning fusion-alert alert notice">
         		<div class="msg">
-        			<h2>You haven't saved any unrestricted diet tracker entries yet</h2>
+        			<h2>You haven't saved any diet tracker entries yet</h2>
         			<a href="<?php echo $userInputPage;?>">Record one now</a>
         		</div>
         	</div>
