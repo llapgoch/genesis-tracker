@@ -253,7 +253,7 @@ function extra_user_profile_fields($user){
 
     $activeKey = GenesisTracker::userActiveCol;
     $activeVal = $userData[$activeKey];
-    $activeVal = $activeVal == "" ? 1 : (int)$activeVal;
+    $activeVal = (int)$activeVal;
 
     $startWeightKey = GenesisTracker::userStartWeightCol;
     $startWeight = GenesisTracker::getUserData($user->ID, $startWeightKey);
@@ -482,6 +482,7 @@ function extra_user_profile_fields($user){
         <th><label for="<?php echo $activeKey?>"><?php _e("Genesis Activate User"); ?></label></th>
         <td>
         <?php
+
          echo $form->dropdown($activeKey, array(
          '0' => 'Disabled',
          '1' => 'Active'
@@ -829,6 +830,7 @@ function user_target_fields($user){
 
 function save_extra_user_profile_fields($user_id){
     if ( !current_user_can( 'edit_user', $user_id ) ) { return false; }
+
 
     $reminderKey = GenesisTracker::getOptionKey(GenesisTracker::omitUserReminderEmailKey);
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
