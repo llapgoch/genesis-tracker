@@ -71,8 +71,8 @@ class GenesisTracker{
     const CACHE_DIR = "genesis-tracker";
 
     // TODO: MAKE SURE THIS IS ENABLED
-    const CACHE_ENABLED = false;
-    const INCLUDE_ADMIN_USERS_IN_AVERAGES = true;
+    const CACHE_ENABLED = true;
+    const INCLUDE_ADMIN_USERS_IN_AVERAGES = false;
     
     protected static $eligibilityPasswords = array(
         "PLSC1L",
