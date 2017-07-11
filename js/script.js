@@ -135,6 +135,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                 
                 $('.extended-button input').on('click', function(e){
                    var showAverages = $(this).is(":checked");
+                    
                    userGraph.switchAverages(showAverages);
                 });
 				

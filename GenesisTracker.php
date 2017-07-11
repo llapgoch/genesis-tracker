@@ -69,6 +69,9 @@ class GenesisTracker{
     const FOUR_WEEK_SEND_TYPE_AUTOMATIC = 'AUTOMATIC';
     
     const CACHE_DIR = "genesis-tracker";
+
+    // TODO: MAKE SURE THIS IS ENABLED
+    const CACHE_ENABLED = false;
     
     protected static $eligibilityPasswords = array(
         "PLSC1L",
@@ -2108,6 +2111,10 @@ class GenesisTracker{
      }
      
      public static function getCacheData($key){
+         if(!self::CACHE_ENABLED){
+             return null;
+         }
+
          if(!file_exists(self::getCachePath() . base64_encode($key))){
              return null;
          }
@@ -2136,36 +2143,16 @@ class GenesisTracker{
          // Update to include admins
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
 
-
         if($averages === null){
             $averages = self::generateAverageUsersGraphData(true);
-        };
+        }
         
         if(!$averages){
             return;
         }
 
          $dayLength = 86400;
-        // Trim the data so we only have between the dates we need
-        // This used to be done in the method which now caches all user data
-        foreach($averages as $averageKey => &$averageData){
-            unset($averageData['yMin']);
-            unset($averageData['yMax']);
 
-            foreach($averageData['data'] as $dataKey => &$dataPoint){
-                if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['yMin']){
-                    $averageData['yMin'] = $dataPoint[1];
-                }
-
-                if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['yMax']){
-                    $averageData['yMax'] = $dataPoint[1];
-                }
-            }
-            
-            // Because the array has had items removed from it, the index is no longer sequential
-            // So it becomes an assoc array (and object when json_encoded). Make it indexed here.
-            $averageData['data'] = array_values($averageData['data']);
-        }
 
 
          // Change the indexed data points to date keys for the user ID
@@ -2202,6 +2189,27 @@ class GenesisTracker{
                      $pointCount++;
                  }
              }
+         }
+
+         // Trim the data so we only have between the dates we need
+         // This used to be done in the method which now caches all user data
+         foreach($averages as $averageKey => &$averageData){
+             unset($averageData['yMin']);
+             unset($averageData['yMax']);
+
+             foreach($averageData['data'] as $dataKey => &$dataPoint){
+                 if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['yMin']){
+                     $averageData['yMin'] = $dataPoint[1];
+                 }
+
+                 if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['yMax']){
+                     $averageData['yMax'] = $dataPoint[1];
+                 }
+             }
+
+             // Because the array has had items removed from it, the index is no longer sequential
+             // So it becomes an assoc array (and object when json_encoded). Make it indexed here.
+             $averageData['data'] = array_values($averageData['data']);
          }
 
         return $averages;
