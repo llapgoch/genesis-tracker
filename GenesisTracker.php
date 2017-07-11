@@ -73,6 +73,7 @@ class GenesisTracker{
 
     // TODO: MAKE SURE THIS IS ENABLED
     const CACHE_ENABLED = false;
+    const INCLUDE_ADMIN_USERS_IN_AVERAGES = true;
     
     protected static $eligibilityPasswords = array(
         "PLSC1L",
@@ -2164,7 +2165,7 @@ class GenesisTracker{
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
 
         if($averages === null){
-            $averages = self::generateAverageUsersGraphData(true);
+            $averages = self::generateAverageUsersGraphData(self::INCLUDE_ADMIN_USERS_IN_AVERAGES == false);
         }
         
         if(!$averages){
