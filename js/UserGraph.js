@@ -426,6 +426,11 @@ function UserGraph(){
         }
         
 		this.updateAxes();
+
+		/*  There's a rounding error when attempting to show all entries by default, use zoom out to
+			fix
+		 */
+		this.$plot.zoomOut();
 	}
 	
 	this.formatYVal = function(val, mode){
