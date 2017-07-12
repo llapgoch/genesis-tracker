@@ -169,15 +169,12 @@ function UserGraph(){
 				xTicks.push(this.userGraphData[mode].timestamps[i], this.userGraphData[mode].timestamps[i]);
 			}
 		}
-	    
-        
+
 		var yMin = parseFloat(this.userGraphData[mode].yMin);
 		var yMax = parseFloat(this.userGraphData[mode].yMax);
 		var minDate = parseFloat(xTicks[0]);
 		var maxDate = parseFloat(xTicks[xTicks.length - 1]);
 		var showTicks = true;
-		
-
         
 		// Falsify the min and max date if we have no results
 		if(isNaN(minDate)){
@@ -296,7 +293,7 @@ function UserGraph(){
 				interactive: true,
 				cursor:"move"
 			}
-		};	
+		};
     
 		
         if(this.mode == 'weight_loss'){
@@ -312,16 +309,18 @@ function UserGraph(){
 		if(!showTicks){
 			options.xaxis.ticks = false;
 		}
+
+		/*  This is the bit which deals with the initial scale of the graph -
+			It's been changed to show all dates initially, instead of ~ 10 days zoomed */
 		
-		
-		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
-			options.xaxis.min = 0;
-			options.xaxis.max = 1000000000;
-		}else{
-            
+		// if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
+		// 	options.xaxis.min = 0;
+		// 	options.xaxis.max = 1000000000;
+		// }else{
+         //
 			options.xaxis.min = minDate;
 			options.xaxis.max = maxDate;
-		}
+		// }
 		
 		var data = [];
 
