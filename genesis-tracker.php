@@ -45,6 +45,14 @@ add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPasswo
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 add_filter('show_admin_bar', '__return_false');
 
+add_filter('login_headerurl', function(){
+    return get_site_url();
+});
+
+add_filter('login_headertitle', function(){
+    return get_option('blogname');
+});
+
 add_filter( 'login_body_class', 'adjust_body_classes');
 
 // Checks whether the install function needs to be called again for DB changes
