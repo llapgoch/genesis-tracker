@@ -402,15 +402,16 @@ class GenesisTracker{
          $registerUrl = wp_registration_url();
          $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
          
+
          if(self::isOnRegistrationPage() && self::userIsEligible() == false){
              wp_redirect(home_url());  
              exit;
          }
-         
-         if(self::isOnRegistrationPage()){
-            wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
+
+         if(self::isOnRegistrationPage() || self::isOnLoginPage()){
+             wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
+             wp_localize_script('login', 'wpBaseUrl', get_site_url());
          }
-    
         
         // We set the username as the email address
         if($registerUrl == $currentUrl && count($_POST)){
