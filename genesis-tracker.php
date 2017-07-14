@@ -397,6 +397,7 @@ function extra_user_profile_fields($user){
                     ?>
                 </td>
             </tr>
+
         <?php endif; ?>
         
         
@@ -697,6 +698,7 @@ function extra_user_profile_fields($user){
             </tr>
             
             <tr>
+
                 <th><label for="<?php echo $sixMonthTargetKey;?>"><?php _e('Six Month Target Weight'); ?></label></th>
                 <td>
                     <?php
@@ -727,6 +729,7 @@ function extra_user_profile_fields($user){
             </tr>
             
             <tr>
+
                 <th><label for="<?php echo $twelveMonthTargetKey;?>"><?php _e('Twelve Month Target Weight'); ?></label></th>
                 <td>
                     <?php

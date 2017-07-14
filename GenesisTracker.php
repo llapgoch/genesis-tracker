@@ -1441,7 +1441,7 @@ class GenesisTracker{
              return;
          }
          
-         if($logDate <= strtotime(self::getInitialUserStartDate(get_current_user_id()))){
+         if($logDate < strtotime(self::getInitialUserStartDate(get_current_user_id()))){
              $form->setError('measure_date', array(
                  'general' => 'Your measurement date must be after your start day',
                  'main' => 'Your measurement date must be after your start day'
@@ -1894,10 +1894,13 @@ class GenesisTracker{
             ORDER BY measure_date", $user_id
          ));
 
+         $date = new DateTime(self::getInitialUserStartDate($user_id));
+         $date->modify("- 1 day");
          
          $start = new stdClass();
          $start->user_id = $user_id;
-         $start->measure_date = self::getInitialUserStartDate($user_id);
+         // Set the initial weight as the day before the start date
+         $start->measure_date = $date->format('Y-m-d H:i:s');
          $start->weight = self::getInitialUserWeight($user_id);
          $start->weight_loss = 0;
          
