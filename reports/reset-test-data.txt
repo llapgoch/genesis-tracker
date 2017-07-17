@@ -1,0 +1,12 @@
+DELETE FROM genwp_genesis_food_log;
+DELETE FROM genwp_genesis_log;
+DELETE FROM genwp_genesis_tracker;
+DELETE FROM genwp_usermeta WHERE user_id > 13;
+DELETE FROM genwp_genesis_userdata WHERE user_id > 13;
+DELETE FROM genwp_genesis_food_description;
+DELETE FROM genwp_genesis_eligibility_result_answers;
+DELETE FROM genwp_genesis_eligibility_result;
+DELETE FROM genwp_genesis_eligibility_four_week_log;
+DELETE FROM genwp_genesis_diet_day;
+DELETE FROM genwp_lbakut_activity_log;
+DELETE FROM genwp_lbakut_user_stats;
