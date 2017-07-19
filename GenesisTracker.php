@@ -24,6 +24,7 @@ class GenesisTracker{
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
     const weightTargetKey     = "weight_target";
+    const weightTargetLongTermKey = "weight_target_long_term";
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
     const lastReminderDateKey = "last_reminder_date";

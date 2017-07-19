@@ -280,6 +280,7 @@ function extra_user_profile_fields($user){
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
+    $weightTargetLongTermKey = GenesisTracker::getOptionKey(GenesisTracker::weightTargetLongTermKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
     $sixMonthWeightKey   = GenesisTracker::sixMonthWeightCol;
     $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
@@ -290,6 +291,7 @@ function extra_user_profile_fields($user){
 
     $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
     $maxHealthyWeightVal = get_the_author_meta($maxHealthyWeightKey, $user->ID );
+    $weightTargetLongTermVal = get_the_author_meta($weightTargetLongTermKey, $user->ID );
     $weightTargetVal     = get_the_author_meta($weightTargetKey, $user->ID );
     $sixMonthTargetVal   = get_the_author_meta($sixMonthTargetKey, $user->ID );
     $sixMonthWeightVal   = GenesisTracker::getUserSixMonthWeight( $user->ID );
@@ -592,7 +594,69 @@ function extra_user_profile_fields($user){
                     ?>
                 </td>
             </tr>
-                
+            <?php if(is_admin()):?>
+
+                <tr>
+                    <th><label for="<?php echo $weightTargetKey;?>"><?php _e('End of Programme Target'); ?></label></th>
+                    <td>
+                        <?php
+                        if(is_admin()):
+                            echo $form->input($weightTargetKey, 'text', array(
+                                'autocomplete' => 'off',
+                                'id' => $weightTargetKey,
+                                'class' => '',
+                                'value' => $weightTargetVal
+                            ));
+                        else:
+                            ?>
+                            <span class="stat">
+                               <?php if($isMetric):?>
+                                   <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "metric");?>
+                                  </span>
+                               <?php else:?>
+                                   <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "imperial");?>
+                                  </span>
+                               <?php endif;?>
+                          </span>
+                            <?php
+                        endif;
+                        ?>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th><label for="<?php echo $weightTargetLongTermKey;?>"><?php _e('Long Term Target'); ?></label></th>
+                    <td>
+                        <?php
+                        if(is_admin()):
+                            echo $form->input($weightTargetLongTermKey, 'text', array(
+                                'autocomplete' => 'off',
+                                'id' => $weightTargetLongTermKey,
+                                'class' => '',
+                                'value' => $weightTargetLongTermVal
+                            ));
+                        else:
+                            ?>
+                            <span class="stat">
+                               <?php if($isMetric):?>
+                                   <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetLongTermVal, "metric");?>
+                                  </span>
+                               <?php else:?>
+                                   <span class="weight">
+                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetLongTermVal, "imperial");?>
+                                  </span>
+                               <?php endif;?>
+                          </span>
+                            <?php
+                        endif;
+                        ?>
+                    </td>
+                </tr>
+
+            <?php endif; ?>
         </table>
         <?php if(is_admin()):?>
             <hr />
@@ -673,6 +737,7 @@ function save_extra_user_profile_fields($user_id){
     $minHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::minHealthyWeightKey);
     $maxHealthyWeightKey = GenesisTracker::getOptionKey(GenesisTracker::maxHealthyWeightKey);
     $weightTargetKey     = GenesisTracker::getOptionKey(GenesisTracker::weightTargetKey);
+    $weightTargetLongTermKey = GenesisTracker::getOptionKey(GenesisTracker::weightTargetLongTermKey);
     $sixMonthTargetKey   = GenesisTracker::getOptionKey(GenesisTracker::sixMonthWeightTargetKey);
     $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
     $omitSixMonthEmailKey = GenesisTracker::sixMonthEmailOptOutCol;
@@ -715,6 +780,7 @@ function save_extra_user_profile_fields($user_id){
         $minHealthyWeight = isset($_POST[$minHealthyWeightKey]) ? (float) $_POST[$minHealthyWeightKey] : '';
         $maxHealthyWeight = isset($_POST[$maxHealthyWeightKey]) ? (float)$_POST[$maxHealthyWeightKey] : '';
         $targetWeight = isset($_POST[$weightTargetKey]) ? (float)$_POST[$weightTargetKey] : '';
+        $weightTargetLongTermVal = isset($_POST[$weightTargetLongTermKey]) ? (float)$_POST[$weightTargetLongTermKey] : '';
         $sixMonthTargetWeight = isset($_POST[$sixMonthTargetKey]) ? (float)$_POST[$sixMonthTargetKey] : '';
         $omitSixMonthEmailValue = isset($_POST[$omitSixMonthEmailKey]) ? (int)$_POST[$omitSixMonthEmailKey] : 0;
         $twelveMonthTargetValue = isset($_POST[$twelveMonthTargetKey]) ? (int)$_POST[$twelveMonthTargetKey] : '';
@@ -736,6 +802,7 @@ function save_extra_user_profile_fields($user_id){
         update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
         update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
         update_user_meta( $user_id, $weightTargetKey, $targetWeight );
+        update_user_meta( $user_id, $weightTargetLongTermKey, $weightTargetLongTermVal );
         update_user_meta( $user_id, $sixMonthTargetKey, $sixMonthTargetWeight );
         GenesisTracker::setUserData($user_id, $omitSixMonthEmailKey, $omitSixMonthEmailValue);
         GenesisTracker::setUserData($user_id, $studyGroupKey, $studyGroupValue);
