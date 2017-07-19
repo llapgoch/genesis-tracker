@@ -1,7 +1,7 @@
 <div class="input-form eligibility-fail">
     <div class="question-outer-container">
     	<div class="title">
-    		<h2><label class="general-label"><?php _e('Thank you for taking an interest in the 2 Day Wythenshawe Study');?></label></h2>
+    		<h2><label class="general-label"><?php _e('Thank you for taking an interest in the 2 Day Wythenshawe Programme');?></label></h2>
     	</div>
         <div class="content">
             <p><?php _e("The information that you provided on the previous web page has been used to see if you are eligible to take part.");?></p>
@@ -56,7 +56,7 @@
            
            <p>Best Wishes<br />
            Yours sincerely<br />
-           The 2 Day Wythenshawe Team</p>
+           The 2 Day Wythenshawe Programme Team</p>
            
            
            <h2>Can I Still Follow The Diet?</h2>

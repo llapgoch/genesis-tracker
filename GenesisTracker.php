@@ -547,7 +547,7 @@ class GenesisTracker{
             self::getLogoUrl()
         ), $contents);
         
-        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the 2 Day Wythenshawe Study', $contents, $headers);
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the 2 Day Wythenshawe Programme', $contents, $headers);
         
      }
      
@@ -672,7 +672,7 @@ class GenesisTracker{
          );
          
          
-          wp_mail($user->user_email, 'Your 2 Day Wythenshawe account has been activated', $body, self::getEmailHeaders());
+          wp_mail($user->user_email, 'Your 2 Day Wythenshawe Programme account has been activated', $body, self::getEmailHeaders());
      }
 
      public static function getuserMetaTargetFields(){
@@ -2874,7 +2874,7 @@ class GenesisTracker{
      
      public static function getEmailHeaders(){
           $headers = array();
-          $headers[] = 'From: 2 Day Wythenshawe <'. get_option('admin_email') .'>';
+          $headers[] = 'From: The 2 Day Wythenshawe Programme <'. get_option('admin_email') .'>';
           $headers[] = 'MIME-Version: 1.0';
           $headers[] = 'Content-type: text/html; charset=utf-8';
         

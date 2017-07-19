@@ -1,6 +1,6 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
-    "Thank you for participating in the 2 Day Wythenshawe Study",
+    "Thank you for participating in the 2 Day Wythenshawe Programme",
     "Before we can get you up and running we just need to know what your current weight is."
 );
 

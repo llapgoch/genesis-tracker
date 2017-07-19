@@ -1,6 +1,6 @@
 <div class="wrap">
     <h2>
-        2 Day Wythenshawe User Details
+        The 2 Day Wythenshawe Programme User Details
         <a class="add-new-h2" href="<?php echo $userEditLink;?>">Edit User</a>
     </h2>
     

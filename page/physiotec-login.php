@@ -8,7 +8,7 @@
 </script> 
 
 <?php 
-echo GenesisThemeShortCodes::readingBox('Enter Your Physiotec Login Details', 'Please enter your login details to view the Physiotec prescription exercise videos. <em>Please note: these are different to your 2 Day Wythenshawe login details</em>');
+echo GenesisThemeShortCodes::readingBox('Enter Your Physiotec Login Details', 'Please enter your login details to view the Physiotec prescription exercise videos. <em>Please note: these are different to your 2 Day Wythenshawe Programme login details</em>');
 ?>
 		
 <div id="PhysiotecIFrame"></div>
