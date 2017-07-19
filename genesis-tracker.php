@@ -490,22 +490,6 @@ function extra_user_profile_fields($user){
     ?>
     </td>
     </tr>
-
-    <?php
-    if(is_admin()):?>
-    <tr>
-    <th><label for="<?php echo $omitSixMonthEmailKey ?>"><?php _e("Opt out of 6 - 12 month emails"); ?></label></th>
-    <td>
-    <?php
-     echo $form->createInput($omitSixMonthEmailKey, 'checkbox', array(
-     'id' => $omitSixMonthEmailKey,
-     'value' => 1
-     ), $omitSixMonthEmailValue);
-    ?>
-    </td>
-    </tr>
-    <?php endif; ?>
-
     </table>
 
         <?php if(is_admin()):?>
