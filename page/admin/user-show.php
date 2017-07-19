@@ -15,10 +15,8 @@
         <dd><?php echo $userDetails['user_id'] ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
-        <dt>Activation Date</dt>
+        <dt>Start Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol]));?></dd>
-        <dt>Actual Start Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails['actual_start_date']));?></dd>
         <dt>User Contacted</dt>
         <dd><?php echo (int) $userDetails['user_contacted'] == 0 ? 'No' : 'Yes'?></dd>
         <dt>Account Active</dt>
@@ -72,8 +70,6 @@
              endif;
             ?>     
         </dt>
-        <dt>Current Weight Minus Benchmark Weight (Kg) <br /><small>(positive value indicates weight gain; negative value indicates weight loss)</small></dt>
-        <dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
         </dd>
         <dt>Week Number</dt>
         <dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
