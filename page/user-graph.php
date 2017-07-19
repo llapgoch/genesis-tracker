@@ -34,7 +34,7 @@
         		<option value="2">Kilograms</option>
         	</select>
             <!-- if displays need to add a legend to the graph -->
-            <div class="graph-legend"><h3>This is your weight change since you started the study</h3></div>
+            <div class="graph-legend"><h3>This is your weight change since you started the programme</h3></div>
         </div>
     	
     	<div class="genesis-progress-graph">
