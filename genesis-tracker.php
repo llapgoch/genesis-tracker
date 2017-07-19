@@ -592,37 +592,7 @@ function extra_user_profile_fields($user){
                     ?>
                 </td>
             </tr>
-
-            <tr>
-                <th><label for="<?php echo $weightTargetKey;?>"><?php _e('Three Month Target Weight'); ?></label></th>
-                <td>
-                    <?php
-                    if(is_admin()):
-                        echo $form->input($weightTargetKey, 'text', array(
-                              'autocomplete' => 'off',
-                              'id' => $weightTargetKey,
-                              'class' => '',
-                              'value' => $weightTargetVal
-                          ));
-                      else:
-                          ?>
-                          <span class="stat">
-                               <?php if($isMetric):?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "metric");?>
-                                  </span>
-                              <?php else:?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "imperial");?>
-                                  </span>
-                              <?php endif;?>
-                          </span>
-                      <?php
-                      endif;
-                    ?>
-                </td>
-            </tr>
-
+                
         </table>
         <?php if(is_admin()):?>
             <hr />
