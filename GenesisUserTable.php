@@ -97,7 +97,7 @@ class GenesisUserTable extends WP_List_Table {
 			
 		    function get_columns(){
 		        $columns = array(
-					'study_group'			=> 'Study Number',
+					'user_id'			=> 'Web ID',
 		            'user_email'            => 'Email Address',
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
@@ -114,7 +114,7 @@ class GenesisUserTable extends WP_List_Table {
     
 		    function get_sortable_columns() {
 		           $sortable_columns = array(
-					   'study_group'	=> array('study_group', false),
+					   'user_id'	=> array('user_id', false),
                        'measure_date' => array('measure_date', false),
                        'user_name'          => array('user_name', false),
 		               'user_email'         => array('user_email',false),

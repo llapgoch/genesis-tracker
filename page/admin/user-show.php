@@ -11,8 +11,8 @@
         <dd><?php echo trim($userDetails['user_name']) ? (string)$userDetails['user_name'] : "- -"; ?></dd>
         <dt>Telephone Number</dt>
         <dd><?php echo $userTelephone; ?></dd>
-        <dt>Study Number</dt>
-        <dd><?php echo $userDetails[GenesisTracker::studyGroupCol] ? $userDetails[GenesisTracker::studyGroupCol] : "- -"; ?></dd>
+        <dt>Web ID</dt>
+        <dd><?php echo $userDetails['user_id'] ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
         <dt>Activation Date</dt>

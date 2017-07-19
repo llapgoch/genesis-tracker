@@ -348,16 +348,17 @@ function extra_user_profile_fields($user){
         <?php if(is_admin()): ?>
             <tr>
                 <th>
-                    <label for="<?php echo $studyGroupKey ?>"><?php _e("Study Number")?></label>
+                    <label for="user_id"><?php _e("Web ID")?></label>
                 </th>
                 <td>
 
                     <?php $settings = array(
-                        'default' => $studyGroupVal,
-                        'id' => $studyGroupKey
+                        'default' => $user->ID,
+                        'id' => 'user_id',
+                        'readonly' => 'readonly'
                     );
 
-                    echo $form->input($studyGroupKey, 'text', $settings);
+                    echo $form->input('user_id', 'text', $settings);
                     ?>
                 </td>
             </tr>
