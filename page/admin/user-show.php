@@ -17,10 +17,8 @@
         <dd><?php echo $userDetails[GenesisTracker::studyGroupCol] ? $userDetails[GenesisTracker::studyGroupCol] : "- -"; ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
-        <dt>Activation Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol]));?></dd>
-        <dt>Actual Start Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails['actual_start_date']));?></dd>
+        <dt>Start Date</dt>
+        <dd><?php echo $userDetails[GenesisTracker::userStartDateCol] ? gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol])) : "<strong>Not Set</strong>";?></dd>
         <dt>User Contacted</dt>
         <dd><?php echo (int) $userDetails['user_contacted'] == 0 ? 'No' : 'Yes'?></dd>
         <dt>Account Active</dt>

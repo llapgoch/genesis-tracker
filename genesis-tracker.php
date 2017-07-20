@@ -364,7 +364,7 @@ function extra_user_profile_fields($user){
             
             <tr>
                 <th>
-                    <label for="<?php echo $startDateKey?>"><?php _e("Activation Date")?></label>
+                    <label for="<?php echo $startDateKey?>"><?php _e("Start Date")?></label>
                 </th>
                 <td>
                    
