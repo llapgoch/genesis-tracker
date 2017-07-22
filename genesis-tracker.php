@@ -160,18 +160,10 @@ if(!is_admin()){
     add_filter( 'wp_login_errors',  array('GenesisTracker', 'modifyRegistrationMessage'), 10, 2);
 
     add_filter( 'login_message', function($message){
-         if(GenesisTracker::isOnRegistrationPage()){
-            return GenesisThemeShortCodes::readingBox(
-                'Thank you for taking an interest in the 2 Day Wythenshawe Programme',
-                '<ul><li>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</li><li><strong>We are happy to say that you are able to take part in the study.</strong></li><li>Please fill in the registration form below and a member of our research team will contact you within 3-4 working days to get you started.</li></ul>'
-            );
-        }
-
         if(GenesisTracker::isOnLoginPage() && GenesisTracker::userHasJustRegistered()){
             return GenesisThemeShortCodes::readingBox(
-                'Registration Successful - What Happens Next?',
-                '<ul><li>A member of the research team will contact you within 3-4 days to book an appointment with you.</li><li> We aim to get you started in the trial within 2 weeks of signing up, so it won’t be long before you receive your diet and exercise advice from us.</li> <li>You will receive a food diary to record your normal food and drink intake in the 7 days before your appointment with us.</li>
-<li>Please make sure you don’t change your normal diet and activity level, and do not make any changes before your initial appointment with us.</li><li>You will be able to log in to the website once your account has been activated by a member of our research team.</li></ul><div class="centered-button-box"><a href="' . home_url() . '" class="button large blue">Go to the 2 Day Wythenshawe Programme Homepage</a></div>'
+                'Thank you for registering on the 2 Day Wythenshawe... tomorrow the world website',
+                '<ul><li>You will be able to login after a member of our research team has activated following your welcome session.</li><li>In the meantime If you have any questions please contact the dietitians on <a href="mailto:smu-tr.2daywythenshawe@nhs.net">smu-tr.2daywythenshawe@nhs.net</a> or call 0161 291 4413</li></ul>'
             );
         }
 
