@@ -649,7 +649,9 @@ function user_target_fields($user){
         <tr>
             <th>&nbsp;</th>
             <th><h4>Diet day portions</h4></th>
+            <?php if($showMedVal):?>
             <th><h4>Mediterranean day portions</h4></th>
+            <?php endif; ?>
 
         </tr>
         <?php endif;?>
@@ -657,7 +659,7 @@ function user_target_fields($user){
         <?php
         if(is_admin()): ?>
             <tr>
-            <th><label for="<?php echo $showMedKey ?>"><?php _e("Show meditterranean portions"); ?></label></th>
+            <th><label for="<?php echo $showMedKey ?>"><?php _e("Show mediterranean portions"); ?></label></th>
                 <td>
             <?php
             echo DP_HelperForm::createInput($showMedKey, 'checkbox', array(
@@ -686,6 +688,7 @@ function user_target_fields($user){
                     </span>
                 </td>
             <?php endif; ?>
+            <?php if(is_admin() || (!is_admin() && $showMedVal)):?>
             <td>
                 <?php
 
@@ -702,7 +705,7 @@ function user_target_fields($user){
                 endif;
                 ?>
             </td>
-
+            <?php endif; ?>
 
         </tr>
 
@@ -773,9 +776,11 @@ function save_extra_user_profile_fields($user_id){
             GenesisTracker::setUserData($user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]));
         }
 
-        if(isset($_POST[$showMedKey])){
-            GenesisTracker::setUserData($user_id, $showMedKey, (int) $_POST[$showMedKey]);
-        }
+
+
+
+        GenesisTracker::setUserData($user_id, $showMedKey, isset($_POST[$showMedKey]) ? (int) $_POST[$showMedKey] : 0);
+
 
        if(isset($_POST[$twelveMonthTargetKey]) && ((float) $_POST[$twelveMonthTargetKey])){
             update_user_meta( $user_id, $twelveMonthTargetKey, GenesisTracker::makeValidWeight($_POST[$twelveMonthTargetKey]) );
@@ -901,6 +906,7 @@ function genesis_user_input_page(){
     $outputBody = false;
     $userGraphPage = GenesisTracker::getUserPagePermalink();
     $userInputPage = GenesisTracker::getUserInputPagePermalink();
+    $showMedVal = GenesisTracker::getShowMed(get_current_user_id());
     $exerciseTypes = array();
     $resistanceExerciseTypes = array();
 
