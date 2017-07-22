@@ -284,7 +284,9 @@ function extra_user_profile_fields($user){
     $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
     $omitSixMonthEmailKey = GenesisTracker::sixMonthEmailOptOutCol;
     $studyGroupKey       = GenesisTracker::studyGroupCol;
-    
+    $showMedKey          = GenesisTracker::showMedCol;
+
+
     $isActive = GenesisTracker::getUserData($user->ID, GenesisTracker::userActiveCol);
 
     $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
@@ -295,7 +297,9 @@ function extra_user_profile_fields($user){
     $sixMonthDateValue     = GenesisTracker::getUserData($user->ID, $sixMonthDateKey);
     $omitSixMonthEmailValue = GenesisTracker::getUserData($user->ID, $omitSixMonthEmailKey);
     $studyGroupVal       = GenesisTracker::getUserStudyGroup($user->ID);
-    
+
+    $showMedVal       = GenesisTracker::getShowMed($user->ID);
+
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
     $tel = get_the_author_meta('tel', $user->ID );
@@ -685,12 +689,16 @@ function extra_user_profile_fields($user){
 
 function user_target_fields($user){
     $targetFields = GenesisTracker::getuserMetaTargetFields();
+    $showMedKey = GenesisTracker::showMedCol;
+    $showMedVal = GenesisTracker::getShowMed($user->ID);
 
     if(!is_admin()):
         ?>
         <h4>Nutritional Targets</h4>
-    <?php
+        <?php
     endif;
+
+
     ?>
     <table class="form-table food-table">    
         
@@ -702,7 +710,23 @@ function user_target_fields($user){
            
         </tr>
         <?php endif;?>
-        
+
+        <?php
+        if(is_admin()): ?>
+            <tr>
+            <th><label for="<?php echo $showMedKey ?>"><?php _e("Show meditterranean portions"); ?></label></th>
+                <td>
+            <?php
+            echo DP_HelperForm::createInput($showMedKey, 'checkbox', array(
+                'id' => $showMedKey,
+                'value' => 1
+            ), $showMedVal);
+        ?>
+                </td>
+            </tr>
+            <?php
+        endif;
+        ?>
         <?php foreach($targetFields as $fieldKey => $data) : ?>
         <?php $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); ?>
         <?php $val = get_the_author_meta( $fullKey, $user->ID );?>
@@ -755,6 +779,7 @@ function save_extra_user_profile_fields($user_id){
     $omitSixMonthEmailKey = GenesisTracker::sixMonthEmailOptOutCol;
     $startDateKey         = GenesisTracker::userStartDateCol;
     $studyGroupKey        = GenesisTracker::studyGroupCol;
+    $showMedKey               = GenesisTracker::showMedCol;
     $isActive             = (bool) GenesisTracker::getUserData($user_id, GenesisTracker::userActiveCol);
     
     $startWeightKey = GenesisTracker::userStartWeightCol;
@@ -801,6 +826,10 @@ function save_extra_user_profile_fields($user_id){
             GenesisTracker::setUserData($user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]));
         }
         
+        if(isset($_POST[$showMedKey])){
+            GenesisTracker::setUserData($user_id, $showMedKey, (int) $_POST[$showMedKey]);
+        }
+
        if(isset($_POST[$twelveMonthTargetKey]) && ((float) $_POST[$twelveMonthTargetKey])){
             update_user_meta( $user_id, $twelveMonthTargetKey, GenesisTracker::makeValidWeight($_POST[$twelveMonthTargetKey]) );
         }
