@@ -270,7 +270,9 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                         </div>
                     <?php endforeach; ?>
                     </div>
-                    
+
+
+					<?php if($showMedVal): ?>
     				<div class="title">
     					<label for="targets" class="general-label"><?php _e('Your Mediterranean Days Targets');?></label>
     				</div>
@@ -293,6 +295,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                             </div>
                         <?php endforeach; ?>
                     </div>
+					<?php endif; ?>
     			</div>
             
     			
