@@ -158,6 +158,17 @@ if(!is_admin()){
     // Stop the new user registration email from sending
     add_filter('wp_mail', array('GenesisTracker', 'disableDefaultRegistrationEmail'), 10, 1);
     add_filter( 'wp_login_errors',  array('GenesisTracker', 'modifyRegistrationMessage'), 10, 2);
+
+    add_filter( 'login_message', function($message){
+        if(GenesisTracker::isOnLoginPage() && GenesisTracker::userHasJustRegistered()){
+            return GenesisThemeShortCodes::readingBox(
+                'Thank you for registering on the 2 Day Wythenshawe... tomorrow the world website',
+                '<ul><li>You will be able to login after a member of our research team has activated following your welcome session.</li><li>In the meantime If you have any questions please contact the dietitians on <a href="mailto:smu-tr.2daywythenshawe@nhs.net">smu-tr.2daywythenshawe@nhs.net</a> or call 0161 291 4413</li></ul>'
+            );
+        }
+
+        return $message;
+    });
 }else{
     // ADMIN HOOK - EXECUTE BEFORE HEADERS -- USE THIS TO CALL ADMIN METHODS AND THEN REDIRECT FOR EXAMPLE
     add_action('admin_init', array('GenesisAdmin', 'doAdminInitHook'));
