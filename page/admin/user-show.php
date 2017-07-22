@@ -118,7 +118,7 @@
                      </td>
                      <td>
                          <?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance . " minutes"  : "- -";?>
-                         <?php echo isset($exerciseTypes[$log->exercise_type_resistance]) ? "<br /> <strong>Type: " . $exerciseTypes[$log->exercise_type_resistance]['name'] . "</strong>" : ""; ?>
+                         <?php echo isset($resistanceExerciseTypes[$log->exercise_type_resistance]) ? "<br /> <strong>Type: " . $resistanceExerciseTypes[$log->exercise_type_resistance]['name'] . "</strong>" : ""; ?>
                          <?php echo $log->exercise_description_resistance ? "<br /> <small>" . esc_html($log->exercise_description_resistance) . "</small>" : ""; ?>
                      </td>
                  </tr>

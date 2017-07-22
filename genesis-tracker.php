@@ -836,6 +836,7 @@ function genesis_admin_user_show($user){
     $dietDays = GenesisAdmin::getDietDaysForUser($user->ID);
     $fourWeekTypes = GenesisAdmin::getFourWeekEmailTypes();
     $exerciseTypes = GenesisTracker::getExerciseTypes();
+    $resistanceExerciseTypes = GenesisTracker::getResistanceExerciseTypes();
 
     include('page/admin/user-show.php');
 }
@@ -873,9 +874,14 @@ function genesis_user_input_page(){
     $userGraphPage = GenesisTracker::getUserPagePermalink();
     $userInputPage = GenesisTracker::getUserInputPagePermalink();
     $exerciseTypes = array();
+    $resistanceExerciseTypes = array();
 
     foreach(GenesisTracker::getExerciseTypes() as $key => $val){
         $exerciseTypes[$key] = $val['name'];
+    }
+
+    foreach(GenesisTracker::getResistanceExerciseTypes() as $key => $val){
+        $resistanceExerciseTypes[$key] = $val['name'];
     }
 
     $dateListPicker = '';

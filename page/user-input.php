@@ -363,7 +363,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 
 						<?php
 						echo $form->dropdown('exercise_type_resistance',
-							$exerciseTypes,
+							$resistanceExerciseTypes,
 							array()
 						);
 						?>
