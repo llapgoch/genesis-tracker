@@ -120,6 +120,14 @@ class GenesisTracker{
         "moderate" => array("name" => "Moderate"),
         "vigorous" => array("name" => "Vigorous")
     );
+
+    protected static $_exerciseTypesResistance = array(
+        "arms" => array("name" => "Arms"),
+        "legs" => array("name" => "Legs"),
+        "trunk" => array("name" => "Trunk"),
+        "combination" => array("name" => "Combination"),
+        "whole" => array("name" => "Whole Body")
+    );
     
     
     public function populate(){
@@ -691,6 +699,10 @@ class GenesisTracker{
 
     public static function getExerciseTypes(){
         return self::$_exerciseTypes;
+    }
+
+    public static function getResistanceExerciseTypes(){
+        return self::$_exerciseTypesResistance;
     }
      
      public static function getUserTargetLabel($key, $user_id = null){

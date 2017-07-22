@@ -892,6 +892,7 @@ function genesis_admin_user_show($user){
     $fourWeekTypes = GenesisAdmin::getFourWeekEmailTypes();
 
     $exerciseTypes = GenesisTracker::getExerciseTypes();
+    $resistanceExerciseTypes = GenesisTracker::getResistanceExerciseTypes();
     
     include('page/admin/user-show.php');
 }
@@ -930,11 +931,16 @@ function genesis_user_input_page(){
     $userInputPage = GenesisTracker::getUserInputPagePermalink();
 
     $exerciseTypes = array();
+    $resistanceExerciseTypes = array();
 
     foreach(GenesisTracker::getExerciseTypes() as $key => $val){
         $exerciseTypes[$key] = $val['name'];
     }
-    
+
+    foreach(GenesisTracker::getResistanceExerciseTypes() as $key => $val){
+        $resistanceExerciseTypes[$key] = $val['name'];
+    }
+
     $dateListPicker = '';
     
     if($form->wasPosted()){
