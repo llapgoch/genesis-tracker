@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.42";
+    const version = "1.43";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -43,7 +43,8 @@ class GenesisTracker{
     const userStartDateCol = "start_date";
     const studyGroupCol = "study_group";
     const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
-    
+    const showMedCol = "show_med";
+
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
@@ -55,6 +56,7 @@ class GenesisTracker{
                                 <span class="form-input-error">[ERROR]</span></div>';
     const editCapability = "edit_genesis";
     const userDataCacheKey = "genesis_admin_user_data";
+
     
     // 7 Stone
     const MIN_VALID_WEIGHT = 44.4;
@@ -259,6 +261,7 @@ class GenesisTracker{
           `start_date` datetime DEFAULT NULL,
           `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
           `study_group` varchar(255) DEFAULT NULL,
+          `show_med` varchar(255) DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
         
@@ -1765,6 +1768,10 @@ class GenesisTracker{
 
     public static function getUserStudyGroup($user_id){
         return GenesisTracker::getUserData($user_id, self::studyGroupCol);
+    }
+
+    public static function getShowMed($user_id){
+        return GenesisTracker::getUserData($user_id, self::showMedCol);
     }
      
      public static function isUserSixMonths($user_id){        
