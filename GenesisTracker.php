@@ -34,7 +34,6 @@ class GenesisTracker{
     const userActiveCol = "account_active";
     const passcodeGroupCol = "passcode_group";
     const userStartWeightCol = "start_weight";
-    const userContactedCol = "user_contacted";
     const userWithdrawnCol = "withdrawn";
     const userNotesCol     = "notes";
     const sixMonthWeightCol = "six_month_weight";
@@ -602,7 +601,6 @@ class GenesisTracker{
     
          // Check whether the user has been activated
          $activeKey = self::userActiveCol;
-         $contactedKey = self::userContactedCol;
          $withdrawnKey = self::userWithdrawnCol;
          $notesKey     = self::userNotesCol;
          $startDateKey = self::userStartDateCol;
@@ -630,12 +628,6 @@ class GenesisTracker{
              }
          }
 
-         
-         // Check whether the user has been contacted
-         if(isset($_POST[$contactedKey])){
-             $contacted = (int) $_POST[$contactedKey];
-             self::setUserData($user_id, $contactedKey, $contacted);
-         }
          
          if(isset($_POST[$withdrawnKey])){
              $withdrawn = (int) $_POST[$withdrawnKey];

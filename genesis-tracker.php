@@ -254,9 +254,6 @@ function extra_user_profile_fields($user){
     $startWeightKey = GenesisTracker::userStartWeightCol;
     $startWeight = GenesisTracker::getUserData($user->ID, $startWeightKey);
 
-    $contactedKey = GenesisTracker::userContactedCol;
-    $contactedVal = GenesisTracker::getUserData($user->ID, $contactedKey);
-
     $withdrawnKey = GenesisTracker::userWithdrawnCol;
     $withdrawnVal = GenesisTracker::getUserData($user->ID, $withdrawnKey);
 
@@ -413,20 +410,6 @@ function extra_user_profile_fields($user){
          ));
         ?>
         </td>
-        </tr>
-        <tr>
-            <th><label for="<?php echo $contactedKey; ?>"><?php _e("User has been contacted"); ?></label></th>
-            <td>
-            <?php
-             echo $form->dropdown($contactedKey, array(
-             '0' => 'No',
-             '1' => 'Yes'
-             ), array(
-                 'default' => $contactedVal,
-                 'id' => $contactedKey
-             ));
-            ?>
-            </td>
         </tr>
 
         <tr>
