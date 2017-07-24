@@ -866,10 +866,6 @@ function save_extra_user_profile_fields($user_id){
         if(isset($_POST[$sixMonthDateKey]) && $_POST[$sixMonthDateKey]){
             GenesisTracker::setUserData($user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
         }
-        
-        if($isActive && isset($_POST[$startDateKey]) && $_POST[$startDateKey]){
-            GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
-        }
 
         if(isset($_POST[$genderKey]) && isset(GenesisTracker::$genders[$_POST[$genderKey]])){
             GenesisTracker::setUserData($user_id, $genderKey, $_POST[$genderKey]);
