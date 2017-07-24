@@ -5,7 +5,8 @@ class GenesisTracker{
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
 
-    const version = "1.43";
+    const version = "1.44";
+
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -45,6 +46,7 @@ class GenesisTracker{
     const studyGroupCol = "study_group";
     const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
     const showMedCol = "show_med";
+    const genderCol = "gender";
 
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -98,14 +100,14 @@ class GenesisTracker{
 
     // NOTE: It appears these have switched - med values are actually personal portions!
     protected static $_userMetaTargetFields = array(
-        "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "med" => "0"),
-        "protein" => array("name" => "Protein", "unit" => "portions", "med" => "Between 4 and 12 a day"),
-        "dairy" => array("name" => "Dairy", "unit" => "portions", "med" => "3 a day"),
-        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "med" => "5 a day"),
-        "fruit" => array("name" => "Fruit", "unit" => "portions", "med" => "1 a day"),
-        "fat" => array("name" => 'Fat', "unit" => "portions", "med" =>  "Maximum of 5 a day"),
-        "treat" => array("name" => "Treat", "unit" => "portions", "med" => "0"),       
-        "alcohol" => array("name" => "Alcohol", "unit" => "units", "med" => "0")
+        "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "male" => "0", "female" => "0"),
+        "protein" => array("name" => "Protein", "unit" => "portions", "male" => "Between 6 and 11", "female" => "Between 5 and 9"),
+        "dairy" => array("name" => "Dairy", "unit" => "portions", "male" => "Aim for 3", "female" => "Aim for 3"),
+        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "male" => "Aim for 5", "female" => "Aim for 5"),
+        "fruit" => array("name" => "Fruit", "unit" => "portions", "male" => "Aim for 1", "female" => "Aim for 1"),
+        "fat" => array("name" => 'Fat', "unit" => "portions", "male" => "Maximum of 4", "female" => "Maximum of 3"),
+        "treat" => array("name" => "Treat", "unit" => "portions", "male" => "0", "female" => "0"),
+        "alcohol" => array("name" => "Alcohol", "unit" => "units", "male" => "0", "female" => "0")
     );
 
     
@@ -129,6 +131,11 @@ class GenesisTracker{
         "trunk" => array("name" => "Trunk"),
         "combination" => array("name" => "Combination"),
         "whole" => array("name" => "Whole Body")
+    );
+
+    public static $genders = array(
+        "male" => array("name" => "Male"),
+        "female" => array("name" => "Female")
     );
     
     
@@ -263,6 +270,7 @@ class GenesisTracker{
           `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
           `study_group` varchar(255) DEFAULT NULL,
           `show_med` varchar(255) DEFAULT NULL,
+          `gender` varchar(255) DEFAULT 'female'
           PRIMARY KEY  (`id`)
         )");
         
@@ -1787,6 +1795,10 @@ class GenesisTracker{
 
     public static function getShowMed($user_id){
         return GenesisTracker::getUserData($user_id, self::showMedCol);
+    }
+
+    public static function getUserGender($user_id){
+        return GenesisTracker::getUserData($user_id, self::genderCol);
     }
      
      public static function isUserSixMonths($user_id){        

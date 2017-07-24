@@ -269,7 +269,10 @@ function extra_user_profile_fields($user){
     
     $notesKey = GenesisTracker::userNotesCol;
     $notesVal = GenesisTracker::getUserData($user->ID, $notesKey);
-    
+
+    $genderKey = GenesisTracker::genderCol;
+    $genderVal = GenesisTracker::getUserData($user->ID, $genderKey);
+
     $startDateKey = GenesisTracker::userStartDateCol;
     $startDateVal = GenesisTracker::getUserData($user->ID, $startDateKey);
     
@@ -299,6 +302,11 @@ function extra_user_profile_fields($user){
     $studyGroupVal       = GenesisTracker::getUserStudyGroup($user->ID);
 
     $showMedVal       = GenesisTracker::getShowMed($user->ID);
+
+    $genderVals = array();
+    foreach(GenesisTracker::$genders as $key => $data){
+        $genderVals[$key] = $data['name'];
+    }
 
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
@@ -351,7 +359,22 @@ function extra_user_profile_fields($user){
         <?php if(is_admin()): ?>
             <tr>
                 <th>
-                    <label for="<?php echo $studyGroupKey ?>"><?php _e("Study Number")?></label>
+                    <label for="<?php echo $genderKey;?>"><?php _e("Gender")?></label>
+                </th>
+                <td>
+
+                    <?php $settings = array(
+                        'default' => $genderVal,
+                        'id' => $genderKey,
+                    );
+
+                    echo $form->dropdown('gender', $genderVals, $settings);
+                    ?>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="user_id"><?php _e("Web ID")?></label>
                 </th>
                 <td>
 
@@ -691,6 +714,7 @@ function user_target_fields($user){
     $targetFields = GenesisTracker::getuserMetaTargetFields();
     $showMedKey = GenesisTracker::showMedCol;
     $showMedVal = GenesisTracker::getShowMed($user->ID);
+    $gender = GenesisTracker::getUserGender($user->ID);
 
     if(!is_admin()):
         ?>
@@ -740,7 +764,7 @@ function user_target_fields($user){
             <?php if(!is_admin()):?>
                 <td><span class="stat">
                         <?php
-                        echo isset($data['med']) ? $data['med'] : "- -";
+                        echo isset($data[$gender]) ? $data[$gender] : "- -";
                         ?>
                     </span>
                 </td>
@@ -786,7 +810,9 @@ function save_extra_user_profile_fields($user_id){
     $studyGroupKey        = GenesisTracker::studyGroupCol;
     $showMedKey               = GenesisTracker::showMedCol;
     $isActive             = (bool) GenesisTracker::getUserData($user_id, GenesisTracker::userActiveCol);
-    
+
+    $genderKey            = GenesisTracker::genderCol;
+
     $startWeightKey = GenesisTracker::userStartWeightCol;
     $sixMonthWeightKey   = GenesisTracker::sixMonthWeightCol;
     
@@ -840,12 +866,15 @@ function save_extra_user_profile_fields($user_id){
         if(isset($_POST[$sixMonthDateKey]) && $_POST[$sixMonthDateKey]){
             GenesisTracker::setUserData($user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
         }
-
         
         if($isActive && isset($_POST[$startDateKey]) && $_POST[$startDateKey]){
             GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
         }
-        
+
+        if(isset($_POST[$genderKey]) && isset(GenesisTracker::$genders[$_POST[$genderKey]])){
+            GenesisTracker::setUserData($user_id, $genderKey, $_POST[$genderKey]);
+        }
+
         update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
         update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
         update_user_meta( $user_id, $weightTargetKey, $targetWeight );
@@ -959,9 +988,13 @@ function genesis_user_input_page(){
     ob_start();
     $form = DP_HelperForm::getForm('user-input');
     $outputBody = false;
+    $user_id = get_current_user_id();
+
     $userGraphPage = GenesisTracker::getUserPagePermalink();
     $userInputPage = GenesisTracker::getUserInputPagePermalink();
-    $showMedVal = GenesisTracker::getShowMed(get_current_user_id());
+
+    $showMedVal = GenesisTracker::getShowMed($user_id);
+    $genderVal = GenesisTracker::getUserGender($user_id);
 
     $exerciseTypes = array();
     $resistanceExerciseTypes = array();

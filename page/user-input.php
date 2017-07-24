@@ -264,7 +264,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                             <label><?php echo $_food['name'];?></label>
                             <span class="value">
                                 <?php
-                                echo $_food['med'];
+                                echo isset($_food[$genderVal]) ? $_food[$genderVal] : "- -";
                                 ?>
                             </span>
                         </div>
