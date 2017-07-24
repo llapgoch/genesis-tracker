@@ -1198,10 +1198,16 @@ class GenesisTracker{
      
      public static function saveInitialWeight($form, $user_id){
          global $wpdb;
+
+         if(!$user_id){
+             return false;
+         }
          
          $rules = array(
              'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
          );
+
+
          
          $unit     = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL ? self::UNIT_IMPERIAL : self::UNIT_METRIC;
          $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
