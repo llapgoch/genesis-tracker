@@ -45,6 +45,47 @@ add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPasswo
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 add_filter('show_admin_bar', '__return_false');
 
+
+add_filter('bbp_get_reply_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
+add_filter('bbp_get_topic_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
+add_filter('bbp_get_reply_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
+add_filter('bbp_get_topic_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
+
+// We don't want to view user pages
+add_filter('bbp_get_topic_author_url', function(){
+    return '';
+});
+
+function genesis_bbpress_remove_user_anchor($link){
+    $link = preg_replace(array('{</?a[^>]*>}','{}'), array(" "), $link);
+    return $link;
+}
+
+function genesis_bbpress_filter_name($name, $replyId){
+
+    if($post = get_post($replyId)){
+        return genesis_bbpress_get_user_display_name($post->post_author);
+    }
+
+    return $name;
+}
+
+function genesis_bbpress_get_user_display_name($user_id){
+    if($userData = get_user_meta($user_id)) {
+        $name = '';
+
+        if(isset($userData['first_name'])){
+            $name = substr($userData['first_name'][0], 0, 1) . ". ";
+        }
+        if(isset($userData['last_name'])){
+            $name .= " " . $userData['last_name'][0];
+        }
+
+        return '<br />' . $name;
+    }
+}
+
+
 add_filter('login_headertitle', function(){
     return get_option('blogname');
 });
