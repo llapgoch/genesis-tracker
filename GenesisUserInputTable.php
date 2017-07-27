@@ -4,11 +4,12 @@ class GenesisUserInputTable{
         $foodTypes = GenesisTracker::getUserMetaTargetFields();
         
         $html = array();
-        
+
+        $consumeVerb = $timeIdentifier == 'drinks' ? "drank" : "ate";
        
         $html[] = "<div class='food-input-container'>";
         $html[] = "<div class='food-description-container'>";
-        $html[] = "<label for='" . $timeIdentifier . "_description'>A brief description of what you ate (optional):</label>";
+        $html[] = "<label for='" . $timeIdentifier . "_description'>A brief description of what you {$consumeVerb} (optional):</label>";
         
         $html[] = $form->input($timeIdentifier . '_description', 'text', array(
             'id' => $timeIdentifier . "_description",
