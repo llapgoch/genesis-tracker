@@ -163,7 +163,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
               $('.food-input:not([readonly="readonly"]').on('click, focus', function(){
                  var $this = $(this);
 
-                  if($this.val().toString() == '0'){
+                  if(!isNaN(parseFloat($this.val())) && parseFloat($this.val()) == 0){
                       $this.val('');
                   }
               });
