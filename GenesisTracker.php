@@ -1932,6 +1932,7 @@ class GenesisTracker{
             ORDER BY measure_date", $user_id
          ));
 
+
          $date = new DateTime(self::getInitialUserStartDate($user_id));
          $date->modify("- 1 day");
          
@@ -2020,9 +2021,30 @@ class GenesisTracker{
                      }
                  
                      $collated[$valToCollate]['timestamps'][] = $timestamp;
+
+                     $additionalData = array();
+
+                     if($valToCollate == 'exercise_minutes'){
+                         $additionalData['type'] = $log->exercise_type;
+                         $additionalData['description'] = $log->exercise_description;
+
+                         if(isset(self::$_exerciseTypes[$log->exercise_type])){
+                             $additionalData['label'] = self::$_exerciseTypes[$log->exercise_type]['name'];
+                         }
+                     }
+
+                     if($valToCollate == 'exercise_minutes_resistance'){
+                         $additionalData['type'] = $log->exercise_type_resistance;
+
+                         if(isset(self::$_exerciseTypes[$log->exercise_type_resistance])){
+                             $additionalData['label'] = self::$_exerciseTypes[$log->exercise_type_resistance]['name'];
+                         }
+                         
+                         $additionalData['description'] = $log->exercise_description_resistance;
+                     }
                 
                      $collated[$valToCollate]['data'][] = array(
-                         $timestamp, $log->$valToCollate
+                         $timestamp, $log->$valToCollate, $additionalData
                      );
                  
                  
