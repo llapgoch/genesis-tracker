@@ -118,17 +118,17 @@ class GenesisTracker{
     );
 
     protected static $_exerciseTypes = array(
-        "light" => array("name" => "Light"),
-        "moderate" => array("name" => "Moderate"),
-        "vigorous" => array("name" => "Vigorous")
+        "light" => array("name" => "Light", "color" => '#f49ac1'),
+        "moderate" => array("name" => "Moderate", "color" => '#fbaf5d'),
+        "vigorous" => array("name" => "Vigorous", "color" => '#ed1c24')
     );
 
     protected static $_exerciseTypesResistance = array(
-        "arms" => array("name" => "Arms"),
-        "legs" => array("name" => "Legs"),
-        "trunk" => array("name" => "Trunk"),
-        "combination" => array("name" => "Combination"),
-        "whole" => array("name" => "Whole Body")
+        "arms" => array("name" => "Arms", "color" => "#f49ac1"),
+        "legs" => array("name" => "Legs", "color" => "#77f6ed"),
+        "trunk" => array("name" => "Trunk", "color" => "#76dfaa"),
+        "combination" => array("name" => "Combination", "color" => "#8560a8"),
+        "whole" => array("name" => "Whole Body", "color" => "#f84451")
     );
 
     public static $genders = array(
@@ -1922,6 +1922,7 @@ class GenesisTracker{
             ORDER BY measure_date", $user_id
          ));
 
+
          $date = new DateTime(self::getInitialUserStartDate($user_id));
          $date->modify("- 1 day");
          
@@ -1941,6 +1942,7 @@ class GenesisTracker{
          
          return $results;
      }
+
      
      // Pass in an array of keys to average in $avgVals
      public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
@@ -2010,9 +2012,32 @@ class GenesisTracker{
                      }
                  
                      $collated[$valToCollate]['timestamps'][] = $timestamp;
+
+                     $additionalData = array();
+
+                     if($valToCollate == 'exercise_minutes'){
+                         $additionalData['type'] = $log->exercise_type;
+                         $additionalData['description'] = $log->exercise_description;
+
+                         if(isset(self::$_exerciseTypes[$log->exercise_type])){
+                             $additionalData['label'] = self::$_exerciseTypes[$log->exercise_type]['name'];
+                             $additionalData['color'] = self::$_exerciseTypes[$log->exercise_type]['color'];
+                         }
+                     }
+
+                     if($valToCollate == 'exercise_minutes_resistance'){
+                         $additionalData['type'] = $log->exercise_type_resistance;
+
+                         if(isset(self::$_exerciseTypesResistance[$log->exercise_type_resistance])){
+                             $additionalData['label'] = self::$_exerciseTypesResistance[$log->exercise_type_resistance]['name'];
+                             $additionalData['color'] = self::$_exerciseTypesResistance[$log->exercise_type_resistance]['color'];
+                         }
+                         
+                         $additionalData['description'] = $log->exercise_description_resistance;
+                     }
                 
                      $collated[$valToCollate]['data'][] = array(
-                         $timestamp, $log->$valToCollate
+                         $timestamp, $log->$valToCollate, $additionalData
                      );
                  
                  
