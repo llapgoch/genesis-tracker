@@ -204,7 +204,7 @@ if(!is_admin()){
         if(GenesisTracker::isOnLoginPage() && GenesisTracker::userHasJustRegistered()){
             return GenesisThemeShortCodes::readingBox(
                 'Thank you for registering on the 2 Day Wythenshawe... tomorrow the world website',
-                '<ul><li>You will be able to login after a member of our research team has activated following your welcome session.</li><li>In the meantime If you have any questions please contact the dietitians on <a href="mailto:smu-tr.2daywythenshawe@nhs.net">smu-tr.2daywythenshawe@nhs.net</a> or call 0161 291 4413</li></ul>'
+                '<ul><li>You will be able to log in once your registration has been approved and activated following your attendance at the welcome session.</li><li>In the meantime If you have any questions please contact the dietitians on <a href="mailto:smu-tr.2daywythenshawe@nhs.net">smu-tr.2daywythenshawe@nhs.net</a> or call 0161 291 4413</li></ul>'
             );
         }
 
