@@ -1856,8 +1856,12 @@ class GenesisTracker{
     public static function getTotalFoodLogs($user_id, $limit = 7){
         global $wpdb;
         // Build the aggregates for each value we want to pull out
+        $aggregates = array();
+        $nonZeros = array();
+
         foreach(self::$_userMetaTargetFields as $targetKey => $targetVal){
             $aggregates[] = sprintf("SUM(CASE WHEN fl.`food_type` = '%s' THEN fl.`value` ELSE NULL END) as %s", $targetKey, $targetKey);
+            $nonZeros[] = sprintf("%s > 0 ", $targetKey);
         }
         
          $results = $wpdb->get_results($sql = $wpdb->prepare(
@@ -1867,6 +1871,7 @@ class GenesisTracker{
                "JOIN " . self::getFoodLogTableName() . " fl USING(tracker_id)
              WHERE user_id=%d 
                GROUP BY t.tracker_id
+               HAVING (" . (implode(" OR ", $nonZeros)) . ") 
                ORDER BY measure_date DESC 
                LIMIT %d", $user_id, $limit
          ));
