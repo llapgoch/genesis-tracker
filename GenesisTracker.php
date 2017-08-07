@@ -20,6 +20,7 @@ class GenesisTracker{
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
     const adminNoticesSessionKey      = "___ADMIN_NOTICES";
+    const registrationPasswordEmailSessionKey = "___REGISTRATION_PASSWORD_EMAIL__";
     const targetPageId = "tracker_page";
     const alternateContactEmail = "dave_preece@mac.com";
     
@@ -542,12 +543,14 @@ class GenesisTracker{
          $userdata = array();
          $userdata['ID'] = $user_id;
          $userdata['user_pass'] = trim($_POST['password']);
-         
+
+         $_SESSION[self::registrationPasswordEmailSessionKey] = true;
+
          $user_id = wp_update_user( $userdata );
          update_user_option( $user_id, 'default_password_nag', 0, true );
-         
+
          GenesisTracker::setUserData($user_id, self::userActiveCol, 0);
-         
+
          $plaintext_pass = trim($_POST['password']);
          
          // Send our registration email with the new email
@@ -571,9 +574,11 @@ class GenesisTracker{
             get_site_url(),
             self::getLogoUrl()
         ), $contents);
-        
+         
         $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
-        
+
+         unset($_SESSION[self::registrationPasswordEmailSessionKey]);
+
      }
      
      public static function getEligibilityQuestions(){

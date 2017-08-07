@@ -46,6 +46,7 @@ add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 add_filter('show_admin_bar', '__return_false');
 
 
+
 add_filter('bbp_get_reply_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
 add_filter('bbp_get_topic_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
 add_filter('bbp_get_reply_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
@@ -249,6 +250,7 @@ add_action( 'personal_options_update', array('GenesisTracker', 'saveUserTargetFi
 add_action( 'edit_user_profile_update', array('GenesisTracker', 'saveUserTargetFields'), 10, 1);
 
 add_action( 'register_form', 'genesis_add_registration_fields' );
+add_filter('password_change_email', 'update_password_reset_email', 10, 3);
 
 add_action('login_enqueue_scripts', function(){
     // We're hijacking the login page after registering and displaying our custom content - so hide these elements
@@ -263,6 +265,16 @@ add_action('login_enqueue_scripts', function(){
      
     }
 });
+
+function update_password_reset_email($pass_change_email, $user, $userdata){
+    if(isset($_SESSION[GenesisTracker::registrationPasswordEmailSessionKey])
+        && $_SESSION[GenesisTracker::registrationPasswordEmailSessionKey] == true){
+
+        return '';
+    }
+
+    return $pass_change_email;
+}
 
 
 function genesis_add_registration_fields(){
