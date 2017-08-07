@@ -56,6 +56,16 @@ add_filter('bbp_get_topic_author_url', function(){
     return '';
 });
 
+
+
+add_filter( 'bbp_get_user_display_role', function( $role ) {
+    if ($role == 'Keymaster') {
+        return 'Dietitian';
+    }
+
+    return '';
+}, 10, 1 );
+
 function genesis_bbpress_remove_user_anchor($link){
     $link = preg_replace(array('{</?a[^>]*>}','{}'), array(" "), $link);
     return $link;
