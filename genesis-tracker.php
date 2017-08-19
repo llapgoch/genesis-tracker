@@ -228,7 +228,6 @@ if(!is_admin()){
     add_action('admin_notices', array('GenesisAdmin', 'doAdminNotices'));
 }
 
-
 add_action( 'show_user_profile', 'extra_user_profile_fields',1 );
 //add_action( 'show_user_profile', '// user_target_fields',2 );
 
@@ -974,6 +973,7 @@ function genesis_user_graph(){
     $weightChange = GenesisTracker::getUserWeightChange(get_current_user_id());
     $foodLogData = GenesisTracker::getTotalFoodLogs(get_current_user_id(), $foodLogDays);
     $foodTypes = GenesisTracker::getuserMetaTargetFields();
+    $achievementMessages = GenesisTracker::getExerciseAchievementMessages(get_current_user_id());
 
     $weightChangeInButter = 0;
 
@@ -1001,6 +1001,7 @@ function genesis_user_input_page(){
     $userInputPage = GenesisTracker::getUserInputPagePermalink();
     $showMedVal = GenesisTracker::getShowMed($user_id);
     $genderVal = GenesisTracker::getUserGender($user_id);
+
     $exerciseTypes = array();
     $resistanceExerciseTypes = array();
 
