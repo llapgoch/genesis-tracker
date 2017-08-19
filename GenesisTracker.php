@@ -71,6 +71,9 @@ class GenesisTracker{
     const MIN_VALID_HEIGHT = 0.5;
     const MAX_VALID_HEIGHT = 2.5;
 
+    const AEROBIC_EXERCISE_ACHIEVEMENT = 150;
+    const RESISTANCE_AMOUNT_ACHIEVEMENT = 3;
+
     const FOUR_WEEK_SEND_TYPE_MANUAL = 'MANUAL';
     const FOUR_WEEK_SEND_TYPE_AUTOMATIC = 'AUTOMATIC';
     
@@ -1042,6 +1045,74 @@ class GenesisTracker{
          
          wp_redirect(wp_registration_url());
          exit;
+     }
+
+
+    public static function getLastMondayDate(){
+        return date('Y-m-d',strtotime('last monday'));
+    }
+
+    public static function getExerciseAchievementMessages($user_id){
+        $resistanceAchievements = self::getNumberOfResistanceAchievementsForLastWeek($user_id);
+        $aerobicMinutes = self::getMinutesOfAerobicAchievementsForLastWeek($user_id);
+        $messages = array();
+
+        if($aerobicMinutes >= self::AEROBIC_EXERCISE_ACHIEVEMENT){
+            $messages[] = "Completed a combination of <strong>" . self::AEROBIC_EXERCISE_ACHIEVEMENT . " minutes moderate</strong> or <strong>" . (self::AEROBIC_EXERCISE_ACHIEVEMENT/2) . " minutes vigorous</strong> aerobic exercise!";
+        }
+
+        if($resistanceAchievements >= self::RESISTANCE_AMOUNT_ACHIEVEMENT){
+            $messages[] = "Completed three or more resistance exercises of <strong>arms, legs, or trunk</strong>!";
+        }
+
+        return $messages;
+    }
+
+
+     public static function getNumberOfResistanceAchievementsForLastWeek($user_id){
+         global $wpdb;
+         
+         $dateFrom = self::getLastMondayDate();
+
+         $result = $wpdb->get_row(
+             $sql = $wpdb->prepare(
+                 "SELECT count(*) as resistance_count
+                    FROM genwp_genesis_tracker 
+	              WHERE exercise_type_resistance IN ('arms','legs','trunk')
+                    AND user_id=%d
+                    AND measure_date >= {$dateFrom}", $user_id
+             )
+         );
+
+
+         return $result->resistance_count;
+     }
+
+
+     public static function getMinutesOfAerobicAchievementsForLastWeek($user_id){
+         global $wpdb;
+
+         $dateFrom = self::getLastMondayDate();
+
+         $result = $wpdb->get_row(
+            $sql = $wpdb->prepare("
+                SELECT IF(ISNULL(type_moderate.total), 0, type_moderate.total) + (IF(ISNULL(type_vigorous.total), 0, type_vigorous.total) * 2) as total  FROM
+                         (SELECT SUM(`exercise_minutes`) as total
+                    FROM genwp_genesis_tracker
+                    WHERE genwp_genesis_tracker.`exercise_type`='moderate' 
+                      AND measure_date >= {$dateFrom}
+                      AND user_id=%d
+                ) as type_moderate,
+                (SELECT SUM(`exercise_minutes`) as total
+                    FROM genwp_genesis_tracker
+                    WHERE genwp_genesis_tracker.`exercise_type`='vigorous'
+                      AND measure_date >= {$dateFrom}
+                      AND user_id=%d
+                ) as type_vigorous", $user_id, $user_id
+            )
+         );
+
+        return $result->total;
      }
      
      public function getClientIp(){

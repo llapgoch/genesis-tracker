@@ -1,3 +1,29 @@
+<?php if(count($achievementMessages)): ?>
+    <div class="achievements">
+        <?php echo GenesisThemeShortCodes::achievementBox(
+            "",
+            "
+             <div class='msg-inner-container'>
+                <div class='alert-inner-icon'>
+                <svg class=\"star-congratulations\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" 
+        width=\"12px\" height=\"11.5px\" viewBox=\"0 0 12 11.5\">
+                    <path d=\"M6,8.8l3.7,2.7L8.3,7.1L12,4.5H7.4L6,0L4.6,4.5H0l3.7,2.6l-1.4,4.4L6,8.8z\"/>
+                </svg>
+                </div>
+                <div class='alert-icon-message'>
+                    <h2>Exercise Achievement!</h2>
+                    <p>In the last week, you've...</p>
+                    <ul>
+                    " . "<li>".implode('</li><li>', $achievementMessages)."</li>
+                    </ul>
+                    <p>Well Done, keep up the great work!</p>
+                </div>
+            </div>
+              "
+        );?>
+    </div>
+<?php endif; ?>
+
 <div class="progress-graph-switcher">
 	<div class="button-container">
         <div class="button-group measurement">
@@ -22,9 +48,9 @@
             <button class="blue button large" data-mode="unrestricted-days">View Your Most Recent Logs</button>
         </div>
     </div>
-    
-	
 </div>
+
+
 
 <div class="data-container user-data-container">
     <div class="genesis-graph-container">
