@@ -5,7 +5,8 @@ class GenesisTracker{
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
 
-    const version = "1.42";
+    const version = "1.46";
+
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -19,6 +20,7 @@ class GenesisTracker{
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
     const adminNoticesSessionKey      = "___ADMIN_NOTICES";
+    const registrationPasswordEmailSessionKey = "___REGISTRATION_PASSWORD_EMAIL__";
     const targetPageId = "tracker_page";
     const alternateContactEmail = "dave_preece@mac.com";
     
@@ -44,7 +46,9 @@ class GenesisTracker{
     const userStartDateCol = "start_date";
     const studyGroupCol = "study_group";
     const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
-    
+    const showMedCol = "show_med";
+    const genderCol = "gender";
+
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
@@ -56,6 +60,7 @@ class GenesisTracker{
                                 <span class="form-input-error">[ERROR]</span></div>';
     const editCapability = "edit_genesis";
     const userDataCacheKey = "genesis_admin_user_data";
+
     
     // 7 Stone
     const MIN_VALID_WEIGHT = 44.4;
@@ -96,14 +101,14 @@ class GenesisTracker{
 
     // NOTE: It appears these have switched - med values are actually personal portions!
     protected static $_userMetaTargetFields = array(
-        "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "med" => "0"),
-        "protein" => array("name" => "Protein", "unit" => "portions", "med" => "Between 4 and 12 a day"),
-        "dairy" => array("name" => "Dairy", "unit" => "portions", "med" => "3 a day"),
-        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "med" => "5 a day"),
-        "fruit" => array("name" => "Fruit", "unit" => "portions", "med" => "1 a day"),
-        "fat" => array("name" => 'Fat', "unit" => "portions", "med" =>  "Maximum of 5 a day"),
-        "treat" => array("name" => "Treat", "unit" => "portions", "med" => "0"),       
-        "alcohol" => array("name" => "Alcohol", "unit" => "units", "med" => "0")
+        "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "male" => "0", "female" => "0"),
+        "protein" => array("name" => "Protein", "unit" => "portions", "male" => "Between 6 and 11", "female" => "Between 5 and 9"),
+        "dairy" => array("name" => "Dairy", "unit" => "portions", "male" => "Aim for 3", "female" => "Aim for 3"),
+        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "male" => "Aim for 5", "female" => "Aim for 5"),
+        "fruit" => array("name" => "Fruit", "unit" => "portions", "male" => "Aim for 1", "female" => "Aim for 1"),
+        "fat" => array("name" => 'Fat', "unit" => "portions", "male" => "Maximum of 4", "female" => "Maximum of 3"),
+        "treat" => array("name" => "Treat", "unit" => "portions", "male" => "0", "female" => "0"),
+        "alcohol" => array("name" => "Alcohol", "unit" => "units", "male" => "0", "female" => "0")
     );
 
     
@@ -116,9 +121,22 @@ class GenesisTracker{
     );
 
     protected static $_exerciseTypes = array(
-        "light" => array("name" => "Light"),
-        "moderate" => array("name" => "Moderate"),
-        "vigorous" => array("name" => "Vigorous")
+        "light" => array("name" => "Light", "color" => '#f49ac1'),
+        "moderate" => array("name" => "Moderate", "color" => '#fbaf5d'),
+        "vigorous" => array("name" => "Vigorous", "color" => '#ed1c24')
+    );
+
+    protected static $_exerciseTypesResistance = array(
+        "arms" => array("name" => "Arms", "color" => "#f49ac1"),
+        "legs" => array("name" => "Legs", "color" => "#77f6ed"),
+        "trunk" => array("name" => "Trunk", "color" => "#76dfaa"),
+        "combination" => array("name" => "Combination", "color" => "#8560a8"),
+        "whole" => array("name" => "Whole Body", "color" => "#f84451")
+    );
+
+    public static $genders = array(
+        "male" => array("name" => "Male"),
+        "female" => array("name" => "Female")
     );
     
     
@@ -252,6 +270,8 @@ class GenesisTracker{
           `start_date` datetime DEFAULT NULL,
           `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
           `study_group` varchar(255) DEFAULT NULL,
+          `show_med` varchar(255) DEFAULT NULL,
+          `gender` varchar(255) DEFAULT 'female'
           PRIMARY KEY  (`id`)
         )");
         
@@ -402,15 +422,16 @@ class GenesisTracker{
          $registerUrl = wp_registration_url();
          $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
          
+
          if(self::isOnRegistrationPage() && self::userIsEligible() == false){
              wp_redirect(home_url());  
              exit;
          }
-         
-         if(self::isOnRegistrationPage()){
-            wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
+
+         if(self::isOnRegistrationPage() || self::isOnLoginPage()){
+             wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
+             wp_localize_script('login', 'wpBaseUrl', get_site_url());
          }
-    
         
         // We set the username as the email address
         if($registerUrl == $currentUrl && count($_POST)){
@@ -522,12 +543,14 @@ class GenesisTracker{
          $userdata = array();
          $userdata['ID'] = $user_id;
          $userdata['user_pass'] = trim($_POST['password']);
-         
+
+         $_SESSION[self::registrationPasswordEmailSessionKey] = true;
+
          $user_id = wp_update_user( $userdata );
          update_user_option( $user_id, 'default_password_nag', 0, true );
-         
+
          GenesisTracker::setUserData($user_id, self::userActiveCol, 0);
-         
+
          $plaintext_pass = trim($_POST['password']);
          
          // Send our registration email with the new email
@@ -551,9 +574,11 @@ class GenesisTracker{
             get_site_url(),
             self::getLogoUrl()
         ), $contents);
-        
-        $res = wp_mail(trim($_POST['user_email']), 'Welcome to The Family History Lifestyle Study', $contents, $headers);
-        
+
+         
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
+
+         unset($_SESSION[self::registrationPasswordEmailSessionKey]);
      }
      
      public static function getEligibilityQuestions(){
@@ -690,6 +715,10 @@ class GenesisTracker{
 
     public static function getExerciseTypes(){
         return self::$_exerciseTypes;
+    }
+
+    public static function getResistanceExerciseTypes(){
+        return self::$_exerciseTypesResistance;
     }
      
      public static function getUserTargetLabel($key, $user_id = null){
@@ -1182,10 +1211,16 @@ class GenesisTracker{
      
      public static function saveInitialWeight($form, $user_id){
          global $wpdb;
+
+         if(!$user_id){
+             return false;
+         }
          
          $rules = array(
              'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
          );
+
+
          
          $unit     = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL ? self::UNIT_IMPERIAL : self::UNIT_METRIC;
          $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
@@ -1441,7 +1476,7 @@ class GenesisTracker{
              return;
          }
          
-         if($logDate <= strtotime(self::getInitialUserStartDate(get_current_user_id()))){
+         if($logDate < strtotime(self::getInitialUserStartDate(get_current_user_id()))){
              $form->setError('measure_date', array(
                  'general' => 'Your measurement date must be after your start day',
                  'main' => 'Your measurement date must be after your start day'
@@ -1762,6 +1797,14 @@ class GenesisTracker{
     public static function getUserStudyGroup($user_id){
         return GenesisTracker::getUserData($user_id, self::studyGroupCol);
     }
+
+    public static function getShowMed($user_id){
+        return GenesisTracker::getUserData($user_id, self::showMedCol);
+    }
+
+    public static function getUserGender($user_id){
+        return GenesisTracker::getUserData($user_id, self::genderCol);
+    }
      
      public static function isUserSixMonths($user_id){        
         return (bool) get_user_meta($user_id, self::getOptionKey(self::sixMonthDateKey), true);
@@ -1828,8 +1871,12 @@ class GenesisTracker{
     public static function getTotalFoodLogs($user_id, $limit = 7){
         global $wpdb;
         // Build the aggregates for each value we want to pull out
+        $aggregates = array();
+        $nonZeros = array();
+
         foreach(self::$_userMetaTargetFields as $targetKey => $targetVal){
             $aggregates[] = sprintf("SUM(CASE WHEN fl.`food_type` = '%s' THEN fl.`value` ELSE NULL END) as %s", $targetKey, $targetKey);
+            $nonZeros[] = sprintf("%s > 0 ", $targetKey);
         }
         
          $results = $wpdb->get_results($sql = $wpdb->prepare(
@@ -1839,6 +1886,7 @@ class GenesisTracker{
                "JOIN " . self::getFoodLogTableName() . " fl USING(tracker_id)
              WHERE user_id=%d 
                GROUP BY t.tracker_id
+               HAVING (" . (implode(" OR ", $nonZeros)) . ") 
                ORDER BY measure_date DESC 
                LIMIT %d", $user_id, $limit
          ));
@@ -1894,10 +1942,14 @@ class GenesisTracker{
             ORDER BY measure_date", $user_id
          ));
 
+
+         $date = new DateTime(self::getInitialUserStartDate($user_id));
+         $date->modify("- 1 day");
          
          $start = new stdClass();
          $start->user_id = $user_id;
-         $start->measure_date = self::getInitialUserStartDate($user_id);
+         // Set the initial weight as the day before the start date
+         $start->measure_date = $date->format('Y-m-d H:i:s');
          $start->weight = self::getInitialUserWeight($user_id);
          $start->weight_loss = 0;
          
@@ -1910,6 +1962,7 @@ class GenesisTracker{
          
          return $results;
      }
+
      
      // Pass in an array of keys to average in $avgVals
      public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
@@ -1979,9 +2032,32 @@ class GenesisTracker{
                      }
                  
                      $collated[$valToCollate]['timestamps'][] = $timestamp;
+
+                     $additionalData = array();
+
+                     if($valToCollate == 'exercise_minutes'){
+                         $additionalData['type'] = $log->exercise_type;
+                         $additionalData['description'] = $log->exercise_description;
+
+                         if(isset(self::$_exerciseTypes[$log->exercise_type])){
+                             $additionalData['label'] = self::$_exerciseTypes[$log->exercise_type]['name'];
+                             $additionalData['color'] = self::$_exerciseTypes[$log->exercise_type]['color'];
+                         }
+                     }
+
+                     if($valToCollate == 'exercise_minutes_resistance'){
+                         $additionalData['type'] = $log->exercise_type_resistance;
+
+                         if(isset(self::$_exerciseTypesResistance[$log->exercise_type_resistance])){
+                             $additionalData['label'] = self::$_exerciseTypesResistance[$log->exercise_type_resistance]['name'];
+                             $additionalData['color'] = self::$_exerciseTypesResistance[$log->exercise_type_resistance]['color'];
+                         }
+                         
+                         $additionalData['description'] = $log->exercise_description_resistance;
+                     }
                 
                      $collated[$valToCollate]['data'][] = array(
-                         $timestamp, $log->$valToCollate
+                         $timestamp, $log->$valToCollate, $additionalData
                      );
                  
                  

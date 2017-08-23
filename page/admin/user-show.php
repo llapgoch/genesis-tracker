@@ -17,10 +17,8 @@
         <dd><?php echo $userDetails[GenesisTracker::studyGroupCol] ? $userDetails[GenesisTracker::studyGroupCol] : "- -"; ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
-        <dt>Activation Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol]));?></dd>
-        <dt>Actual Start Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails['actual_start_date']));?></dd>
+        <dt>Start Date</dt>
+        <dd><?php echo $userDetails[GenesisTracker::userStartDateCol] ? gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol])) : "<strong>Not Set</strong>";?></dd>
         <dt>User Contacted</dt>
         <dd><?php echo (int) $userDetails['user_contacted'] == 0 ? 'No' : 'Yes'?></dd>
         <dt>Account Active</dt>
@@ -55,12 +53,7 @@
             endif;
             ?>
         </dd>
-        <dt>Six Month Date</dt>
-        <dd><?php echo ($userDetails[GenesisTracker::sixMonthDateCol] ? GenesisTracker::prettyDBDate($userDetails[GenesisTracker::sixMonthDateCol]) : "- -");?></dd>
-        <dt>Six Month Weight (Kg)</dt>
-        <dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
-        <dt>Benchmark Weight (Kg)</dt>
-        <dd><?php echo ($userDetails['benchmark_weight'] ? $userDetails['benchmark_weight'] : "- -"); ?></dd>
+      
         <dt>Current Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['weight']) && $userDetails['weight']) :
@@ -129,7 +122,7 @@
                      </td>
                      <td>
                          <?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance . " minutes"  : "- -";?>
-                         <?php echo isset($exerciseTypes[$log->exercise_type_resistance]) ? "<br /> <strong>Type: " . $exerciseTypes[$log->exercise_type_resistance]['name'] . "</strong>" : ""; ?>
+                         <?php echo isset($resistanceExerciseTypes[$log->exercise_type_resistance]) ? "<br /> <strong>Type: " . $resistanceExerciseTypes[$log->exercise_type_resistance]['name'] . "</strong>" : ""; ?>
                          <?php echo $log->exercise_description_resistance ? "<br /> <small>" . esc_html($log->exercise_description_resistance) . "</small>" : ""; ?>
                      </td>
                  </tr>

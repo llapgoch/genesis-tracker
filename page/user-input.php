@@ -264,13 +264,15 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                             <label><?php echo $_food['name'];?></label>
                             <span class="value">
                                 <?php
-                                echo $_food['med'];
+                                echo isset($_food[$genderVal]) ? $_food[$genderVal] : "- -";
                                 ?>
                             </span>
                         </div>
                     <?php endforeach; ?>
                     </div>
-                    
+
+
+					<?php if($showMedVal): ?>
     				<div class="title">
     					<label for="targets" class="general-label"><?php _e('Your Mediterranean Days Targets');?></label>
     				</div>
@@ -293,6 +295,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                             </div>
                         <?php endforeach; ?>
                     </div>
+					<?php endif; ?>
     			</div>
             
     			
@@ -363,7 +366,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 
 						<?php
 						echo $form->dropdown('exercise_type_resistance',
-							$exerciseTypes,
+							$resistanceExerciseTypes,
 							array()
 						);
 						?>

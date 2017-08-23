@@ -158,9 +158,23 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 				userGraph.initialise('weight', $('.mode-switcher').val() == 1 ? "imperial" : "");
 				selectModeButton('weight');
 			}
-			
-           
 
+
+              $('.food-input:not([readonly="readonly"]').on('click, focus', function(){
+                 var $this = $(this);
+
+                  if(!isNaN(parseFloat($this.val())) && parseFloat($this.val()) == 0){
+                      $this.val('');
+                  }
+              });
+
+            $('.food-input').on('blur', function(){
+                var $this = $(this);
+
+                if($this.val() == ''){
+                    $this.val('0');
+                }
+            });
               
               $('.food-input').on('change, keyup', function(){
                   calculateFoodTotals();

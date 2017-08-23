@@ -45,6 +45,62 @@ add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPasswo
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 add_filter('show_admin_bar', '__return_false');
 
+
+
+add_filter('bbp_get_reply_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
+add_filter('bbp_get_topic_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
+add_filter('bbp_get_reply_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
+add_filter('bbp_get_topic_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
+
+// We don't want to view user pages
+add_filter('bbp_get_topic_author_url', function(){
+    return '';
+});
+
+
+
+add_filter( 'bbp_get_user_display_role', function( $role ) {
+    if ($role == 'Keymaster') {
+        return 'Dietitian';
+    }
+
+    return '';
+}, 10, 1 );
+
+function genesis_bbpress_remove_user_anchor($link){
+    $link = preg_replace(array('{</?a[^>]*>}','{}'), array(" "), $link);
+    return $link;
+}
+
+function genesis_bbpress_filter_name($name, $replyId){
+
+    if($post = get_post($replyId)){
+        return genesis_bbpress_get_user_display_name($post->post_author);
+    }
+
+    return $name;
+}
+
+function genesis_bbpress_get_user_display_name($user_id){
+    if($userData = get_user_meta($user_id)) {
+        $name = '';
+
+        if(isset($userData['first_name'])){
+            $name = substr($userData['first_name'][0], 0, 1) . ". ";
+        }
+        if(isset($userData['last_name'])){
+            $name .= " " . $userData['last_name'][0];
+        }
+
+        return '<br />' . $name;
+    }
+}
+
+
+add_filter('login_headertitle', function(){
+    return get_option('blogname');
+});
+
 add_filter( 'login_body_class', 'adjust_body_classes');
 
 // Checks whether the install function needs to be called again for DB changes
@@ -194,6 +250,7 @@ add_action( 'personal_options_update', array('GenesisTracker', 'saveUserTargetFi
 add_action( 'edit_user_profile_update', array('GenesisTracker', 'saveUserTargetFields'), 10, 1);
 
 add_action( 'register_form', 'genesis_add_registration_fields' );
+add_filter('password_change_email', 'update_password_reset_email', 10, 3);
 
 add_action('login_enqueue_scripts', function(){
     // We're hijacking the login page after registering and displaying our custom content - so hide these elements
@@ -208,6 +265,16 @@ add_action('login_enqueue_scripts', function(){
      
     }
 });
+
+function update_password_reset_email($pass_change_email, $user, $userdata){
+    if(isset($_SESSION[GenesisTracker::registrationPasswordEmailSessionKey])
+        && $_SESSION[GenesisTracker::registrationPasswordEmailSessionKey] == true){
+
+        return '';
+    }
+
+    return $pass_change_email;
+}
 
 
 function genesis_add_registration_fields(){
@@ -265,7 +332,10 @@ function extra_user_profile_fields($user){
     
     $notesKey = GenesisTracker::userNotesCol;
     $notesVal = GenesisTracker::getUserData($user->ID, $notesKey);
-    
+
+    $genderKey = GenesisTracker::genderCol;
+    $genderVal = GenesisTracker::getUserData($user->ID, $genderKey);
+
     $startDateKey = GenesisTracker::userStartDateCol;
     $startDateVal = GenesisTracker::getUserData($user->ID, $startDateKey);
     
@@ -280,7 +350,9 @@ function extra_user_profile_fields($user){
     $sixMonthDateKey     = GenesisTracker::sixMonthDateCol;
     $omitSixMonthEmailKey = GenesisTracker::sixMonthEmailOptOutCol;
     $studyGroupKey       = GenesisTracker::studyGroupCol;
-    
+    $showMedKey          = GenesisTracker::showMedCol;
+
+
     $isActive = GenesisTracker::getUserData($user->ID, GenesisTracker::userActiveCol);
 
     $minHealthyWeightVal = get_the_author_meta($minHealthyWeightKey, $user->ID );
@@ -291,7 +363,14 @@ function extra_user_profile_fields($user){
     $sixMonthDateValue     = GenesisTracker::getUserData($user->ID, $sixMonthDateKey);
     $omitSixMonthEmailValue = GenesisTracker::getUserData($user->ID, $omitSixMonthEmailKey);
     $studyGroupVal       = GenesisTracker::getUserStudyGroup($user->ID);
-    
+
+    $showMedVal       = GenesisTracker::getShowMed($user->ID);
+
+    $genderVals = array();
+    foreach(GenesisTracker::$genders as $key => $data){
+        $genderVals[$key] = $data['name'];
+    }
+
     $isMetric = GenesisTracker::getInitialUserUnit($user->ID) == GenesisTracker::UNIT_METRIC;
 
     $tel = get_the_author_meta('tel', $user->ID );
@@ -343,7 +422,22 @@ function extra_user_profile_fields($user){
         <?php if(is_admin()): ?>
             <tr>
                 <th>
-                    <label for="<?php echo $studyGroupKey ?>"><?php _e("Study Number")?></label>
+                    <label for="<?php echo $genderKey;?>"><?php _e("Gender")?></label>
+                </th>
+                <td>
+
+                    <?php $settings = array(
+                        'default' => $genderVal,
+                        'id' => $genderKey,
+                    );
+
+                    echo $form->dropdown('gender', $genderVals, $settings);
+                    ?>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    <label for="user_id"><?php _e("Web ID")?></label>
                 </th>
                 <td>
 
@@ -360,7 +454,7 @@ function extra_user_profile_fields($user){
             
             <tr>
                 <th>
-                    <label for="<?php echo $startDateKey?>"><?php _e("Activation Date")?></label>
+                    <label for="<?php echo $startDateKey?>"><?php _e("Start Date")?></label>
                 </th>
                 <td>
                    
@@ -397,6 +491,7 @@ function extra_user_profile_fields($user){
                     ?>
                 </td>
             </tr>
+
         <?php endif; ?>
         
         
@@ -665,97 +760,7 @@ function extra_user_profile_fields($user){
                     ?>
                 </td>
             </tr>
-        
-            <tr>
-                <th><label for="<?php echo $weightTargetKey;?>"><?php _e('Three Month Target Weight'); ?></label></th>
-                <td>
-                    <?php
-                    if(is_admin()):
-                        echo $form->input($weightTargetKey, 'text', array(
-                              'autocomplete' => 'off',
-                              'id' => $weightTargetKey,
-                              'class' => '',
-                              'value' => $weightTargetVal  
-                          ));
-                      else:
-                          ?>
-                          <span class="stat">
-                               <?php if($isMetric):?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "metric");?>
-                                  </span>
-                              <?php else:?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($weightTargetVal, "imperial");?>
-                                  </span>
-                              <?php endif;?>
-                          </span>
-                      <?php
-                      endif;
-                    ?>
-                </td>
-            </tr>
-            
-            <tr>
-                <th><label for="<?php echo $sixMonthTargetKey;?>"><?php _e('Six Month Target Weight'); ?></label></th>
-                <td>
-                    <?php
-                    if(is_admin()):
-                        echo $form->input($sixMonthTargetKey, 'text', array(
-                              'autocomplete' => 'off',
-                              'id' => $sixMonthTargetKey,
-                              'class' => '',
-                              'value' => $sixMonthTargetVal  
-                          ));
-                      else:
-                          ?>
-                          <span class="stat">
-                               <?php if($isMetric):?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($sixMonthTargetVal, "metric");?>
-                                  </span>
-                              <?php else:?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($sixMonthTargetVal, "imperial");?>
-                                  </span>
-                              <?php endif;?>
-                          </span>
-                      <?php
-                      endif;
-                    ?>
-                </td>
-            </tr>
-            
-            <tr>
-                <th><label for="<?php echo $twelveMonthTargetKey;?>"><?php _e('Twelve Month Target Weight'); ?></label></th>
-                <td>
-                    <?php
-                    if(is_admin()):
-                        echo $form->input($twelveMonthTargetKey, 'text', array(
-                              'autocomplete' => 'off',
-                              'id' => $twelveMonthTargetKey,
-                              'class' => '',
-                              'value' => $twelveMonthTargetVal  
-                          ));
-                      else:
-                          ?>
-                          <span class="stat">
-                               <?php if($isMetric):?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($twelveMonthTargetVal, "metric");?>
-                                  </span>
-                              <?php else:?>
-                                  <span class="weight">
-                                      <?php echo GenesisTracker::niceFormatWeight($twelveMonthTargetVal, "imperial");?>
-                                  </span>
-                              <?php endif;?>
-                          </span>
-                      <?php
-                      endif;
-                    ?>
-                </td>
-            </tr>
-            
+
         </table>
         <?php if(is_admin()):?>
             <hr />
@@ -770,12 +775,17 @@ function extra_user_profile_fields($user){
 
 function user_target_fields($user){
     $targetFields = GenesisTracker::getuserMetaTargetFields();
+    $showMedKey = GenesisTracker::showMedCol;
+    $showMedVal = GenesisTracker::getShowMed($user->ID);
+    $gender = GenesisTracker::getUserGender($user->ID);
 
     if(!is_admin()):
         ?>
         <h4>Nutritional Targets</h4>
-    <?php
+        <?php
     endif;
+
+
     ?>
     <table class="form-table food-table">    
         
@@ -783,11 +793,30 @@ function user_target_fields($user){
         <tr>
             <th>&nbsp;</th>
             <th><h4>Diet day portions</h4></th>
+            <?php if($showMedVal):?>
             <th><h4>Mediterranean day portions</h4></th>
-           
+
+            <?php endif; ?>
+
         </tr>
         <?php endif;?>
-        
+
+        <?php
+        if(is_admin()): ?>
+            <tr>
+            <th><label for="<?php echo $showMedKey ?>"><?php _e("Show mediterranean portions"); ?></label></th>
+                <td>
+            <?php
+            echo DP_HelperForm::createInput($showMedKey, 'checkbox', array(
+                'id' => $showMedKey,
+                'value' => 1
+            ), $showMedVal);
+        ?>
+                </td>
+            </tr>
+            <?php
+        endif;
+        ?>
         <?php foreach($targetFields as $fieldKey => $data) : ?>
         <?php $fullKey = GenesisTracker::getOptionKey(GenesisTracker::targetPrependKey . $fieldKey); ?>
         <?php $val = get_the_author_meta( $fullKey, $user->ID );?>
@@ -798,11 +827,12 @@ function user_target_fields($user){
             <?php if(!is_admin()):?>
                 <td><span class="stat">
                         <?php
-                        echo isset($data['med']) ? $data['med'] : "- -";
+                        echo isset($data[$gender]) ? $data[$gender] : "- -";
                         ?>
                     </span>
                 </td>
             <?php endif; ?>
+            <?php if(is_admin() || (!is_admin() && $showMedVal)):?>
             <td>
                 <?php
                
@@ -819,8 +849,9 @@ function user_target_fields($user){
                 endif;
                 ?>
             </td>
-            
-           
+
+            <?php endif; ?>
+
         </tr>
 
         <?php endforeach; ?>
@@ -840,8 +871,11 @@ function save_extra_user_profile_fields($user_id){
     $omitSixMonthEmailKey = GenesisTracker::sixMonthEmailOptOutCol;
     $startDateKey         = GenesisTracker::userStartDateCol;
     $studyGroupKey        = GenesisTracker::studyGroupCol;
+    $showMedKey               = GenesisTracker::showMedCol;
     $isActive             = (bool) GenesisTracker::getUserData($user_id, GenesisTracker::userActiveCol);
-    
+
+    $genderKey            = GenesisTracker::genderCol;
+
     $startWeightKey = GenesisTracker::userStartWeightCol;
     $sixMonthWeightKey   = GenesisTracker::sixMonthWeightCol;
     
@@ -885,7 +919,9 @@ function save_extra_user_profile_fields($user_id){
         if(isset($_POST[$startWeightKey]) && ((float) $_POST[$startWeightKey])){
             GenesisTracker::setUserData($user_id, $startWeightKey, GenesisTracker::makeValidWeight($_POST[$startWeightKey]));
         }
-        
+
+        GenesisTracker::setUserData($user_id, $showMedKey, isset($_POST[$showMedKey]) ? (int) $_POST[$showMedKey] : 0);
+
        if(isset($_POST[$twelveMonthTargetKey]) && ((float) $_POST[$twelveMonthTargetKey])){
             update_user_meta( $user_id, $twelveMonthTargetKey, GenesisTracker::makeValidWeight($_POST[$twelveMonthTargetKey]) );
         }
@@ -894,11 +930,10 @@ function save_extra_user_profile_fields($user_id){
             GenesisTracker::setUserData($user_id, $sixMonthDateKey, GenesisTracker::convertFormDate($_POST[$sixMonthDateKey]));
         }
 
-        
-        if($isActive && isset($_POST[$startDateKey]) && $_POST[$startDateKey]){
-            GenesisTracker::setUserData($user_id, $startDateKey, GenesisTracker::convertFormDate($_POST[$startDateKey]));
+        if(isset($_POST[$genderKey]) && isset(GenesisTracker::$genders[$_POST[$genderKey]])){
+            GenesisTracker::setUserData($user_id, $genderKey, $_POST[$genderKey]);
         }
-        
+
         update_user_meta( $user_id, $minHealthyWeightKey, $minHealthyWeight );
         update_user_meta( $user_id, $maxHealthyWeightKey, $maxHealthyWeight );
         update_user_meta( $user_id, $weightTargetKey, $targetWeight );
@@ -977,6 +1012,7 @@ function genesis_admin_user_show($user){
     $fourWeekTypes = GenesisAdmin::getFourWeekEmailTypes();
 
     $exerciseTypes = GenesisTracker::getExerciseTypes();
+    $resistanceExerciseTypes = GenesisTracker::getResistanceExerciseTypes();
     
     include('page/admin/user-show.php');
 }
@@ -1011,15 +1047,25 @@ function genesis_user_input_page(){
     ob_start();
     $form = DP_HelperForm::getForm('user-input');
     $outputBody = false;
+    $user_id = get_current_user_id();
+
     $userGraphPage = GenesisTracker::getUserPagePermalink();
     $userInputPage = GenesisTracker::getUserInputPagePermalink();
 
+    $showMedVal = GenesisTracker::getShowMed($user_id);
+    $genderVal = GenesisTracker::getUserGender($user_id);
+
     $exerciseTypes = array();
+    $resistanceExerciseTypes = array();
 
     foreach(GenesisTracker::getExerciseTypes() as $key => $val){
         $exerciseTypes[$key] = $val['name'];
     }
-    
+
+    foreach(GenesisTracker::getResistanceExerciseTypes() as $key => $val){
+        $resistanceExerciseTypes[$key] = $val['name'];
+    }
+
     $dateListPicker = '';
     
     if($form->wasPosted()){
