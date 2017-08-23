@@ -1,7 +1,7 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
-    "Welcome to the PROCAS Lifestyle Research Study",
-    "<p>The Procas lifestyle research study is a diet and exercise programme designed to support people with a BMI greater than 25 to lose weight.</p>
+    "Welcome to The Family History Lifestyle Study",
+    "<p>The Family History Lifestyle Study is a diet and exercise programme designed to support people with a BMI greater than 25 to lose weight.</p>
 <p>Before you decide to take part, let's check that the clinical trial is for you. Please read <a href='$eligibilityPdfUrl' target='_blank'>this document</a> before completing the form below.</p>"
 );
 
@@ -226,7 +226,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     ?>
                 </div>
                 <div class="col">
-                    <label for="consent"><?php _e('I give my consent that PROCAS Lifestyle Research Study to use the information I have entered for research purposes. <br /><em>We will never share your data with any third parties</em>')?></label>
+                    <label for="consent"><?php _e('I give my consent that Family History Lifestyle Study to use the information I have entered for research purposes. <br /><em>We will never share your data with any third parties</em>')?></label>
                     </div>
                 </div>
             </div>

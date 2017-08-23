@@ -552,7 +552,7 @@ class GenesisTracker{
             self::getLogoUrl()
         ), $contents);
         
-        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to The Family History Lifestyle Study', $contents, $headers);
         
      }
      
@@ -673,7 +673,7 @@ class GenesisTracker{
             $body
         );
 
-        wp_mail($user->user_email, 'Your Genesis PROCAS account has been activated', $body, self::getEmailHeaders());
+        wp_mail($user->user_email, 'Your Family History Lifestyle Study account has been activated', $body, self::getEmailHeaders());
     }
      
      public static function userIsEligible(){
@@ -2872,7 +2872,7 @@ class GenesisTracker{
      
      public static function getEmailHeaders(){
           $headers = array();
-          $headers[] = 'From: Procas Lifestyle Research <'. get_option('admin_email') .'>';
+          $headers[] = 'From: Family History Lifestyle Study <'. get_option('admin_email') .'>';
           $headers[] = 'MIME-Version: 1.0';
           $headers[] = 'Content-type: text/html; charset=utf-8';
         
@@ -2932,7 +2932,7 @@ class GenesisTracker{
           );
 
           foreach($users as $user){   
-              wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
+              wp_mail($user->user_email, 'A reminder from The Family History Lifestyle Study', $body, self::getEmailHeaders());
               update_user_meta($user->ID,  self::getOptionKey(self::lastReminderDateKey), current_time('Y-m-d H:i:s')); 
           }
         

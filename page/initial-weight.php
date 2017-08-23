@@ -1,6 +1,6 @@
 <?php
 echo GenesisThemeShortCodes::readingBox(
-    "Thank you for participating in the PROCAS Lifestyle Research Study",
+    "Thank you for participating in The Family History Lifestyle Study",
     "Before we can get you up and running we just need to know what your current weight is."
 );
 

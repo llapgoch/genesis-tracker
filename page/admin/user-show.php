@@ -1,6 +1,6 @@
 <div class="wrap">
     <h2>
-        Procas User Details
+        Family History Lifestyle Study User Details
         <a class="add-new-h2" href="<?php echo $userEditLink;?>">Edit User</a>
     </h2>
     
