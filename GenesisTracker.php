@@ -22,7 +22,7 @@ class GenesisTracker{
     const adminNoticesSessionKey      = "___ADMIN_NOTICES";
     const registrationPasswordEmailSessionKey = "___REGISTRATION_PASSWORD_EMAIL__";
     const targetPageId = "tracker_page";
-    const alternateContactEmail = "dave_preece@mac.com";
+    const alternateContactEmail = "hello@fhlstudy.co.uk";
     
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
