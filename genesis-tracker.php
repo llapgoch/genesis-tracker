@@ -437,7 +437,7 @@ function extra_user_profile_fields($user){
             </tr>
             <tr>
                 <th>
-                    <label for="user_id"><?php _e("Web ID")?></label>
+                    <label for="user_id"><?php _e("Study Number")?></label>
                 </th>
                 <td>
 
