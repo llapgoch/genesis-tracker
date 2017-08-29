@@ -81,16 +81,9 @@ class GenesisTracker{
     const INCLUDE_ADMIN_USERS_IN_AVERAGES = true;
     
     protected static $eligibilityPasswords = array(
-        "PLSC1L",
-        "PLSC2A",
-        "PLSC3B",
-        "PLSC4H",
-        "PLHC1L",
-        "PLHC2A",
-        "PLHC3B",
-        "PLHC4H",
-        "PLHCX",
-        "PLSCX"
+        "FHLUHS",
+        "FHLTGH",
+        "FHLWSM"
     );
     
 
