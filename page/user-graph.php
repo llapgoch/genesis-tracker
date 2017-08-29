@@ -1,3 +1,29 @@
+<?php if(count($achievementMessages)): ?>
+    <div class="achievements">
+        <?php echo GenesisThemeShortCodes::achievementBox(
+            "",
+            "
+             <div class='msg-inner-container'>
+                <div class='alert-inner-icon'>
+                <svg class=\"star-congratulations\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" 
+        width=\"12px\" height=\"11.5px\" viewBox=\"0 0 12 11.5\">
+                    <path d=\"M6,8.8l3.7,2.7L8.3,7.1L12,4.5H7.4L6,0L4.6,4.5H0l3.7,2.6l-1.4,4.4L6,8.8z\"/>
+                </svg>
+                </div>
+                <div class='alert-icon-message'>
+                    <h2>Exercise Achievement!</h2>
+                    <p>In the last week, you've...</p>
+                    <ul>
+                    " . "<li>".implode('</li><li>', $achievementMessages)."</li>
+                    </ul>
+                    <p>Well Done, keep up the great work!</p>
+                </div>
+            </div>
+              "
+        );?>
+    </div>
+<?php endif; ?>
+
 <div class="progress-graph-switcher">
 	<div class="button-container">
         <div class="button-group measurement">
@@ -8,10 +34,10 @@
                 <button class="green button large" data-mode="exercise_minutes_resistance">Resistance Exercise</button>
     	        <div class="extended-button">
                     <button class="purple button large" data-mode="weight_loss">Weight Progress</button>
-                    <!-- <div class="averages">
+                     <div class="averages">
                         <input type="checkbox" name="averages" id="averages" />
-                        <label for="averages"><?php _e('Average weight loss for other women on the study'); ?></label>
-                    </div> -->
+                        <label for="averages"><?php _e('Show weight loss for all participants'); ?></label>
+                    </div>
                 </div>
             </div>
         	
@@ -22,9 +48,9 @@
             <button class="blue button large" data-mode="unrestricted-days">View Your Most Recent Logs</button>
         </div>
     </div>
-    
-	
 </div>
+
+
 
 <div class="data-container user-data-container">
     <div class="genesis-graph-container">
@@ -34,7 +60,7 @@
         		<option value="2">Kilograms</option>
         	</select>
             <!-- if displays need to add a legend to the graph -->
-            <div class="graph-legend"><h3>This is your weight change since you started the study</h3></div>
+            <div class="graph-legend"><h3>This is your weight change since you started the programme</h3></div>
         </div>
     	
     	<div class="genesis-progress-graph">
@@ -79,7 +105,7 @@
         <?php else : ?>
         	<div class="alert-warning fusion-alert alert notice">
         		<div class="msg">
-        			<h2>You haven't saved any unrestricted diet tracker entries yet</h2>
+        			<h2>You haven't saved any diet tracker entries yet</h2>
         			<a href="<?php echo $userInputPage;?>">Record one now</a>
         		</div>
         	</div>

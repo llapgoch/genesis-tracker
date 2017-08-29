@@ -4,7 +4,7 @@ class GenesisTracker{
     const UNIT_METRIC = 2;
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
-    const version = "1.40";
+    const version = "1.46";
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -18,12 +18,14 @@ class GenesisTracker{
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
     const adminNoticesSessionKey      = "___ADMIN_NOTICES";
+    const registrationPasswordEmailSessionKey = "___REGISTRATION_PASSWORD_EMAIL__";
     const targetPageId = "tracker_page";
-    const alternateContactEmail = "dave_preece@mac.com";
+    const alternateContactEmail = "hello@2daywythenshawe.co.uk";
     
     const minHealthyWeightKey = "min_healthy_weight";
     const maxHealthyWeightKey = "max_healthy_weight";
     const weightTargetKey     = "weight_target";
+    const weightTargetLongTermKey = "weight_target_long_term";
     const sixMonthWeightTargetKey = "weight_target_six_months";
     const twelveMonthWeightTargetKey = "weight_target_twelve_months";
     const lastReminderDateKey = "last_reminder_date";
@@ -33,7 +35,6 @@ class GenesisTracker{
     const userActiveCol = "account_active";
     const passcodeGroupCol = "passcode_group";
     const userStartWeightCol = "start_weight";
-    const userContactedCol = "user_contacted";
     const userWithdrawnCol = "withdrawn";
     const userNotesCol     = "notes";
     const sixMonthWeightCol = "six_month_weight";
@@ -43,7 +44,9 @@ class GenesisTracker{
     const userStartDateCol = "start_date";
     const studyGroupCol = "study_group";
     const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
-    
+    const showMedCol = "show_med";
+    const genderCol = "gender";
+
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
     const averageDataKey = "average_data";
@@ -55,6 +58,7 @@ class GenesisTracker{
                                 <span class="form-input-error">[ERROR]</span></div>';
     const editCapability = "edit_genesis";
     const userDataCacheKey = "genesis_admin_user_data";
+
     
     // 7 Stone
     const MIN_VALID_WEIGHT = 44.4;
@@ -65,10 +69,17 @@ class GenesisTracker{
     const MIN_VALID_HEIGHT = 0.5;
     const MAX_VALID_HEIGHT = 2.5;
 
+    const AEROBIC_EXERCISE_ACHIEVEMENT = 150;
+    const RESISTANCE_AMOUNT_ACHIEVEMENT = 3;
+
     const FOUR_WEEK_SEND_TYPE_MANUAL = 'MANUAL';
     const FOUR_WEEK_SEND_TYPE_AUTOMATIC = 'AUTOMATIC';
     
     const CACHE_DIR = "genesis-tracker";
+
+    // TODO: MAKE SURE THIS IS ENABLED
+    const CACHE_ENABLED = false;
+    const INCLUDE_ADMIN_USERS_IN_AVERAGES = true;
     
     protected static $eligibilityPasswords = array(
         "PLSC1L",
@@ -91,14 +102,14 @@ class GenesisTracker{
 
     // NOTE: It appears these have switched - med values are actually personal portions!
     protected static $_userMetaTargetFields = array(
-        "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "med" => "0"),
-        "protein" => array("name" => "Protein", "unit" => "portions", "med" => "Between 4 and 12 a day"),
-        "dairy" => array("name" => "Dairy", "unit" => "portions", "med" => "3 a day"),
-        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "med" => "5 a day"),
-        "fruit" => array("name" => "Fruit", "unit" => "portions", "med" => "1 a day"),
-        "fat" => array("name" => 'Fat', "unit" => "portions", "med" =>  "Maximum of 5 a day"),
-        "treat" => array("name" => "Treat", "unit" => "portions", "med" => "0"),       
-        "alcohol" => array("name" => "Alcohol", "unit" => "units", "med" => "0")
+        "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "male" => "0", "female" => "0"),
+        "protein" => array("name" => "Protein", "unit" => "portions", "male" => "Between 6 and 11", "female" => "Between 5 and 9"),
+        "dairy" => array("name" => "Dairy", "unit" => "portions", "male" => "Aim for 3", "female" => "Aim for 3"),
+        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "male" => "Aim for 5", "female" => "Aim for 5"),
+        "fruit" => array("name" => "Fruit", "unit" => "portions", "male" => "Aim for 1", "female" => "Aim for 1"),
+        "fat" => array("name" => 'Fat', "unit" => "portions", "male" => "Maximum of 4", "female" => "Maximum of 3"),
+        "treat" => array("name" => "Treat", "unit" => "portions", "male" => "0", "female" => "0"),
+        "alcohol" => array("name" => "Alcohol", "unit" => "units", "male" => "0", "female" => "0")
     );
 
     
@@ -108,6 +119,25 @@ class GenesisTracker{
         "evening" => array("name" => "Evening"),
         "snacks" => array("name" => "Snacks"),
         "drinks" => array("name" => "Drinks")
+    );
+
+    protected static $_exerciseTypes = array(
+        "light" => array("name" => "Light", "color" => '#f49ac1'),
+        "moderate" => array("name" => "Moderate", "color" => '#fbaf5d'),
+        "vigorous" => array("name" => "Vigorous", "color" => '#ed1c24')
+    );
+
+    protected static $_exerciseTypesResistance = array(
+        "arms" => array("name" => "Arms", "color" => "#f49ac1"),
+        "legs" => array("name" => "Legs", "color" => "#77f6ed"),
+        "trunk" => array("name" => "Trunk", "color" => "#76dfaa"),
+        "combination" => array("name" => "Combination", "color" => "#8560a8"),
+        "whole" => array("name" => "Whole Body", "color" => "#f84451")
+    );
+
+    public static $genders = array(
+        "male" => array("name" => "Male"),
+        "female" => array("name" => "Female")
     );
     
     
@@ -160,6 +190,10 @@ class GenesisTracker{
           weight decimal(10,6) unsigned DEFAULT NULL,
           exercise_minutes int(11) DEFAULT NULL,
           exercise_minutes_resistance int(11) DEFAULT NULL,
+          exercise_type varchar(255) DEFAULT NULL,
+          exercise_type_resistance varchar(255) DEFAULT NULL,
+          exercise_description text DEFAULT NULL,
+          exercise_description_resistance text DEFAULT NULL,
           weight_unit tinyint(1) unsigned DEFAULT 1,
           PRIMARY KEY  (tracker_id),
           KEY user_id (user_id)
@@ -202,6 +236,10 @@ class GenesisTracker{
           `time` varchar(255) DEFAULT NULL,
           `value` decimal(5,2) DEFAULT NULL,
           PRIMARY KEY  (`food_log_id`),
+          KEY `tracker_id` (`tracker_id`),
+          KEY `time` (`time`),
+          KEY `food_type_time` (`food_type`,`time`),
+          KEY `tracker_id_time_food_type` (`tracker_id`,`time`,`food_type`)
           KEY `tracker_id` (`tracker_id`)
         )");
         
@@ -210,7 +248,9 @@ class GenesisTracker{
           `tracker_id` int(10) unsigned NOT NULL,
           `time` varchar(255) DEFAULT NULL,
           `description` text,
-          PRIMARY KEY  (`id`)
+          PRIMARY KEY  (`id`),
+          KEY `time` (`time`),
+          KEY `tracker_id` (`tracker_id`)
         )");
         
         $userDataTableExists = self::checkTableExists(self::getUserDataTableName()); 
@@ -231,6 +271,8 @@ class GenesisTracker{
           `start_date` datetime DEFAULT NULL,
           `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
           `study_group` varchar(255) DEFAULT NULL,
+          `show_med` varchar(255) DEFAULT NULL,
+          `gender` varchar(255) DEFAULT 'female'
           PRIMARY KEY  (`id`)
         )");
         
@@ -391,10 +433,10 @@ class GenesisTracker{
          $registerUrl = wp_registration_url();
          $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
          
-         if(self::isOnRegistrationPage()){
-            wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
+         if(self::isOnRegistrationPage() || self::isOnLoginPage()){
+             wp_enqueue_script('login', plugins_url('js/login.js', __FILE__), array('jquery'));
+             wp_localize_script('login', 'wpBaseUrl', get_site_url());
          }
-    
         
         // We set the username as the email address
         if($registerUrl == $currentUrl && count($_POST)){
@@ -494,19 +536,17 @@ class GenesisTracker{
              update_user_meta($user_id, 'tel', trim($_POST['tel']));
          }
          
-//         if( isset( $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]) ){
-//             GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
-//         }
-         
          $userdata = array();
          $userdata['ID'] = $user_id;
          $userdata['user_pass'] = trim($_POST['password']);
-         
+
+         $_SESSION[self::registrationPasswordEmailSessionKey] = true;
+
          $user_id = wp_update_user( $userdata );
          update_user_option( $user_id, 'default_password_nag', 0, true );
-         
+
          GenesisTracker::setUserData($user_id, self::userActiveCol, 0);
-         
+
          $plaintext_pass = trim($_POST['password']);
          
          // Send our registration email with the new email
@@ -531,8 +571,9 @@ class GenesisTracker{
             self::getLogoUrl()
         ), $contents);
         
-        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
-        
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the 2 Day Wythenshawe Programme', $contents, $headers);
+
+         unset($_SESSION[self::registrationPasswordEmailSessionKey]);
      }
      
      public static function getEligibilityQuestions(){
@@ -585,7 +626,6 @@ class GenesisTracker{
     
          // Check whether the user has been activated
          $activeKey = self::userActiveCol;
-         $contactedKey = self::userContactedCol;
          $withdrawnKey = self::userWithdrawnCol;
          $notesKey     = self::userNotesCol;
          $startDateKey = self::userStartDateCol;
@@ -613,14 +653,6 @@ class GenesisTracker{
              }
          }
 
-
-         self::setUserData($user->ID, self::userStartDateCol, $date);
-         
-         // Check whether the user has been contacted
-         if(isset($_POST[$contactedKey])){
-             $contacted = (int) $_POST[$contactedKey];
-             self::setUserData($user_id, $contactedKey, $contacted);
-         }
          
          if(isset($_POST[$withdrawnKey])){
              $withdrawn = (int) $_POST[$withdrawnKey];
@@ -658,7 +690,7 @@ class GenesisTracker{
          );
          
          
-          wp_mail($user->user_email, 'Your Genesis PROCAS account has been activated', $body, self::getEmailHeaders());
+          wp_mail($user->user_email, 'Your 2 Day Wythenshawe Programme account has been activated', $body, self::getEmailHeaders());
      }
 
      public static function getuserMetaTargetFields(){
@@ -668,6 +700,14 @@ class GenesisTracker{
      public static function getUserTargetTimes(){
          return self::$_userTargetTimes;
      }
+
+    public static function getExerciseTypes(){
+        return self::$_exerciseTypes;
+    }
+
+    public static function getResistanceExerciseTypes(){
+        return self::$_exerciseTypesResistance;
+    }
      
      public static function getUserTargetLabel($key, $user_id = null){
          $user_id = !is_null($user_id) ? $user_id : get_current_user_id();
@@ -998,6 +1038,74 @@ class GenesisTracker{
          wp_redirect(wp_registration_url());
          exit;
      }
+
+
+    public static function getLastMondayDate(){
+        return date('Y-m-d',strtotime('last monday'));
+    }
+
+    public static function getExerciseAchievementMessages($user_id){
+        $resistanceAchievements = self::getNumberOfResistanceAchievementsForLastWeek($user_id);
+        $aerobicMinutes = self::getMinutesOfAerobicAchievementsForLastWeek($user_id);
+        $messages = array();
+
+        if($aerobicMinutes >= self::AEROBIC_EXERCISE_ACHIEVEMENT){
+            $messages[] = "Completed a combination of <strong>" . self::AEROBIC_EXERCISE_ACHIEVEMENT . " minutes moderate</strong> or <strong>" . (self::AEROBIC_EXERCISE_ACHIEVEMENT/2) . " minutes vigorous</strong> aerobic exercise!";
+        }
+
+        if($resistanceAchievements >= self::RESISTANCE_AMOUNT_ACHIEVEMENT){
+            $messages[] = "Completed three or more resistance exercises of <strong>arms, legs, or trunk</strong>!";
+        }
+
+        return $messages;
+    }
+
+
+     public static function getNumberOfResistanceAchievementsForLastWeek($user_id){
+         global $wpdb;
+         
+         $dateFrom = self::getLastMondayDate();
+
+         $result = $wpdb->get_row(
+             $sql = $wpdb->prepare(
+                 "SELECT count(*) as resistance_count
+                    FROM genwp_genesis_tracker 
+	              WHERE exercise_type_resistance IN ('arms','legs','trunk')
+                    AND user_id=%d
+                    AND measure_date >= {$dateFrom}", $user_id
+             )
+         );
+
+
+         return $result->resistance_count;
+     }
+
+
+     public static function getMinutesOfAerobicAchievementsForLastWeek($user_id){
+         global $wpdb;
+
+         $dateFrom = self::getLastMondayDate();
+
+         $result = $wpdb->get_row(
+            $sql = $wpdb->prepare("
+                SELECT IF(ISNULL(type_moderate.total), 0, type_moderate.total) + (IF(ISNULL(type_vigorous.total), 0, type_vigorous.total) * 2) as total  FROM
+                         (SELECT SUM(`exercise_minutes`) as total
+                    FROM genwp_genesis_tracker
+                    WHERE genwp_genesis_tracker.`exercise_type`='moderate' 
+                      AND measure_date >= {$dateFrom}
+                      AND user_id=%d
+                ) as type_moderate,
+                (SELECT SUM(`exercise_minutes`) as total
+                    FROM genwp_genesis_tracker
+                    WHERE genwp_genesis_tracker.`exercise_type`='vigorous'
+                      AND measure_date >= {$dateFrom}
+                      AND user_id=%d
+                ) as type_vigorous", $user_id, $user_id
+            )
+         );
+
+        return $result->total;
+     }
      
      public function getClientIp(){
          $ip = '';
@@ -1159,10 +1267,16 @@ class GenesisTracker{
      
      public static function saveInitialWeight($form, $user_id){
          global $wpdb;
+
+         if(!$user_id){
+             return false;
+         }
          
          $rules = array(
              'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
          );
+
+
          
          $unit     = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL ? self::UNIT_IMPERIAL : self::UNIT_METRIC;
          $imperial = $form->getRawValue('weight_unit') == self::UNIT_IMPERIAL;
@@ -1379,6 +1493,8 @@ class GenesisTracker{
          if($form->getRawValue('record-exercise')){
              $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
              $rules['exercise_minutes_resistance'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
+             $rules['exercise_type'] = array('R');
+             $rules['exercise_type_resistance'] = array('R');
          }
          
          if($form->getRawValue('record-food')){
@@ -1416,7 +1532,7 @@ class GenesisTracker{
              return;
          }
          
-         if($logDate <= strtotime(self::getInitialUserStartDate(get_current_user_id()))){
+         if($logDate < strtotime(self::getInitialUserStartDate(get_current_user_id()))){
              $form->setError('measure_date', array(
                  'general' => 'Your measurement date must be after your start day',
                  'main' => 'Your measurement date must be after your start day'
@@ -1466,11 +1582,16 @@ class GenesisTracker{
          if($form->hasValue('record-exercise')){
              if((float)$form->getRawValue('exercise_minutes') > 0){
                  $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
+                 $data['exercise_type'] = $form->getRawValue('exercise_type');
+                 $data['exercise_description'] = $form->getRawValue('exercise_description');
              }
              
              if((float)$form->getRawValue('exercise_minutes_resistance') > 0){
                  $data['exercise_minutes_resistance'] = (float)$form->getRawValue('exercise_minutes_resistance');
+                 $data['exercise_type_resistance'] = $form->getRawValue('exercise_type_resistance');
+                 $data['exercise_description_resistance'] = $form->getRawValue('exercise_description_resistance');
              }
+
          }
          
          // Remove Food Logs
@@ -1736,6 +1857,14 @@ class GenesisTracker{
     public static function getUserStudyGroup($user_id){
         return GenesisTracker::getUserData($user_id, self::studyGroupCol);
     }
+
+    public static function getShowMed($user_id){
+        return GenesisTracker::getUserData($user_id, self::showMedCol);
+    }
+
+    public static function getUserGender($user_id){
+        return GenesisTracker::getUserData($user_id, self::genderCol);
+    }
      
      public static function isUserSixMonths($user_id){        
         return (bool) get_user_meta($user_id, self::getOptionKey(self::sixMonthDateKey), true);
@@ -1802,8 +1931,12 @@ class GenesisTracker{
     public static function getTotalFoodLogs($user_id, $limit = 7){
         global $wpdb;
         // Build the aggregates for each value we want to pull out
+        $aggregates = array();
+        $nonZeros = array();
+
         foreach(self::$_userMetaTargetFields as $targetKey => $targetVal){
             $aggregates[] = sprintf("SUM(CASE WHEN fl.`food_type` = '%s' THEN fl.`value` ELSE NULL END) as %s", $targetKey, $targetKey);
+            $nonZeros[] = sprintf("%s > 0 ", $targetKey);
         }
         
          $results = $wpdb->get_results($sql = $wpdb->prepare(
@@ -1813,6 +1946,7 @@ class GenesisTracker{
                "JOIN " . self::getFoodLogTableName() . " fl USING(tracker_id)
              WHERE user_id=%d 
                GROUP BY t.tracker_id
+               HAVING (" . (implode(" OR ", $nonZeros)) . ") 
                ORDER BY measure_date DESC 
                LIMIT %d", $user_id, $limit
          ));
@@ -1830,10 +1964,22 @@ class GenesisTracker{
          if($startWeight = self::getInitialUserWeight($user_id)){
              $weightQ = ", ($startWeight - weight) as weight_loss ";
          }
-                 
+
+         // Always provide a from date, whichever's greater - the user start date or the passed in date
+         $userStartDate = self::getInitialUserStartDate($user_id);
+
          if($startDate){
-             $dateConstraint = "AND measure_date >= '$startDate'";
+             $startDateTimeStamp = strtotime($startDate);
+             $userStartDateTimeStamp = strtoTime($userStartDate);
+
+             if($userStartDateTimeStamp > $startDateTimeStamp){
+                 $startDate = $userStartDate;
+             }
+         }else{
+             $startDate = $userStartDate;
          }
+
+         $dateConstraint = "AND measure_date >= '$startDate'";
         
          if($endDate){
              $dateConstraint .= " AND measure_Date <= '$endDate'";
@@ -1856,10 +2002,14 @@ class GenesisTracker{
             ORDER BY measure_date", $user_id
          ));
 
+
+         $date = new DateTime(self::getInitialUserStartDate($user_id));
+         $date->modify("- 1 day");
          
          $start = new stdClass();
          $start->user_id = $user_id;
-         $start->measure_date = self::getInitialUserStartDate($user_id);
+         // Set the initial weight as the day before the start date
+         $start->measure_date = $date->format('Y-m-d H:i:s');
          $start->weight = self::getInitialUserWeight($user_id);
          $start->weight_loss = 0;
          
@@ -1872,12 +2022,18 @@ class GenesisTracker{
          
          return $results;
      }
+
      
      // Pass in an array of keys to average in $avgVals
      public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
-         
 
-         $userData = self::getAllUserLogs($user_id, $startDate, $endDate);         
+         $userData = self::getAllUserLogs($user_id, $startDate, $endDate);
+         $userStartDate = self::getInitialUserStartDate($user_id);
+         $userStartDateTimestamp = strtotime($userStartDate);
+
+         // Day Length *= 1000
+         $dayLength = 86400000;
+
          $weightInitial = array();
          // Get the user's start weight in imperial and metric
          $weightInitial['initial_weight'] = self::getInitialUserWeight($user_id);
@@ -1936,9 +2092,32 @@ class GenesisTracker{
                      }
                  
                      $collated[$valToCollate]['timestamps'][] = $timestamp;
+
+                     $additionalData = array();
+
+                     if($valToCollate == 'exercise_minutes'){
+                         $additionalData['type'] = $log->exercise_type;
+                         $additionalData['description'] = $log->exercise_description;
+
+                         if(isset(self::$_exerciseTypes[$log->exercise_type])){
+                             $additionalData['label'] = self::$_exerciseTypes[$log->exercise_type]['name'];
+                             $additionalData['color'] = self::$_exerciseTypes[$log->exercise_type]['color'];
+                         }
+                     }
+
+                     if($valToCollate == 'exercise_minutes_resistance'){
+                         $additionalData['type'] = $log->exercise_type_resistance;
+
+                         if(isset(self::$_exerciseTypesResistance[$log->exercise_type_resistance])){
+                             $additionalData['label'] = self::$_exerciseTypesResistance[$log->exercise_type_resistance]['name'];
+                             $additionalData['color'] = self::$_exerciseTypesResistance[$log->exercise_type_resistance]['color'];
+                         }
+                         
+                         $additionalData['description'] = $log->exercise_description_resistance;
+                     }
                 
                      $collated[$valToCollate]['data'][] = array(
-                         $timestamp, $log->$valToCollate
+                         $timestamp, $log->$valToCollate, $additionalData
                      );
                  
                  
@@ -1979,6 +2158,8 @@ class GenesisTracker{
          
          if($fillAverages){
              $newCollated = array();
+
+
              
              foreach($avgVals as $avgVal){
                  $newCollated = array();
@@ -1997,8 +2178,6 @@ class GenesisTracker{
                     
                     // Subsequent loops, calculate the differences
                     $last =  end($newCollated);
-                    // Day Length *= 1000 
-                    $dayLength = 86400000;
                     // One day less to fill the gaps in
                     $daysBetween = max(1, floor(($data[0] - $last[0]) / $dayLength));
                     
@@ -2022,6 +2201,7 @@ class GenesisTracker{
                  
                  $collated[$avgVal]['data'] = $newCollated;
              }
+
          }
          
          if($keyAsDate){
@@ -2088,6 +2268,10 @@ class GenesisTracker{
      }
      
      public static function getCacheData($key){
+         if(!self::CACHE_ENABLED){
+             return null;
+         }
+
          if(!file_exists(self::getCachePath() . base64_encode($key))){
              return null;
          }
@@ -2108,77 +2292,83 @@ class GenesisTracker{
          First, we get all user data and fill in the averages for each day inbetween, this could be expensive on its own.
          Then we key that data by date, then merge it into an array of all values using the date as key.  
          Then we average each value for the date.
+
+        $endDateRanges contain maximum dates which to get values for each type for, the points array will be capped using
+        this.
      */
-     public static function getAverageUsersGraphData($rangeDates){ 
+     public static function getAverageUsersGraphData($alignToStartDate = null, $endDateRanges = null){
          // Update to include admins
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
-         
+
         if($averages === null){
-            $averages = self::generateAverageUsersGraphData(true);
-        };
+            $averages = self::generateAverageUsersGraphData(self::INCLUDE_ADMIN_USERS_IN_AVERAGES == false);
+        }
         
         if(!$averages){
             return;
         }
-        
 
-        // Trim the data so we only have between the dates we need
-        // This used to be done in the method which now caches all user data
-        foreach($averages as $averageKey => &$averageData){
-            unset($averageData['yMin']);
-            unset($averageData['yMax']);
-            
-            $startTime = null;
-            $endTime = null;
-            
-            $minKey = $averageKey . "_min";
-            $maxKey = $averageKey . "_max";
-            
-            if($averageKey == 'weight_loss_imperial'){
-                $minKey = 'weight_loss_min';
-                $maxKey = 'weight_loss_max';
-            }
-            
-            if($rangeDates->$minKey){
-                $startTime = strtotime($rangeDates->$minKey) * 1000;
-            }elseif($rangeDates->minDate){
-                $startTime = strtotime($rangeDates->minDate) * 1000;
-            }
-            
-            if($rangeDates->$maxKey){
-                $endTime = strtotime($rangeDates->$maxKey) * 1000;
-            }elseif($rangeDates->maxDate){
-                $endTime = strtotime($rangeDates->maxDate) * 1000;
-            }
-            
-            
-            foreach($averageData['data'] as $dataKey => &$dataPoint){
-                
-                if($startTime !== null && $dataPoint[0] < $startTime){
-                    unset($averageData['data'][$dataKey]);
-                    continue;
-                }
-                
-                if($endTime !== null && $dataPoint[0] > $endTime){
-                     unset($averageData['data'][$dataKey]);
-                     continue;
-                }
-                
+         $dayLength = 86400;
 
-                if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['yMin']){
-                    $averageData['yMin'] = $dataPoint[1];
-                }
-                
-                if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['yMax']){
-                    $averageData['yMax'] = $dataPoint[1];
-                }
-            }
-            
-            // Because the array has had items removed from it, the index is no longer sequential
-            // So it becomes an assoc array (and object when json_encoded). Make it indexed here.
-            $averageData['data'] = array_values($averageData['data']);
-        }
-        
+
+
+         // Change the indexed data points to date keys for the user ID
+         if($alignToStartDate && ($alignToStartDateTimestamp = strtotime($alignToStartDate))){
+
+
+             foreach($averages as $type => &$points){
+                 $endTime = null;
+
+                 if($type == 'weight_loss_imperial'){
+                     $maxKey = 'weight_loss_max';
+                 }else{
+                     $maxKey = $type . "_max";
+                 }
+
+                 if($endDateRanges->$maxKey){
+                     $endTime = strtotime($endDateRanges->$maxKey);
+                 }elseif($endDateRanges->maxDate){
+                     $endTime = strtotime($endDateRanges->maxDate);
+                 }
+
+                 $pointCount = 0;
+
+                 foreach($points['data'] as $index => &$point){
+                     $timestamp = ($alignToStartDateTimestamp + ($index * $dayLength));
+
+                     // Cap this type at the endTime if we have one
+                     if($endTime !== null && $timestamp > $endTime){
+                         array_splice($points['data'], $pointCount);
+                         break;
+                     }
+
+                     $point[0] = $timestamp * 1000;
+                     $pointCount++;
+                 }
+             }
+         }
+
+         // Trim the data so we only have between the dates we need
+         // This used to be done in the method which now caches all user data
+         foreach($averages as $averageKey => &$averageData){
+             unset($averageData['yMin']);
+             unset($averageData['yMax']);
+
+             foreach($averageData['data'] as $dataKey => &$dataPoint){
+                 if(!isset($averageData['yMin']) || $dataPoint[1] < $averageData['yMin']){
+                     $averageData['yMin'] = $dataPoint[1];
+                 }
+
+                 if(!isset($averageData['yMax']) || $dataPoint[1] > $averageData['yMax']){
+                     $averageData['yMax'] = $dataPoint[1];
+                 }
+             }
+
+             // Because the array has had items removed from it, the index is no longer sequential
+             // So it becomes an assoc array (and object when json_encoded). Make it indexed here.
+             $averageData['data'] = array_values($averageData['data']);
+         }
+
         return $averages;
      }
      
@@ -2203,35 +2393,42 @@ class GenesisTracker{
          // Get all of the values in an array with the timestamp as key so se can easily loop over them
          foreach($users as $user){
              $graphData = self::getUserGraphData($user->ID, true, $averageValues, true);
-              
+
              if(!$graphData){
                  continue;
              }
              
-             foreach($graphData as $key => &$measurementSet){ 
+             foreach($graphData as $key => &$measurementSet){
                  if(!isset($measurementSet['data']) || !in_array($key, $averageValues)){
                      continue;
                  }
                  if(!isset($structure[$key])){
                      $structure[$key] = array();
-                 }                 
-                 
-                 foreach($measurementSet['data'] as $date => $measurement){
-                     if(!isset($structure[$key][$date])){
-                         $structure[$key][$date] = array();
-                     }
-                     $structure[$key][$date][] = $measurement;
                  }
-                 
+
+
+                 // Average using an index as the key, rather than using the dates.
+                 // This way, we align each user's start date
+                 $index = 0;
+
+                 foreach($measurementSet['data'] as $date => $measurement){
+                     if(!isset($structure[$key][$index])){
+                         $structure[$key][$index] = array();
+                     }
+                     $structure[$key][$index][] = $measurement;
+
+                     $index++;
+                 }
              }
          }
+
          
          // Now average them!
          $averages = array();
          
-         foreach($structure as $key => $dates){
+         foreach($structure as $key => $items){
               
-             foreach($dates as $date => $measurements){
+             foreach($items as $item => $measurements){
                  
                  $avg = array_sum($measurements) / count($measurements);
                  
@@ -2243,25 +2440,10 @@ class GenesisTracker{
  //                      $averages[$key]['yMax'] = $avg;
  //                  }
                  
-                 $averages[$key]['data'][] = array($date, $avg);
+                 $averages[$key]['data'][] = array($item, $avg);
              }
 
-             // Sort by date
-             if(isset($averages[$key]['data'])){
-                  usort($averages[$key]['data'], function($a, $b){
-                     
-                     
-                      if($a[0] == $b[0]){
-                          return 0;
-                      }
-                  
-                      if($a[0] < $b[0]){
-                          return -1;
-                      }
-                  
-                      return 1;
-                  });
-              }
+
          }
          
          self::setCacheData(self::getOptionKey(self::averageDataKey), $averages, 86400);
@@ -2293,20 +2475,73 @@ class GenesisTracker{
 
          // Look up food targets using the tracker_id if we have one
          $foodData = array();
-         $foodDescriptions = array();
+         $foodDescription = array();
+         $autofillFoods = self::getAutofillFoods($user_id);
          
          if($measureDetails->tracker_id){
              $foodData = self::getUserFoodLogsForTracker($measureDetails->tracker_id);
              $foodDescription = self::getUserFoodDescriptionsForTracker($measureDetails->tracker_id);
          }
+
+         // Get previously entered foods for
          
          return array(
              "date_picker" =>self::getDateListPicker($day, $month, $year),
              "measure_details" => $measureDetails,
              "food_log" => $foodData,
-             "food_descriptions" => $foodDescription 
+             "food_descriptions" => $foodDescription,
+             "autofill_foods" => $autofillFoods
         );
      }
+
+
+    public static function getAutofillFoods($user_id){
+        global $wpdb;
+
+        $foodLogTableName = self::getFoodLogTableName();
+        $foodColumns = "";
+        $foodJoins = "";
+        $outerColumns = "value, time, " . implode(",", array_keys(self::$_userMetaTargetFields));
+        $collated = array();
+
+        foreach(self::$_userMetaTargetFields as $target => $value){
+            $foodColumns .= ($foodColumns ? "," : "") . " food_log_{$target}.value as {$target}";
+            $foodJoins .= " LEFT JOIN {$foodLogTableName} food_log_{$target}
+            ON description.tracker_id = food_log_{$target}.tracker_id
+                AND food_log_{$target}.time = description.time
+                AND food_log_{$target}.food_type = '{$target}'";
+        }
+
+        $results = $wpdb->get_results(
+            $sql = $wpdb->prepare( "SELECT DISTINCT {$outerColumns} FROM
+              (SELECT DISTINCT description.`time`, description.description as value, {$foodColumns}
+                  FROM " . self::getTrackerTableName() . " tracker
+                JOIN  " . self::getFoodDescriptionTableName() . " description
+                    ON description.tracker_id = tracker.tracker_id 
+                	AND description <> ''
+                {$foodJoins}
+                WHERE tracker.user_id=%d
+                ORDER BY time, tracker.`tracker_id` DESC) as orderer", $user_id
+            )
+        );
+
+        // Only use the latest entry from any description so that we don't get duplicates with different values
+        $usedEntries = array();
+
+        foreach($results as $res){
+            if(!isset($collated[$res->time])){
+                $collated[$res->time] = array();
+                $usedEntries[$res->time] = array();
+            }
+
+            if(!in_array($res->value, $usedEntries[$res->time])) {
+                $collated[$res->time][] = $res;
+                $usedEntries[$res->time][] = $res->value;
+            }
+        }
+
+        return $collated;
+    }
      
      public static function getDateListPicker($day, $month, $year, $forUser = true, $selected = array()){
          global $wpdb;
@@ -2391,6 +2626,8 @@ class GenesisTracker{
          }
          
          if(self::isOnUserPage()){
+             $userId = get_current_user_id();
+
              add_action( 'wp_head', function() {
                 echo '<!--[if lt IE 9]><script src="' . plugins_url("js/excanvas.min.js", __FILE__) . '"></script><![endif]-->';
              });
@@ -2399,11 +2636,13 @@ class GenesisTracker{
               wp_enqueue_script('flot-time', plugins_url('js/jquery.flot.time.min.js', __FILE__), array('flot'));
               wp_enqueue_script('flot-navigate', plugins_url('js/jquery.flot.navigate.min.js', __FILE__), array('flot'));
               wp_enqueue_script('user-graph', plugins_url('js/UserGraph.js', __FILE__), array('flot-navigate'));
-              
-              $dateRange = self::getUserDateRange(get_current_user_id());
-              
+             
               wp_localize_script('flot', 'userGraphData', self::getUserGraphData(get_current_user_id()));
-              wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($dateRange));
+
+              $startDate = self::getInitialUserStartDate($userId);
+              $dateRanges = self::getUserDateRange($userId);
+
+              wp_localize_script('flot', 'averageUserGraphData', self::getAverageUsersGraphData($startDate, $dateRanges));
               
                wp_enqueue_script('responsive-tables', plugins_url('js/responsive-tables.js', __FILE__));
                wp_enqueue_style('responsive-tables-css', plugins_url('css/responsive-tables.css', __FILE__));
@@ -2412,6 +2651,9 @@ class GenesisTracker{
         wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
              'jquery'  
         ));
+
+
+
          if(self::isOnUserPage() || self::isOnUserInputPage() || self::isOnTargetPage() || self::isOnEnterWeightPage() || self::isOnEligibilityPage()){    
            
             
@@ -2707,7 +2949,7 @@ class GenesisTracker{
           self::updateOption(self::prescriptionPageId, $post_id);
      }
      
-     public static function createIneligiblePage($overwite = false){
+     public static function createIneligiblePage($overwrite = false){
          // Create the page which allows users to enter a target weight and date
          $pageID = self::getOption(self::ineligiblePageId);
           $post = get_post($pageID);
@@ -2766,7 +3008,7 @@ class GenesisTracker{
      
      public static function getEmailHeaders(){
           $headers = array();
-          $headers[] = 'From: Procas Lifestyle Research <'. get_option('admin_email') .'>';
+          $headers[] = 'From: The 2 Day Wythenshawe Programme <'. get_option('admin_email') .'>';
           $headers[] = 'MIME-Version: 1.0';
           $headers[] = 'Content-type: text/html; charset=utf-8';
         
@@ -2826,7 +3068,7 @@ class GenesisTracker{
           );
 
           foreach($users as $user){   
-              wp_mail($user->user_email, 'A reminder from PROCAS', $body, self::getEmailHeaders());
+              wp_mail($user->user_email, 'A reminder from 2 Day Wythenshawe', $body, self::getEmailHeaders());
               update_user_meta($user->ID,  self::getOptionKey(self::lastReminderDateKey), current_time('Y-m-d H:i:s')); 
           }
         

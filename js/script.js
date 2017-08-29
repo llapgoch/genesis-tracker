@@ -135,6 +135,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                 
                 $('.extended-button input').on('click', function(e){
                    var showAverages = $(this).is(":checked");
+                    
                    userGraph.switchAverages(showAverages);
                 });
 				
@@ -157,9 +158,23 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 				userGraph.initialise('weight', $('.mode-switcher').val() == 1 ? "imperial" : "");
 				selectModeButton('weight');
 			}
-			
-           
 
+
+              $('.food-input:not([readonly="readonly"]').on('click, focus', function(){
+                 var $this = $(this);
+
+                  if(!isNaN(parseFloat($this.val())) && parseFloat($this.val()) == 0){
+                      $this.val('');
+                  }
+              });
+
+            $('.food-input').on('blur', function(){
+                var $this = $(this);
+
+                if($this.val() == ''){
+                    $this.val('0');
+                }
+            });
               
               $('.food-input').on('change, keyup', function(){
                   calculateFoodTotals();
@@ -245,6 +260,31 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     $('.food-container input.food-input[type="text"]:not([readonly="readonly"])').val(0);
                     // Clear the food descriptions
                     $('.food-container .food-description').val('');
+
+
+                    $('.food-container .food-description').each(function(){
+                        var $this = $(this),
+                            time = $this.data('time');
+
+                        if(data.autofill_foods[time]) {
+                            $this.autocomplete({
+                                source: data.autofill_foods[time],
+                                select: function( event, data ) {
+                                    var time = $(event.target).data('time');
+                                    var floatVal;
+
+                                    for(var i in data.item) {
+                                        if(!data.item.hasOwnProperty(i)){
+                                            continue;
+                                        }
+
+                                        floatVal = parseFloat(data.item[i]);
+                                        $("#" + time + "_" + i).val(isNaN(floatVal) ? 0 : floatVal);
+                                    }
+                                }
+                            });
+                        }
+                    });
                    
                     var unit = $weightUnit.val() == 1 ? "imperial" : "metric";
                     
@@ -267,6 +307,24 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     
                     $form.find('input[name="exercise_minutes"]').val(measures.exercise_minutes);
                     $form.find('input[name="exercise_minutes_resistance"]').val(measures.exercise_minutes_resistance);
+
+                    var $selectType = $form.find('select[name="exercise_type"]'),
+                        $selectResistanceType = $form.find('select[name="exercise_type_resistance"]');
+
+                    if(measures.exercise_type) {
+                        $selectType.val(measures.exercise_type);
+                    }else{
+                        $selectType.val($('option', $selectType).first().val());
+                    }
+
+                    if(measures.exercise_type_resistance) {
+                        $selectResistanceType.val(measures.exercise_type_resistance);
+                    }else{
+                        $selectResistanceType.val($('option', $selectResistanceType).first().val());
+                    }
+
+                    $form.find('textarea[name="exercise_description"]').val(measures.exercise_description);
+                    $form.find('textarea[name="exercise_description_resistance"]').val(measures.exercise_description_resistance);
 
                     // Set the exercise values
                     if(measures.exercise_minutes || measures.exercise_minutes_resistance){

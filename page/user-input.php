@@ -30,22 +30,22 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 	<div class="user-measurements">
     	<div class="question-outer-container">
     		<div class="title">
-    			<h3 class="general-label"><?php _e('Restricted Days');?></h3>
+    			<h3 class="general-label"><?php _e('Diet Days');?></h3>
     		</div>
     		<?php  echo $form->checkbox('diet-days', 1, array(
     			'class' => 'question-chooser',
     			'id' => 'diet-days'
     		));?>
-    	    <label for="diet-days"><?php _e('I would like to record the number of restricted days I\'ve completed in the last week');?></label>
+    	    <label for="diet-days"><?php _e('I would like to record the number of diet days I\'ve completed in the last week');?></label>
     		<div class="inner-question-container diet-days-container js-hide clearfix">
-    			<p class="form-explanation"><?php _e('Please mark any restricted days you have done in the last week.');?><br /><?php _e('Previously saved restricted days for the last week will automatically be shown here.');?></p>
+    			<p class="form-explanation"><?php _e('Please mark any diet days you have done in the last week.');?><br /><?php _e('Previously saved diet days for the last week will automatically be shown here.');?></p>
     			<div class="diet-days">
     				<?php 
     				if($dateListPicker) :
     					echo $dateListPicker;
     					else :
     					?>
-    				<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your restricted days');?>
+    				<p class='diet-warn'><?php echo _e('Please select your date of measurement before setting your diet days');?>
     				<?php
     				endif;
     				?>
@@ -264,13 +264,15 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                             <label><?php echo $_food['name'];?></label>
                             <span class="value">
                                 <?php
-                                echo $_food['med'];
+                                echo isset($_food[$genderVal]) ? $_food[$genderVal] : "- -";
                                 ?>
                             </span>
                         </div>
                     <?php endforeach; ?>
                     </div>
-                    
+
+
+					<?php if($showMedVal): ?>
     				<div class="title">
     					<label for="targets" class="general-label"><?php _e('Your Mediterranean Days Targets');?></label>
     				</div>
@@ -293,6 +295,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                             </div>
                         <?php endforeach; ?>
                     </div>
+					<?php endif; ?>
     			</div>
             
     			
@@ -314,14 +317,36 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Aerobic Exercise');?></label>
 					
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the minutes of aerobic exercise you completed on the day you are recording');?></p>
-    				<?php
-    				echo $form->input('exercise_minutes', 'text', array(
-    					'id' => 'exercise_minutes',
-    					'class' => 'general-input'
-    				));
-    				?>
-    				<p class="input-suffix"><?php _e('minutes');?></p>
+
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter the minutes of aerobic exercise you completed and the type of exercise it was');?></p>
+
+						<?php
+						echo $form->input('exercise_minutes', 'text', array(
+							'id' => 'exercise_minutes',
+							'class' => 'general-input'
+						));
+						?>
+						<p class="input-suffix"><?php _e('minutes');?></p>
+
+						<?php
+						echo $form->dropdown('exercise_type',
+							$exerciseTypes,
+							array()
+						);
+						?>
+					</div>
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter a description for this exercise');?></p>
+						<?php
+						echo $form->textarea('exercise_description', array(
+							'default' => "",
+							'cols' => 30,
+							'rows' => 5,
+							'class' => 'general-input large-input'
+						));
+						?>
+					</div>
     			</div>
                 
     			<div class="question-container clearfix">
@@ -329,14 +354,35 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     					<label for="exercise_minutes_resistance" class="general-label"><?php _e('Minutes of Resistance Exercise');?></label>
 					
     				</div>
-    				<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed on the day you are recording');?></p>
-    				<?php
-    				echo $form->input('exercise_minutes_resistance', 'text', array(
-    					'id' => 'exercise_minutes_resistance',
-    					'class' => 'general-input'
-    				));
-    				?>
-    				<p class="input-suffix"><?php _e('minutes');?></p>
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed and the type of exercise it was');?></p>
+						<?php
+						echo $form->input('exercise_minutes_resistance', 'text', array(
+							'id' => 'exercise_minutes_resistance',
+							'class' => 'general-input'
+						));
+						?>
+						<p class="input-suffix"><?php _e('minutes');?></p>
+
+						<?php
+						echo $form->dropdown('exercise_type_resistance',
+							$resistanceExerciseTypes,
+							array()
+						);
+						?>
+					</div>
+
+					<div class="question-container-small">
+						<p class="form-explanation"><?php _e('Enter a description for this exercise');?></p>
+						<?php
+						echo $form->textarea('exercise_description_resistance', array(
+							'default' => "",
+							'cols' => 30,
+							'rows' => 5,
+							'class' => 'general-input large-input'
+						));
+						?>
+					</div>
     			</div>
     		</div>
     	</div>

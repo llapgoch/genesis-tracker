@@ -19,7 +19,7 @@ class GenesisThemeShortCodes{
          array_merge($defaults, $attribs);
          $taglineObj = new FusionSC_Tagline();
          
-         $content = "<h2>" . $title . "</h2>" . $content;
+         $content =  ($title ? "<h2>" . $title . "</h2>" : "") . $content;
          return $taglineObj->render($defaults, $content);
     }
     
@@ -33,6 +33,10 @@ class GenesisThemeShortCodes{
         return "<div class='fusion-alert alert success alert-success alert-shadow'>
 				    <div class='msg'>" . $content . "</div>
                 </div>";
+    }
+
+    public static function achievementBox($title, $content){
+        return self::readingBox($title, $content);
     }
     
     public static function generateErrorBox($pageData){

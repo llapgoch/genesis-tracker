@@ -17,18 +17,18 @@ function UserGraph(){
 	
 	this.initialise = function(mode, unit, averages, moveToEnd) {
 		var host = this;
-		
+
 		var settings = {
 			'weight':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight',
-				'avgLabel':'Average weight for other women on the study',
+				'avgLabel':'Average weight for all participants',
 				'color':'rgb(231,5,144)'
 			},
 			'weight_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight',
-				'avgLabel':'Average weight for other women on the study',
+				'avgLabel':'Average weight for all participants',
 				'color':'rgb(231,5,144)'
 			},
 			'fat':{
@@ -94,14 +94,14 @@ function UserGraph(){
 			'weight_loss':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight Change',
-				'avgLabel':"Average weight loss for other women on the study",
+				'avgLabel':"Average weight loss for all participants",
 				'color':'rgb(118,47,152)',
                 'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
 			},
 			'weight_loss_imperial':{
 				'noresults':"You haven't made any weight measurements yet.",
 				'label':'Your Weight Change',
-				'avgLabel':"Average weight loss for other women on the study",
+				'avgLabel':"Average weight loss for all participants",
 				'color':'rgb(118,47,152)',
                 'legend':'<h3>This is your weight change since you started the study</h3><p class="under-title">An upward line indicates weight gain, and a downward line shows weight loss</p>'
 			}
@@ -169,15 +169,13 @@ function UserGraph(){
 				xTicks.push(this.userGraphData[mode].timestamps[i], this.userGraphData[mode].timestamps[i]);
 			}
 		}
-	    
-        
+
+
 		var yMin = parseFloat(this.userGraphData[mode].yMin);
 		var yMax = parseFloat(this.userGraphData[mode].yMax);
 		var minDate = parseFloat(xTicks[0]);
 		var maxDate = parseFloat(xTicks[xTicks.length - 1]);
 		var showTicks = true;
-		
-
         
 		// Falsify the min and max date if we have no results
 		if(isNaN(minDate)){
@@ -212,6 +210,8 @@ function UserGraph(){
 			    yMax = Math.max(yMax, parseFloat(this.averageUserGraphData[mode].yMax));
             }
 		 }
+
+
 	
 		var yDiff = yMax - yMin;
 		yTick = (yDiff / 10);
@@ -293,8 +293,11 @@ function UserGraph(){
 			pan: {
 				interactive: true,
 				cursor:"move"
+			},
+			legend: {
+				noColumns: 5
 			}
-		};	
+		};
     
 		
         if(this.mode == 'weight_loss'){
@@ -310,28 +313,25 @@ function UserGraph(){
 		if(!showTicks){
 			options.xaxis.ticks = false;
 		}
+
+		/*  This is the bit which deals with the initial scale of the graph -
+			It's been changed to show all dates initially, instead of ~ 10 days zoomed */
 		
-		
-		if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
-			options.xaxis.min = 0;
-			options.xaxis.max = 1000000000;
-		}else{
-            
+		// if(parseFloat(maxDate) - parseFloat(minDate) >=	1000000000){
+		// 	options.xaxis.min = 0;
+		// 	options.xaxis.max = 1000000000;
+		// }else{
+         //
 			options.xaxis.min = minDate;
 			options.xaxis.max = maxDate;
-		}
+		// }
 		
 		var data = [];
-
-		data.push({
-			"label":settings[mode].label,
-			"data": this.userGraphData[mode]['data'],
-			"color": settings[mode].color
-		});
 	
 		// Plot the average user data for everyone on the site along side the user's data
 		// AVERAGE USER GRAPH DATA REMOVED TEMPORARILY
-		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined && this.averages){			
+
+		if(this.averageUserGraphData && this.averageUserGraphData[mode] !== undefined && this.averages){
 			data.push({
                 "label":settings[mode].avgLabel,
                 "data":this.averageUserGraphData[mode].data,
@@ -344,8 +344,36 @@ function UserGraph(){
                 }
             });
 		}
-        
 
+		if(mode == 'exercise_minutes' || mode == 'exercise_minutes_resistance'){
+			// parse the data into different types
+			var typeData = [];
+
+			$(this.userGraphData[mode]['data']).each(function(){
+				var type = this[2].type;
+
+				if(!typeData[type]){
+					typeData[type] = {};
+					typeData[type].data = [];
+					typeData[type].color = this[2].color;
+					typeData[type].label = this[2].label;
+				}
+
+				typeData[type].data.push(this);
+			});
+
+			for(var i in typeData){
+				if(typeData.hasOwnProperty(i)) {
+					data.push(typeData[i]);
+				}
+			}
+		}else{
+			data.push({
+				"label":settings[mode].label,
+				"data": this.userGraphData[mode]['data'],
+				"color": settings[mode].color
+			});
+		}
 		
 		if(mode == 'weight' || mode == 'weight_imperial' && this.userGraphData['initial_weights']){
 			// Plot the user's start date
@@ -366,7 +394,9 @@ function UserGraph(){
 				
 			});
 		}
-	
+
+		var processed = false;
+
 		this.$plot = window.$plot = $.plot($('.genesis-progress-graph'), data, options);
 		$('.genesis-progress-graph').off('plothover');
 		$('.genesis-progress-graph').on('plothover', function(e, pos, item){
@@ -424,6 +454,11 @@ function UserGraph(){
         }
         
 		this.updateAxes();
+
+		/*  There's a rounding error when attempting to show all entries by default, use zoom out to
+			fix
+		 */
+		this.$plot.zoomOut();
 	}
 	
 	this.formatYVal = function(val, mode){
@@ -454,7 +489,7 @@ function UserGraph(){
 			case 'calories' :
 				return val + " kcals";
             case 'alcohol' :
-                return val + " units"
+                return val + " units";
             case 'fat' :
             case 'protein' :
             case 'carbs' :

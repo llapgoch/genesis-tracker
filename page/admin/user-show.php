@@ -1,6 +1,6 @@
 <div class="wrap">
     <h2>
-        Procas User Details
+        The 2 Day Wythenshawe Programme User Details
         <a class="add-new-h2" href="<?php echo $userEditLink;?>">Edit User</a>
     </h2>
     
@@ -11,16 +11,12 @@
         <dd><?php echo trim($userDetails['user_name']) ? (string)$userDetails['user_name'] : "- -"; ?></dd>
         <dt>Telephone Number</dt>
         <dd><?php echo $userTelephone; ?></dd>
-        <dt>Passcode Group</dt>
-        <dd><?php echo $userDetails[GenesisTracker::passcodeGroupCol] ? $userDetails[GenesisTracker::passcodeGroupCol] : "- -"; ?></dd>
-        <dt>Study Number</dt>
-        <dd><?php echo $userDetails[GenesisTracker::studyGroupCol] ? $userDetails[GenesisTracker::studyGroupCol] : "- -"; ?></dd>
+        <dt>Web ID</dt>
+        <dd><?php echo $userDetails['user_id'] ?></dd>
         <dt>Register Date</dt>
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
-        <dt>Activation Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol]));?></dd>
-        <dt>Actual Start Date</dt>
-        <dd><?php echo gmdate('d M Y', strtotime($userDetails['actual_start_date']));?></dd>
+        <dt>Start Date</dt>
+        <dd><?php echo $userDetails[GenesisTracker::userStartDateCol] ? gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol])) : "<strong>Not Set</strong>";?></dd>
         <dt>User Contacted</dt>
         <dd><?php echo (int) $userDetails['user_contacted'] == 0 ? 'No' : 'Yes'?></dd>
         <dt>Account Active</dt>
@@ -55,12 +51,7 @@
             endif;
             ?>
         </dd>
-        <dt>Six Month Date</dt>
-        <dd><?php echo ($userDetails[GenesisTracker::sixMonthDateCol] ? GenesisTracker::prettyDBDate($userDetails[GenesisTracker::sixMonthDateCol]) : "- -");?></dd>
-        <dt>Six Month Weight (Kg)</dt>
-        <dd><?php echo ($userDetails['six_month_weight'] ? $userDetails['six_month_weight'] : "- -");?></dd>
-        <dt>Benchmark Weight (Kg)</dt>
-        <dd><?php echo ($userDetails['benchmark_weight'] ? $userDetails['benchmark_weight'] : "- -"); ?></dd>
+      
         <dt>Current Weight (Kg)</dt>
         <dd><?php 
             if(isset($userDetails['weight']) && $userDetails['weight']) :
@@ -79,8 +70,6 @@
              endif;
             ?>     
         </dt>
-        <dt>Current Weight Minus Benchmark Weight (Kg) <br /><small>(positive value indicates weight gain; negative value indicates weight loss)</small></dt>
-        <dd><?php echo is_numeric($userDetails['six_month_benchmark_change']) ? round($userDetails['six_month_benchmark_change'], 4) : "- -";?>
         </dd>
         <dt>Week Number</dt>
         <dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
@@ -115,15 +104,23 @@
      <table class="wp-list-table widefat">
          <thead>
              <th>Date</th>
-             <th>Aerobic Exercise Minutes</th>
-             <th>Resistance Exercise Minutes</th>
+             <th>Aerobic Exercise</th>
+             <th>Resistance Exercise</th>
          </thead>
          <tbody>
              <?php foreach($exerciseLogs as $log): ?>
                  <tr>
                      <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
-                     <td><?php echo $log->exercise_minutes ? $log->exercise_minutes : "- -";?></td>
-                     <td><?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance : "- -";?></td>
+                     <td>
+                         <?php echo $log->exercise_minutes ? $log->exercise_minutes . " minutes" : "- -";?>
+                         <?php echo isset($exerciseTypes[$log->exercise_type]) ? "<br /> <strong>Type: " . $exerciseTypes[$log->exercise_type]['name'] . "</strong>" : ""; ?>
+                         <?php echo $log->exercise_description ? "<br /> <small>" . esc_html($log->exercise_description) . "</small>" : ""; ?>
+                     </td>
+                     <td>
+                         <?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance . " minutes"  : "- -";?>
+                         <?php echo isset($resistanceExerciseTypes[$log->exercise_type_resistance]) ? "<br /> <strong>Type: " . $resistanceExerciseTypes[$log->exercise_type_resistance]['name'] . "</strong>" : ""; ?>
+                         <?php echo $log->exercise_description_resistance ? "<br /> <small>" . esc_html($log->exercise_description_resistance) . "</small>" : ""; ?>
+                     </td>
                  </tr>
              <?php endforeach; ?>
              </tbody>

@@ -4,15 +4,17 @@ class GenesisUserInputTable{
         $foodTypes = GenesisTracker::getUserMetaTargetFields();
         
         $html = array();
-        
+
+        $consumeVerb = $timeIdentifier == 'drinks' ? "drank" : "ate";
        
-       
+        $html[] = "<div class='food-input-container'>";
         $html[] = "<div class='food-description-container'>";
-        $html[] = "<label for='" . $timeIdentifier . "_description'>A brief description of what you ate (optional):</label>";
+        $html[] = "<label for='" . $timeIdentifier . "_description'>A brief description of what you {$consumeVerb} (optional):</label>";
         
         $html[] = $form->input($timeIdentifier . '_description', 'text', array(
             'id' => $timeIdentifier . "_description",
-            'class' => 'general-input food-description'
+            'class' => 'general-input food-description',
+            'data-time' => $timeIdentifier
         ));
         
         $html[] = "<a href='javascript:;' class='fa fa-question-circle help-icon weight-help' title='If you record your food intake here, the dietitian will be able to provide you with individual advice that will help you lose weight and achieve a balanced diet'></a>";
@@ -40,6 +42,7 @@ class GenesisUserInputTable{
             $html[] = "</div>";
         }
         
+        $html[] = "</div>";
         $html[] = "</div>";
         
         return implode($html);

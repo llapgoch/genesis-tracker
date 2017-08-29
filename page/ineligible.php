@@ -1,7 +1,7 @@
 <div class="input-form eligibility-fail">
     <div class="question-outer-container">
     	<div class="title">
-    		<h2><label class="general-label"><?php _e('Thank you for taking an interest in the PROCAS Lifestyle research study');?></label></h2>
+    		<h2><label class="general-label"><?php _e('Thank you for taking an interest in the 2 Day Wythenshawe Programme');?></label></h2>
     	</div>
         <div class="content">
             <p><?php _e("The information that you provided on the previous web page has been used to see if you are eligible to take part.");?></p>
@@ -56,7 +56,7 @@
            
            <p>Best Wishes<br />
            Yours sincerely<br />
-           The PROCAS Lifestyle Research Team</p>
+           The 2 Day Wythenshawe Programme Team</p>
            
            
            <h2>Can I Still Follow The Diet?</h2>
@@ -68,7 +68,7 @@
                 <li>Easy to fit into a normal, busy lifestyle.</li>
             </ul>
             
-            <p>For further information about the diet and to access a diet plan, <a href="http://procaslifestyle.co.uk/wp-content/plugins/genesis-tracker/downloads/2-day-diet-advice.pdf" target="_blank">click here</a></p>
+            <p>For further information about the diet and to access a diet plan, <a href="http://2daywythenshawe.co.uk/wp-content/plugins/genesis-tracker/downloads/2-day-diet-advice.pdf" target="_blank">click here</a></p>
         </div>
     </div>
 </div>
