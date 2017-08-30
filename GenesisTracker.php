@@ -5,7 +5,7 @@ class GenesisTracker{
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
 
-    const version = "1.46";
+    const version = "1.47";
 
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
@@ -270,13 +270,21 @@ class GenesisTracker{
           `gender` varchar(255) DEFAULT 'female'
           PRIMARY KEY  (`id`)
         )");
+
+
+        // Reinstall eligibility questions for this version
+        if(self::version == '1.47'){
+            $wpdb->query($sql = "DROP TABLE `" . self::getEligibilityQuestionsTableName() . '`');
+        }
         
         $eligibilityQuestionsTableExists = self::checkTableExists(self::getEligibilityQuestionsTableName());
+
         
         dbDelta($sql = "CREATE TABLE " . self::getEligibilityQuestionsTableName() . " (
           `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
           `question` text,
           `correct` tinyint(1) DEFAULT NULL,
+          `set_number` int(11) DEFAULT NULL,
           `position` int(11) NOT NULL DEFAULT 0,
           PRIMARY KEY  (`id`)
         )");
@@ -316,42 +324,143 @@ class GenesisTracker{
         if($eligibilityQuestionsTableExists == false){
             // Initial questions to install
             $eligibilityQuestions = array(
-              array(
-                  'question' => 'Have you ever been diagnosed with <strong>cancer</strong>?',
-                  'correct' => 2
-              ),
-              array(
-                  'question' => 'Have you ever been diagnosed with <strong>diabetes</strong>?',
-                  'correct' => 2
-              ),
-              array(
-                  'question' => 'Have you ever had <strong> angina, a mini stroke (TIA), stroke or heart attack</strong>?',
-                  'correct' => 2
-              ),
-              array(
+                array(
+                  'question' => 'Are you receiving <strong>annual or 18 monthly mammograms because you have an increased risk of breast cancer</strong>?',
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                  'question' => 'Are you or have you been on the <strong>PROCAS (<span class="u-underline">P</span>redicting <span class="u-underline">R</span>isk <span class="u-underline">o</span>f <span class="u-underline">B</span>reast <span class="u-underline">C</span>ancer <span class="u-underline">a</span>t <span class="u-underline">S</span>creening) study</strong>?',
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                  'question' => 'Is anyone in your family already on this research study (<strong>Family History Lifestyle Study</strong>)?',
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
                   'question' => 'Have you ever been diagnosed with <strong>kidney disease</strong>?',
-                  'correct' => 2
-              ),
-              array(
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
                   'question' => 'Are you currently prescribed medication for raised <strong>cholesterol</strong>?',
-                  'correct' => 2
-              ),
-              array(
-                  'question' => 'Have you ever been diagnosed with an eating disorder or alcohol or drug dependency?',            
-                  'correct' => 2
-              ),
-              array(
-                  'question' => 'Has a medical professional advised you not to exercise for health reasons?',
-                  'correct' => 2
-              ),
-              array(
-                  'question' => 'Are you currently successfully <strong>following a diet and/or exercise plan</strong> and have <strong>lost more than 2 lb (1 kg) of weight</strong> in the last 2 weeks?',            
-                  'correct' => 2
-              ),
-              array(
-                  'question' => 'Are you currently taking hormone replacement therapy (HRT)?',            
-                  'correct' => 2  
-             ));
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                  'question' => 'Are you <strong>pregnant, breast feeding or planning pregnancy</strong> in the next 12 months?',
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                  'question' => 'Have you ever been diagnosed with <strong>cancer</strong>? <em>This does not include a diagnosis of non-melanoma skin cancer or precancerous cells on a cervical smear (CIN)</em>',
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                  'question' => 'Have you ever been diagnosed with <strong>diabetes</strong>?',
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                  'question' => 'Have you ever had a <strong>stroke, Transient Ischemic Attack (TIA), angina, heart attack, heart failure, or ventricular or aortic aneurysm</strong>?',
+                  'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Are you currently taking medication for raised </strong>cholesterol</strong>?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Have you ever been diagnosed with <strong>kidney disease</strong>?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Do you currently have a diagnosis of an <strong>eating disorder</strong> (e.g. binge eating or bulimia)?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Do you currently have an <strong>alcohol</strong> or <strong>drug dependency</strong>?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Have you ever been diagnosed with a <strong>personality disorder</strong> or <strong>bipolar disorder</strong> (formerly known as manic depression) or have you ever tried to <strong>self-harm</strong>?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Are you currently taking any of the following medication prescribed for psychosis and schizophrenia: <strong>Aripiprazole, Clozapine, Olanzapine, Quetiapine or Risperidone</strong> <em>Please note, these medicines may have a different brand name. If you’re unsure, please check the box the medicine is in</em>',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Are you currently successfully <strong>following a diet and/or physical activity plan</strong> and have <strong>lost more than 2 lb (1 kg) of weight</strong> in the last 2 weeks?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Have you ever had <strong>weight loss surgery</strong> e.g. gastric bypass or sleeve gastrectomy, or do you plan to have this type of surgery in the next 12 months?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Are you currently taking any <strong>medication to help you lose weight</strong> e.g. Orlistat, Xenical, Alli?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Are you on any <strong>specialist medical diet</strong> to treat conditions such as phenylketonuria, maple syrup urine disease, glycogen storage diseases, urea cycle disorders, advanced kidney disease or advanced liver disease?',
+                    'correct' => 2,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Are you willing to follow a <strong>healthy diet and physical activity programme to lose weight</strong>?',
+                    'correct' => 1,
+                    'set_number' => 1
+                ),
+                array(
+                    'question' => 'Has your doctor ever said that you have a heart condition and that you should only do physical activity recommended by a doctor?',
+                    'correct' => 2,
+                    'set_number' => 2
+                ),
+                array(
+                    'question' => 'Do you feel pain in your chest when you do physical activity?',
+                    'correct' => 2,
+                    'set_number' => 2
+                ),
+                array(
+                    'question' => 'In the past month, have you had chest pain when you were <strong>not</strong> doing physical activity?',
+                    'correct' => 2,
+                    'set_number' => 2
+                ),
+                array(
+                    'question' => 'Do you ever lose your balance because of dizziness or do you ever lose consciousness?',
+                    'correct' => 2,
+                    'set_number' => 2
+                ),
+                array(
+                    'question' => 'Do you have a bone or joint problem (for example, back, knee or hip) that could be made worse by doing physical activity?',
+                    'correct' => 2,
+                    'set_number' => 2
+                ),
+                array(
+                    'question' => 'Is your doctor currently prescribing drugs (for example, water pills) for your blood pressure or heart condition?',
+                    'correct' => 2,
+                    'set_number' => 2
+                ),
+                array(
+                    'question' => 'Do you know of any other reason why you should not do physical activity?',
+                    'correct' => 2,
+                    'set_number' => 2
+                )
+
+            );
         
             // Insert the questions into the DB
             foreach($eligibilityQuestions as $questionData){

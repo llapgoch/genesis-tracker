@@ -36,12 +36,51 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                 </div>
             </div>
         </div>
+
+		<div class="inner-question-container">
+			<div class="question-container clearfix">
+				<div class="title">
+					<label for="height-main" class="general-label"><?php _e('2. Your Height');?></label>
+				</div>
+				<p class="form-explanation"><?php _e('Please enter your current height.  You can switch between imperial and metric values.');?></p>
+				<div class="unit-switcher">
+					<?php
+					echo $form->dropdown('height_unit', array(
+						'1' => 'Feet and Inches',
+						'2' => 'Metres'
+					), array(
+						'class' => 'height-unit'
+					));
+					?>
+				</div>
+				<div class="input-wrapper">
+					<?php
+					echo $form->input('height_main', 'text', array(
+						'class' => 'general-input height-input height',
+						'id' => 'height-main'
+					));
+					?>
+					<p class="input-suffix height metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('metres');?></p>
+					<p class="input-suffix height imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('feet');?></p>
+				</div>
+				<div class="input-wrapper">
+					<?php
+					echo $form->input('height_inches', 'text', array(
+						'class' => 'general-input height-input height imperial ' . ($metricUnits ? "hidden" : ""),
+						'id' => 'height-inches'
+					));
+					?>
+
+					<p class="input-suffix height imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('inches');?></p>
+				</div>
+			</div>
+		</div>
         
         <div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
 					<label for="weight-main" class="general-label">
-                        <?php _e('2. Your Weight');?>
+                        <?php _e('3. Your Weight');?>
                     </label>
 				</div>
                 
@@ -80,46 +119,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 				</div>				
 			</div> 
         </div>
-        
-        <div class="inner-question-container">    
-			<div class="question-container clearfix">
-				<div class="title">
-					<label for="height-main" class="general-label"><?php _e('3. Your Height');?></label>
-				</div>
-				<p class="form-explanation"><?php _e('Please enter your current height.  You can switch between imperial and metric values.');?></p>
-	            <div class="unit-switcher">
-                    <?php
-    				echo $form->dropdown('height_unit', array(
-    						'1' => 'Feet and Inches',
-    						'2' => 'Metres'
-    					), array(
-    						'class' => 'height-unit'
-    					));
-                    ?>
-                </div>
-				<div class="input-wrapper">
-					<?php
-					echo $form->input('height_main', 'text', array(
-						'class' => 'general-input height-input height',
-						'id' => 'height-main'
-						));
-					?>
-					<p class="input-suffix height metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('metres');?></p>
-					<p class="input-suffix height imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('feet');?></p>
-				</div>
-				<div class="input-wrapper">
-					<?php
-					echo $form->input('height_inches', 'text', array(
-						'class' => 'general-input height-input height imperial ' . ($metricUnits ? "hidden" : ""),
-						'id' => 'height-inches'
-						));
-					?>
-	
-					<p class="input-suffix height imperial <?php echo ($metricUnits ? 'hidden' : '');?>"><?php _e('inches');?></p>
-				</div>				
-			</div>
-        </div>
-        
+
         <div class="inner-question-container">
 			<div class="question-container container-bmi clearfix">
 				<div class="title">
@@ -153,7 +153,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
         <div class="inner-question-container">
 			<div class="question-container clearfix">
 				<div class="title">
-					<label class="general-label"><?php _e('6. Are you happy to follow our diet and exercise programme to help you lose weight?');?></label>
+					<label class="general-label"><?php _e('6. Can you understand written and spoken English');?></label>
 				</div>
                 <?php
                 echo $form->dropdown('happy_to_follow', array(
