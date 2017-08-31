@@ -302,6 +302,7 @@ class GenesisTracker{
           `date_created` datetime DEFAULT NULL,
           `is_eligible` tinyint(1) DEFAULT NULL,
           `passcode` VARCHAR(255) DEFAULT NULL,
+          `no_physical_activity_reason` TEXT DEFAULT NULL,
           PRIMARY KEY  (`id`),
           KEY `hash_id` (`hash_id`)
         )");
@@ -455,19 +456,23 @@ class GenesisTracker{
                     'set_number' => 2
                 ),
                 array(
-                    'question' => 'Do you know of any other reason why you should not do physical activity?',
+                    'question' => 'Do you know of <strong>any other reason</strong> why you should not do physical activity?',
                     'correct' => 2,
                     'set_number' => 2
                 )
 
             );
-        
+
+            $position = 0;
+
             // Insert the questions into the DB
             foreach($eligibilityQuestions as $questionData){
+                $questionData['position'] = $position;
                 $wpdb->insert(self::getEligibilityQuestionsTableName(), $questionData);
+                $position += 10;
             }
         }
-        
+
          // Create the user page if it's not already there         
           self::createUserPage();
          self::createInputPage();
@@ -686,11 +691,14 @@ class GenesisTracker{
          unset($_SESSION[self::registrationPasswordEmailSessionKey]);
      }
      
-     public static function getEligibilityQuestions(){
+     public static function getEligibilityQuestions($set = 1){
          global $wpdb;
-         return $wpdb->get_results("SELECT * FROM " . self::getEligibilityQuestionsTableName() . "
+         $res = $wpdb->get_results($sql = "SELECT * FROM " . self::getEligibilityQuestionsTableName() . "
+             WHERE `set_number`={$set} 
              ORDER BY `position`
         ");
+
+         return $res;
      }
      
      public static function getEligibilityAnswersForResultHash($hashId){
