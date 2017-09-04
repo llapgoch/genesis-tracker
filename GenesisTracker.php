@@ -297,7 +297,7 @@ class GenesisTracker{
           `height` decimal(10,6) DEFAULT NULL,
           `age` int(11) unsigned DEFAULT NULL,
           `high_speed_internet` tinyint(1) unsigned DEFAULT NULL,
-          `happy_to_follow` tinyint(1) unsigned DEFAULT NULL,
+          `can_understand_english` tinyint(1) unsigned DEFAULT NULL,
           `bmi` decimal(10,6) DEFAULT NULL,
           `date_created` datetime DEFAULT NULL,
           `is_eligible` tinyint(1) DEFAULT NULL,
@@ -314,8 +314,10 @@ class GenesisTracker{
           `answer` int(11) unsigned DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
-        
-        
+
+        $wpdb->query($sql =  "ALTER TABLE " . self::getEligibilityResultTableName() . " 
+            DROP COLUMN happy_to_follow" );
+
         if(!$userDataTableExists){
             // Migrate the data to the new table!
             GenesisMigration::migrateUsers();
@@ -691,11 +693,11 @@ class GenesisTracker{
          unset($_SESSION[self::registrationPasswordEmailSessionKey]);
      }
      
-     public static function getEligibilityQuestions($set = 1){
+     public static function getEligibilityQuestions($set = null){
          global $wpdb;
-         $res = $wpdb->get_results($sql = "SELECT * FROM " . self::getEligibilityQuestionsTableName() . "
-             WHERE `set_number`={$set} 
-             ORDER BY `position`
+         $res = $wpdb->get_results($sql = "SELECT * FROM " . self::getEligibilityQuestionsTableName() .
+             ($set === null ? "" : " WHERE `set_number`={$set} ") .
+             " ORDER BY `position`
         ");
 
          return $res;
@@ -1045,7 +1047,7 @@ class GenesisTracker{
              'weight_main' => array('N', 'R', "VALUE-GREATER[0]"),
              "height_main" => array('N', 'R', "VALUE-GREATER[0]"),
              "high_speed_internet" => array("N", "R"),
-             "happy_to_follow" => array("N", "R"),
+             "can_understand_english" => array("N", "R"),
              "passcode" => array("R")
          );
          
@@ -1065,11 +1067,15 @@ class GenesisTracker{
          foreach($eligibilityQuestions as $question){
              $rules['question_' . $question->id] = array("R");
          }
+
+         // Not pretty, but validates the extra data box if yes is selected for "any other reason"
+         if((int)$form->getRawValue('question_27') == 1){
+             $rules['question-no_physical_activity_reason'] = array("R");
+         }
          
          $form->validate($rules);
          
-         
-         
+
          if(!self::isValidWeight($weight)){
             $form->setError('weight_main', array(
                 'general' => 'Please enter a valid weight',
@@ -1122,7 +1128,7 @@ class GenesisTracker{
              $eligible = false;
          }
          
-         if((int)$form->getRawValue("happy_to_follow") !== 1){
+         if((int)$form->getRawValue("can_understand_english") !== 1){
              $eligible = false;
          }
          
@@ -1270,17 +1276,18 @@ class GenesisTracker{
          $resultId = false;
          
         if($wpdb->insert(self::getEligibilityResultTableName(), array(
-          'ip_address' =>  $ip,
-          'hash_id' => $hash,
-          'is_eligible' => $form->getRawValue('is_eligible'),
-          'weight' => $weight,
-          'height' => $height,
-          'age' => $form->getRawValue('age'),
-          'passcode' => strtoupper($form->getRawValue('passcode')),
-          'bmi' => $bmi,
-          'high_speed_internet' => $form->getRawValue('high_speed_internet'),
-          'happy_to_follow' => $form->getRawValue('happy_to_follow'),
-          'date_created' => current_time('Y-m-d H:i:s')
+            'ip_address' =>  $ip,
+            'hash_id' => $hash,
+            'is_eligible' => $form->getRawValue('is_eligible'),
+            'weight' => $weight,
+            'height' => $height,
+            'age' => $form->getRawValue('age'),
+            'passcode' => strtoupper($form->getRawValue('passcode')),
+            'bmi' => $bmi,
+            'high_speed_internet' => $form->getRawValue('high_speed_internet'),
+            'can_understand_english' => $form->getRawValue('can_understand_english'),
+            'date_created' => current_time('Y-m-d H:i:s'),
+            'no_physical_activity_reason' => $form->getRawValue('question-no_physical_activity_reason')
         ))){
             $resultId = $wpdb->insert_id;
             // Insert the question answers

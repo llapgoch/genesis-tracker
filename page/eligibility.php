@@ -156,7 +156,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<label class="general-label"><?php _e('6. Can you understand written and spoken English');?></label>
 				</div>
                 <?php
-                echo $form->dropdown('happy_to_follow', array(
+                echo $form->dropdown('can_understand_english', array(
                     '' => '--- Please Select ---',
                     "1" => 'Yes',
                     "2" => 'No'
@@ -186,7 +186,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 						"1" => 'Yes',
 						"2" => 'No'
 					), array(
-						'default' => '',
+						'default' => $autoAnswer ? $question->correct : "",
 						'id' => 'question-' . $a
 					));
 					?>
@@ -207,11 +207,11 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 				</ul>"
 			);
 			?>
-			<?php $a = 1; ?>
+			<?php $counter = 1; ?>
 			<?php foreach($eligibilityQuestions2 as $question) : ?>
 				<div class="question-container clearfix">
 					<div class="title">
-						<label class="general-label" for="question-<?php echo $a ?>"><?php  _e($a . ". " . $question->question);?></label>
+						<label class="general-label" for="question-<?php echo $a ?>"><?php  _e($counter . ". " . $question->question);?></label>
 					</div>
 
 					<?php
@@ -220,13 +220,29 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 						"1" => 'Yes',
 						"2" => 'No'
 					), array(
-						'default' => '',
+						'default' => $autoAnswer ? $question->correct : "",
 						'id' => 'question-' . $a
 					));
 					?>
 				</div>
-				<?php $a++ ?>
+				<?php
+					$a++;
+					$counter++;
+				?>
 			<?php endforeach ?>
+
+			<div class="question-container clearfix">
+				<div class="title">
+					<label class="general-label" for="question-no_physical_activity_reason"><?php _e("If you answered “yes” to Q7, please briefly explain:");?></label>
+				</div>
+				<?php echo $form->textarea('question-no_physical_activity_reason', array(
+					'default' => "",
+					'cols' => 30,
+					'rows' => 5,
+					'class' => 'general-input large-input'
+				));
+				?>
+			</div>
 		</div>
 	</div>
     
