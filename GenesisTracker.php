@@ -13,6 +13,7 @@ class GenesisTracker{
     const inputProgressPageId = "progress_page";
     const initialWeightPageId = "initial_weight_page";
     const eligibilityPageId = "eligibility_page";
+    const eligibilityExercisePageId = "eligibility_exercise_page";
     const ineligiblePageId = "ineligibile_page";
     const prescriptionPageId = "prescription_page";
     const physiotecLoginPageId = "physiotec_login_page";
@@ -481,6 +482,7 @@ class GenesisTracker{
          self::createTargetInputPage();
          self::createInitialWeightPage();
          self::createEligibilityPage();
+         self::createEligibilityExercisePage();
          self::createIneligiblePage();
          self::createPrescriptionPage();
          self::createPhysiotecLoginPage();
@@ -536,8 +538,7 @@ class GenesisTracker{
          
 
          if(self::isOnRegistrationPage() && self::userIsEligible() == false){
-             wp_redirect(home_url());  
-             exit;
+             wp_redirect(home_url());
          }
 
          if(self::isOnRegistrationPage() || self::isOnLoginPage()){
@@ -1035,6 +1036,26 @@ class GenesisTracker{
              break;
          }
      }
+
+    public function eligibilityExercisePageAction(){
+        $form = DP_HelperForm::createForm('eligibility_exercise');
+        $form->fieldError = self::defaultFieldError;
+
+        if(!DP_HelperForm::wasPosted()){
+            return;
+        }
+
+        $form->setData($_POST);
+        $action = $form->getRawValue('action');
+
+        // Actions for the user input page
+
+//        switch($action){
+//            case "checkeligibility" :
+//                self::checkEligibility($form);
+//                break;
+//        }
+    }
      
      public function checkEligibility($form){
          // Validate all eligibility options
@@ -1517,6 +1538,11 @@ class GenesisTracker{
              $formName = 'eligibility';
              self::eligibilityPageAction();
          }
+
+         if(self::isOnEligibilityExercisePage()){
+             $formName = 'eligibility_exercise';
+             self::eligibilityExercisePageAction();
+         }
          
          if(self::isOnTargetPage()){
              $formName = 'tracker';
@@ -1907,6 +1933,10 @@ class GenesisTracker{
      public static function getEligibilityPagePermailink(){
          return get_permalink(self::getOption(self::eligibilityPageId));
      }
+
+    public static function getEligibilityExercisePagePermailink(){
+        return get_permalink(self::getOption(self::eligibilityPageId));
+    }
      
      public static function getIneligiblePagePermalink(){
          return get_permalink(self::getOption(self::ineligiblePageId));
@@ -1935,6 +1965,10 @@ class GenesisTracker{
      public static function isOnEligibilityPage(){
           return self::isOnPage(self::eligibilityPageId);
      }
+
+    public static function isOnEligibilityExercisePage(){
+        return self::isOnPage(self::eligibilityExercisePageId);
+    }
      
      public static function isOnInEligiblePage(){
           return self::isOnPage(self::ineligiblePageId);
@@ -3001,11 +3035,11 @@ class GenesisTracker{
          // Create the page which allows users to enter a target weight and date
          $pageID = self::getOption(self::eligibilityPageId);
           $post = get_post($pageID);
-    
+
          if($post && $post->post_status == 'publish'  &! $overwrite){
              return;
          }
-         
+
          $pageData = array(
             'post_title' => 'Check Your Eligibility',
              'comment_status' => 'closed',
@@ -3018,10 +3052,39 @@ class GenesisTracker{
          if($pageID){
              wp_delete_post($pageID, true);
          }
-         
+
           $post_id = wp_insert_post($pageData);
           self::updateOption(self::eligibilityPageId, $post_id);
      }
+
+    public static function createEligibilityExercisePage($overwrite = false){
+        /* Exercise Eligibility */
+
+        $exercisePageID = self::getOption(self::eligibilityExercisePageId);
+        $post = get_post($exercisePageID);
+
+        if($post && $post->post_status == 'publish'  &! $overwrite){
+            return;
+        }
+
+        $pageData = array(
+            'post_title' => 'Check Your Eligibility - Exercise',
+            'comment_status' => 'closed',
+            'post_content' => '[' . self::getOptionKey(self::eligibilityExercisePageId) . ']',
+            'post_status' => 'publish',
+            'post_type' => 'page',
+            'post_author' => self::userIdForAutoCreatedPages
+        );
+
+        if($exercisePageID){
+            wp_delete_post($exercisePageID, true);
+        }
+
+        $post_id = wp_insert_post($pageData);
+        self::updateOption(self::eligibilityExercisePageId, $post_id);
+    }
+
+
      
      public static function createPhysiotecLoginPage($overwrite = false){
     

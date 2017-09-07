@@ -35,6 +35,7 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::inputProgressPageId),
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genesis_tracker_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), 'genesis_eligibility_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityExercisePageId), 'genesis_eligibility_exercise_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligiblePageId), 'genesis_ineligible_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::prescriptionPageId), 'genesis_prescription_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::physiotecLoginPageId), 'genesis_physiotec_login');
@@ -1175,6 +1176,24 @@ function genesis_eligibility_page(){
     require('page/eligibility.php');
     $outputBody = true;
     
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
+}
+
+function genesis_eligibility_exercise_page(){
+    ob_start();
+    $form = DP_HelperForm::getForm('eligibility_exercise');
+    $outputBody = false;
+
+    $eligibilityPdfUrl = plugins_url('downloads/eligibility.pdf', __FILE__);
+    $eligibilityQuestions1 = GenesisTracker::getEligibilityQuestions(1);
+    $eligibilityQuestions2 = GenesisTracker::getEligibilityQuestions(2);
+    $autoAnswer = true;
+
+    require('page/eligibility-exercise.php');
+    $outputBody = true;
+
     $output = ob_get_contents();
     ob_end_clean();
     return $output;
