@@ -29,7 +29,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<?php
 					echo $form->input('age', 'text', array(
 						'class' => 'general-input smaller',
-						'id' => 'age'
+						'id' => 'age',
+						'default' => $autoAnswer ? 50 : ""
 						));
 					?>
                     <p class="input-suffix"><?php _e('years');?></p>
@@ -57,7 +58,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<?php
 					echo $form->input('height_main', 'text', array(
 						'class' => 'general-input height-input height',
-						'id' => 'height-main'
+						'id' => 'height-main',
+						'default' => $autoAnswer ? 4 : ""
 					));
 					?>
 					<p class="input-suffix height metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('metres');?></p>
@@ -67,7 +69,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<?php
 					echo $form->input('height_inches', 'text', array(
 						'class' => 'general-input height-input height imperial ' . ($metricUnits ? "hidden" : ""),
-						'id' => 'height-inches'
+						'id' => 'height-inches',
+						'default' => $autoAnswer ? 0 : ""
 					));
 					?>
 
@@ -101,7 +104,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<?php
 					echo $form->input('weight_main', 'text', array(
 						'class' => 'general-input weight-input',
-						'id' => 'weight-main'
+						'id' => 'weight-main',
+						'default' => $autoAnswer ? 13 : ""
 						));
 					?>
 					<p class="input-suffix weight metric <?php echo (!$metricUnits ? 'hidden' : '');?>"><?php _e('kilograms');?></p>
@@ -111,7 +115,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					<?php
 					echo $form->input('weight_pounds', 'text', array(
 						'class' => 'general-input weight-input weight imperial  ' . ($metricUnits ? "hidden" : ""),
-						'id' => 'weight-pounds'
+						'id' => 'weight-pounds',
+						'default' => $autoAnswer ? 0 : ""
 						));
 					?>
 	
@@ -144,7 +149,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     "1" => 'Yes',
                     "2" => 'No'
                 ), array(
-                    'default' => ''
+                    'default' => $autoAnswer ? 1 : ""
                 ));
                 ?>
             </div>
@@ -161,7 +166,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     "1" => 'Yes',
                     "2" => 'No'
                 ), array(
-                    'default' => ''
+                    'default' => $autoAnswer ? 1 : ""
                 ));
                 ?>
             </div>
@@ -209,7 +214,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                 <?php
                 echo $form->input('passcode', 'password', array(
         			'class' => 'general-input',
-                    'id' => 'passcode'
+                    'id' => 'passcode',
+					'default' => $autoAnswer ? "FHLUHS" : ""
                 ));
                 ?>
             </div>
@@ -223,7 +229,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     <?php
                     echo $form->checkbox('consent', 1, array(
             			'class' => 'general-checkbox',
-                        'id' => 'consent'
+                        'id' => 'consent',
+						'default' => $autoAnswer ? 1 : ""
                     ));
                     ?>
                 </div>

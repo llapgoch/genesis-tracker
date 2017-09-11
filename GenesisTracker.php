@@ -289,9 +289,12 @@ class GenesisTracker{
           `position` int(11) NOT NULL DEFAULT 0,
           PRIMARY KEY  (`id`)
         )");
-        
+
+
+        // unique_id is what will be on the PDF for doctors
         dbDelta($sql = "CREATE TABLE " . self::getEligibilityResultTableName() . " (
           `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `unique_id` varchar(255) DEFAULT NULL, 
           `hash_id` varchar(255) DEFAULT NULL,
           `ip_address` varchar(255) DEFAULT NULL,
           `weight` decimal(10,6) DEFAULT NULL,
@@ -1050,18 +1053,18 @@ class GenesisTracker{
 
         // Actions for the user input page
 
-//        switch($action){
-//            case "checkeligibility" :
-//                self::checkEligibility($form);
-//                break;
-//        }
+        switch($action){
+            case "checkeligibility" :
+                self::checkEligibilityExercise($form);
+                break;
+        }
     }
      
      public function checkEligibility($form){
          // Validate all eligibility options
          $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = false;
          
-         $eligibilityQuestions = self::getEligibilityQuestions();
+         $eligibilityQuestions = self::getEligibilityQuestions(1);
          
          $rules = array(
              "age" => array("R", "N", "VALUE-GREATER[0]", "VALUE-LESS[95]"),
@@ -1089,11 +1092,6 @@ class GenesisTracker{
              $rules['question_' . $question->id] = array("R");
          }
 
-         // Not pretty, but validates the extra data box if yes is selected for "any other reason"
-         if((int)$form->getRawValue('question_27') == 1){
-             $rules['question-no_physical_activity_reason'] = array("R");
-         }
-         
          $form->validate($rules);
          
 
@@ -1186,10 +1184,70 @@ class GenesisTracker{
          $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)] = $form->getRawValue('passcode');
          $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
          self::$pageData['eligible'] = true;
-         
-         wp_redirect(wp_registration_url());
+
+         wp_redirect(add_query_arg(array(
+             'result' => $res['hash_id']
+         ),
+             self::getEligibilityExercisePagePermailink()
+         ));
          exit;
      }
+
+    public function checkEligibilityExercise($form){
+        $eligibilityQuestions = self::getEligibilityQuestions(2);
+
+        foreach($eligibilityQuestions as $question){
+            $rules['question_' . $question->id] = array("R");
+        }
+
+        // Not pretty, but validates the extra data box if yes is selected for "any other reason"
+        if((int)$form->getRawValue('question_27') == 1){
+            $rules['question-no_physical_activity_reason'] = array("R");
+        }
+
+        $form->validate($rules);
+
+        if($form->hasErrors()){
+            return;
+        }
+
+        $answers = self::getPageData('eligibilityAnswers');
+
+        if(!count($answers)){
+            return;
+        }
+
+        $eligibilityID = $answers[0]->result_id;
+
+        self::logEligibilityExerciseData($eligibilityID, $form);
+
+        exit;
+        wp_redirect(wp_registration_url());
+    }
+
+    public static function logEligibilityExerciseData($eligibilityID, $form){
+        global $wpdb;
+
+        $eligibilityQuestions = self::getEligibilityQuestions(2);
+
+        $wpdb->update(
+            self::getEligibilityResultTableName(),
+            array(
+                'no_physical_activity_reason' => $form->getRawValue('question-no_physical_activity_reason')
+            ),
+            array(
+                'id' => $eligibilityID
+            )
+        );
+
+        foreach($eligibilityQuestions as $question){
+            $wpdb->insert(self::getEligibilityResultAnswersTableName(), array(
+                'result_id' => $eligibilityID,
+                'question_id' => $question->id,
+                'answer' => $form->getRawValue("question_" . $question->id)
+            ));
+        }
+    }
 
 
     public static function getLastMondayDate(){
@@ -1295,10 +1353,12 @@ class GenesisTracker{
          
          $bmi = $weight / ($height * $height);
          $resultId = false;
+
          
         if($wpdb->insert(self::getEligibilityResultTableName(), array(
             'ip_address' =>  $ip,
             'hash_id' => $hash,
+            'unique_id' => self::getEligibilityUniqueId(),
             'is_eligible' => $form->getRawValue('is_eligible'),
             'weight' => $weight,
             'height' => $height,
@@ -1308,11 +1368,10 @@ class GenesisTracker{
             'high_speed_internet' => $form->getRawValue('high_speed_internet'),
             'can_understand_english' => $form->getRawValue('can_understand_english'),
             'date_created' => current_time('Y-m-d H:i:s'),
-            'no_physical_activity_reason' => $form->getRawValue('question-no_physical_activity_reason')
         ))){
             $resultId = $wpdb->insert_id;
             // Insert the question answers
-            $eligibilityQuestions = self::getEligibilityQuestions();
+            $eligibilityQuestions = self::getEligibilityQuestions(1);
             
             foreach($eligibilityQuestions as $question){
                 $wpdb->insert(self::getEligibilityResultAnswersTableName(), array(
@@ -1330,6 +1389,23 @@ class GenesisTracker{
         );
          
      }
+
+    public function getEligibilityUniqueId(){
+        global $wpdb;
+
+        do {
+            $uniqueId = substr(rand(1000, 99999), 0, 5);
+            $res = $wpdb->get_results(
+                $sql = $wpdb->prepare(
+                    "SELECT * FROM " . self::getEligibilityResultTableName() . " WHERE unique_id=%s",
+                    $uniqueId
+                )
+            );
+
+        } while (count($res) >= 1);
+
+        return $uniqueId;
+    }
      
      public function checkLoginWeightEntered($userLogin, $user){
          if(!GenesisTracker::getInitialUserWeight($user->ID)){
@@ -1935,7 +2011,7 @@ class GenesisTracker{
      }
 
     public static function getEligibilityExercisePagePermailink(){
-        return get_permalink(self::getOption(self::eligibilityPageId));
+        return get_permalink(self::getOption(self::eligibilityExercisePageId));
     }
      
      public static function getIneligiblePagePermalink(){
@@ -2767,9 +2843,9 @@ class GenesisTracker{
      
      public static function addHeaderElements(){
          $user_id = get_current_user_id();
-         
-         // Do any redirects first
-         if(self::isOnInEligiblePage()){
+
+         // Do any redirects first - require a hash for exercise questions or ineligible
+         if(self::isOnInEligiblePage() || self::isOnEligibilityExercisePage()){
              // Check we've got a hash
              if(isset($_GET['result'])){
                  // Get the result answers data based on the hash

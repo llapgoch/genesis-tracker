@@ -6,6 +6,8 @@
                             <li>If you have answered “Yes” to one or more questions, a form will be generated that you can take to your GP to sign so that he/she can review if you can join our study.</li>
                         </ul>"
 );
+
+echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 ?>
 <form class="input-form eligibility-form" action="" method="post" name="eligibility" autocomplete="off">
     <div class="question-outer-container">
