@@ -17,6 +17,7 @@ class GenesisTracker{
     const ineligiblePageId = "ineligibile_page";
     const prescriptionPageId = "prescription_page";
     const physiotecLoginPageId = "physiotec_login_page";
+    const eligibilityDoctorPageId = "eligibility_doctor_page";
     const weightEnterSessionKey = "___WEIGHT_ENTER___";
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
@@ -489,6 +490,7 @@ class GenesisTracker{
          self::createIneligiblePage();
          self::createPrescriptionPage();
          self::createPhysiotecLoginPage();
+         self::createEligibilityDoctorPage();
          
           self::updateOption("version", self::version);
          
@@ -600,7 +602,6 @@ class GenesisTracker{
              $message . '<a href="' . self::getUserPagePermalink() . '" class="button large blue">Go to your progress graph</a>'
          );
      }
-     
 
      
      public static function userHasJustRegistered(){
@@ -1059,8 +1060,21 @@ class GenesisTracker{
                 break;
         }
     }
+
+    public static function getEligibilityResult($eligibilityID){
+        global $wpdb;
+
+        $result = $wpdb->get_row(
+            $sql = $wpdb->prepare(
+                "SELECT * FROM " . self::getEligibilityResultTableName() . " WHERE id=%s",
+                $eligibilityID
+            )
+        );
+
+        return $result;
+    }
      
-     public function checkEligibility($form){
+     public static function checkEligibility($form){
          // Validate all eligibility options
          $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = false;
          
@@ -1182,8 +1196,6 @@ class GenesisTracker{
          }
         
          $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)] = $form->getRawValue('passcode');
-         $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
-         self::$pageData['eligible'] = true;
 
          wp_redirect(add_query_arg(array(
              'result' => $res['hash_id']
@@ -1218,10 +1230,33 @@ class GenesisTracker{
         }
 
         $eligibilityID = $answers[0]->result_id;
+        $eligibilityResult = self::getEligibilityResult($eligibilityID);
 
-        self::logEligibilityExerciseData($eligibilityID, $form);
 
-        exit;
+        $res = self::logEligibilityExerciseData($eligibilityID, $form);
+
+        $eligible = true;
+
+        foreach($eligibilityQuestions as $question){
+            if($form->getRawValue('question_' . $question->id) !== $question->correct){
+                $eligible = false;
+                break;
+            }
+        }
+
+        if(!$eligible){
+            wp_redirect(add_query_arg(array(
+                'result' => $eligibilityResult->hash_id
+            ),
+                self::getEligibilityDoctorPagePermailink()
+            ));
+
+            return;
+        }
+
+        $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
+        self::$pageData['eligible'] = true;
+
         wp_redirect(wp_registration_url());
     }
 
@@ -2013,6 +2048,10 @@ class GenesisTracker{
     public static function getEligibilityExercisePagePermailink(){
         return get_permalink(self::getOption(self::eligibilityExercisePageId));
     }
+
+    public static function getEligibilityDoctorPagePermailink(){
+        return get_permalink(self::getOption(self::eligibilityDoctorPageId));
+    }
      
      public static function getIneligiblePagePermalink(){
          return get_permalink(self::getOption(self::ineligiblePageId));
@@ -2044,6 +2083,10 @@ class GenesisTracker{
 
     public static function isOnEligibilityExercisePage(){
         return self::isOnPage(self::eligibilityExercisePageId);
+    }
+
+    public static function isOnEligibilityDoctorPage(){
+        return self::isOnPage(self::eligibilityDoctorPageId);
     }
      
      public static function isOnInEligiblePage(){
@@ -2845,18 +2888,22 @@ class GenesisTracker{
          $user_id = get_current_user_id();
 
          // Do any redirects first - require a hash for exercise questions or ineligible
-         if(self::isOnInEligiblePage() || self::isOnEligibilityExercisePage()){
+         if(self::isOnInEligiblePage() || self::isOnEligibilityExercisePage() ||
+             self::isOnEligibilityDoctorPage()){
              // Check we've got a hash
              if(isset($_GET['result'])){
                  // Get the result answers data based on the hash
                  $answers = self::getEligibilityAnswersForResultHash($_GET['result']);
-                 
+
                  if(!$answers){
                      wp_redirect(home_url());
                      exit;
                  }
+
+                 self::getEligibilityResult($answers[0]->result_id);
                  
                  self::$pageData['eligibilityAnswers'] = $answers;
+                 self::$pageData['eligibilityResult'] = self::getEligibilityResult($answers[0]->result_id);
              }else{
                  wp_redirect(home_url());
                  exit;
@@ -3158,6 +3205,33 @@ class GenesisTracker{
 
         $post_id = wp_insert_post($pageData);
         self::updateOption(self::eligibilityExercisePageId, $post_id);
+    }
+
+    public static function createEligibilityDoctorPage($overwrite = false){
+        /* Exercise Eligibility */
+
+        $pageID = self::getOption(self::eligibilityDoctorPageId);
+        $post = get_post($pageID);
+
+        if($post && $post->post_status == 'publish'  &! $overwrite){
+            return;
+        }
+
+        $pageData = array(
+            'post_title' => 'Check Your Eligibility - Doctor\'s Consent',
+            'comment_status' => 'closed',
+            'post_content' => '[' . self::getOptionKey(self::eligibilityDoctorPageId) . ']',
+            'post_status' => 'publish',
+            'post_type' => 'page',
+            'post_author' => self::userIdForAutoCreatedPages
+        );
+
+        if($pageID){
+            wp_delete_post($pageID, true);
+        }
+
+        $post_id = wp_insert_post($pageData);
+        self::updateOption(self::eligibilityDoctorPageId, $post_id);
     }
 
 
