@@ -15,6 +15,7 @@ class GenesisTracker{
     const eligibilityPageId = "eligibility_page";
     const eligibilityExercisePageId = "eligibility_exercise_page";
     const ineligiblePageId = "ineligibile_page";
+    const eligibilityDoctorDownloadPageId = "eligibility_doctor_download_page";
     const prescriptionPageId = "prescription_page";
     const physiotecLoginPageId = "physiotec_login_page";
     const eligibilityDoctorPageId = "eligibility_doctor_page";
@@ -491,6 +492,7 @@ class GenesisTracker{
          self::createPrescriptionPage();
          self::createPhysiotecLoginPage();
          self::createEligibilityDoctorPage();
+         self::createEligibilityDoctorDownloadPage();
          
           self::updateOption("version", self::version);
          
@@ -1061,18 +1063,39 @@ class GenesisTracker{
         }
     }
 
-    public static function getEligibilityResult($eligibilityID){
+    public static function eligibilityDoctorDownloadPageAction(){
+        $hashID = isset($_GET['hash_id']) ? $_GET['hash_id'] : "";
+        $result = self::getEligibilityResult($hashID, true);
+        
+        if(!$result){
+            exit;
+        }
+
+        include(plugin_dir_path(__FILE__) . 'lib/fpdf181/fpdf.php');
+        include(plugin_dir_path(__FILE__) . 'lib/fpdfi/autoload.php');
+        
+        
+
+        // Generate PDF here
+        exit;
+    }
+
+    public static function getEligibilityResult($eligibilityID, $useHash = false){
         global $wpdb;
+
+        $col = $useHash ? 'hash_id' : 'id';
 
         $result = $wpdb->get_row(
             $sql = $wpdb->prepare(
-                "SELECT * FROM " . self::getEligibilityResultTableName() . " WHERE id=%s",
+                "SELECT * FROM " . self::getEligibilityResultTableName() . " WHERE {$col}=%s",
                 $eligibilityID
             )
         );
 
         return $result;
     }
+
+
      
      public static function checkEligibility($form){
          // Validate all eligibility options
@@ -1664,6 +1687,10 @@ class GenesisTracker{
              $formName = 'initial-weight';
              self::enterWeightPageAction();
          }
+
+         if(self::isOnEligibilityDoctorDownloadPage()){
+             self::eligibilityDoctorDownloadPageAction();
+         }
          
          if($formName && count(self::$pageData['errors']) == 0 &&  $form = DP_HelperForm::getForm($formName)){
              if($form->hasErrors()){
@@ -2052,6 +2079,10 @@ class GenesisTracker{
     public static function getEligibilityDoctorPagePermailink(){
         return get_permalink(self::getOption(self::eligibilityDoctorPageId));
     }
+
+    public static function getEligibilityDoctorDownloadPagePermailink(){
+        return get_permalink(self::getOption(self::eligibilityDoctorDownloadPageId));
+    }
      
      public static function getIneligiblePagePermalink(){
          return get_permalink(self::getOption(self::ineligiblePageId));
@@ -2087,6 +2118,10 @@ class GenesisTracker{
 
     public static function isOnEligibilityDoctorPage(){
         return self::isOnPage(self::eligibilityDoctorPageId);
+    }
+
+    public static function isOnEligibilityDoctorDownloadPage(){
+        return self::isOnPage(self::eligibilityDoctorDownloadPageId);
     }
      
      public static function isOnInEligiblePage(){
@@ -3179,6 +3214,34 @@ class GenesisTracker{
           $post_id = wp_insert_post($pageData);
           self::updateOption(self::eligibilityPageId, $post_id);
      }
+
+    public static function createEligibilityDoctorDownloadPage($overwrite = false){
+        /* Exercise Eligibility */
+
+        $pageId = self::getOption(self::eligibilityDoctorDownloadPageId);
+        $post = get_post($pageId);
+
+        if($post && $post->post_status == 'publish'  &! $overwrite){
+            return;
+        }
+
+        // This page is only created for routing, the content will never get that far
+        $pageData = array(
+            'post_title' => 'Check Your Eligibility - Doctor Consent Form',
+            'comment_status' => 'closed',
+            'post_content' => '',
+            'post_status' => 'publish',
+            'post_type' => 'page',
+            'post_author' => self::userIdForAutoCreatedPages
+        );
+
+        if($pageId){
+            wp_delete_post($pageId, true);
+        }
+
+        $post_id = wp_insert_post($pageData);
+        self::updateOption(self::eligibilityDoctorDownloadPageId, $post_id);
+    }
 
     public static function createEligibilityExercisePage($overwrite = false){
         /* Exercise Eligibility */

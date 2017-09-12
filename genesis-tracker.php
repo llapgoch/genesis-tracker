@@ -36,6 +36,7 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::targetPageId), 'genes
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::initialWeightPageId), 'genesis_initial_weight_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityPageId), 'genesis_eligibility_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityExercisePageId), 'genesis_eligibility_exercise_page');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityDoctorPageId), 'genesis_eligibility_doctor_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligiblePageId), 'genesis_ineligible_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::prescriptionPageId), 'genesis_prescription_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::physiotecLoginPageId), 'genesis_physiotec_login');
@@ -1209,6 +1210,26 @@ function genesis_ineligible_page(){
     require('page/ineligible.php');
     $outputBody = true;
     
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
+}
+
+function genesis_eligibility_doctor_page(){
+    ob_start();
+
+    $result = GenesisTracker::getPageData('eligibilityResult');
+
+    if(!$result){
+        return;
+    }
+
+    $outputBody = false;
+    $downloadPdfUrl = GenesisTracker::getEligibilityDoctorDownloadPagePermailink() . "?hash_id=" . $result->hash_id;
+       
+    require('page/eligibility-doctor.php');
+    $outputBody = true;
+
     $output = ob_get_contents();
     ob_end_clean();
     return $output;
