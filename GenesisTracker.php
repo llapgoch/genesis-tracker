@@ -1,4 +1,7 @@
 <?php
+use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfReader;
+
 class GenesisTracker{
     const UNIT_IMPERIAL = 1;
     const UNIT_METRIC = 2;
@@ -1063,20 +1066,54 @@ class GenesisTracker{
         }
     }
 
+    public static function getPluginBase(){
+        return plugin_dir_path(__FILE__);
+    }
+
+    public static function loadPDFLibraries(){
+        $pluginBase = self::getPluginBase();
+
+        require_once($pluginBase . 'lib/fpdf181/fpdf.php');
+        require_once($pluginBase . 'lib/fpdi2/src/autoload.php');
+    }
+
     public static function eligibilityDoctorDownloadPageAction(){
+
         $hashID = isset($_GET['hash_id']) ? $_GET['hash_id'] : "";
         $result = self::getEligibilityResult($hashID, true);
-        
+
         if(!$result){
             exit;
         }
 
-        include(plugin_dir_path(__FILE__) . 'lib/fpdf181/fpdf.php');
-        include(plugin_dir_path(__FILE__) . 'lib/fpdfi/autoload.php');
-        
-        
+        self::loadPDFLibraries();
 
-        // Generate PDF here
+        $pdf = new Fpdi();
+        $pdfLocation = self::getPluginBase() . "original-documents/doctor-consent.pdf";
+
+        $pageCount = $pdf->setSourceFile($pdfLocation);
+
+        for($i = 1; $i <= $pageCount; $i++){
+            $pageId = $pdf->importPage($i, PdfReader\PageBoundaries::MEDIA_BOX);
+            $pdf->addPage();
+            $pdf->useImportedPage($pageId);
+
+            if($i == 1) {
+                $pdf->SetFont('Helvetica');
+                $pdf->SetTextColor(0, 113, 185);
+                $pdf->SetXY(12, 80);
+                $pdf->SetFontSize(10);
+                $pdf->Write(0, "Your Unique ID: {$result->unique_id}");
+
+                $pdf->SetTextColor(0, 0, 0);
+                $pdf->SetXY(12, 85);
+                $pdf->Write(0, current_time('d/m/Y'));
+            }
+        }
+
+        // The user will receive a PDF to download
+
+        $pdf->Output('D', 'doctor-consent-form.pdf');
         exit;
     }
 

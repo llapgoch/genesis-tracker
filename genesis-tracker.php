@@ -198,6 +198,7 @@ function send_reminder_email(){
     GenesisTracker::sendReminderEmail();
 }
 
+
 if(!is_admin()){
     add_action('wp', array('GenesisTracker', 'decideAuthRedirect'));
     add_action('wp', array('GenesisTracker', 'addHeaderElements'));
