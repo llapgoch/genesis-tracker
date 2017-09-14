@@ -369,8 +369,9 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                             $form.find("input[name=" + val.time + "_description]").val(val.description);
                         });
                     }
-                    
-                    
+
+                    $form.find('[name="food_log_explanation"]').val(measures.food_log_explanation);
+
                     showUserMeasurements(true);
                     calculateFoodTotals();
                     $('.form-input-error-container').remove();

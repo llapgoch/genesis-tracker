@@ -154,6 +154,9 @@
     foreach($foodLogs as $log) :
         ?>
         <h3><?php echo date('F d Y', strtotime($log->measure_date));?></h3>
+        <?php if($log->food_log_explanation):?>
+            <p><strong>Comments:</strong> <?php echo esc_html($log->food_log_explanation); ?></p>
+        <?php endif; ?>
         <table class="wp-list-table widefat fixed food">
             <thead>
                 <th>&nbsp;</th>

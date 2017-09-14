@@ -232,7 +232,25 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     
                     <?php echo GenesisUserInputTable::getFoodInputTableHTML('drinks', $form); ?>
     			</div>
-            
+
+				<div class="question-container clearfix">
+					<div class="title">
+						<label for="drinks" class="general-label"><?php _e('Comments');?></label>
+					</div>
+					<p class="form-explanation">
+						<?php _e('Enter any details which may have affected your diet tracker entries, for example if you were you ill or attended a birthday party');?>
+					</p>
+
+					<?php
+					echo $form->textarea('food_log_explanation', array(
+						'class' => 'general-input large-input',
+						'cols' => '30',
+						'rows' => '5'
+					));
+					?>
+				</div>
+
+
     			<div class="question-container clearfix totals">
     				<div class="title">
     					<label for="total" class="general-label"><?php _e('Your total portions for this day');?></label>
@@ -297,8 +315,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                     </div>
 					<?php endif; ?>
     			</div>
-            
-    			
+
+
     		</div>
     	</div>
     	<div class="question-outer-container">
