@@ -8,8 +8,9 @@ class GenesisTracker{
     // Unfortunately, we can't get the comments plugin version from anywhere but the admin area - so we have to store
     // it twice.  Go Wordpress!
 
-    const version = "1.47";
 
+    const version = "1.47.1";
+    
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
     const userPageId = "user_page";
@@ -200,6 +201,7 @@ class GenesisTracker{
           exercise_description text DEFAULT NULL,
           exercise_description_resistance text DEFAULT NULL,
           weight_unit tinyint(1) unsigned DEFAULT 1,
+          food_log_explanation text DEFAULT NULL,
           PRIMARY KEY  (tracker_id),
           KEY user_id (user_id)
         )");
@@ -2014,6 +2016,10 @@ class GenesisTracker{
          $wpdb->query(
              $wpdb->prepare('DELETE FROM ' . self::getTrackerTableName() . ' WHERE user_id=%d AND measure_date=%s', get_current_user_id(), $date)
          );
+
+         if($form->hasValue('record-food')){
+             $data['food_log_explanation'] = $form->getRawValue('food_log_explanation');
+         }
         
          if(!($wpdb->insert(self::getTrackerTableName(), $data))){
              self::$pageData['errors'] = array(
