@@ -58,7 +58,6 @@ class GenesisUserTable extends WP_List_Table {
                      return $this->wrapRed($date);
                  }
                  return $date;
-             case 'user_contacted' :
              case 'account_active' :
                  return (int)$item[$column_name] ? 'Yes' : $this->wrapRed('No');
              case 'withdrawn' : 
@@ -102,7 +101,6 @@ class GenesisUserTable extends WP_List_Table {
                     'user_name'             => 'Name',
                     'user_registered_timestamp'       => 'Register Date',
 		            'unix_timestamp'        => 'Last Measurement Date',
-                    'user_contacted'        => 'Contacted',
                     'withdrawn'             => 'Withdrawn',
 					 'account_active'       => 'Active',
                      'start_weight'       => 'Start Weight (Kg)',
@@ -122,7 +120,6 @@ class GenesisUserTable extends WP_List_Table {
                             //true means it's already sorted
 		               'start_weight'     => array('start_weight',false),
                        'weight'             => array('weight', false),
-                       'user_contacted'     => array('user_contacted', false),
                        'withdrawn'          => array('withdrawn', false),
                        'account_active'     => array('account_active', false),
                        'weight_change'      => array('weight_change', false),
