@@ -41,6 +41,7 @@ class GenesisTracker{
     // Migrate relevant keys to cols here
     const userActiveCol = "account_active";
     const passcodeGroupCol = "passcode_group";
+    const eligibilityCol = "eligibility_id";
     const userStartWeightCol = "start_weight";
     const userContactedCol = "user_contacted";
     const userWithdrawnCol = "withdrawn";
@@ -84,6 +85,8 @@ class GenesisTracker{
     const FOUR_WEEK_SEND_TYPE_AUTOMATIC = 'AUTOMATIC';
     
     const CACHE_DIR = "genesis-tracker";
+    const REGISTER_URL = "wp-login.php?action=register";
+    const DOCTOR_ELIGIBILITY_GET_PARAM = "eligibility_check_success";
 
     // TODO: MAKE SURE THIS IS ENABLED
     const CACHE_ENABLED = false;
@@ -273,7 +276,8 @@ class GenesisTracker{
           `six_month_email_opt_out` tinyint(1) DEFAULT NULL,
           `study_group` varchar(255) DEFAULT NULL,
           `show_med` varchar(255) DEFAULT NULL,
-          `gender` varchar(255) DEFAULT 'female'
+          `gender` varchar(255) DEFAULT 'female',
+          `eligibility_id` int(11) unsigned DEFAULT NULL,
           PRIMARY KEY  (`id`)
         )");
 
@@ -533,8 +537,17 @@ class GenesisTracker{
      }
      
      public static function isOnRegistrationPage(){
-         $registerUrl = wp_registration_url();
-         return $registerUrl == site_url($_SERVER['REQUEST_URI']);
+         $registerUrl = self::REGISTER_URL;
+
+         if(strpos($registerUrl, $_SERVER['REQUEST_URI']) !== false){
+             return true;
+         }
+         
+         if(self::isOnLoginPage() && isset($_GET['action']) && $_GET['action'] == 'register'){
+             return true;
+         }
+         
+         return false;
      }
      
      public static function isOnLoginPage(){
@@ -542,12 +555,9 @@ class GenesisTracker{
      }
      
      public static function initActions(){
-         // Use this for things like the login / register page
-         $registerUrl = wp_registration_url();
-         $currentUrl =  get_site_url(null, $_SERVER['REQUEST_URI']);
-         
 
-         if(self::isOnRegistrationPage() && self::userIsEligible() == false){
+         if((self::isOnRegistrationPage() && self::userIsEligible() == false)
+             && self::isOnDoctorEligibilityRegistrationPage() == false){
              wp_redirect(home_url());
          }
 
@@ -556,8 +566,8 @@ class GenesisTracker{
              wp_localize_script('login', 'wpBaseUrl', get_site_url());
          }
         
-        // We set the username as the email address
-        if($registerUrl == $currentUrl && count($_POST)){
+        // We set the username as the email address when registering
+        if(self::isOnRegistrationPage() && count($_POST)){
             if(isset($_POST['user_email'])){
                 $_POST['user_login'] = $_POST['user_email'];
             }
@@ -574,10 +584,20 @@ class GenesisTracker{
          
          $errors->errors = $errs;
          
-         if(!self::userIsEligible()){
+         if(self::userIsEligible() == false && self::isOnDoctorEligibilityRegistrationPage() == false){
              $errors->errors = array();
              $errors->add( 'eligible_error', __('<strong>ERROR</strong>: Sorry, you are not eligible for this research study.','mydomain') );
              return $errors;
+         }
+
+         if(self::isOnDoctorEligibilityRegistrationPage()) {
+             if (empty($_POST['unique_id'])) {
+                 $errors->add('unique_id_error', __('<strong>ERROR</strong>: Please enter your Unique ID'));
+             }else{
+                if(self::getEligibilityResultFromUniqueID($_POST['unique_id']) == false){
+                    $errors->add('eligibility_not_found', __('<strong>ERROR</strong>: We could not find a record of your eligibility results. Please make sure you have entered your Unique ID correctly'));
+                }
+             }
          }
          
          if(empty($_POST['first_name'])){
@@ -598,6 +618,7 @@ class GenesisTracker{
         if ( strlen( trim($_POST['password']) ) < 8 ) {
             $errors->add( 'password_too_short', "<strong>ERROR</strong>: Passwords must be at least eight characters long" );            
         }
+
         
         return $errors;
      }
@@ -645,7 +666,6 @@ class GenesisTracker{
      }
      
      public static function checkRegistrationPost($user_id){
-         global $ezemails_options;
          if ( isset( $_POST['first_name'] ) ){
              update_user_meta($user_id, 'first_name', trim($_POST['first_name']));
          }
@@ -660,6 +680,15 @@ class GenesisTracker{
          
          if( isset( $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]) ){
              GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
+         }
+
+         // Save the eligibility data and passcode data if we're coming back to the site from GP consent
+         // Only log eligibility result if in this case, in other cases we know the answers to the questions will be all correct
+         if(self::isOnDoctorEligibilityRegistrationPage()){
+             if($eligibilityResult = self::getEligibilityResultFromUniqueID($_POST['unique_id'])) {
+                 GenesisTracker::setUserData($user_id, self::eligibilityCol, $eligibilityResult->id);
+                 GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $eligibilityResult->passcode);
+             }
          }
          
          $userdata = array();
@@ -681,22 +710,21 @@ class GenesisTracker{
         }
         
         unset($_SESSION[self::getOptionKey(self::eligibilitySessionKey)]);
-        
+
          $headers = self::getEmailHeaders();
-        $contents = self::getTemplateContents('register');
+         $contents = self::getTemplateContents('register');
         
-        $contents = str_replace(array(
+         $contents = str_replace(array(
             "%user_email%",
             "%user_pass%",
             "%site_url%",
             '%genesis_logo%',
-        ),array(
+         ),array(
             trim($_POST['user_email']),
             $plaintext_pass,
             get_site_url(),
             self::getLogoUrl()
-        ), $contents);
-
+         ), $contents);
          
         $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
 
@@ -829,6 +857,14 @@ class GenesisTracker{
      public static function userIsEligible(){
          return $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] == true;
      }
+
+    public static function isOnDoctorEligibilityRegistrationPage(){
+        if(!isset($_GET[self::DOCTOR_ELIGIBILITY_GET_PARAM])
+            || !(bool) $_GET[self::DOCTOR_ELIGIBILITY_GET_PARAM]){
+            return false;
+        }
+        return self::isOnRegistrationPage();
+    }
      
      public static function getuserMetaTargetFields(){
          return self::$_userMetaTargetFields;
@@ -1075,6 +1111,19 @@ class GenesisTracker{
 
         require_once($pluginBase . 'lib/fpdf181/fpdf.php');
         require_once($pluginBase . 'lib/fpdi2/src/autoload.php');
+    }
+
+    public static function getEligibilityResultFromUniqueID($uniqueID){
+        global $wpdb;
+
+        $res = $wpdb->get_row(
+            $sql = $wpdb->prepare(
+                "SELECT * FROM " . self::getEligibilityResultTableName() . " WHERE unique_id=%s",
+                $uniqueID
+            )
+        );
+
+        return $res;
     }
 
     public static function eligibilityDoctorDownloadPageAction(){
@@ -3089,6 +3138,18 @@ class GenesisTracker{
 
          return $result[$key];
      }
+    
+    public static function doSiteUrlChanges( $url, $path, $scheme, $blog_id ){
+        // Adapt the URL for the registration form
+        if(self::isOnDoctorEligibilityRegistrationPage()){
+            if(strpos($url, self::REGISTER_URL) !== false){
+                return $url . "&" . self::DOCTOR_ELIGIBILITY_GET_PARAM . "=1";
+            }
+
+        }
+
+        return $url;
+    }
      
      // Use this instead of WP's meta fields for the following values:
      // start_weight, account_active, passcode_group, user_contacted, withdrawn, notes,

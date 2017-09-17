@@ -47,6 +47,8 @@ add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPasswo
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 add_filter('show_admin_bar', '__return_false');
 
+// This is mainly to modify the registration url for the registration doctor consent URL
+add_filter('site_url', array('GenesisTracker', 'doSiteUrlChanges'), 10, 4);
 
 
 add_filter('bbp_get_reply_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
@@ -214,6 +216,13 @@ if(!is_admin()){
     add_filter( 'wp_login_errors',  array('GenesisTracker', 'modifyRegistrationMessage'), 10, 2);
    
     add_filter( 'login_message', function($message){
+        if(GenesisTracker::isOnDoctorEligibilityRegistrationPage()){
+            return GenesisThemeShortCodes::readingBox(
+                'Thank you for obtaining your doctor\'s consent to take part the Family History Lifestyle Study',
+                '<ul><li>Please fill in your details below</li><li>You\'ll need your Unique ID from your doctor\'s consent letter</li></ul>'
+            );
+        }
+
          if(GenesisTracker::isOnRegistrationPage()){
             return GenesisThemeShortCodes::readingBox(
                 'Thank you for taking an interest in The Family History Lifestyle Study',
@@ -284,6 +293,14 @@ function genesis_add_registration_fields(){
       $first_name = ( isset( $_POST['first_name'] ) ) ? stripslashes(trim($_POST['first_name'])) : '';
       $last_name = ( isset( $_POST['first_name'] ) ) ? stripslashes(trim($_POST['last_name'])) : '';
       ?>
+    <?php if(GenesisTracker::isOnDoctorEligibilityRegistrationPage()):?>
+        <?php $unique_id = isset($_POST['unique_id']) ? $_POST['unique_id'] : ""; ?>
+        <p>
+            <label for="unique_id">Your Unique ID<br/>
+                <input id="unique_id" autocomplete="off" class="input" type="text" value="<?php echo esc_attr($unique_id);?>" size="25" name="unique_id" />
+            </label>
+        </p>
+    <?php endif; ?>
       <p>
           <label for="first_name"><?php _e('First Name') ?><br />
           <input type="text" autocomplete="off" name="first_name" id="first_name" class="input" value="<?php echo esc_attr($first_name);?>" size="25" /></label>
@@ -308,6 +325,7 @@ function genesis_add_registration_fields(){
           <input id="repeat_password" autocomplete="off" class="input" type="password" size="25" value="" name="repeat_password" />
           </label>
       </p>
+
       
       <p class="message"><?php _e('You will receive an email containing your registration details.<br />Keep this safe, you will need them when your account has been activated.'); ?></p>
       <?php
