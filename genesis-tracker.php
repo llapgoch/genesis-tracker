@@ -1251,7 +1251,7 @@ function genesis_ineligible_survey_page(){
     $downloadPdfUrl = GenesisTracker::getEligibilityDoctorDownloadPagePermailink() . "?hash_id=" . $result->hash_id;
 
     echo surveys_universal_shortcode(array(
-        1,
+        200,
         array('eligibility_id' => $result->id)
     ));
 
