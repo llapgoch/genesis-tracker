@@ -40,6 +40,7 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::eligibilityDoctorPage
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligiblePageId), 'genesis_ineligible_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::prescriptionPageId), 'genesis_prescription_page');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::physiotecLoginPageId), 'genesis_physiotec_login');
+add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligibleSurveyPageId), 'genesis_ineligible_survey_page');
 
 add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
@@ -1225,10 +1226,37 @@ function genesis_ineligible_page(){
     $outputBody = false;
     $ineligibleDownloadPdfUrl = plugins_url('downloads/advice.pdf', __FILE__);
     $twoDayDietDownloadPdfUrl = plugins_url('downloads/2-day-diet-advice.pdf', __FILE__);
+
+    $surveyPageUrl = GenesisTracker::getIneligibleSurveyPagePermalink() . "?result=" . GenesisTracker::$pageData['eligibilityResult']->hash_id;
+
     
     require('page/ineligible.php');
     $outputBody = true;
     
+    $output = ob_get_contents();
+    ob_end_clean();
+    return $output;
+}
+
+function genesis_ineligible_survey_page(){
+    ob_start();
+
+    $result = GenesisTracker::getPageData('eligibilityResult');
+
+    if(!$result){
+        return;
+    }
+
+    $outputBody = false;
+    $downloadPdfUrl = GenesisTracker::getEligibilityDoctorDownloadPagePermailink() . "?hash_id=" . $result->hash_id;
+
+    echo surveys_universal_shortcode(array(
+        1,
+        array('eligibility_id' => $result->id)
+    ));
+
+    $outputBody = true;
+
     $output = ob_get_contents();
     ob_end_clean();
     return $output;

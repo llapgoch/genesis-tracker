@@ -1,11 +1,17 @@
 <div class="input-form eligibility-fail">
     <div class="question-outer-container">
         <div class="title">
-            <h2><label class="general-label"><?php _e('Thank you for taking an interest in The Family History Lifestyle Study');?></label></h2>
+            <h2><label class="general-label"><?php _e('Thank you for completing the Family History Lifestyle study eligibility questions');?></label></h2>
         </div>
         <div class="content">
-            <p><?php _e("PLACEHOLDER CONTENT");?></p>
-            <a href="<?php echo $downloadPdfUrl; ?>"><?php _e('Download form');?></a>
+            <ul>
+                <li>Because you answered yes to one or more of the exercise readiness questions, we would like you to seek further advice from your GP nurse  about  your suitability for  the study.</li>
+                <li>Please take this letter and the patient information sheet to you GP to complete before returning it to the dietitians. If you have any questions please contact the research dietitians on 0161 291 4413 or <a href="mailto:lifestyleresearch@nhs.net">lifestyleresearch@nhs.net</a>.</li>
+            </ul>
+
+            <div class="button-c-container">
+                <a class="button large green" href="<?php echo $downloadPdfUrl; ?>"><?php _e('Download Doctor\'s Letter');?></a>
+            </div>
         </div>
     </div>
 </div>

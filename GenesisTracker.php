@@ -22,6 +22,7 @@ class GenesisTracker{
     const prescriptionPageId = "prescription_page";
     const physiotecLoginPageId = "physiotec_login_page";
     const eligibilityDoctorPageId = "eligibility_doctor_page";
+    const ineligibleSurveyPageId = "ineligible_survey_page";
     const weightEnterSessionKey = "___WEIGHT_ENTER___";
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
@@ -488,14 +489,19 @@ class GenesisTracker{
             }
         }
 
+        // Change surveys - add a hidden type (initially so we can log eligibility IDs alongside a survey)
+        $wpdb->query($sql = "ALTER TABLE {$wpdb->prefix}surveys_question CHANGE user_answer_format user_answer_format ENUM('entry','textarea','checkbox','hidden')");
+
+
          // Create the user page if it's not already there         
-          self::createUserPage();
+         self::createUserPage();
          self::createInputPage();
          self::createTargetInputPage();
          self::createInitialWeightPage();
          self::createEligibilityPage();
          self::createEligibilityExercisePage();
          self::createIneligiblePage();
+         self::createIneligibleSurveyPage();
          self::createPrescriptionPage();
          self::createPhysiotecLoginPage();
          self::createEligibilityDoctorPage();
@@ -2146,6 +2152,10 @@ class GenesisTracker{
      public static function updateOption($option, $value){
          update_option(self::prefixId . $option, $value);
      }
+
+     public static function getIneligibleSurveyPagePermalink(){
+         return get_permalink(self::getOption(self::ineligibleSurveyPageId));
+     }
      
      public static function getUserPagePermalink(){
          return get_permalink(self::getOption(self::userPageId));
@@ -2212,6 +2222,10 @@ class GenesisTracker{
      
      public static function isOnInEligiblePage(){
           return self::isOnPage(self::ineligiblePageId);
+     }
+
+     public static function isOnIneligibleSurveyPage(){
+         return self::isOnPage(self::ineligibleSurveyPageId);
      }
      
      public static function isOnPrescriptionPage(){
@@ -3010,7 +3024,7 @@ class GenesisTracker{
 
          // Do any redirects first - require a hash for exercise questions or ineligible
          if(self::isOnInEligiblePage() || self::isOnEligibilityExercisePage() ||
-             self::isOnEligibilityDoctorPage()){
+             self::isOnEligibilityDoctorPage() || self::isOnIneligibleSurveyPage()){
              // Check we've got a hash
              if(isset($_GET['result'])){
                  // Get the result answers data based on the hash
@@ -3342,30 +3356,57 @@ class GenesisTracker{
     }
 
     public static function createEligibilityExercisePage($overwrite = false){
+    /* Exercise Eligibility */
+
+    $exercisePageID = self::getOption(self::eligibilityExercisePageId);
+    $post = get_post($exercisePageID);
+
+    if($post && $post->post_status == 'publish'  &! $overwrite){
+        return;
+    }
+
+    $pageData = array(
+        'post_title' => 'Check Your Eligibility - Exercise',
+        'comment_status' => 'closed',
+        'post_content' => '[' . self::getOptionKey(self::eligibilityExercisePageId) . ']',
+        'post_status' => 'publish',
+        'post_type' => 'page',
+        'post_author' => self::userIdForAutoCreatedPages
+    );
+
+    if($exercisePageID){
+        wp_delete_post($exercisePageID, true);
+    }
+
+    $post_id = wp_insert_post($pageData);
+    self::updateOption(self::eligibilityExercisePageId, $post_id);
+}
+
+    public static function createIneligibleSurveyPage($overwrite = false){
         /* Exercise Eligibility */
 
-        $exercisePageID = self::getOption(self::eligibilityExercisePageId);
-        $post = get_post($exercisePageID);
+        $pageId = self::getOption(self::ineligibleSurveyPageId);
+        $post = get_post($pageId);
 
         if($post && $post->post_status == 'publish'  &! $overwrite){
             return;
         }
 
         $pageData = array(
-            'post_title' => 'Check Your Eligibility - Exercise',
+            'post_title' => 'Check Your Eligibility - Survey',
             'comment_status' => 'closed',
-            'post_content' => '[' . self::getOptionKey(self::eligibilityExercisePageId) . ']',
+            'post_content' => '[' . self::getOptionKey(self::ineligibleSurveyPageId) . ']',
             'post_status' => 'publish',
             'post_type' => 'page',
             'post_author' => self::userIdForAutoCreatedPages
         );
 
-        if($exercisePageID){
-            wp_delete_post($exercisePageID, true);
+        if($pageId){
+            wp_delete_post($pageId, true);
         }
 
         $post_id = wp_insert_post($pageData);
-        self::updateOption(self::eligibilityExercisePageId, $post_id);
+        self::updateOption(self::ineligibleSurveyPageId, $post_id);
     }
 
     public static function createEligibilityDoctorPage($overwrite = false){

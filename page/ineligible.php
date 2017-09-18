@@ -70,5 +70,16 @@
             
             <p>For further information about the diet and to access a diet plan, <a href="https://fhlstudy.co.uk/wp-content/plugins/genesis-tracker/downloads/2-day-diet-advice.pdf" target="_blank">click here</a></p>
         </div>
+
+        <div class="title">
+            <h2><label class="general-label"><?php _e('Additional Questions');?></label></h2>
+
+        </div>
+        <p>It would be of great help to us if you would fill provide extra feedback for us</p>
+        <div class="button-c-container">
+            <a href="<?php echo $surveyPageUrl?>" class="button green large"><?php _e("Take additional questions");?></a>
+        </div>
+
     </div>
+
 </div>
