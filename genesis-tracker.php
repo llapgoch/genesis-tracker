@@ -1192,7 +1192,7 @@ function genesis_eligibility_page(){
     $eligibilityPdfUrl = plugins_url('downloads/eligibility.pdf', __FILE__);
     $eligibilityQuestions1 = GenesisTracker::getEligibilityQuestions(1);
     $eligibilityQuestions2 = GenesisTracker::getEligibilityQuestions(2);
-    $autoAnswer = true;
+    $autoAnswer = false;
 
     require('page/eligibility.php');
     $outputBody = true;
