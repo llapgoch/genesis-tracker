@@ -631,8 +631,12 @@ class GenesisTracker{
      
      public static function doSurveySuccessMessage($message){
          return GenesisThemeShortCodes::successBox(
-             $message . '<a href="' . self::getUserPagePermalink() . '" class="button large blue">Go to your progress graph</a>'
-         );
+             $message . (
+            is_user_logged_in() ?
+          '<a href="' . self::getUserPagePermalink() . '" class="button large blue">Go to your progress graph</a>'
+            : ""
+             )
+        );
      }
 
      
