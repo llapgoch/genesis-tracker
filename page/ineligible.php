@@ -68,7 +68,7 @@
                 <li>Easy to fit into a normal, busy lifestyle.</li>
             </ul>
             
-            <p>For further information about the diet and to access a diet plan, <a href="https://fhlstudy.co.uk/wp-content/plugins/genesis-tracker/downloads/2-day-diet-advice.pdf" target="_blank">click here</a></p>
+            <p>For further information about the diet and to access a diet plan, <a href="<?php echo $dietPlanPdfUrl;?>" target="_blank">click here</a></p>
         </div>
 
         <div class="title">

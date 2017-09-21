@@ -625,8 +625,15 @@ class GenesisTracker{
      }
      
      public static function doSurveySuccessMessage($message){
+         $afterMessage = "";
+         
+         if(self::isOnIneligibleSurveyPage()){
+             $dietPlanPdfUrl = plugins_url("/downloads/2-day-diet-advice.pdf", __FILE__);
+             $afterMessage = "For further information about the diet and to access a diet plan, <a href='{$dietPlanPdfUrl}'>click here</a>";
+         }
+         
          return GenesisThemeShortCodes::successBox(
-             $message . (
+             $message . $afterMessage . (
             is_user_logged_in() ?
           '<a href="' . self::getUserPagePermalink() . '" class="button large blue">Go to your progress graph</a>'
             : ""

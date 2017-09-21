@@ -1210,7 +1210,7 @@ function genesis_eligibility_exercise_page(){
     $eligibilityPdfUrl = plugins_url('downloads/eligibility.pdf', __FILE__);
     $eligibilityQuestions1 = GenesisTracker::getEligibilityQuestions(1);
     $eligibilityQuestions2 = GenesisTracker::getEligibilityQuestions(2);
-    $autoAnswer = true;
+    $autoAnswer = false;
 
     require('page/eligibility-exercise.php');
     $outputBody = true;
@@ -1228,7 +1228,7 @@ function genesis_ineligible_page(){
     $twoDayDietDownloadPdfUrl = plugins_url('downloads/2-day-diet-advice.pdf', __FILE__);
 
     $surveyPageUrl = GenesisTracker::getIneligibleSurveyPagePermalink() . "?result=" . GenesisTracker::$pageData['eligibilityResult']->hash_id;
-
+    $dietPlanPdfUrl = plugins_url("/downloads/2-day-diet-advice.pdf", __FILE__);
     
     require('page/ineligible.php');
     $outputBody = true;
