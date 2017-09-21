@@ -387,11 +387,6 @@ class GenesisTracker{
                     'set_number' => 1
                 ),
                 array(
-                    'question' => 'Are you currently taking medication for raised </strong>cholesterol</strong>?',
-                    'correct' => 2,
-                    'set_number' => 1
-                ),
-                array(
                     'question' => 'Have you ever been diagnosed with <strong>kidney disease</strong>?',
                     'correct' => 2,
                     'set_number' => 1
