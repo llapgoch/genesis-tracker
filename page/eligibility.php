@@ -215,7 +215,8 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                 echo $form->input('passcode', 'password', array(
         			'class' => 'general-input',
                     'id' => 'passcode',
-					'default' => $autoAnswer ? "FHLUHS" : ""
+					'default' => $autoAnswer ? "FHLUHS" : "",
+					'autocomplete' => 'off'
                 ));
                 ?>
             </div>

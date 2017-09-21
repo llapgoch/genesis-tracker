@@ -343,7 +343,7 @@ class GenesisTracker{
             $eligibilityQuestions = array(
                 array(
                   'question' => 'Are you receiving <strong>annual or 18 monthly mammograms because you have an increased risk of breast cancer</strong>?',
-                  'correct' => 2,
+                  'correct' => 1,
                     'set_number' => 1
                 ),
                 array(
@@ -1284,7 +1284,7 @@ class GenesisTracker{
              $eligible = false;
          }
          
-         if((int)$form->getRawValue("age") < 47 || (int)$form->getRawValue("age") > 74){
+         if((int)$form->getRawValue("age") < 30 || (int)$form->getRawValue("age") > 74){
              $eligible = false;
          }
          
