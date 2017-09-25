@@ -9,7 +9,7 @@ class GenesisTracker{
     // it twice.  Go Wordpress!
 
 
-    const version = "1.47.1";
+    const version = "1.47.2";
     
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
@@ -145,6 +145,11 @@ class GenesisTracker{
         "male" => array("name" => "Male"),
         "female" => array("name" => "Female")
     );
+    
+    protected static $_fourWeekPoints = array(
+        30, 34, 38, 42, 46, 50
+    );
+    
     
     
     public function populate(){
@@ -334,6 +339,19 @@ class GenesisTracker{
         $wpdb->query($sql =  "ALTER TABLE " . self::getEligibilityResultTableName() . " 
             DROP COLUMN happy_to_follow" );
 
+
+        
+        dbDelta($sql = "CREATE TABLE ". self::getFourWeekEmailLogTableName() . " (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `user_id` int(11) unsigned DEFAULT NULL,
+          `type` VARCHAR(255) DEFAULT NULL,
+          `log_date` datetime DEFAULT NULL,
+          `week` TINYINT(4) DEFAULT NULL,
+          `send_type` varchar(255) DEFAULT 'MANUAL',
+          PRIMARY KEY  (`id`)
+        )");
+        
+
         if(!$userDataTableExists){
             // Migrate the data to the new table!
             GenesisMigration::migrateUsers();
@@ -522,6 +540,10 @@ class GenesisTracker{
             'date_created' => current_time('Y-m-d H:i:s')
         ));
     }
+     
+     public static function getFourWeeklyPoints(){
+         return self::$_fourWeekPoints;
+     }
      
      public static function checkVersionUpgrade(){
          $installedVersion = self::getOption(self::versionKey);
@@ -968,6 +990,11 @@ class GenesisTracker{
      public static function getEligibilityResultAnswersTableName(){
          global $wpdb;
          return $wpdb->base_prefix . "genesis_eligibility_result_answers";
+     }
+     
+     public static function getFourWeekEmailLogTableName(){
+         global $wpdb;
+         return $wpdb->base_prefix . "genesis_eligibility_four_week_log";
      }
      
      public static function checkTableExists($tableName){
@@ -3574,8 +3601,131 @@ class GenesisTracker{
          return plugins_url('images/genesis-logo@2x.png', __FILE__);
      }
      
-   
+     public static function sendFourWeeklyEmail($userId, $type, $manualMode = false){
+         global $wpdb;
+         
+         if(!in_array($type, array_keys(GenesisAdmin::getFourWeekEmailTypes()))){
+             return array(
+                 'message' => 'Invalid type'
+             );
+         }
+         
+         if(!$user = get_userdata($userId)){
+             return array(
+                 'message' => 'Invalid user'
+             );
+         }
+         
+        $userDetails = GenesisAdmin::getUserLogDetails(null, $userId, $manualMode);
+        
+        if(!in_array($userDetails['weeks_registered'], self::$_fourWeekPoints)){
+            return array(
+                'message' => 'This user has not been registered for a correct four weekly point'
+            );
+        }
+         
+        $uploadsDir = wp_upload_dir();
+        $body = self::getTemplateContents('four-weekly-' . strtolower($type));
+        
+        $body = str_replace(array(
+            '%genesis_logo%',
+            '%user_nicename%',
+            '%contact_email%',
+            '%healthy_weight_range_link%',
+            '%keeping_the_weight_off_link%',
+            '%hints_and_tips_link%',
+            '%diet_day_link%',
+            '%med_day_link%',
+            '%newsletters_link%',
+            
+        ),
+        array(
+            self::getLogoUrl(),
+            $user->user_firstname,
+            self::alternateContactEmail,
+            site_url('your-profile'),
+            $uploadsDir['url'] . '2015/06/PROCAS-Lifestyle-The-2-Day-Diet-Keeping-weight-off-V1-27.5.15.pdf',
+            site_url('faq'),
+            site_url('2-day-recipes'),
+            site_url('mediterranean-recipes'),
+            site_url('newsletters')
+        ), $body);
+        
+         if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'] . ' feedback', $body, self::getEmailHeaders())){
+            // Mark user's account
+            self::setUserData($user->ID, self::fourWeekleyEmailDateCol, current_time('Y-m-d H:i:s'));
+            
+            $wpdb->insert(self::getFourWeekEmailLogTableName(), array(
+                'user_id' => $userId,
+                'type' => $type,
+                'log_date' => current_time('Y-m-d H:i:s'),
+                'week' => $userDetails['weeks_registered'],
+                'send_type' => $manualMode ? self::FOUR_WEEK_SEND_TYPE_MANUAL : self::FOUR_WEEK_SEND_TYPE_AUTOMATIC
+            ));
+
+             self::clearCachedUserData($userId);
+
+            return true;
+        }else{
+        
+            return array(
+                'message' => 'The email failed to send'
+            );
+        }
+        
+     }
      
+     public static function sendRedFlagEmail($userId, $manualMode = false){
+         
+         if($userDetails = GenesisAdmin::getUserLogDetails(null, $userId, $manualMode)){
+             if($userDetails['six_month_benchmark_change_email_check'] >= 1){
+                 $uploadsDir = wp_upload_dir();
+                $user = get_userdata($userId);
+                $body = self::getTemplateContents('red-flag');
+                
+                $body = str_replace(array(
+                    '%genesis_logo%',
+                    '%user_nicename%',
+                    '%two_day_diet_link%',
+                    '%contact_email%',
+                    '%hints_and_tips_link%',
+                    '%diet_day_link%',
+                    '%mediterranean_day_link%',
+                    '%newsletters_link%',
+                ),
+                array(
+                    self::getLogoUrl(),
+                    $user->user_firstname,
+                    $uploadsDir['url'] . '2015/06/PROCAS-Lifestyle-The-2-Day-Diet-Keeping-weight-off-V1-27.5.15.pdf',
+                    self::alternateContactEmail,
+                    site_url('faq'),
+                    site_url('2-day-recipes'),
+                    site_url('mediterranean-recipes'),
+                    site_url('newsletters')
+                ), $body);
+                
+                 if(wp_mail($user->user_email, 'Your recent weight', $body, self::getEmailHeaders())){
+                     // Mark user's account
+                     GenesisTracker::setUserData($user->ID, self::redFlagEmailDateCol, current_time('Y-m-d H:i:s'));
+                     GenesisTracker::logMessage('Sent Red Flag Email ' . $user->ID);
+                     return true;
+                    
+                }else{
+                    return array(
+                        'message' => 'The email failed to send'
+                    );
+                }
+             }else{
+                 return array(
+                    'message' => 'The user is not eligible for a red flag email'
+                 );
+             }
+         }else{
+             return array(
+                 'message' => 'No logs for this user could be found'
+             );
+         }
+     }
      
      public static function sendReminderEmail(){
          global $wpdb;

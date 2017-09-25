@@ -13,6 +13,55 @@ class GenesisAdmin{
         );
     }
     
+    public static function userIsLosingOrMaintaining($user_id, $weeksBetweenEmail = 4){
+        // This is for the four weekly emails.
+        // A user is considered as losing if their two consecutive weights
+        // prior to their newest log indicate a downward trend
+        global $wpdb;
+        
+        $results = $wpdb->get_results( $sql = $wpdb->prepare("
+        SELECT measure_date, weight, 
+            ud.six_month_weight,
+            ud.six_month_date
+            FROM " . GenesisTracker::getTrackerTableName() . " t
+            LEFT JOIN " . GenesisTracker::getUserDataTableName() . " ud
+                ON ud.`user_id` = t.`user_id`
+            WHERE /* measure_date >= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK) */
+               /* AND  */ measure_date >= ud.six_month_date 
+                AND t.user_id = %d
+                AND weight IS NOT NULL
+            ORDER BY measure_date DESC
+            LIMIT 2",
+            $user_id
+        ));
+        
+        if($_GET['debug'] == 1){
+            echo $sql;
+        }
+        
+        // Remove the latest weight
+        if(count($results) < 2){
+            return false;
+        }
+        
+        $secondWeight = (float) (array_pop($results)->weight);
+        $lastWeight = (float) (array_pop($results)->weight);
+        
+        // To be losing, the last weight needs to be 1kg or under the previous weight
+        if($lastWeight + 1 <= $secondWeight){
+            return self::WEIGHT_LOSING;
+        }
+        
+        
+        
+        // To be maintaining, a user must have their two previous weights within 1kg of the most recent weight
+        if($secondWeight >= ($lastWeight - 0.5) && $secondWeight <= ($lastWeight + 0.5)){
+            return self::WEIGHT_MAINTAINING;
+        }
+        
+        return false;
+    }
+    
     public static function doAdminInitHook(){
         global $pagenow;
         
@@ -112,7 +161,39 @@ class GenesisAdmin{
         return $results;
     }
 
+    // Needs testing - for automatically sending four week and red flag emails
+    public static function sendAllWeightEmails(){
+        $logs = self::getUserLogDetails();
+        $headers = GenesisTracker::getEmailHeaders();
 
+        GenesisTracker::logMessage("Attempting send of four week emails");
+
+        foreach($logs as $log){
+            // Red Flag
+            if($log['six_month_benchmark_change_email_check'] >= 1){
+
+                $contents = "A red flag email has been sent to user: " . $log['user_email'];
+
+                wp_mail(GenesisTracker::alternateContactEmail, 'A Red Flag Email Has Been Sent', $contents, $headers);
+
+                $result = GenesisTracker::sendRedFlagEmail($log['user_id']);
+
+                if(is_array($result)){
+                    GenesisTracker::logMessage($result['message']);
+                }
+            }
+
+            if($log['four_week_required_to_send']){
+
+                $result = GenesisTracker::sendFourWeeklyEmail($log['user_id'], $log['four_week_outcome']);
+
+                if(is_array($result)){
+                    GenesisTracker::logMessage($result['message']);
+                }
+            }
+
+        }
+    }
 
     public static function getUserLogDetails($sortBy = 'measure_date', $user = null, $manualMode = false, $useCache = false){
         global $wpdb;
@@ -129,6 +210,22 @@ class GenesisAdmin{
             return $cache;
         }
         
+        $fourWeekArray = GenesisTracker::getFourWeeklyPoints();
+        
+        $newFourWeekZones = array();
+        $weeksBetweenEmail = $manualMode ? 3 : 4;
+        
+        // Make the sending more flexible
+        if($manualMode){
+            foreach($fourWeekArray as $zone){
+                $newFourWeekZones[] = $zone;
+                $newFourWeekZones[] = $zone - 1;
+            }
+            
+            $fourWeekArray = $newFourWeekZones;
+        }
+        
+         $fourWeekZones = implode($fourWeekArray, ", ");
 
         // Use this when executing the SQL in the GUI:
         //set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
@@ -144,8 +241,48 @@ class GenesisAdmin{
                 AND six_month_weight IS NOT NULL, 
                     IF(last_six_month_weight IS NULL, six_month_weight, last_six_month_weight) - LEAST(IFNULL(min_weight_after_six_months, 10000), six_month_weight), 0) 
                 as six_month_benchmark_change,
-      
-              
+            /* This, for some reason wouldn't work with six_month_email_opt_out <> 1, hence the IS NULL OR = 0 */
+            IF(registered_for_year = 0 AND withdrawn <> 1, 
+                GREATEST(IF(red_flag_email_date IS NULL AND (six_month_email_opt_out IS NULL OR six_month_email_opt_out = 0) AND six_month_date IS NOT NULL
+                    AND six_month_weight IS NOT NULL, 
+                        IF(last_six_month_weight IS NULL, 
+                            six_month_weight, last_six_month_weight
+                        ) - LEAST(IFNULL(
+                                min_weight_after_six_months
+                            , 10000), 
+                        six_month_weight), 
+                    0), 
+                  0),
+                0) as six_month_benchmark_change_email_check,
+                
+            IF( registered_for_year = 0 AND withdrawn <> 1
+                AND six_month_weight IS NOT NULL 
+                AND six_month_date IS NOT NULL 
+                /* Don't send a four week email if the red flag email was sent within the last week */
+                AND (
+                    red_flag_email_date IS NULL 
+                    OR red_flag_email_date < DATE_SUB(NOW(), INTERVAL 1 WEEK)
+                )
+                /* This, for some reason wouldn't work with six_month_email_opt_out <> 1, hence the IS NULL OR = 0 */
+                AND (six_month_email_opt_out IS NULL 
+                    OR six_month_email_opt_out = 0
+                ) 
+                AND in_four_week_zone = 1, 
+                    IF(four_weekly_date <= DATE_SUB(NOW(), INTERVAL " . $weeksBetweenEmail . " WEEK) 
+                        OR four_weekly_date IS NULL, 
+                1, 0), 
+            NULL) as four_week_required_to_send,
+            
+            /* Use least_weight instead of lowest_weight in result sets as it takes into account the initial weight */
+            LEAST(lowest_weight, start_weight, IFNULL(six_month_weight, 10000)) as least_weight,
+            
+            IF(four_weekly_weight IS NULL, 'NOTHING', 
+                IF(IF(min_weight_after_six_months IS NULL, six_month_weight, LEAST(min_weight_after_six_months, six_month_weight)) - four_weekly_weight >= 1, 'LOSING',
+                    IF(IF(min_weight_after_six_months IS NULL, six_month_weight, LEAST(min_weight_after_six_months, six_month_weight)) - four_weekly_weight <= -1, 'GAINING',
+                        'MAINTAINING'
+                    )
+                )
+            ) as four_week_outcome,
             
             IF(min_weight_after_six_months IS NULL, six_month_weight, LEAST(min_weight_after_six_months, six_month_weight)) as benchmark_weight
             
@@ -160,11 +297,11 @@ class GenesisAdmin{
                 notes,
                 six_month_weight,
                 start_weight,
-                
-                
+                red_flag_email_date,
+                four_weekly_date,
                 six_month_email_opt_out,
                 passcode_group,
-                
+                UNIX_TIMESTAMP(four_weekly_date) as four_weekly_date_timestamp,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
                 six_month_date,
@@ -175,7 +312,7 @@ class GenesisAdmin{
                 IF(DATE_ADD(DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY), INTERVAL 52 WEEK) < NOW(), 1, 0) as registered_for_year,
                 /* The weeks registered goes from the monday after the start date, not registration date */
                 FLOOR(DATEDIFF(NOW(), DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY))/7) + 1 as weeks_registered,
-                
+                IF((FLOOR(DATEDIFF(NOW(), DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY))/7) + 1) IN ($fourWeekZones), 1, 0) as in_four_week_zone,
                 DATE_ADD(start_date, INTERVAL (7 - WEEKDAY(start_date)) DAY) as actual_start_date,
                 (SELECT weight 
                     FROM " . GenesisTracker::getTrackerTableName() . " 
@@ -201,7 +338,17 @@ class GenesisAdmin{
                             WHERE user_id = u.ID
                             AND NOT ISNULL(weight)
                     ) 
-                ) as min_weight_after_six_months
+                ) as min_weight_after_six_months,
+                (SELECT weight 
+                    FROM " . GenesisTracker::getTrackerTableName() . "
+                    /* Change this back to four weeks when getting the user's weight */
+                    WHERE measure_date >= DATE_SUB(NOW(), INTERVAL 4 WEEK)
+                        AND measure_date > six_month_date
+                        AND weight IS NOT NULL
+                        AND user_id=u.ID
+                    ORDER BY measure_date DESC
+                    LIMIT 1
+                ) as four_weekly_weight
                 
             FROM " . $wpdb->users . " u
                 LEFT JOIN " . GenesisTracker::getTrackerTableName() . " t
@@ -221,6 +368,37 @@ class GenesisAdmin{
             ORDER BY $sortBy",
             ARRAY_A);
 
+        $fourWeekPoints = GenesisTracker::getFourWeeklyPoints();
+        
+        foreach($results as &$result){
+            $result['red_flag_message'] = '';
+            // Change the output if the user's week doesn't fit with a four week point
+            if(!in_array($result['weeks_registered'], $fourWeekPoints)){
+                $result['four_week_required_to_send'] = 0;
+            }
+            
+            // Do the four weekly logic
+            if($result['four_week_outcome'] == self::WEIGHT_MAINTAINING 
+                || $result['four_week_outcome'] == self::WEIGHT_GAINING){
+                
+                // Put this back to four weeks as we still want to get the weight for the last month
+                if($losingOrMaintaining = self::userIsLosingOrMaintaining($result['user_id'], 4)){
+                    $result['four_week_outcome'] = $losingOrMaintaining;
+                }
+            }
+
+            // Don't send a red flag email if the user is flagged as losing weight
+            if($result['four_week_outcome'] == self::WEIGHT_LOSING){
+               $result['six_month_benchmark_change_email_check'] = 0;
+               $result['red_flag_message'] = 'This user has recently lost weight so a red flag is not available to send.';
+            }else{
+                // If the user is not losing and a red flag has been flagged, don't mark the four week email.
+                if($result['six_month_benchmark_change_email_check'] >= 1){
+                    $result['four_week_required_to_send'] = 0;
+                }
+            }
+            
+        }
      
         
      
