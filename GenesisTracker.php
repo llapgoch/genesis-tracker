@@ -407,11 +407,6 @@ class GenesisTracker{
                     'set_number' => 1
                 ),
                 array(
-                    'question' => 'Have you ever been diagnosed with <strong>kidney disease</strong>?',
-                    'correct' => 2,
-                    'set_number' => 1
-                ),
-                array(
                     'question' => 'Do you currently have a diagnosis of an <strong>eating disorder</strong> (e.g. binge eating or bulimia)?',
                     'correct' => 2,
                     'set_number' => 1

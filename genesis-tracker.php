@@ -232,7 +232,7 @@ if(!is_admin()){
          if(GenesisTracker::isOnRegistrationPage()){
             return GenesisThemeShortCodes::readingBox(
                 'Thank you for taking an interest in The Family History Lifestyle Study',
-                '<ul><li>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</li><li><strong>We are happy to say that you are able to take part in the study.</strong></li><li>Please fill in the registration form below and a member of our research team will contact you within 3-4 working days to get you started.</li></ul>'
+                '<ul><li>The information that you have entered on this website has been used to see if you are eligible to take part in our study.</li><li><strong>We are happy to say that you are able to take part in the study.</strong></li><li>Please fill in the registration form below and a member of the research team will contact you within 5 working days.</li></ul>'
             );
         }
 
