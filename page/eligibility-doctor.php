@@ -6,7 +6,7 @@
         <div class="content">
             <ul>
                 <li>Because you answered yes to one or more of the exercise readiness questions, we would like you to seek further advice from your GP about your suitability for the study.</li>
-                <li>Please take this letter and the patient information sheet to you GP to complete before returning it to the dietitians. If you have any questions please contact the research dietitians on 0161 291 4413 or <a href="mailto:lifestyleresearch@nhs.net">lifestyleresearch@nhs.net</a>.</li>
+                <li>Please take this letter and the patient information sheet to your GP to complete before returning it to the dietitians. If you have any questions please contact the research dietitians on 0161 291 4413 or <a href="mailto:lifestyleresearch@nhs.net">lifestyleresearch@nhs.net</a>.</li>
             </ul>
 
             <div class="button-c-container">
