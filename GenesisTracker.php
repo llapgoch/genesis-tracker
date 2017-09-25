@@ -1329,7 +1329,7 @@ class GenesisTracker{
         }
 
         // Not pretty, but validates the extra data box if yes is selected for "any other reason"
-        if((int)$form->getRawValue('question_27') == 1){
+        if((int)$form->getRawValue('question_25') == 1){
             $rules['question-no_physical_activity_reason'] = array("R");
         }
 
