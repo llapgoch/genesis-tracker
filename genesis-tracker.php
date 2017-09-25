@@ -239,8 +239,8 @@ if(!is_admin()){
         if(GenesisTracker::isOnLoginPage() && GenesisTracker::userHasJustRegistered()){
             return GenesisThemeShortCodes::readingBox(
                 'Registration Successful - What Happens Next?',
-                '<ul><li>A member of the research team will contact you within 3-4 days to book an appointment with you.</li><li> We aim to get you started in the trial within 2 weeks of signing up, so it won’t be long before you receive your diet and exercise advice from us.</li> <li>You will receive a food diary to record your normal food and drink intake in the 7 days before your appointment with us.</li>
-<li>Please make sure you don’t change your normal diet and activity level, and do not make any changes before your initial appointment with us.</li><li>You will be able to log in to the website once your account has been activated by a member of our research team.</li></ul><div class="centered-button-box"><a href="' . home_url() . '" class="button large blue">Go to the Family History Lifestyle Study Homepage</a></div>'
+                '<ul><li>A member of the research team will contact you within 5 working days to book an appointment with you.</li><li> Please make sure you don’t change your normal diet and activity level, and do not make any changes before your initial appointment with us.</li> <li>You will be able to log in to the website once your account has been activated by a member of our research team</li>
+</ul><div class="centered-button-box"><a href="' . home_url() . '" class="button large blue">Go to the Family History Lifestyle Study Homepage</a></div>'
             );
         }
         
