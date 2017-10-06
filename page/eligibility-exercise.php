@@ -3,7 +3,6 @@
     "<ul>
                             <li>This diet study involves a home based physical activity plan. Being more active is very safe for most people. However, some people may need to check with their doctor before they join.</li>
                             <li>In order to help you assess whether it is safe for you to do the physical activity plan, please read the following questions carefully and answer honestly: tick Yes or No.</li>
-                            <li>If you have answered “Yes” to one or more questions, a form will be generated that you can take to your GP to sign so that he/she can review if you can join our study.</li>
                         </ul>"
 );
 
