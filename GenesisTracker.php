@@ -9,7 +9,7 @@ class GenesisTracker{
     // it twice.  Go Wordpress!
 
 
-    const version = "1.47.2";
+    const version = "1.48";
     
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
@@ -199,16 +199,26 @@ class GenesisTracker{
           user_id int(11) DEFAULT NULL,
           measure_date datetime DEFAULT NULL,
           weight decimal(10,6) unsigned DEFAULT NULL,
-          exercise_minutes int(11) DEFAULT NULL,
-          exercise_minutes_resistance int(11) DEFAULT NULL,
-          exercise_type varchar(255) DEFAULT NULL,
-          exercise_type_resistance varchar(255) DEFAULT NULL,
-          exercise_description text DEFAULT NULL,
-          exercise_description_resistance text DEFAULT NULL,
+//          exercise_minutes int(11) DEFAULT NULL,
+//          exercise_minutes_resistance int(11) DEFAULT NULL,
+//          exercise_type varchar(255) DEFAULT NULL,
+//          exercise_type_resistance varchar(255) DEFAULT NULL,
+//          exercise_description text DEFAULT NULL,
+//          exercise_description_resistance text DEFAULT NULL,
           weight_unit tinyint(1) unsigned DEFAULT 1,
           food_log_explanation text DEFAULT NULL,
           PRIMARY KEY  (tracker_id),
           KEY user_id (user_id)
+        )");
+
+        dbDelta($sql = "CREATE TABLE " . self::getExerciseLogTableName() . " (
+          id int(11) unsigned NOT NULL AUTO_INCREMENT,
+          tracker_id int(11) unsigned NOT NULL,
+          type varchar(255) DEFAULT NULL,
+          sub_type varchar(255) DEFAULT NULL,
+          minutes int(11),
+          description text DEFAULT NULL,
+          PRIMARY KEY  (id)
         )");
 
         dbDelta($sql = "CREATE TABLE " . self::getLogTableName() . " (
@@ -946,6 +956,11 @@ class GenesisTracker{
          global $wpdb;
          return $wpdb->base_prefix . "genesis_tracker";
      }
+
+    public static function getExerciseLogTableName(){
+        global $wpdb;
+        return $wpdb->base_prefix . "genesis_tracker_exercise";
+    }
 
      protected function getLogTableName(){
          global $wpdb;

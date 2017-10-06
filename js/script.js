@@ -65,6 +65,18 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 				$('.date-input').on('change', function(){
 					updateFormValues($(this));
 				});
+
+
+                // Add exercise events
+                $('.user-tracking-input').on('click', '.js-add-new-exercise', function(ev){
+                    addExerciseType($(this).closest('.js-exercise-type-container'));
+                });
+
+                $('.user-tracking-input').on('click', '.js-remove-exercise', function(ev){
+                    removeExercise($(this).closest('.js-question-row'));
+                });
+
+                updateAllExerciseRows();
 			}
             
             if($('.date-input').val()){
@@ -183,6 +195,40 @@ GenesisTracker.weightToMetric = function(stone, pounds){
               calculateFoodTotals();
 			
 		});
+
+        var questionRowSelector = '.js-question-row';
+
+        function addExerciseType($container, answers){
+            var $clone = $(questionRowSelector, $container).clone();
+            $(questionRowSelector, $container).parent().append($clone);
+
+            updateExerciseRows($container);
+        }
+
+        function removeExercise($row){
+            $container = $row.closest('.js-exercise-type-container');
+
+            if($(questionRowSelector, $container).size() <= 1){
+                return;
+            }
+
+            $row.remove();
+            updateExerciseRows($container);
+        }
+
+        function updateExerciseRows($container){
+            if($(questionRowSelector, $container).size() <= 1){
+                $('.js-remove-exercise', $container).addClass('hidden');
+            }else{
+                $('.js-remove-exercise', $container).removeClass('hidden');
+            }
+        }
+
+        function updateAllExerciseRows(){
+            $('.js-exercise-type-container').each(function(){
+               updateExerciseRows($(this));
+            });
+        }
         
         function calculateFoodTotals(){
             $('.total-box').each(function(){
