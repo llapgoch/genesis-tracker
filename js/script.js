@@ -222,6 +222,28 @@ GenesisTracker.weightToMetric = function(stone, pounds){
             }else{
                 $('.js-remove-exercise', $container).removeClass('hidden');
             }
+
+
+            var renameFields = [
+                {selector:'.js-exercise-minutes', prefix: 'exercise_minutes'},
+                {selector:'.js-exercise-type', prefix: 'exercise_type'},
+                {selector: '.js-exercise-description', prefix: 'exercise_description'}
+            ];
+
+            var count = 0;
+
+            // Rename rows - the validation doesn't work with multidimensional arrays
+            $(questionRowSelector, $container).each(function(){
+                var type = $container.data('exercise-type');
+                var $questionRow = $(this);
+
+                $(renameFields).each(function(i, val){
+                    console.log($(val.selector, $questionRow));
+                    $(val.selector, $questionRow).attr('name', val.prefix + "_" + count);
+                });
+
+                count++;
+            });
         }
 
         function updateAllExerciseRows(){

@@ -330,7 +330,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     		));?>
     			<label for="record-exercise">I would like to record my minutes of exercise for this date</label>
     		<div class="inner-question-container exercise-container js-hide">
-    			<div class="question-container js-exercise-type-container clearfix">
+    			<div class="question-container js-exercise-type-container clearfix" data-exercise-type="aerobic">
     				<div class="title">
     					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Aerobic Exercise');?></label>
 					
@@ -342,17 +342,19 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 								<p class="form-explanation"><?php _e('Enter the minutes of aerobic exercise you completed and the type of exercise it was');?></p>
 
 								<?php
-								echo $form->input('exercise[aerobic][minutes][]', 'text', array(
+								echo $form->input('exercise_aerobic_minutes', 'text', array(
 									'id' => 'exercise_minutes',
-									'class' => 'general-input'
+									'class' => 'general-input js-exercise-minutes'
 								));
 								?>
 								<p class="input-suffix"><?php _e('minutes');?></p>
 
 								<?php
-								echo $form->dropdown('exercise[aerobic][type][]',
+								echo $form->dropdown('exercise_aerobic_type',
 									$exerciseTypes,
-									array()
+									array(
+										'class' => 'js-exercise-type'
+									)
 								);
 								?>
 
@@ -360,11 +362,11 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 							</div>
 							<div class="question-container-small">
 								<?php
-								echo $form->textarea('exercise[aerobic][description][]', array(
+								echo $form->textarea('exercise_aerobic_description', array(
 									'default' => "",
 									'cols' => 30,
 									'rows' => 3,
-									'class' => 'general-input large-input',
+									'class' => 'general-input large-input js-exercise-description',
 									'placeholder' => 'Enter a description for this exercise',
 									'style' => 'height:60px'
 								));
@@ -379,10 +381,9 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 					</div>
     			</div>
                 
-    			<div class="question-container js-exercise-type-container clearfix">
+    			<div class="question-container js-exercise-type-container clearfix" data-exercise-type="resistance">
     				<div class="title">
     					<label for="exercise_minutes_resistance" class="general-label"><?php _e('Minutes of Resistance Exercise');?></label>
-					
     				</div>
 					<div class="exercise-questions-container">
 						<div class="question-row js-question-row">
@@ -390,17 +391,17 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 								<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed and the type of exercise it was');?></p>
 
 								<?php
-								echo $form->input('exercise[resistance][minutes][]', 'text', array(
-									'id' => 'exercise_minutes_resistance',
-									'class' => 'general-input'
+								echo $form->input('exercise_resistance_minutes', 'text', array(
+									'id' => 'exercise_resistance_minutes',
+									'class' => 'general-input js-exercise-minutes'
 								));
 								?>
 								<p class="input-suffix"><?php _e('minutes');?></p>
 
 								<?php
-								echo $form->dropdown('exercise[resistance][type][]',
+								echo $form->dropdown('exercise_resistance_type',
 									$resistanceExerciseTypes,
-									array()
+									array('class' => 'js-exercise-type')
 								);
 								?>
 
@@ -408,11 +409,11 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 							</div>
 							<div class="question-container-small">
 								<?php
-								echo $form->textarea('exercise[resistance][description][]', array(
+								echo $form->textarea('exercise_resistance_description', array(
 									'default' => "",
 									'cols' => 30,
 									'rows' => 5,
-									'class' => 'general-input large-input',
+									'class' => 'general-input large-input js-exercise-description',
 									'placeholder' => 'Enter a description for this exercise',
 									'style' => 'height:60px'
 								));
