@@ -200,6 +200,11 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 
         function addExerciseType($container, answers){
             var $clone = $(questionRowSelector, $container).clone();
+            var $type = $('.js-exercise-type', $clone);
+
+            $('.js-exercise-minutes, .js-exercise-description', $clone).val("");
+            $('.js-exercise-type', $clone).val($('option:first', $type).val());
+
             $(questionRowSelector, $container).parent().append($clone);
 
             updateExerciseRows($container);
@@ -225,9 +230,9 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 
 
             var renameFields = [
-                {selector:'.js-exercise-minutes', prefix: 'exercise_minutes'},
-                {selector:'.js-exercise-type', prefix: 'exercise_type'},
-                {selector: '.js-exercise-description', prefix: 'exercise_description'}
+                {selector:'.js-exercise-minutes', suffix: 'minutes'},
+                {selector:'.js-exercise-type', suffix: 'type'},
+                {selector: '.js-exercise-description', suffix: 'description'}
             ];
 
             var count = 0;
@@ -238,12 +243,13 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                 var $questionRow = $(this);
 
                 $(renameFields).each(function(i, val){
-                    console.log($(val.selector, $questionRow));
-                    $(val.selector, $questionRow).attr('name', val.prefix + "_" + count);
+                    $(val.selector, $questionRow).attr('name', 'exercise_' + type + "_" + val.suffix + "_" + count);
                 });
 
                 count++;
             });
+
+            $('.js-exercise-count', $container).val(count);
         }
 
         function updateAllExerciseRows(){

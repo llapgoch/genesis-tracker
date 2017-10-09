@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 
 echo GenesisThemeShortCodes::readingBox("Input your weight, food intake, and minutes of exercise",
 	"<p>Click the box below to select the date that you want to enter your details for.</p>");
@@ -331,26 +332,31 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     			<label for="record-exercise">I would like to record my minutes of exercise for this date</label>
     		<div class="inner-question-container exercise-container js-hide">
     			<div class="question-container js-exercise-type-container clearfix" data-exercise-type="aerobic">
+					<?php echo $form->input('exercise_aerobic_count', 'hidden', array(
+						'class' => 'js-exercise-count'
+					));
+					?>
     				<div class="title">
-    					<label for="exercise_minutes" class="general-label"><?php _e('Minutes of Aerobic Exercise');?></label>
+    					<label for="exercise_aerobic_minutes" class="general-label"><?php _e('Minutes of Aerobic Exercise');?></label>
 					
     				</div>
 
 					<div class="exercise-questions-container">
+						<?php for($i = 0; $i < $exerciseCount; $i++): ?>
 						<div class="question-row js-question-row">
 							<div class="question-container-small">
 								<p class="form-explanation"><?php _e('Enter the minutes of aerobic exercise you completed and the type of exercise it was');?></p>
 
 								<?php
-								echo $form->input('exercise_aerobic_minutes', 'text', array(
-									'id' => 'exercise_minutes',
+								echo $form->input("exercise_aerobic_minutes_{$i}", 'text', array(
+									'id' => "exercise_aerobic_	minutes_{$i}",
 									'class' => 'general-input js-exercise-minutes'
 								));
 								?>
 								<p class="input-suffix"><?php _e('minutes');?></p>
 
 								<?php
-								echo $form->dropdown('exercise_aerobic_type',
+								echo $form->dropdown("exercise_aerobic_type_{$i}",
 									$exerciseTypes,
 									array(
 										'class' => 'js-exercise-type'
@@ -362,7 +368,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 							</div>
 							<div class="question-container-small">
 								<?php
-								echo $form->textarea('exercise_aerobic_description', array(
+								echo $form->textarea("exercise_aerobic_description_{$i}", array(
 									'default' => "",
 									'cols' => 30,
 									'rows' => 3,
@@ -374,6 +380,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 							</div>
 							<hr class="question-sep js-question-sep" />
 						</div>
+						<?php endfor; ?>
 					</div>
 
 					<div class='question-container-small'>
@@ -382,24 +389,30 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
     			</div>
                 
     			<div class="question-container js-exercise-type-container clearfix" data-exercise-type="resistance">
+					<?php echo $form->input('exercise_resistance_count', 'hidden', array(
+						'class' => 'js-exercise-count'
+					));
+					?>
+
     				<div class="title">
     					<label for="exercise_minutes_resistance" class="general-label"><?php _e('Minutes of Resistance Exercise');?></label>
     				</div>
 					<div class="exercise-questions-container">
+						<?php for($i = 0; $i < $exerciseResistanceCount; $i++): ?>
 						<div class="question-row js-question-row">
 							<div class="question-container-small">
 								<p class="form-explanation"><?php _e('Enter the minutes of resistance exercise you completed and the type of exercise it was');?></p>
 
 								<?php
-								echo $form->input('exercise_resistance_minutes', 'text', array(
-									'id' => 'exercise_resistance_minutes',
+								echo $form->input("exercise_resistance_minutes_{$i}", 'text', array(
+									'id' => "exercise_resistance_minutes_{$i}",
 									'class' => 'general-input js-exercise-minutes'
 								));
 								?>
 								<p class="input-suffix"><?php _e('minutes');?></p>
 
 								<?php
-								echo $form->dropdown('exercise_resistance_type',
+								echo $form->dropdown("exercise_resistance_type_{$i}",
 									$resistanceExerciseTypes,
 									array('class' => 'js-exercise-type')
 								);
@@ -409,7 +422,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 							</div>
 							<div class="question-container-small">
 								<?php
-								echo $form->textarea('exercise_resistance_description', array(
+								echo $form->textarea("exercise_resistance_description_{$i}", array(
 									'default' => "",
 									'cols' => 30,
 									'rows' => 5,
@@ -421,6 +434,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
 							</div>
 							<hr class="question-sep js-question-sep" />
 						</div>
+						<?php endfor; ?>
 					</div>
 					<div class='question-container-small'>
 						<button type="button" name="add-new-exercise" value="savemeasurement" class="button green js-add-new-exercise"><?php _e('Add another resistance exercise');?></button>

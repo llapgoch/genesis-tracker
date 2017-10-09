@@ -99,6 +99,8 @@ class GenesisTracker{
         "FHLTGH",
         "FHLWSM"
     );
+
+
     
 
     public static $pageData = array();
@@ -125,6 +127,11 @@ class GenesisTracker{
         "evening" => array("name" => "Evening"),
         "snacks" => array("name" => "Snacks"),
         "drinks" => array("name" => "Drinks")
+    );
+
+    protected static $_exerciseMainTypes = array(
+        'aerobic',
+        'resistance'
     );
 
     protected static $_exerciseTypes = array(
@@ -1924,10 +1931,44 @@ class GenesisTracker{
          }
          
          if($form->getRawValue('record-exercise')){
-             $rules['exercise_minutes'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
-             $rules['exercise_minutes_resistance'] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
-             $rules['exercise_type'] = array('R');
-             $rules['exercise_type_resistance'] = array('R');
+             $enteredLog = array();
+
+             foreach(self::$_exerciseMainTypes as $type) {
+
+                 $count = $form->getRawValue("exercise_{$type}_count");
+
+                 for($i = 0; $i < $count; $i++){
+                     $minRules =  array('N', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
+
+                     // If there's more than one, make them all required, otherwise just numeric
+                     if($count > 1){
+                         $minRules[] = 'R';
+                         $rules["exercise_{$type}_type_{$i}"] = array('R');
+                     }
+
+                     $rules["exercise_{$type}_minutes_{$i}"] = $minRules;
+                 }
+
+                 if($count == 1){
+                     if(!$form->getRawValue("exercise_{$type}_minutes_0")){
+                         $enteredLog[$type] = false;
+                     }else{
+                         $enteredLog[$type] = true;
+                     }
+                 }else{
+                     $enteredLog[$type] = true;
+                 }
+             }
+
+             if(!in_array(true, $enteredLog)){
+                 // validate singles, if we don't have enteries for any type
+                 foreach(self::$_exerciseMainTypes as $type) {
+                     $rules["exercise_{$type}_minutes_0"] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
+                     $rules["exercise_{$type}_type_0"] = array('R');
+                 }
+             }
+
+
          }
          
          if($form->getRawValue('record-food')){
@@ -2011,21 +2052,7 @@ class GenesisTracker{
          if($form->hasValue('record-weight')){
              $data['weight'] = $weight;
          }
-         
-         if($form->hasValue('record-exercise')){
-             if((float)$form->getRawValue('exercise_minutes') > 0){
-                 $data['exercise_minutes'] = (float)$form->getRawValue('exercise_minutes');
-                 $data['exercise_type'] = $form->getRawValue('exercise_type');
-                 $data['exercise_description'] = $form->getRawValue('exercise_description');
-             }
-             
-             if((float)$form->getRawValue('exercise_minutes_resistance') > 0){
-                 $data['exercise_minutes_resistance'] = (float)$form->getRawValue('exercise_minutes_resistance');
-                 $data['exercise_type_resistance'] = $form->getRawValue('exercise_type_resistance');
-                 $data['exercise_description_resistance'] = $form->getRawValue('exercise_description_resistance');
-             }
 
-         }
          
          // Remove Food Logs
         // Get the ID of any previously saved data against this date
@@ -2043,11 +2070,15 @@ class GenesisTracker{
                      WHERE tracker_id = %d", $prevResult->tracker_id
                  )
              );
-         
+
+             // Remove any exercise entries
+             $wpdb->query(
+                 $sql = $wpdb->prepare("DELETE FROM " . self::getExerciseLogTableName() . "
+                     WHERE tracker_id = %d", $prevResult->tracker_id
+                 )
+             );
          }  
-         
-         
-         
+
          
          // Remove current entry
          $wpdb->query(
@@ -2145,7 +2176,28 @@ class GenesisTracker{
                     )
                 );
             }
-        }      
+        }
+
+         // Save exercise entries
+         if($form->hasValue('record-exercise')){
+             foreach(self::$_exerciseMainTypes as $type){
+                 $count = (int) $form->getRawValue("exercise_{$type}_count");
+
+                 for($i = 0; $i < $count; $i++){
+                     $minutes = (float) $form->getRawValue("exercise_{$type}_minutes_{$i}");
+
+                     if($minutes > 0){
+                         $wpdb->insert(self::getExerciseLogTableName(), array(
+                            'tracker_id' => $trackerId,
+                             'type' => $type,
+                             'sub_type' => $form->getRawValue("exercise_{$type}_type_{$i}"),
+                             'minutes' => $minutes,
+                             'description' => $form->getRawValue("exercise_{$type}_description_{$i}"),
+                         ));
+                     }
+                 }
+             }
+         }
          
          self::clearCachedUserData(get_current_user_id());
          self::$pageData['user-input-save'] = true;

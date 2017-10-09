@@ -1106,6 +1106,7 @@ function genesis_user_graph(){
 // PAGES
 function genesis_user_input_page(){
     ob_start();
+
     $form = DP_HelperForm::getForm('user-input');
     $outputBody = false;
     $user_id = get_current_user_id();
@@ -1115,6 +1116,9 @@ function genesis_user_input_page(){
 
     $showMedVal = GenesisTracker::getShowMed($user_id);
     $genderVal = GenesisTracker::getUserGender($user_id);
+
+    $exerciseCount = 1;
+    $exerciseResistanceCount = 1;
 
     $exerciseTypes = array();
     $resistanceExerciseTypes = array();
@@ -1136,6 +1140,8 @@ function genesis_user_input_page(){
         $dateParts = date_parse($date);
         $selectedDates = is_array($form->getRawValue('diet_days')) ? $form->getRawValue('diet_days') : array();
         $dateListPicker = GenesisTracker::getDateListPicker($dateParts['day'], $dateParts['month'], $dateParts['year'], false, $selectedDates);
+        $exerciseCount = max(1, (int) $form->getRawValue('exercise_aerobic_count'));
+        $exerciseResistanceCount = max(1, (int) $form->getRawValue('exercise_resistance_count'));
     }
     
     if(GenesisTracker::getPageData('user-input-save') == true){
