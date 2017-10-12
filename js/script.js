@@ -202,8 +202,11 @@ GenesisTracker.weightToMetric = function(stone, pounds){
             var $clone = $(questionRowSelector, $container).first().clone();
             var $type = $('.js-exercise-type', $clone);
 
-            $('.js-exercise-minutes, .js-exercise-description', $clone).val("");
-            $('.js-exercise-type', $clone).val($('option:first', $type).val());
+            answers = answers || {};
+
+            $('.js-exercise-minutes', $clone).val(answers['minutes'] ? answers['minutes'] : "");
+            $('.js-exercise-description', $clone).val(answers['description'] ? answers['description'] : "");
+            $('.js-exercise-type', $clone).val(answers['sub_type'] ? answers['sub_type'] : $('option:first', $type).val());
 
             $(questionRowSelector, $container).parent().append($clone);
 
@@ -449,7 +452,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                     showUserMeasurements(true);
                     calculateFoodTotals();
 
-                    // Clear exercises
+                    // Clear exercises apart from the first one
                     $('.js-exercise-type-container').each(function(){
                         var rows = $('.js-question-row', this);
 
@@ -465,13 +468,24 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                         $(this).val($('option:first', this).val());
                     });
 
-                    updateAllExerciseRows();
-
-
                     // Exercise Logs
                     if(data.exercise_log && data.exercise_log.length){
-
+                        $(data.exercise_log).each(function(i, answers){
+                            addExerciseType($('.js-exercise-type-container[data-exercise-type="' + answers.type + '"]'), answers);
+                        });
                     }
+
+                    // Remove the first one (we just had it in there do duplicate content from... should be done with something like
+                    // mustache
+                    $('.js-exercise-type-container').each(function() {
+                        var rows = $('.js-question-row', this);
+
+                        if(rows.size() > 1){
+                            rows.first().remove();
+                        }
+                    });
+
+                    updateAllExerciseRows();
 
                     $('.form-input-error-container').remove();
 				},
