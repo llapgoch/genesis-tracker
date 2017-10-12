@@ -402,11 +402,6 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 
                     $form.find('textarea[name="exercise_description"]').val(measures.exercise_description);
                     $form.find('textarea[name="exercise_description_resistance"]').val(measures.exercise_description_resistance);
-
-                    // Set the exercise values
-                    if(measures.exercise_minutes || measures.exercise_minutes_resistance){
-                        $form.find('input[name="record-exercise"]').prop('checked', true).trigger('change');
-                    }
                     
                     var $weightMain = $form.find('input[name="weight_main"]');
                     var $weightPounds = $form.find('input[name="weight_pounds"]');
@@ -473,6 +468,8 @@ GenesisTracker.weightToMetric = function(stone, pounds){
                         $(data.exercise_log).each(function(i, answers){
                             addExerciseType($('.js-exercise-type-container[data-exercise-type="' + answers.type + '"]'), answers);
                         });
+
+                        $form.find('input[name="record-exercise"]').prop('checked', true).trigger('change');
                     }
 
                     // Remove the first one (we just had it in there do duplicate content from... should be done with something like
