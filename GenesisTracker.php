@@ -2228,6 +2228,17 @@ class GenesisTracker{
         
         return $res;
      }
+
+    public static function getUserExerciseLogForTracker($tracker_id){
+        global $wpdb;
+
+        $res = $wpdb->get_results($sql = $wpdb->prepare("SELECT el.* 
+             FROM " . self::getExerciseLogTableName() . " el 
+             WHERE el.tracker_id = %d", $tracker_id)
+        );
+
+        return $res;
+    }
      
      public static function getUserDataForDate($user_id, $date){
          global $wpdb;
@@ -2998,6 +3009,7 @@ class GenesisTracker{
          if($measureDetails->tracker_id){
              $foodData = self::getUserFoodLogsForTracker($measureDetails->tracker_id);
              $foodDescription = self::getUserFoodDescriptionsForTracker($measureDetails->tracker_id);
+             $exerciseData = self::getUserExerciseLogForTracker($measureDetails->tracker_id);
          }
 
          // Get previously entered foods for
@@ -3005,6 +3017,7 @@ class GenesisTracker{
          return array(
              "date_picker" =>self::getDateListPicker($day, $month, $year),
              "measure_details" => $measureDetails,
+             "exercise_log" => $exerciseData,
              "food_log" => $foodData,
              "food_descriptions" => $foodDescription,
              "autofill_foods" => $autofillFoods

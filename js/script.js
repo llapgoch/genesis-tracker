@@ -199,7 +199,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
         var questionRowSelector = '.js-question-row';
 
         function addExerciseType($container, answers){
-            var $clone = $(questionRowSelector, $container).clone();
+            var $clone = $(questionRowSelector, $container).first().clone();
             var $type = $('.js-exercise-type', $clone);
 
             $('.js-exercise-minutes, .js-exercise-description', $clone).val("");
@@ -448,6 +448,31 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 
                     showUserMeasurements(true);
                     calculateFoodTotals();
+
+                    // Clear exercises
+                    $('.js-exercise-type-container').each(function(){
+                        var rows = $('.js-question-row', this);
+
+                        if(rows.size()) {
+                            rows = rows.toArray();
+                            rows.shift();
+                            $(rows).remove();
+                        }
+                    });
+
+                    $('.js-exercise-minutes, .js-exercise-description').val('');
+                    $('.js-exercise-type').each(function() {
+                        $(this).val($('option:first', this).val());
+                    });
+
+                    updateAllExerciseRows();
+
+
+                    // Exercise Logs
+                    if(data.exercise_log && data.exercise_log.length){
+
+                    }
+
                     $('.form-input-error-container').remove();
 				},
                 'error':function(data){
@@ -522,10 +547,7 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 				}
 			});
 		};
-		
-	
-		
-		
+
 	});
 
 })(jQuery);
