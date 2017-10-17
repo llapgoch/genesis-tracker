@@ -137,13 +137,13 @@ class GenesisAdmin{
     public static function getExerciseLogsForUser($user_id){
         global $wpdb;
         
-        $results = $wpdb->get_results($wpdb->prepare(
-        'SELECT * FROM ' . GenesisTracker::getTrackerTableName() . '
-         WHERE (exercise_minutes IS NOT NULL
-            OR exercise_minutes_resistance IS NOT NULL)
-            AND user_id=%d
-         ORDER BY measure_date DESC
-         LIMIT 10'
+        $results = $wpdb->get_results($sql = $wpdb->prepare(
+        'SELECT exercise.*, tracker.measure_date FROM ' . GenesisTracker::getExerciseLogTableName() . ' exercise
+        JOIN . ' . GenesisTracker::getTrackerTableName() . ' as tracker
+            USING(tracker_id)
+         WHERE tracker.user_id = %d
+         ORDER BY tracker.measure_date DESC
+         LIMIT 40'
             , $user_id));
         
         return $results;

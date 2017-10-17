@@ -130,8 +130,8 @@ class GenesisTracker{
     );
 
     protected static $_exerciseMainTypes = array(
-        'aerobic',
-        'resistance'
+        'aerobic' => array("name" => "Aerobic"),
+        'resistance' => array("name" => "Resistance")
     );
 
     protected static $_exerciseTypes = array(
@@ -921,6 +921,10 @@ class GenesisTracker{
      public static function getUserTargetTimes(){
          return self::$_userTargetTimes;
      }
+
+    public static function getExerciseMainTypes(){
+        return self::$_exerciseMainTypes;
+    }
 
     public static function getExerciseTypes(){
         return self::$_exerciseTypes;
@@ -1933,7 +1937,7 @@ class GenesisTracker{
          if($form->getRawValue('record-exercise')){
              $enteredLog = array();
 
-             foreach(self::$_exerciseMainTypes as $type) {
+             foreach(self::$_exerciseMainTypes as $type => $vals) {
 
                  $count = $form->getRawValue("exercise_{$type}_count");
 
@@ -1962,7 +1966,7 @@ class GenesisTracker{
 
              if(!in_array(true, $enteredLog)){
                  // validate singles, if we don't have enteries for any type
-                 foreach(self::$_exerciseMainTypes as $type) {
+                 foreach(self::$_exerciseMainTypes as $type => $vals) {
                      $rules["exercise_{$type}_minutes_0"] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[960]');
                      $rules["exercise_{$type}_type_0"] = array('R');
                  }
@@ -2180,7 +2184,7 @@ class GenesisTracker{
 
          // Save exercise entries
          if($form->hasValue('record-exercise')){
-             foreach(self::$_exerciseMainTypes as $type){
+             foreach(self::$_exerciseMainTypes as $type => $vals){
                  $count = (int) $form->getRawValue("exercise_{$type}_count");
 
                  for($i = 0; $i < $count; $i++){

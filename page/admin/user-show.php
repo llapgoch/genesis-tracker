@@ -190,23 +190,23 @@
      <table class="wp-list-table widefat">
          <thead>
              <th>Date</th>
-             <th>Aerobic Exercise</th>
-             <th>Resistance Exercise</th>
+             <th>Exercise Type</th>
+             <th>Workout Details</th>
+             <th>Duration</th>
          </thead>
          <tbody>
              <?php foreach($exerciseLogs as $log): ?>
+                 <?php $type = $log->type == 'aerobic' ? $exerciseTypes : $resistanceExerciseTypes; ?>
                  <tr>
                      <td><?php echo date( 'j M Y', strtotime($log->measure_date) ); ?></td>
                      <td>
-                         <?php echo $log->exercise_minutes ? $log->exercise_minutes . " minutes" : "- -";?>
-                         <?php echo isset($exerciseTypes[$log->exercise_type]) ? "<br /> <strong>Type: " . $exerciseTypes[$log->exercise_type]['name'] . "</strong>" : ""; ?>
-                         <?php echo $log->exercise_description ? "<br /> <small>" . esc_html($log->exercise_description) . "</small>" : ""; ?>
+                         <?php echo isset($mainExerciseTypes[$log->type]) ? $mainExerciseTypes[$log->type]['name'] : ""; ?>
                      </td>
                      <td>
-                         <?php echo $log->exercise_minutes_resistance ? $log->exercise_minutes_resistance . " minutes"  : "- -";?>
-                         <?php echo isset($resistanceExerciseTypes[$log->exercise_type_resistance]) ? "<br /> <strong>Type: " . $resistanceExerciseTypes[$log->exercise_type_resistance]['name'] . "</strong>" : ""; ?>
-                         <?php echo $log->exercise_description_resistance ? "<br /> <small>" . esc_html($log->exercise_description_resistance) . "</small>" : ""; ?>
+                         <?php echo isset($type[$log->sub_type]) ? "<strong>" . $type[$log->sub_type]['name'] . "</strong>" : ""; ?>
+                         <?php echo $log->description ? "<br /> <small>" . esc_html($log->description) . "</small>" : ""; ?>
                      </td>
+                     <td><?php echo $log->minutes; ?> minutes</td>
                  </tr>
              <?php endforeach; ?>
              </tbody>

@@ -1054,6 +1054,7 @@ function genesis_admin_user_show($user){
     $fourWeekLogs = GenesisAdmin::getFourWeekLogsForUser($user->ID);
     $fourWeekTypes = GenesisAdmin::getFourWeekEmailTypes();
 
+    $mainExerciseTypes = GenesisTracker::getExerciseMainTypes();
     $exerciseTypes = GenesisTracker::getExerciseTypes();
     $resistanceExerciseTypes = GenesisTracker::getResistanceExerciseTypes();
     
