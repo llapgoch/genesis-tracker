@@ -30,7 +30,7 @@
             <h2>My Progress</h2>
             <div class="button-row">
                 <button class="pink button large" data-mode="weight">Weight</button>
-                <button class="orange button large" data-mode="exercise_minutes">Aerobic Exercise</button>
+                <button class="orange button large" data-mode="exercise_minutes_aerobic">Aerobic Exercise</button>
                 <button class="green button large" data-mode="exercise_minutes_resistance">Resistance Exercise</button>
     	        <div class="extended-button">
                     <button class="purple button large" data-mode="weight_loss">Weight Progress</button>

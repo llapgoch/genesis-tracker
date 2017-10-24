@@ -79,7 +79,7 @@ function UserGraph(){
 				'avgLabel':'Average Treat Consumption',
                 'color':'rgb(179,179,179)'
 			},
-			'exercise_minutes':{
+			'exercise_minutes_aerobic':{
 				'noresults':"You have not recorded any minutes of aerobic exercise yet.",
 				'label':'Aerobic Minutes You\'ve Exercised',
 				'avgLabel':'Average Minutes Exercised',
@@ -120,7 +120,7 @@ function UserGraph(){
 		this.unit = unit;
         this.averages = averages == true ? true : false;
         
-        var isExercise = this.mode == 'exercise_minutes' || this.mode == 'exercise_minutes_resistance';
+        var isExercise = this.mode == 'exercise_minutes_aerobic' || this.mode == 'exercise_minutes_resistance';
 		
 		if(unit && (mode == 'weight' || mode == 'weight_loss')){
 			mode = mode + "_" + unit;
@@ -345,7 +345,7 @@ function UserGraph(){
             });
 		}
 
-		if(mode == 'exercise_minutes' || mode == 'exercise_minutes_resistance'){
+		if(mode == 'exercise_minutes_aerobic' || mode == 'exercise_minutes_resistance'){
 			// parse the data into different types
 			var typeData = [];
 
@@ -483,7 +483,7 @@ function UserGraph(){
 				p = Math.round(p * 100) / 100; 
 				return (st ? (st + " st ") : "") + (p + " lb"); 
 
-			case 'exercise_minutes' :
+			case 'exercise_minutes_aerobic' :
             case 'exercise_minutes_resistance' :
 				return val + " minutes";
 			case 'calories' :

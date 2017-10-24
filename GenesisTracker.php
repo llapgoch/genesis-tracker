@@ -2511,10 +2511,10 @@ class GenesisTracker{
              $startDate = $userStartDate;
          }
 
-         $dateConstraint = "AND measure_date >= '$startDate'";
+         $dateConstraint = "AND t.measure_date >= '$startDate'";
         
          if($endDate){
-             $dateConstraint .= " AND measure_Date <= '$endDate'";
+             $dateConstraint .= " t.AND measure_Date <= '$endDate'";
          }
          
          $aggregates = array();
@@ -2534,6 +2534,26 @@ class GenesisTracker{
             ORDER BY measure_date", $user_id
          ));
 
+         // Get all exercise logs
+         $exerciseLogs = $wpdb->get_results($sql = $wpdb->prepare(
+            "SELECT t.tracker_id, t.measure_date, ex.* FROM
+              " . self::getTrackerTableName() . " t
+              JOIN " . self::getExerciseLogTableName() . " ex USING(tracker_id)
+                  WHERE t.user_id=%d    
+                  {$dateConstraint}
+                  ORDER BY t.measure_date, minutes DESC
+              "
+         , $user_id));
+
+
+         /* Crowbar the new exercise format into the old one */
+         foreach($exerciseLogs as $exerciseLog){
+             $exerciseLog->{"exercise_minutes_$exerciseLog->type"} = $exerciseLog->minutes;
+             $exerciseLog->{"exercise_type_$exerciseLog->type"} = $exerciseLog->sub_type;
+             $exerciseLog->{"exercise_description_$exerciseLog->type"} = $exerciseLog->description;
+         }
+
+         $results = array_merge($results, $exerciseLogs);
 
          $date = new DateTime(self::getInitialUserStartDate($user_id));
          $date->modify("- 1 day");
@@ -2573,7 +2593,7 @@ class GenesisTracker{
          
          $valsToCollate = array(
              'weight',
-             'exercise_minutes',
+             'exercise_minutes_aerobic',
              'exercise_minutes_resistance',
              'weight_loss',
              'fat',
@@ -2627,13 +2647,13 @@ class GenesisTracker{
 
                      $additionalData = array();
 
-                     if($valToCollate == 'exercise_minutes'){
-                         $additionalData['type'] = $log->exercise_type;
-                         $additionalData['description'] = $log->exercise_description;
+                     if($valToCollate == 'exercise_minutes_aerobic'){
+                         $additionalData['type'] = $log->exercise_type_aerobic;
+                         $additionalData['description'] = $log->exercise_description_aerobic;
 
-                         if(isset(self::$_exerciseTypes[$log->exercise_type])){
-                             $additionalData['label'] = self::$_exerciseTypes[$log->exercise_type]['name'];
-                             $additionalData['color'] = self::$_exerciseTypes[$log->exercise_type]['color'];
+                         if(isset(self::$_exerciseTypes[$log->exercise_type_aerobic])){
+                             $additionalData['label'] = self::$_exerciseTypes[$log->exercise_type_aerobic]['name'];
+                             $additionalData['color'] = self::$_exerciseTypes[$log->exercise_type_aerobic]['color'];
                          }
                      }
 
@@ -2751,6 +2771,7 @@ class GenesisTracker{
                  $collate['data'] = $newData;
              }
          }
+
          
          if(!isset($collated['weight']['data'])){
              $collated['weight']['data'] = array();
@@ -2763,6 +2784,7 @@ class GenesisTracker{
          }
          
          $collated['initial_weights'] = $weightInitial;
+
          return $collated;
      }
      
