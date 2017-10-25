@@ -2432,18 +2432,14 @@ class GenesisTracker{
                     AND user_id = %d
                 ) weight_dates,
                 (
-                    SELECT MIN(measure_date) exercise_minutes_min, MAX(measure_date) exercise_minutes_max 
-                    FROM " . self::getTrackerTableName() . "
-                    WHERE exercise_minutes IS NOT NULL
-                    AND user_id = %d
-                ) measure_dates,
-                (
                     SELECT MIN(measure_date) mindate, MAX(measure_date) maxdate 
                     FROM " . self::getTrackerTableName() . "
                     WHERE user_id = %d
                 ) total_dates
                 ", $user_id, $user_id, $user_id)
          );
+
+         echo $sql;
         
         if(!$res){
             return new stdClass();
@@ -2772,7 +2768,7 @@ class GenesisTracker{
              }
          }
 
-         
+
          if(!isset($collated['weight']['data'])){
              $collated['weight']['data'] = array();
              $collated['weight']['yMin'] = $weightInitial['initial_weight'];
