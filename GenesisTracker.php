@@ -1485,13 +1485,14 @@ class GenesisTracker{
          $result = $wpdb->get_row(
              $sql = $wpdb->prepare(
                  "SELECT count(*) as resistance_count
-                    FROM genwp_genesis_tracker 
-	              WHERE exercise_type_resistance IN ('arms','legs','trunk')
-                    AND user_id=%d
-                    AND measure_date >= {$dateFrom}", $user_id
+                    FROM " . self::getTrackerTableName() . " t
+                    JOIN " . self::getExerciseLogTableName() . " as e 
+                        USING(tracker_id)
+	              WHERE `type` = 'resistance'
+                    AND t.user_id=%d
+                    AND t.measure_date >= {$dateFrom}", $user_id
              )
          );
-
 
          return $result->resistance_count;
      }
@@ -1504,19 +1505,14 @@ class GenesisTracker{
 
          $result = $wpdb->get_row(
             $sql = $wpdb->prepare("
-                SELECT IF(ISNULL(type_moderate.total), 0, type_moderate.total) + (IF(ISNULL(type_vigorous.total), 0, type_vigorous.total) * 2) as total  FROM
-                         (SELECT SUM(`exercise_minutes`) as total
-                    FROM genwp_genesis_tracker
-                    WHERE genwp_genesis_tracker.`exercise_type`='moderate' 
-                      AND measure_date >= {$dateFrom}
-                      AND user_id=%d
-                ) as type_moderate,
-                (SELECT SUM(`exercise_minutes`) as total
-                    FROM genwp_genesis_tracker
-                    WHERE genwp_genesis_tracker.`exercise_type`='vigorous'
-                      AND measure_date >= {$dateFrom}
-                      AND user_id=%d
-                ) as type_vigorous", $user_id, $user_id
+                SELECT SUM(IF(sub_type = 'vigorous', minutes * 2, minutes)) as total
+                FROM " . self::getExerciseLogTableName() . " e
+                    JOIN " . self::getTrackerTableName() . " t USING(tracker_id)
+                WHERE t.user_id = %d
+                    AND e.type = 'aerobic'
+                    AND e.sub_type IN ('vigorous', 'moderate')
+                    AND t.measure_date >= {$dateFrom}",
+                $user_id
             )
          );
 
