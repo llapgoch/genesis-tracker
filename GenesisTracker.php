@@ -2438,8 +2438,6 @@ class GenesisTracker{
                 ) total_dates
                 ", $user_id, $user_id, $user_id)
          );
-
-         echo $sql;
         
         if(!$res){
             return new stdClass();
