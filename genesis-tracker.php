@@ -99,7 +99,10 @@ function genesis_add_menu_items($items){
         if($posts){
             foreach($posts as $post){
                 $forumUrl = get_permalink($post->ID);
-                $subMenus .= str_replace('{name}', $post->post_title, $subTemplate);
+                $subMenus .= str_replace(
+                    array('{name}', '{url}'),
+                    array($post->post_title, $forumUrl),
+                $subTemplate);
             }
         }
 
