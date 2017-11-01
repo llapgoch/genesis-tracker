@@ -60,7 +60,7 @@ add_filter('bbp_get_reply_author_link', 'genesis_bbpress_remove_user_anchor', 10
 add_filter('bbp_get_topic_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
 
 // Add dynamic forum menu
-add_filter('wp_nav_menu_items', 'genesis_add_menu_items');
+add_filter('wp_nav_menu_items', 'genesis_add_menu_items', 10, 2);
 
 // We don't want to view user pages
 add_filter('bbp_get_topic_author_url', function(){
@@ -77,7 +77,12 @@ add_filter( 'bbp_get_user_display_role', function( $role ) {
     return '';
 }, 10, 1 );
 
-function genesis_add_menu_items($items){
+function genesis_add_menu_items($items, $args){
+    // Only do for the main menu
+    if($args->menu_id !== 'nav'){
+        return $items;
+    }
+    
     if(!($user_id = get_current_user_id())){
         return $items;
     }
