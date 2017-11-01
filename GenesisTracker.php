@@ -113,7 +113,7 @@ class GenesisTracker{
         "carbs" => array("name" => "Carbohydrate", "unit" => "portions", "male" => "0", "female" => "0"),
         "protein" => array("name" => "Protein", "unit" => "portions", "male" => "Between 6 and 11", "female" => "Between 5 and 9"),
         "dairy" => array("name" => "Dairy", "unit" => "portions", "male" => "Aim for 3", "female" => "Aim for 3"),
-        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "male" => "Aim for 5", "female" => "Aim for 5"),
+        "vegetables" => array("name" => "Vegetables", "unit" => "portions", "male" => "Between 5 and 8", "female" => "Between 5 and 8"),
         "fruit" => array("name" => "Fruit", "unit" => "portions", "male" => "Aim for 1", "female" => "Aim for 1"),
         "fat" => array("name" => 'Fat', "unit" => "portions", "male" => "Maximum of 4", "female" => "Maximum of 3"),
         "treat" => array("name" => "Treat", "unit" => "portions", "male" => "0", "female" => "0"),
