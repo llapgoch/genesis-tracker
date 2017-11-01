@@ -3745,7 +3745,7 @@ class GenesisTracker{
             self::alternateContactEmail,
             site_url('your-profile'),
             $uploadsDir['url'] . '2015/06/PROCAS-Lifestyle-The-2-Day-Diet-Keeping-weight-off-V1-27.5.15.pdf',
-            site_url('faq'),
+            site_url('frequently-asked-questions'),
             site_url('2-day-recipes'),
             site_url('mediterranean-recipes'),
             site_url('newsletters')
