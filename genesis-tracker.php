@@ -42,11 +42,13 @@ add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::prescriptionPageId), 
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::physiotecLoginPageId), 'genesis_physiotec_login');
 add_shortcode(GenesisTracker::getOptionKey(GenesisTracker::ineligibleSurveyPageId), 'genesis_ineligible_survey_page');
 
+
 add_filter('cron_schedules', 'new_interval');
 add_filter('body_class', array('GenesisTracker', 'addBodyClasses'));
 add_filter('retrieve_password_message', array('GenesisTracker', 'forgottenPassword'));
 add_filter('survey_success', array('GenesisTracker', 'doSurveySuccessMessage'));
 add_filter('show_admin_bar', '__return_false');
+
 
 // This is mainly to modify the registration url for the registration doctor consent URL
 add_filter('site_url', array('GenesisTracker', 'doSiteUrlChanges'), 10, 4);
@@ -56,6 +58,9 @@ add_filter('bbp_get_reply_author_display_name', 'genesis_bbpress_filter_name', 1
 add_filter('bbp_get_topic_author_display_name', 'genesis_bbpress_filter_name', 10, 2);
 add_filter('bbp_get_reply_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
 add_filter('bbp_get_topic_author_link', 'genesis_bbpress_remove_user_anchor', 10, 1);
+
+// Add dynamic forum menu
+add_filter('wp_nav_menu_items', 'genesis_add_menu_items');
 
 // We don't want to view user pages
 add_filter('bbp_get_topic_author_url', function(){
@@ -71,6 +76,28 @@ add_filter( 'bbp_get_user_display_role', function( $role ) {
 
     return '';
 }, 10, 1 );
+
+function genesis_add_menu_items($items){
+    if(!($user_id = get_current_user_id())){
+        return $items;
+    }
+
+    $forumId = GenesisTracker::getForumNumberForUser($user_id);
+
+    if ( $posts = get_posts( array(
+        'name' => "general-chat-{$forumId}" ,
+        'post_type' => 'forum',
+        'post_status' => 'publish',
+    )));
+
+    if(isset($posts[0])){
+        $forumUrl = get_permalink($posts[0]->ID);
+        $menuItem = "<li><a href='{$forumUrl}'>Forum</a></li>";
+        $items .= $menuItem;
+    }
+
+    return $items;
+}
 
 function genesis_bbpress_remove_user_anchor($link){
     $link = preg_replace(array('{</?a[^>]*>}','{}'), array(" "), $link);

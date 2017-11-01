@@ -1518,6 +1518,15 @@ class GenesisTracker{
 
         return $result->total;
      }
+
+
+    public static function getForumNumberForUser($user_id){
+        if(!($studyGroup = self::getUserStudyGroup($user_id))){
+            return false;
+        }
+
+        return substr($studyGroup, 0, 1);
+    }
      
      public function getClientIp(){
          $ip = '';
