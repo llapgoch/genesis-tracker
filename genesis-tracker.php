@@ -82,7 +82,34 @@ function genesis_add_menu_items($items){
         return $items;
     }
 
+    $className = is_bbpress() ? "current-menu-item" : "";
+
+    // Show all forum items if admin
+    if(current_user_can('edit_forums')){
+        $subTemplate = "<li class=\"menu-item menu-item-type-post_type menu-item-object-page fusion-dropdown-submenu\">
+	                        <a href=\"{url}\" aria-haspopup=\"true\">{name}</a>
+                        </li>";
+        $subMenus = "";
+
+        $posts = get_posts( array(
+            'post_type' => 'forum',
+            'post_status' => 'publish',
+        ));
+
+        if($posts){
+            foreach($posts as $post){
+                $forumUrl = get_permalink($post->ID);
+                $subMenus .= str_replace('{name}', $post->post_title, $subTemplate);
+            }
+        }
+
+        $subTemplate = "<ul class=\"sub-menu\">{$subMenus}</ul>";
+
+        return $items . "<li class='{$className}'><a href='{$forumUrl}'>Forums</a>{$subTemplate}</li>";
+    }
+
     $forumId = GenesisTracker::getForumNumberForUser($user_id);
+
 
     if ( $posts = get_posts( array(
         'name' => "general-chat-{$forumId}" ,
@@ -92,7 +119,7 @@ function genesis_add_menu_items($items){
 
     if(isset($posts[0])){
         $forumUrl = get_permalink($posts[0]->ID);
-        $menuItem = "<li><a href='{$forumUrl}'>Forum</a></li>";
+        $menuItem = "<li class='{$className}'><a href='{$forumUrl}'>Forum</a></li>";
         $items .= $menuItem;
     }
 
