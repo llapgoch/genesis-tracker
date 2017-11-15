@@ -90,6 +90,8 @@ class GenesisTracker{
     const REGISTER_URL = "wp-login.php?action=register";
     const DOCTOR_ELIGIBILITY_GET_PARAM = "eligibility_check_success";
 
+    const SURVEY_ONLY_STUDY_GROUP = '0000';
+
     // TODO: MAKE SURE THIS IS ENABLED
     const CACHE_ENABLED = false;
     const INCLUDE_ADMIN_USERS_IN_AVERAGES = true;
@@ -586,6 +588,12 @@ class GenesisTracker{
          
          return false;
      }
+
+    public function isOnSurveyPage(){
+        global $post;
+
+        return has_shortcode($post->post_content, 'SURVEYS');
+    }
      
      public static function isOnLoginPage(){
          return in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'));
@@ -3157,9 +3165,37 @@ class GenesisTracker{
          
          return $classes;
      }
+
+    /** This is for the control group --  */
+    public static function userCanOnlyViewSurveys(){
+        $studyGroup = self::getUserStudyGroup(get_current_user_id());
+
+        if($studyGroup == self::SURVEY_ONLY_STUDY_GROUP){
+            return true;
+        }
+
+        return false;
+    }
      
      public static function addHeaderElements(){
          $user_id = get_current_user_id();
+
+         /** Only allow the control group on survey pages, home and log out */
+         if(self::userCanOnlyViewSurveys() && !(self::isOnSurveyPage() || is_front_page() || self::isOnLogoutPage())){
+             wp_redirect(home_url());
+             exit;
+         }
+
+         /** Nasty, but only show menu items for survey pages if the user is on the control group */
+         if(GenesisTracker::userCanOnlyViewSurveys()){
+         ?>
+         <style>
+             #nav li:not(.only-surveys), .footer-area .footer-widget-col{
+                 display: none;
+             }
+         </style>
+         <?php
+         }
 
          // Do any redirects first - require a hash for exercise questions or ineligible
          if(self::isOnInEligiblePage() || self::isOnEligibilityExercisePage() ||

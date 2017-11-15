@@ -343,6 +343,7 @@ add_action('login_enqueue_scripts', function(){
      <?php
      
     }
+    
 });
 
 function update_password_reset_email($pass_change_email, $user, $userdata){
