@@ -3193,6 +3193,10 @@ class GenesisTracker{
              #nav li:not(.only-surveys), .footer-area .footer-widget-col{
                  display: none;
              }
+
+             .full-account{
+                 display: none;
+             }
          </style>
          <?php
          }
