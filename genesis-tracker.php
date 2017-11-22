@@ -113,7 +113,7 @@ function genesis_add_menu_items($items, $args){
 
         $subTemplate = "<ul class=\"sub-menu\">{$subMenus}</ul>";
 
-        return $items . "<li class='{$className}'><a href='{$forumUrl}'>Forums</a>{$subTemplate}</li>";
+        return $items . "<li class='{$className} menu-item'><a href='{$forumUrl}'>Forums</a>{$subTemplate}</li>";
     }
 
     $forumId = GenesisTracker::getForumNumberForUser($user_id);
