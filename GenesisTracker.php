@@ -93,8 +93,8 @@ class GenesisTracker{
     const SURVEY_ONLY_STUDY_GROUP_PREFIX = '1';
 
     // TODO: MAKE SURE THIS IS ENABLED
-    const CACHE_ENABLED = false;
-    const INCLUDE_ADMIN_USERS_IN_AVERAGES = true;
+    const CACHE_ENABLED = true;
+    const INCLUDE_ADMIN_USERS_IN_AVERAGES = false;
     
     protected static $eligibilityPasswords = array(
         "FHLUHS",
