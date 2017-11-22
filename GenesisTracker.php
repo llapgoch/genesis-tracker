@@ -3190,7 +3190,7 @@ class GenesisTracker{
          if(GenesisTracker::userCanOnlyViewSurveys()){
          ?>
          <style>
-             #nav .menu > .menu-item:not(.control-group), .footer-area .footer-widget-col{
+             .nav-holder .menu > .menu-item:not(.control-group), .footer-area .footer-widget-col{
                  display: none;
              }
 
