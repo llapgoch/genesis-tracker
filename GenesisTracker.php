@@ -782,7 +782,7 @@ class GenesisTracker{
             self::getLogoUrl()
          ), $contents);
          
-        $res = wp_mail(trim($_POST['user_email']), 'Welcome to the PROCAS Lifestyle Research Study', $contents, $headers); 
+        $res = wp_mail(trim($_POST['user_email']), 'Welcome to The Family History Lifestyle Study', $contents, $headers);
 
          unset($_SESSION[self::registrationPasswordEmailSessionKey]);
      }
@@ -3791,7 +3791,7 @@ class GenesisTracker{
             site_url('newsletters')
         ), $body);
         
-         if(wp_mail($user->user_email, 'Procas Lifestyle Week ' . $userDetails['weeks_registered'] . ' feedback', $body, self::getEmailHeaders())){
+         if(wp_mail($user->user_email, 'The Family History Lifestyle Study Week ' . $userDetails['weeks_registered'] . ' feedback', $body, self::getEmailHeaders())){
             // Mark user's account
             self::setUserData($user->ID, self::fourWeekleyEmailDateCol, current_time('Y-m-d H:i:s'));
             
