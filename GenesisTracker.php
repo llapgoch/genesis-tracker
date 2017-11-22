@@ -3181,7 +3181,7 @@ class GenesisTracker{
          $user_id = get_current_user_id();
 
          /** Only allow the control group on survey pages, home and log out */
-         if(self::userCanOnlyViewSurveys() && !(self::isOnSurveyPage() || is_front_page() || self::isOnLogoutPage())){
+         if(self::userCanOnlyViewSurveys() && !(self::isOnSurveyPage() || self::isOnEnterWeightPage() || is_front_page() || self::isOnLogoutPage())){
              wp_redirect(home_url());
              exit;
          }

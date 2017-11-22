@@ -1264,7 +1264,12 @@ function genesis_tracker_page(){
 
 function genesis_initial_weight_page(){
     ob_start();
-    $userGraphPage = GenesisTracker::getUserPagePermalink();
+    $userId = get_current_user_id();
+    $fullUser = GenesisTracker::userCanOnlyViewSurveys($userId) == false;
+
+    $buttonLink = $fullUser ? GenesisTracker::getUserPagePermalink() : "/";
+    $buttonText = $fullUser ? "Go to your progress graph" : "Thank You";
+
     $form = DP_HelperForm::getForm('initial-weight');
     $outputBody = false;
     
