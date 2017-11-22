@@ -90,7 +90,7 @@ class GenesisTracker{
     const REGISTER_URL = "wp-login.php?action=register";
     const DOCTOR_ELIGIBILITY_GET_PARAM = "eligibility_check_success";
 
-    const SURVEY_ONLY_STUDY_GROUP = '0000';
+    const SURVEY_ONLY_STUDY_GROUP_PREFIX = '1';
 
     // TODO: MAKE SURE THIS IS ENABLED
     const CACHE_ENABLED = false;
@@ -3168,9 +3168,9 @@ class GenesisTracker{
 
     /** This is for the control group --  */
     public static function userCanOnlyViewSurveys(){
-        $studyGroup = self::getUserStudyGroup(get_current_user_id());
+        $studyGroup = self::getForumNumberForUser(get_current_user_id());
 
-        if($studyGroup == self::SURVEY_ONLY_STUDY_GROUP){
+        if($studyGroup == self::SURVEY_ONLY_STUDY_GROUP_PREFIX){
             return true;
         }
 
@@ -3190,7 +3190,7 @@ class GenesisTracker{
          if(GenesisTracker::userCanOnlyViewSurveys()){
          ?>
          <style>
-             #nav li:not(.only-surveys), .footer-area .footer-widget-col{
+             #nav .menu > .menu-item:not(.control-group), .footer-area .footer-widget-col{
                  display: none;
              }
 
