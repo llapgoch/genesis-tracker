@@ -127,7 +127,7 @@ function genesis_add_menu_items($items, $args){
 
     if(isset($posts[0])){
         $forumUrl = get_permalink($posts[0]->ID);
-        $menuItem = "<li class='{$className}'><a href='{$forumUrl}'>Forum</a></li>";
+        $menuItem = "<li class='{$className} menu-item'><a href='{$forumUrl}'>Forum</a></li>";
         $items .= $menuItem;
     }
 
