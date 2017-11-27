@@ -568,11 +568,15 @@ class GenesisTracker{
      }
      
      public static function isOnLogoutPage(){
-         $logoutUrl = wp_logout_url();
+         $logoutUrl = parse_url(wp_logout_url());
+         $currentUrl = parse_url($_SERVER['REQUEST_URI']);
          
-         if(site_url($_SERVER['REQUEST_URI']) == $logoutUrl){
+         if(isset($currentUrl['path']) && isset($logoutUrl['path']) &&
+            $currentUrl['path'] == $logoutUrl['path']){
              return true;
          }
+
+         return false;
      }
      
      public static function isOnRegistrationPage(){
