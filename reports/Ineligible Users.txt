@@ -13,3 +13,11 @@ SELECT el.id, el.date_created, el.passcode, el.weight, el.height, el.age, el.bmi
 		AND `date_created` < '2015-03-03'
 		AND `date_created` >= '2015-02-12'
 	ORDER BY el.id, q.`id`
+
+
+// Get ineligible exercise
+SELECT * FROM genwp_genesis_eligibility_result r
+JOIN genwp_genesis_eligibility_result_answers a
+	ON a.`result_id` = r.`id`
+	AND question_id >= 21
+	AND a.`answer` <> 2
