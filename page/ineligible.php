@@ -39,9 +39,6 @@
            <h2>You are unable to understand written and spoken English</h2>
            <p>All our support is delivered over the phone and via email, and we need to be sure that participants are able to understand the information provided to them during the study.</p>
 
-            <h2>You have been on the PROCAS (Predicting Risk of breast Cancer at Screening) study</h2>
-            <p>As part of the study we will be calculating breast cancer risk. People who were on the PROCAS study have already had their breast cancer risk calculated by a number of different methods, some including breast density and Single Nucleotide Polymorphisms (SNPs).  The FHL study involves calculation of risk using the Tyrer-Cuzick model which is a commonly used breast cancer risk assessment tool and we do not want to create confusion amongst the patient group.</p>
-
             <h2>No access to a telephone and/or high/moderate speed Internet</h2>
             <p>The study requires women to use the interactive study website to monitor their weight loss and other lifestyle changes and have regular telephone and online support from the study team.</p>
 
@@ -62,9 +59,6 @@
                 <li><a href="https://www.nhs.uk/Service-Search/Support-services-for-alcohol-addiction/LocationSearch/295" target="_blank">Alcohol Services</a></li>
                 <li><a href="https://www.nhs.uk/Service-Search/Information-and-support-for-drug-misuse/LocationSearch/339" target="_blank">Drug Services</a></li>
             </ul>
-
-            <h2>Eating disorders, personality disorder, bipolar disorder or self-harm</h2>
-            <p>These conditions require specialist psychological support, which we are unable to provide.</p>
 
             <h2>You are taking a medication which can affect you weight</h2>
             <p>Aripiprazole, Clozapine, Olanzapine, Quetiapine and Risperidone are all medications whose side effects include weight gain. This could impact the success of a diet and physical activity regime.Orlistat, Xenical and Alli, are all medications for weight loss and could impact the success of a diet and physical activity regime.</p>
