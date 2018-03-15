@@ -1340,6 +1340,8 @@ function genesis_ineligible_page(){
     $outputBody = false;
     $ineligibleDownloadPdfUrl = plugins_url('downloads/advice.pdf', __FILE__);
     $twoDayDietDownloadPdfUrl = plugins_url('downloads/2-day-diet-advice.pdf', __FILE__);
+    $resultData = GenesisTracker::$pageData['eligibilityAnswers'];
+    $hasOnlyAnsweredSelfHarm = GenesisTracker::hasOnlyAnsweredSelfHarm(GenesisTracker::$pageData['eligibilityResult']->hash_id);
 
     $surveyPageUrl = GenesisTracker::getIneligibleSurveyPagePermalink() . "?result=" . GenesisTracker::$pageData['eligibilityResult']->hash_id;
     $dietPlanPdfUrl = plugins_url("/downloads/2-day-diet-advice.pdf", __FILE__);

@@ -9,7 +9,7 @@ class GenesisTracker{
     // it twice.  Go Wordpress!
 
 
-    const version = "1.48";
+    const version = "1.50";
     
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
@@ -91,6 +91,8 @@ class GenesisTracker{
     const DOCTOR_ELIGIBILITY_GET_PARAM = "eligibility_check_success";
 
     const SURVEY_ONLY_STUDY_GROUP_PREFIX = '1';
+
+    const SELF_HARM_QUESTION_ID = 12;
 
     // TODO: MAKE SURE THIS IS ENABLED
     const CACHE_ENABLED = true;
@@ -323,6 +325,7 @@ class GenesisTracker{
           `correct` tinyint(1) DEFAULT NULL,
           `set_number` int(11) DEFAULT NULL,
           `position` int(11) NOT NULL DEFAULT 0,
+          `active` tinyint(1) DEFAULT 1,
           PRIMARY KEY  (`id`)
         )");
 
@@ -383,11 +386,6 @@ class GenesisTracker{
                 array(
                   'question' => 'Are you receiving <strong>annual or 18 monthly mammograms because you have an increased risk of breast cancer</strong>?',
                   'correct' => 1,
-                    'set_number' => 1
-                ),
-                array(
-                  'question' => 'Are you or have you been on the <strong>PROCAS (<span class="u-underline">P</span>redicting <span class="u-underline">R</span>isk <span class="u-underline">o</span>f <span class="u-underline">B</span>reast <span class="u-underline">C</span>ancer <span class="u-underline">a</span>t <span class="u-underline">S</span>creening) study</strong>?',
-                  'correct' => 2,
                     'set_number' => 1
                 ),
                 array(
@@ -794,7 +792,7 @@ class GenesisTracker{
      public static function getEligibilityQuestions($set = null){
          global $wpdb;
          $res = $wpdb->get_results($sql = "SELECT * FROM " . self::getEligibilityQuestionsTableName() .
-             ($set === null ? "" : " WHERE `set_number`={$set} ") .
+             ($set === null ? "" : " WHERE `set_number`={$set} AND active=1") .
              " ORDER BY `position`
         ");
 
@@ -804,14 +802,33 @@ class GenesisTracker{
      public static function getEligibilityAnswersForResultHash($hashId){
          global $wpdb;
          $res = $wpdb->get_results($sql = $wpdb->prepare("
-             SELECT answers.* FROM " . self::getEligibilityResultAnswersTableName() . " answers
+             SELECT answers.*, question.correct FROM " . self::getEligibilityResultAnswersTableName() . " answers
              JOIN " . self::getEligibilityResultTableName() . " result 
                  ON result.id = answers.result_id
+             JOIN " . self::getEligibilityQuestionsTableName() . " question
+                ON question.id = answers.question_id
              WHERE result.hash_id = %s", $hashId
         ));
 
         return $res;
      }
+
+    public static function hasOnlyAnsweredSelfHarm($hashId){
+        $answers = self::getEligibilityAnswersForResultHash($hashId);
+        $selfHarmTrue = false;
+
+        foreach($answers as $answer){
+            if($answer->question_id == self::SELF_HARM_QUESTION_ID){
+                $selfHarmTrue = $answer->answer !== $answer->correct;
+            }else{
+                if($answer->answer !== $answer->correct){
+                    return false;
+                }
+            }
+        }
+
+        return $selfHarmTrue;
+    }
      
      public static function disableDefaultRegistrationEmail($vals){
          // If we're an administrator, keep the default email alert
@@ -3212,6 +3229,7 @@ class GenesisTracker{
              if(isset($_GET['result'])){
                  // Get the result answers data based on the hash
                  $answers = self::getEligibilityAnswersForResultHash($_GET['result']);
+
 
                  if(!$answers){
                      wp_redirect(home_url());
