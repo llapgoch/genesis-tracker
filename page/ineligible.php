@@ -4,7 +4,7 @@
     	<div class="title">
     		<h2><label class="general-label"><?php _e('You may be eligible to take part in the study');?></label></h2>
     	</div>
-    	<div class="content"><?php echo _e("Please contact the study team on 0161 291 4412");?></div>
+    	<div class="content"><?php echo _e("Before we can decide we will need to speak with you. Please contact the study team on 0161 291 4412");?></div>
     </div>
 </div>
 <?php else : ?>

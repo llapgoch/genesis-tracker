@@ -9,7 +9,7 @@ class GenesisTracker{
     // it twice.  Go Wordpress!
 
 
-    const version = "1.50";
+    const version = "1.51";
     
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
@@ -28,6 +28,8 @@ class GenesisTracker{
     const eligibilitySessionKey = "___USER_ELIGIBLE___";
     const eligibilityGroupSessionKey = "___ELIGIBILITY_GROUP___";
     const adminNoticesSessionKey      = "___ADMIN_NOTICES";
+    const failedExerciseSessionKey = "___FAILED_EXERCISE_QUESTIONS";
+    const eligibilityIdSessionKey = "___ELIGIBILITY_ID";
     const registrationPasswordEmailSessionKey = "___REGISTRATION_PASSWORD_EMAIL__";
     const targetPageId = "tracker_page";
     const alternateContactEmail = "hello@fhlstudy.co.uk";
@@ -57,6 +59,7 @@ class GenesisTracker{
     const sixMonthEmailOptOutCol = "six_month_email_opt_out"; // previously omitSixMonthEmailKey
     const showMedCol = "show_med";
     const genderCol = "gender";
+    const failedExerciseEligibilityCol = 'failed_exercise_eligibility';
 
     const userActiveEmailSentKey = "active_email_sent";
     const targetPrependKey = "target_";
@@ -307,6 +310,7 @@ class GenesisTracker{
           `show_med` varchar(255) DEFAULT NULL,
           `gender` varchar(255) DEFAULT 'female',
           `eligibility_id` int(11) unsigned DEFAULT NULL,
+          `failed_exercise_eligibility` tinyint(1) DEFAULT 0,
           PRIMARY KEY  (`id`)
         )");
 
@@ -740,6 +744,10 @@ class GenesisTracker{
              GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $_SESSION[self::getOptionKey(self::eligibilityGroupSessionKey)]);
          }
 
+         if(isset($_SESSION[self::getOptionKey(self::failedExerciseSessionKey)])) {
+             GenesisTracker::setUserData($user_id, self::failedExerciseEligibilityCol, $_SESSION[self::getOptionKey(self::failedExerciseSessionKey)]);
+         }
+
          // Save the eligibility data and passcode data if we're coming back to the site from GP consent
          // Only log eligibility result if in this case, in other cases we know the answers to the questions will be all correct
          if(self::isOnDoctorEligibilityRegistrationPage()){
@@ -747,6 +755,10 @@ class GenesisTracker{
                  GenesisTracker::setUserData($user_id, self::eligibilityCol, $eligibilityResult->id);
                  GenesisTracker::setUserData($user_id, self::passcodeGroupCol, $eligibilityResult->passcode);
              }
+         }
+
+         if(isset($_SESSION[self::getOptionKey(self::eligibilityIdSessionKey)])){
+             GenesisTracker::setUserData($user_id, self::eligibilityCol, $_SESSION[self::getOptionKey(self::eligibilityIdSessionKey)]);
          }
          
          $userdata = array();
@@ -798,16 +810,38 @@ class GenesisTracker{
 
          return $res;
      }
-     
-     public static function getEligibilityAnswersForResultHash($hashId){
-         global $wpdb;
-         $res = $wpdb->get_results($sql = $wpdb->prepare("
+
+    public static function getEligibilityAnswersForResultHash($eligibilityId){
+        global $wpdb;
+        $res = $wpdb->get_results($sql = $wpdb->prepare("
              SELECT answers.*, question.correct FROM " . self::getEligibilityResultAnswersTableName() . " answers
              JOIN " . self::getEligibilityResultTableName() . " result 
                  ON result.id = answers.result_id
              JOIN " . self::getEligibilityQuestionsTableName() . " question
                 ON question.id = answers.question_id
-             WHERE result.hash_id = %s", $hashId
+             WHERE result.hash_id = %s ", $eligibilityId
+        ));
+
+        return $res;
+    }
+     
+     public static function getEligibilityAnswersForEligibilityId($id, $setNumber = null){
+         global $wpdb;
+
+         if(!$id){
+             return false;
+         }
+
+         $setSql = $setNumber ? " AND question.set_number={$setNumber}" : "";
+
+         $res = $wpdb->get_results($sql = $wpdb->prepare("
+             SELECT answers.*, question.correct, question.question FROM " . self::getEligibilityResultAnswersTableName() . " answers
+             JOIN " . self::getEligibilityResultTableName() . " result 
+                 ON result.id = answers.result_id
+             JOIN " . self::getEligibilityQuestionsTableName() . " question
+                ON question.id = answers.question_id
+             WHERE result.id = %s {$setSql}
+             ORDER BY position", $id
         ));
 
         return $res;
@@ -1260,6 +1294,10 @@ class GenesisTracker{
     public static function getEligibilityResult($eligibilityID, $useHash = false){
         global $wpdb;
 
+        if(!$eligibilityID){
+            return false;
+        }
+
         $col = $useHash ? 'hash_id' : 'id';
 
         $result = $wpdb->get_row(
@@ -1271,8 +1309,6 @@ class GenesisTracker{
 
         return $result;
     }
-
-
      
      public static function checkEligibility($form){
          // Validate all eligibility options
@@ -1444,17 +1480,22 @@ class GenesisTracker{
             }
         }
 
-        if(!$eligible){
-            wp_redirect(add_query_arg(array(
-                'result' => $eligibilityResult->hash_id
-            ),
-                self::getEligibilityDoctorPagePermailink()
-            ));
+        // Allow registrations no matter what, but mark the account on registration
 
-            return;
-        }
+//        if(!$eligible){
+//            wp_redirect(add_query_arg(array(
+//                'result' => $eligibilityResult->hash_id
+//            ),
+//                self::getEligibilityDoctorPagePermailink()
+//            ));
+//
+//            return;
+//        }
 
         $_SESSION[self::getOptionKey(self::eligibilitySessionKey)] = true;
+        $_SESSION[self::getOptionKey(self::failedExerciseSessionKey)] = $eligible == false;
+        $_SESSION[self::getOptionKey(self::eligibilityIdSessionKey)] = $eligibilityID;
+
         self::$pageData['eligible'] = true;
 
         wp_redirect(wp_registration_url());

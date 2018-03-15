@@ -19,6 +19,8 @@
         <dd><?php echo gmdate('d M Y', strtotime($userDetails['user_registered']));?></dd>
         <dt>Start Date</dt>
         <dd><?php echo $userDetails[GenesisTracker::userStartDateCol] ? gmdate('d M Y', strtotime($userDetails[GenesisTracker::userStartDateCol])) : "<strong>Not Set</strong>";?></dd>
+        <dt>User Has Failed Exercise Eligibility Questions</dt>
+        <dd><?php echo $userDetails[GenesisTracker::failedExerciseEligibilityCol] ? "<span style='color:red'>Yes</span>" : "No";?></dd>
         <dt>User Contacted</dt>
         <dd><?php echo (int) $userDetails['user_contacted'] == 0 ? 'No' : 'Yes'?></dd>
         <dt>Account Active</dt>
@@ -134,6 +136,37 @@
         <?php endif; ?>
         </dd>
     </dl>
+
+    <?php if($userDetails[GenesisTracker::failedExerciseEligibilityCol] && $exerciseEligibilityAnswers): ?>
+        <hr />
+        <h2>This user failed their exercise eligibility questions:</h2>
+
+        <div class="table-scroller">
+            <table class="wp-list-table widefat">
+                <thead>
+                    <th>Question</th>
+                    <th>Answer</th>
+                </thead>
+                <tbody>
+                <?php foreach($exerciseEligibilityAnswers as $answer): ?>
+                    <tr>
+                        <td>
+                            <?php echo $answer->question; ?>
+                            <?php if($answer->question_id == 25 && $eligibilityResult->no_physical_activity_reason): ?>
+                                <p><strong>User Answer: </strong><?php echo _e($eligibilityResult->no_physical_activity_reason); ?></p>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <span style="<?php echo $answer->answer !== $answer->correct ? 'color:red' : '';?>">
+                            <?php echo $answer->answer == 2 ? "No" : "Yes"; ?>
+                            </span>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 
     <?php if($fourWeekLogs && count($fourWeekLogs)) : ?>
         <hr />

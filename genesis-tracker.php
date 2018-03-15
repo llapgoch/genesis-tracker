@@ -1106,6 +1106,7 @@ function genesis_admin_user_list(){
 function genesis_admin_user_show($user){
     global $wpdb;
     $userDetails = GenesisAdmin::getUserLogDetails(null, $user->ID, true);
+    $userEligibility = GenesisTracker::getUserData($user->ID, GenesisTracker::eligibilityCol);
     $userTelephone = get_user_meta($user->ID, 'tel', true);
     $userEditLink = get_edit_user_link($user->ID);
     $foodLogs = GenesisAdmin::getFoodLogs($user->ID);
@@ -1120,6 +1121,8 @@ function genesis_admin_user_show($user){
     $mainExerciseTypes = GenesisTracker::getExerciseMainTypes();
     $exerciseTypes = GenesisTracker::getExerciseTypes();
     $resistanceExerciseTypes = GenesisTracker::getResistanceExerciseTypes();
+    $exerciseEligibilityAnswers = GenesisTracker::getEligibilityAnswersForEligibilityId($userEligibility, 2);
+    $eligibilityResult = GenesisTracker::getEligibilityResult($userEligibility, false);
     
     include('page/admin/user-show.php');
 }
