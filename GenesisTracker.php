@@ -9,7 +9,7 @@ class GenesisTracker{
     // it twice.  Go Wordpress!
 
 
-    const version = "1.51";
+    const version = "1.52";
     
     const userIdForAutoCreatedPages = 1;
     const prefixId = "genesis___tracker___";
@@ -95,7 +95,7 @@ class GenesisTracker{
 
     const SURVEY_ONLY_STUDY_GROUP_PREFIX = '1';
 
-    const SELF_HARM_QUESTION_ID = 12;
+    const SELF_HARM_ELIGIBILITY_TAG = 'self_harm';
 
     // TODO: MAKE SURE THIS IS ENABLED
     const CACHE_ENABLED = true;
@@ -330,6 +330,7 @@ class GenesisTracker{
           `set_number` int(11) DEFAULT NULL,
           `position` int(11) NOT NULL DEFAULT 0,
           `active` tinyint(1) DEFAULT 1,
+          `tag` varchar(255)
           PRIMARY KEY  (`id`)
         )");
 
@@ -814,7 +815,7 @@ class GenesisTracker{
     public static function getEligibilityAnswersForResultHash($eligibilityId){
         global $wpdb;
         $res = $wpdb->get_results($sql = $wpdb->prepare("
-             SELECT answers.*, question.correct FROM " . self::getEligibilityResultAnswersTableName() . " answers
+             SELECT answers.*, question.correct, question.tag FROM " . self::getEligibilityResultAnswersTableName() . " answers
              JOIN " . self::getEligibilityResultTableName() . " result 
                  ON result.id = answers.result_id
              JOIN " . self::getEligibilityQuestionsTableName() . " question
@@ -852,7 +853,7 @@ class GenesisTracker{
         $selfHarmTrue = false;
 
         foreach($answers as $answer){
-            if($answer->question_id == self::SELF_HARM_QUESTION_ID){
+            if($answer->tag == self::SELF_HARM_ELIGIBILITY_TAG){
                 $selfHarmTrue = $answer->answer !== $answer->correct;
             }else{
                 if($answer->answer !== $answer->correct){
