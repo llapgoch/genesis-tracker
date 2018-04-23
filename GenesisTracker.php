@@ -99,7 +99,9 @@ class GenesisTracker{
     protected static $eligibilityPasswords = array(
         "FHLUHS",
         "FHLTGH",
-        "FHLWSM"
+        "FHLWSM",
+        "FHLGCS",
+        "FHLSTM"
     );
 
 
