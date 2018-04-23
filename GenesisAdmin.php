@@ -301,6 +301,7 @@ class GenesisAdmin{
                 four_weekly_date,
                 six_month_email_opt_out,
                 passcode_group,
+                failed_exercise_eligibility,
                 UNIX_TIMESTAMP(four_weekly_date) as four_weekly_date_timestamp,
                 user_first_name.meta_value as first_name,
                 user_last_name.meta_value as last_name,
@@ -399,9 +400,7 @@ class GenesisAdmin{
             }
             
         }
-     
-        
-     
+
         // Return results for a single user
         if($user && $results){
             GenesisTracker::setCacheData(GenesisTracker::userDataCacheKey . '-' . $user, $results[0], 3600);
