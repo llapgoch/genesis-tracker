@@ -709,7 +709,7 @@ class GenesisTracker{
         }
 
         foreach($res as &$r){
-            $r->admin_uri = self::getSurveyIndividualResponsesPage($r->survey_ID, $r->ID);
+            $r->admin_uri = self::getSurveyIndividualResponsesPage($r->ID, $r->survey_ID);
         }
 
         return $res;
@@ -718,7 +718,7 @@ class GenesisTracker{
     public static function getSurveyIndividualResponsesPage($resultID, $surveyID){
         return esc_url("edit.php?page=surveys/show_individual_response.php&result=$resultID&survey=$surveyID&action=show");
     }
-    
+
      public static function userHasJustRegistered(){
          return isset($_GET['checkemail']) && $_GET['checkemail'] == 'registered';
      }
