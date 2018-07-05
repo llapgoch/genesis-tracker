@@ -693,8 +693,6 @@ class GenesisTracker{
              )
         );
      }
-<<<<<<< HEAD
-=======
 
     public static function getCompletedSurveysForUser($userId){
         global $wpdb;
@@ -720,10 +718,7 @@ class GenesisTracker{
     public static function getSurveyIndividualResponsesPage($resultID, $surveyID){
         return esc_url("edit.php?page=surveys/show_individual_response.php&result=$resultID&survey=$surveyID&action=show");
     }
-     
->>>>>>> 5b82e59... output surveys
-
-     
+    
      public static function userHasJustRegistered(){
          return isset($_GET['checkemail']) && $_GET['checkemail'] == 'registered';
      }

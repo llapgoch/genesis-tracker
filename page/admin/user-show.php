@@ -137,7 +137,6 @@
         </dd>
     </dl>
 
-<<<<<<< HEAD
     <?php if($userDetails[GenesisTracker::failedExerciseEligibilityCol] && $exerciseEligibilityAnswers): ?>
         <hr />
         <h2>This user failed their exercise eligibility questions:</h2>
@@ -194,7 +193,8 @@
                 </tbody>
             </table>
         </div>
-=======
+    <?php endif; ?>
+
     <?php if($surveyResults && count($surveyResults)): ?>
         <hr />
         <h2>Questionnaires Completed</h2>
@@ -219,11 +219,11 @@
             </tbody>
         </table>
 
-        </div>
+    </div>
 
->>>>>>> 5b82e59... output surveys
+
     <?php endif; ?>
-    
+
     <?php if($weightLogs && count($weightLogs)) : ?>
         <hr />
         <h2>All Weight Logs (<?php echo count($weightLogs) ?>)</h2>
@@ -245,7 +245,7 @@
         </table>
     </div>
     <?php endif;  ?>
-    
+
     <?php if($exerciseLogs && count($exerciseLogs)) : ?>
         <hr />
     <h2>Last <?php echo count($exerciseLogs); ?> Exercise Logs</h2>
@@ -273,9 +273,9 @@
              <?php endforeach; ?>
              </tbody>
      </table>
-        
+
     <?php endif; ?>
-    
+
     <?php if($dietDays && count($dietDays)) : ?>
         <hr />
         <h2>All Diet Tracker Entries</h2>
@@ -318,12 +318,12 @@
                 <th style="font-weight:bold">Total</th>
                 <th style="font-weight:bold">Target</th>
             </thead>
-           
+
             <tbody>
                 <tr>
                 <?php foreach($foodTypes as $foodKey => $foodType): ?>
                     <td><?php echo $foodType['name']?></td>
-                
+
                 <?php foreach($foodTimes as $timeKey => $foodTime):?>
                     <td><?php echo $log->foodLog[$timeKey][$foodKey]->value;?></td>
                 <?php endforeach; ?>
@@ -333,7 +333,7 @@
             <?php endforeach; ?>
             </tbody>
         </table>
-        
+
         <!-- Descriptions -->
         <?php if($log->foodDescriptions && count($log->foodDescriptions)) :?>
         <h4>Descriptions</h4>
@@ -349,9 +349,7 @@
       <?php endif; ?>
       <hr />
       <?php endforeach;?>
-      
-     
-      
+
 <?php endif; ?>
 
 </div>

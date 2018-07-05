@@ -1121,14 +1121,11 @@ function genesis_admin_user_show($user){
     $mainExerciseTypes = GenesisTracker::getExerciseMainTypes();
     $exerciseTypes = GenesisTracker::getExerciseTypes();
     $resistanceExerciseTypes = GenesisTracker::getResistanceExerciseTypes();
-<<<<<<< HEAD
+
     $exerciseEligibilityAnswers = GenesisTracker::getEligibilityAnswersForEligibilityId($userEligibility, 2);
     $eligibilityResult = GenesisTracker::getEligibilityResult($userEligibility, false);
-    
-=======
     $surveyResults = GenesisTracker::getCompletedSurveysForUser($user->ID);
-
->>>>>>> 5b82e59... output surveys
+    
     include('page/admin/user-show.php');
 }
 
