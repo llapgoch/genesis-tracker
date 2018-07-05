@@ -500,7 +500,7 @@ class GenesisTracker{
         }
 
         foreach($res as &$r){
-            $r->admin_uri = self::getSurveyIndividualResponsesPage($r->survey_ID, $r->ID);
+            $r->admin_uri = self::getSurveyIndividualResponsesPage($r->ID, $r->survey_ID);
         }
 
         return $res;
