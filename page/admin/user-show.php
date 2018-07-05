@@ -74,7 +74,34 @@
         <dt>Week Number</dt>
         <dd><?php echo $userDetails['weeks_registered'] ? $userDetails['weeks_registered'] : "- -";?></dd>
     </dl>
-    
+
+    <?php if($surveyResults && count($surveyResults)): ?>
+        <hr />
+        <h2>Questionnaires Completed</h2>
+        <p>
+            This user has completed <?php echo count($surveyResults);?> questionnaire<?php echo count($surveyResults) !== 1 ? "s" : "";?>
+        </p>
+    <div class="table-scroller">
+        <table class="wp-list-table widefat">
+            <thead>
+            <th>Name</th>
+            <th>Date</th>
+            </thead>
+            <tbody>
+            <?php foreach($surveyResults as $result): ?>
+                <tr>
+                    <td>
+                        <a href="<?php echo $result->admin_uri; ?>"><?php echo $result->name ? $result->name : "- -";?></a>
+                    </td>
+                    <td><?php echo date( 'j M Y', strtotime($result->added_on) ); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        </div>
+
+    <?php endif; ?>
     
     <?php if($weightLogs && count($weightLogs)) : ?>
         <hr />

@@ -960,6 +960,7 @@ function genesis_admin_user_show($user){
     $fourWeekTypes = GenesisAdmin::getFourWeekEmailTypes();
     $exerciseTypes = GenesisTracker::getExerciseTypes();
     $resistanceExerciseTypes = GenesisTracker::getResistanceExerciseTypes();
+    $surveyResults = GenesisTracker::getCompletedSurveysForUser($user->ID);
 
     include('page/admin/user-show.php');
 }
