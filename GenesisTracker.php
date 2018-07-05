@@ -693,6 +693,35 @@ class GenesisTracker{
              )
         );
      }
+<<<<<<< HEAD
+=======
+
+    public static function getCompletedSurveysForUser($userId){
+        global $wpdb;
+
+        $res = $wpdb->get_results($sql = "
+            SELECT result.*, survey.name FROM " . self::getSurveyResultTableName() . " result 
+            INNER JOIN {$wpdb->prefix}surveys_survey survey 
+                ON survey.ID = result.survey_ID
+            WHERE user_id={$userId}"
+        );
+
+        if(!$res){
+            return;
+        }
+
+        foreach($res as &$r){
+            $r->admin_uri = self::getSurveyIndividualResponsesPage($r->survey_ID, $r->ID);
+        }
+
+        return $res;
+    }
+
+    public static function getSurveyIndividualResponsesPage($resultID, $surveyID){
+        return esc_url("edit.php?page=surveys/show_individual_response.php&result=$resultID&survey=$surveyID&action=show");
+    }
+     
+>>>>>>> 5b82e59... output surveys
 
      
      public static function userHasJustRegistered(){
@@ -1078,6 +1107,11 @@ class GenesisTracker{
          global $wpdb;
          return $wpdb->base_prefix . "genesis_eligibility_result_answers";
      }
+
+    public static function getSurveyResultTableName(){
+        global $wpdb;
+        return $wpdb->base_prefix . "surveys_result";
+    }
      
      public static function getFourWeekEmailLogTableName(){
          global $wpdb;
