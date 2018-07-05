@@ -201,7 +201,7 @@
         <p>
             This user has completed <?php echo count($surveyResults);?> questionnaire<?php echo count($surveyResults) !== 1 ? "s" : "";?>
         </p>
-    <div class="table-scroller">
+    <div>
         <table class="wp-list-table widefat">
             <thead>
             <th>Name</th>
