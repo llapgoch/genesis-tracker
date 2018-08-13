@@ -2656,7 +2656,17 @@ class GenesisTracker{
 
          $results = array_merge($results, $exerciseLogs);
 
+         if($user_id) {
+
+             var_dump(self::getInitialUserStartDate($user_id));
+             var_dump($user_id);
+//             echo "<br />";
+             //var_dump($user_id);
+             echo "<br />";
+//             exit;
+         }
          $date = new DateTime(self::getInitialUserStartDate($user_id));
+
          $date->modify("- 1 day");
          
          $start = new stdClass();
@@ -2679,6 +2689,7 @@ class GenesisTracker{
      
      // Pass in an array of keys to average in $avgVals
      public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
+         global $wpdb;
 
          $userData = self::getAllUserLogs($user_id, $startDate, $endDate);
          $userStartDate = self::getInitialUserStartDate($user_id);
@@ -2706,6 +2717,14 @@ class GenesisTracker{
              'treat',
              'alcohol'
          );
+
+         // Values to pad out so that we get the correct values at the end, when all users may not have entered
+         $valsToPad = array(
+             'weight',
+             'exercise_minutes_aerobic',
+             'exercise_minutes_resistance',
+             'weight_loss'
+         );
          
          $collated['weight_imperial'] = array();
          $collated['weight_loss_imperial'] = array();
@@ -2713,9 +2732,30 @@ class GenesisTracker{
          $collated['weight_loss_imperial']['data'] = array();
          
          $collated['weight_imperial']['timestamps'] = array();
-         $collated['weight_loss_imperial']['timestamps'] = array();         
-         
+         $collated['weight_loss_imperial']['timestamps'] = array();
+
          if($userData){
+             // Get the maximum entered date so we can pad to the end of the result set
+             $trackerTable = self::getTrackerTableName();
+
+             $row = $wpdb->get_row($sql =
+                 "SELECT MAX(measure_date) as measure_date FROM {$trackerTable}"
+             );
+
+             $allDataEndTime = strtotime($row->measure_date);
+
+             $endData = end($userData);
+
+
+
+             if($fillAverages) {
+//                 var_dump($allDataEndTime);
+//                 var_dump($endData->measure_date);
+//                 var_dump($endData->tracker_id);
+
+             }
+
+
              foreach($userData as $log){             
                  $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
              
@@ -2812,8 +2852,6 @@ class GenesisTracker{
          if($fillAverages){
              $newCollated = array();
 
-
-             
              foreach($avgVals as $avgVal){
                  $newCollated = array();
 
@@ -2955,7 +2993,7 @@ class GenesisTracker{
          // Update to include admins
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
 
-        if($averages === null){
+        if($averages === null || true){
             $averages = self::generateAverageUsersGraphData(self::INCLUDE_ADMIN_USERS_IN_AVERAGES == false);
         }
         
@@ -3026,13 +3064,27 @@ class GenesisTracker{
 
         return $averages;
      }
+
+    public function getActiveUsers(){
+        global $wpdb;
+        $prefix = $wpdb->prefix;
+
+        $sql = "SELECT u.*
+            FROM {$prefix}users u
+                INNER JOIN {$prefix}usermeta um ON ( u.ID = um.user_id )
+                INNER JOIN `{$prefix}genesis_userdata` ud ON u.ID = ud.user_id
+                    AND ( ( ( um.meta_key = '{$prefix}capabilities' AND um.meta_value LIKE '%subscriber%' ) ) )
+                AND ud.`account_active` = 1
+              ORDER BY user_login ASC";
+
+        return $wpdb->get_results($sql);
+    }
      
      
      // Generate the cached version of the average dataset
      public static function generateAverageUsersGraphData($onlySubscribers = true){
-         $limit = $onlySubscribers ? 'role=subscriber' : '';
-         $users = get_users($limit);
-        
+         $users = self::getActiveUsers();
+
          $results = array();
          $structure = array();
          
@@ -3410,12 +3462,16 @@ class GenesisTracker{
      public static function getUserData($user_id, $key = null){
          global $wpdb;
          
-         $result = $wpdb->get_row(
+         $result = $wpdb->get_row($sql =
              $wpdb->prepare("SELECT * FROM ". self::getUserDataTableName() . 
                  " WHERE user_id=%d", $user_id
              ), ARRAY_A
          );
-         
+
+//         if($user_id == 43 && $key == 'start_date'){
+//             echo $result[$key];
+//         }
+
          if(!$key){
              return $result;
          }
