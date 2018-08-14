@@ -2749,10 +2749,17 @@ class GenesisTracker{
                      $userData[] = $newLastEntry;
                  }
 
+                 $endData = end($userData);
+
                  // Work backwards through each of the values to be padded until we find a non-null value
                  foreach($valsToPad as $valToPad){
                      for($i = count($userData) - 1; $i >= 0; $i--){
-//                         var_dump("checking {$valToPad}");
+                         $userRow = $userData[$i];
+
+                         if($userRow->$valToPad){
+                             $endData->$valToPad = $userRow->$valToPad;
+                             continue;
+                         }
                      }
                  }
              }
@@ -3067,17 +3074,28 @@ class GenesisTracker{
         return $averages;
      }
 
+    /**
+     * @return array|null|object
+     *
+     * Gets the active users on the site; They must not be withdrawn,
+     * be subscribers, their account must be active, and they must have logged a value in the last
+     * two months.
+     */
     public function getActiveUsers(){
         global $wpdb;
         $prefix = $wpdb->prefix;
 
-        $sql = "SELECT u.*
+        $sql = "SELECT MAX(t.measure_date) as max_measure_date, u.*
             FROM {$prefix}users u
                 INNER JOIN {$prefix}usermeta um ON ( u.ID = um.user_id )
+                INNER JOIN genwp_genesis_tracker t ON u.ID = t.user_id
                 INNER JOIN `{$prefix}genesis_userdata` ud ON u.ID = ud.user_id
                     AND ( ( ( um.meta_key = '{$prefix}capabilities' AND um.meta_value LIKE '%subscriber%' ) ) )
-                AND ud.`account_active` = 1
-              ORDER BY user_login ASC";
+                    AND ud.`account_active` = 1
+                    AND ud.`withdrawn` <> 1
+            GROUP BY (u.ID)
+            HAVING max_measure_date >= DATE_ADD(CURRENT_DATE, INTERVAL - 2 MONTH)
+            ORDER BY user_login ASC";
 
         return $wpdb->get_results($sql);
     }
