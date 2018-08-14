@@ -3002,7 +3002,7 @@ class GenesisTracker{
          // Update to include admins
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
 
-        if($averages === null || true){
+        if($averages === null){
             $averages = self::generateAverageUsersGraphData(self::INCLUDE_ADMIN_USERS_IN_AVERAGES == false);
         }
         
