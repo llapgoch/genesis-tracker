@@ -2749,10 +2749,6 @@ class GenesisTracker{
                      $userData[] = $newLastEntry;
                  }
 
-                 $checker = end($userData);
-                 var_dump($allDataEndTime . " " . strtotime($checker->measure_date));
-                 echo "<br />";
-
                  // Work backwards through each of the values to be padded until we find a non-null value
                  foreach($valsToPad as $valToPad){
                      for($i = count($userData) - 1; $i >= 0; $i--){
