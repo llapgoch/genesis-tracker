@@ -2657,6 +2657,7 @@ class GenesisTracker{
          $results = array_merge($results, $exerciseLogs);
 
          $date = new DateTime(self::getInitialUserStartDate($user_id));
+
          $date->modify("- 1 day");
          
          $start = new stdClass();
@@ -2679,6 +2680,7 @@ class GenesisTracker{
      
      // Pass in an array of keys to average in $avgVals
      public static function getUserGraphData($user_id, $fillAverages = false, $avgVals = array(), $keyAsDate = false, $startDate = '', $endDate = ''){
+         global $wpdb;
 
          $userData = self::getAllUserLogs($user_id, $startDate, $endDate);
          $userStartDate = self::getInitialUserStartDate($user_id);
@@ -2706,6 +2708,14 @@ class GenesisTracker{
              'treat',
              'alcohol'
          );
+
+         // Values to pad out so that we get the correct values at the end, when all users may not have entered
+         $valsToPad = array(
+             'weight',
+             'exercise_minutes_aerobic',
+             'exercise_minutes_resistance',
+             'weight_loss'
+         );
          
          $collated['weight_imperial'] = array();
          $collated['weight_loss_imperial'] = array();
@@ -2713,9 +2723,48 @@ class GenesisTracker{
          $collated['weight_loss_imperial']['data'] = array();
          
          $collated['weight_imperial']['timestamps'] = array();
-         $collated['weight_loss_imperial']['timestamps'] = array();         
-         
+         $collated['weight_loss_imperial']['timestamps'] = array();
+
          if($userData){
+             // Get the maximum entered date so we can pad to the end of the result set
+
+             if($fillAverages) {
+                 $trackerTable = self::getTrackerTableName();
+
+                 $totalEndDateRow = $wpdb->get_row($sql =
+                     "SELECT MAX(measure_date) as measure_date FROM {$trackerTable}"
+                 );
+
+                 $allDataEndTime = strtotime($totalEndDateRow->measure_date);
+
+                 $endData = end($userData);
+                 $endDataTimestamp = strtotime($endData->measure_date);
+
+                 // Pad each of the values to correctly show averages
+
+                 // Add a new entry with the final measure date required
+                 if($allDataEndTime > $endDataTimestamp){
+                     $newLastEntry = new stdClass();
+                     $newLastEntry->measure_date = $totalEndDateRow->measure_date;
+                     $userData[] = $newLastEntry;
+                 }
+
+                 $endData = end($userData);
+
+                 // Work backwards through each of the values to be padded until we find a non-null value
+                 foreach($valsToPad as $valToPad){
+                     for($i = count($userData) - 1; $i >= 0; $i--){
+                         $userRow = $userData[$i];
+
+                         if($userRow->$valToPad){
+                             $endData->$valToPad = $userRow->$valToPad;
+                             continue;
+                         }
+                     }
+                 }
+             }
+
+
              foreach($userData as $log){             
                  $timestamp = strtotime($log->measure_date . " UTC ") * 1000;
              
@@ -2812,8 +2861,6 @@ class GenesisTracker{
          if($fillAverages){
              $newCollated = array();
 
-
-             
              foreach($avgVals as $avgVal){
                  $newCollated = array();
 
@@ -3026,13 +3073,38 @@ class GenesisTracker{
 
         return $averages;
      }
+
+    /**
+     * @return array|null|object
+     *
+     * Gets the active users on the site; They must not be withdrawn,
+     * be subscribers, their account must be active, and they must have logged a value in the last
+     * two months.
+     */
+    public function getActiveUsers(){
+        global $wpdb;
+        $prefix = $wpdb->prefix;
+
+        $sql = "SELECT MAX(t.measure_date) as max_measure_date, u.*
+            FROM {$prefix}users u
+                INNER JOIN {$prefix}usermeta um ON ( u.ID = um.user_id )
+                INNER JOIN genwp_genesis_tracker t ON u.ID = t.user_id
+                INNER JOIN `{$prefix}genesis_userdata` ud ON u.ID = ud.user_id
+                    AND ( ( ( um.meta_key = '{$prefix}capabilities' AND um.meta_value LIKE '%subscriber%' ) ) )
+                    AND ud.`account_active` = 1
+                    AND ud.`withdrawn` <> 1
+            GROUP BY (u.ID)
+            HAVING max_measure_date >= DATE_ADD(CURRENT_DATE, INTERVAL - 2 MONTH)
+            ORDER BY user_login ASC";
+
+        return $wpdb->get_results($sql);
+    }
      
      
      // Generate the cached version of the average dataset
      public static function generateAverageUsersGraphData($onlySubscribers = true){
-         $limit = $onlySubscribers ? 'role=subscriber' : '';
-         $users = get_users($limit);
-        
+         $users = self::getActiveUsers();
+
          $results = array();
          $structure = array();
          
@@ -3410,12 +3482,16 @@ class GenesisTracker{
      public static function getUserData($user_id, $key = null){
          global $wpdb;
          
-         $result = $wpdb->get_row(
+         $result = $wpdb->get_row($sql =
              $wpdb->prepare("SELECT * FROM ". self::getUserDataTableName() . 
                  " WHERE user_id=%d", $user_id
              ), ARRAY_A
          );
-         
+
+//         if($user_id == 43 && $key == 'start_date'){
+//             echo $result[$key];
+//         }
+
          if(!$key){
              return $result;
          }
