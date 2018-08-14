@@ -2728,22 +2728,37 @@ class GenesisTracker{
          if($userData){
              // Get the maximum entered date so we can pad to the end of the result set
 
-
-
-
              if($fillAverages) {
                  $trackerTable = self::getTrackerTableName();
 
-                 $row = $wpdb->get_row($sql =
+                 $totalEndDateRow = $wpdb->get_row($sql =
                      "SELECT MAX(measure_date) as measure_date FROM {$trackerTable}"
                  );
 
-                 $allDataEndTime = strtotime($row->measure_date);
+                 $allDataEndTime = strtotime($totalEndDateRow->measure_date);
 
                  $endData = end($userData);
                  $endDataTimestamp = strtotime($endData->measure_date);
 
                  // Pad each of the values to correctly show averages
+
+                 // Add a new entry with the final measure date required
+                 if($allDataEndTime > $endDataTimestamp){
+                     $newLastEntry = new stdClass();
+                     $newLastEntry->measure_date = $totalEndDateRow->measure_date;
+                     $userData[] = $newLastEntry;
+                 }
+
+                 $checker = end($userData);
+                 var_dump($allDataEndTime . " " . strtotime($checker->measure_date));
+                 echo "<br />";
+
+                 // Work backwards through each of the values to be padded until we find a non-null value
+                 foreach($valsToPad as $valToPad){
+                     for($i = count($userData) - 1; $i >= 0; $i--){
+//                         var_dump("checking {$valToPad}");
+                     }
+                 }
              }
 
 
