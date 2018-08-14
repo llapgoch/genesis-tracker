@@ -2656,15 +2656,6 @@ class GenesisTracker{
 
          $results = array_merge($results, $exerciseLogs);
 
-         if($user_id) {
-
-             var_dump(self::getInitialUserStartDate($user_id));
-             var_dump($user_id);
-//             echo "<br />";
-             //var_dump($user_id);
-             echo "<br />";
-//             exit;
-         }
          $date = new DateTime(self::getInitialUserStartDate($user_id));
 
          $date->modify("- 1 day");
@@ -2736,23 +2727,23 @@ class GenesisTracker{
 
          if($userData){
              // Get the maximum entered date so we can pad to the end of the result set
-             $trackerTable = self::getTrackerTableName();
 
-             $row = $wpdb->get_row($sql =
-                 "SELECT MAX(measure_date) as measure_date FROM {$trackerTable}"
-             );
-
-             $allDataEndTime = strtotime($row->measure_date);
-
-             $endData = end($userData);
 
 
 
              if($fillAverages) {
-//                 var_dump($allDataEndTime);
-//                 var_dump($endData->measure_date);
-//                 var_dump($endData->tracker_id);
+                 $trackerTable = self::getTrackerTableName();
 
+                 $row = $wpdb->get_row($sql =
+                     "SELECT MAX(measure_date) as measure_date FROM {$trackerTable}"
+                 );
+
+                 $allDataEndTime = strtotime($row->measure_date);
+
+                 $endData = end($userData);
+                 $endDataTimestamp = strtotime($endData->measure_date);
+
+                 // Pad each of the values to correctly show averages
              }
 
 
