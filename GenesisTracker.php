@@ -1592,10 +1592,10 @@ class GenesisTracker{
                         USING(tracker_id)
 	              WHERE `type` = 'resistance'
                     AND t.user_id=%d
-                    AND t.measure_date >= {$dateFrom}", $user_id
+                    AND t.measure_date >= '{$dateFrom}'", $user_id
              )
          );
-
+         
          return $result->resistance_count;
      }
 
@@ -1613,7 +1613,7 @@ class GenesisTracker{
                 WHERE t.user_id = %d
                     AND e.type = 'aerobic'
                     AND e.sub_type IN ('vigorous', 'moderate')
-                    AND t.measure_date >= {$dateFrom}",
+                    AND t.measure_date >= '{$dateFrom}'",
                 $user_id
             )
          );
