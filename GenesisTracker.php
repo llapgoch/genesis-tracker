@@ -1103,7 +1103,7 @@ class GenesisTracker{
                     FROM genwp_genesis_tracker 
 	              WHERE exercise_type_resistance IN ('arms','legs','trunk')
                     AND user_id=%d
-                    AND measure_date >= {$dateFrom}", $user_id
+                    AND measure_date >= '{$dateFrom}'", $user_id
              )
          );
 
@@ -1123,13 +1123,13 @@ class GenesisTracker{
                          (SELECT SUM(`exercise_minutes`) as total
                     FROM genwp_genesis_tracker
                     WHERE genwp_genesis_tracker.`exercise_type`='moderate' 
-                      AND measure_date >= {$dateFrom}
+                      AND measure_date >= '{$dateFrom}'
                       AND user_id=%d
                 ) as type_moderate,
                 (SELECT SUM(`exercise_minutes`) as total
                     FROM genwp_genesis_tracker
                     WHERE genwp_genesis_tracker.`exercise_type`='vigorous'
-                      AND measure_date >= {$dateFrom}
+                      AND measure_date >= '{$dateFrom}'
                       AND user_id=%d
                 ) as type_vigorous", $user_id, $user_id
             )
