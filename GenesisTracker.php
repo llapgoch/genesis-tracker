@@ -3094,7 +3094,7 @@ class GenesisTracker{
                     AND ud.`account_active` = 1
                     AND ud.`withdrawn` <> 1
             GROUP BY (u.ID)
-            HAVING max_measure_date >= DATE_ADD(CURRENT_DATE, INTERVAL - 2 MONTH)
+            HAVING max_measure_date >= DATE_ADD(CURRENT_DATE, INTERVAL - 1 MONTH)
             ORDER BY user_login ASC";
 
         return $wpdb->get_results($sql);
