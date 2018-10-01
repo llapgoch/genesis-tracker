@@ -590,11 +590,11 @@ class GenesisTracker{
          if(strpos($registerUrl, $_SERVER['REQUEST_URI']) !== false){
              return true;
          }
-         
+
          if(self::isOnLoginPage() && isset($_GET['action']) && $_GET['action'] == 'register'){
              return true;
          }
-         
+
          return false;
      }
 
@@ -2085,7 +2085,7 @@ class GenesisTracker{
          if($form->getRawValue('record-food')){
              foreach(self::$_userMetaTargetFields as $targetKey => $target){
                  foreach(self::$_userTargetTimes as $timeKey => $time){
-                     $rules[$timeKey . "_" . $targetKey] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[200]');
+                     $rules[$timeKey . "_" . $targetKey] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
                  }
              }
          }

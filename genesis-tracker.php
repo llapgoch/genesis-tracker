@@ -285,7 +285,7 @@ if(!is_admin()){
    
     add_filter( 'login_message', function($message){
         if(GenesisTracker::isOnDoctorEligibilityRegistrationPage()){
-            return GenesisThemeShortCodes::readingBox(
+            return Gene∂sisThemeShortCodes::readingBox(
                 'Thank you for obtaining your doctor\'s consent to take part in the Family History Lifestyle Study',
                 '<ul><li>Please fill in your details below</li><li>You\'ll need your Unique ID from your doctor\'s consent letter</li></ul>'
             );
