@@ -138,54 +138,54 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                               <div class="title">
                                   <label for="example" class="general-label">Breakfast Example:</label>
                               </div>
-                               <p class="example-explanation">2 Weetabix, 100 mls of semi-skimmed milk, 150mls of orange juice</p>
+                               <p class="example-explanation">2 Weetabix, 100 mls of semi-skimmed milk, 150mls of orange juice, 4 brevita breakfast biscuits</p>
                               <div class="food-input-form">
                                 <div class="input-box">
-                                    <label for="example_fat">Carbohydrate</label>
+                                    <label for="example_fat">Carbohydrate<br/>(portions)</label>
                                     <div class="input-container fat">
                                         <input type="text" readonly="readonly" id="example_fat" class="general-input food-input" name="example_fat" value="2">
                                     </div>
                                 </div>
                                 <div class="input-box">
-                                    <label for="example_protein">Protein</label>
+                                    <label for="example_protein">Protein<br/>(portions)</label>
                                     <div class="input-container protein">
                                         <input type="text" readonly="readonly" id="example_protein" class="general-input food-input" name="example_protein" value="0">
                                     </div>
                                 </div>
                                 <div class="input-box">
-                                    <label for="example_carbs">Dairy</label>
+                                    <label for="example_carbs">Dairy<br/>(portions)</label>
                                     <div class="input-container carbs">
                                         <input type="text" readonly="readonly" id="example_carbs" class="general-input food-input" name="example_carbs" value="0.5">
                                     </div>
                                 </div>
                                 <div class="input-box">
-                                    <label for="example_fruit">Vegetables</label>
+                                    <label for="example_fruit">Vegetables<br/>(portions)</label>
                                     <div class="input-container fruit">
                                         <input type="text" readonly="readonly" id="example_fruit" class="general-input food-input" name="example_fruit" value="0">
                                     </div>
                                 </div>
                                 <div class="input-box">
-                                    <label for="example_vegetables">Fruit</label>
+                                    <label for="example_vegetables">Fruit<br/>(portions)</label>
                                     <div class="input-container vegetables">
                                         <input type="text" readonly="readonly" id="example_vegetables" class="general-input food-input" name="example_vegetables" value="1">
                                     </div>
                                 </div>
                                 <div class="input-box">
-                                    <label for="example_dairy">Fat</label>
+                                    <label for="example_dairy">Fat<br/>(portions)</label>
                                     <div class="input-container dairy">
                                         <input type="text" readonly="readonly" id="example_dairy" class="general-input food-input" name="example_dairy" value="0">
                                     </div>
                                 </div>
                                 <div class="input-box">
-                                    <label for="example_alcohol">Treat</label>
+                                    <label for="example_alcohol">Treat<br/>(kcals)</label>
                                     <div class="input-container alcohol">
-                                        <input type="text" readonly="readonly" id="example_alcohol" class="general-input food-input" name="example_alcohol" value="0">
+                                        <input type="text" readonly="readonly" id="example_alcohol" class="general-input food-input" name="example_treat" value="230">
                                     </div>
                                 </div>
                                 <div class="input-box">
-                                    <label for="example_treat">Alcohol</label>
+                                    <label for="example_treat">Alcohol<br/>(units)</label>
                                     <div class="input-container treat">
-                                        <input type="text" readonly="readonly" id="example_treat" class="general-input food-input" name="example_treat" value="0">
+                                        <input type="text" readonly="readonly" id="example_treat" class="general-input food-input" name="example_alcohol" value="0">
                                     </div>
                                 </div>
                             </div>

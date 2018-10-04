@@ -28,7 +28,7 @@ class GenesisUserInputTable{
             $fullKey = $timeIdentifier . "_" . $foodIdentifier;
             
             $html[] = "<div class='input-box'>";
-            $html[] = "<label for='$fullKey'>" . $food['name'] . "</label>";
+            $html[] = "<label for='$fullKey'>{$food['name']}<br />({$food['unit']})</label>";
                 $html[] = "<div class='input-container $foodIdentifier'>";
 
                 $html[] = $form->input($fullKey, 'text', array(

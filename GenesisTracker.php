@@ -125,7 +125,7 @@ class GenesisTracker{
         "vegetables" => array("name" => "Vegetables", "unit" => "portions", "male" => "Between 5 and 8", "female" => "Between 5 and 8"),
         "fruit" => array("name" => "Fruit", "unit" => "portions", "male" => "Aim for 1", "female" => "Aim for 1"),
         "fat" => array("name" => 'Fat', "unit" => "portions", "male" => "Maximum of 4", "female" => "Maximum of 3"),
-        "treat" => array("name" => "Treat", "unit" => "portions", "male" => "0", "female" => "0"),
+        "treat" => array("name" => "Treat", "unit" => "kcals", "male" => "0", "female" => "0"),
         "alcohol" => array("name" => "Alcohol", "unit" => "units", "male" => "0", "female" => "0")
     );
 
