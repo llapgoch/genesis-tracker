@@ -138,7 +138,7 @@ echo GenesisThemeShortCodes::generateErrorBox(GenesisTracker::$pageData);
                               <div class="title">
                                   <label for="example" class="general-label">Breakfast Example:</label>
                               </div>
-                               <p class="example-explanation">2 Weetabix, 100 mls of semi-skimmed milk, 150mls of orange juice, 4 brevita breakfast biscuits</p>
+                               <p class="example-explanation">2 Weetabix (2 carb)  100 mls of semi-skimmed milk (0.5 dairy)  150mls of orange juice (fruit)  4 Brevita breakfast biscuits (treat foods)</p>
                               <div class="food-input-form">
                                 <div class="input-box">
                                     <label for="example_fat">Carbohydrate<br/>(portions)</label>
