@@ -2735,17 +2735,40 @@ class GenesisTracker{
                      "SELECT MAX(measure_date) as measure_date FROM {$trackerTable}"
                  );
 
+                 $totalStartDateRow = $wpdb->get_row($sql =
+                     "SELECT MIN(measure_date) as measure_date FROM {$trackerTable}"
+                 );
+
+                 $currentUserStart = $wpdb->get_row($sql =
+                     $wpdb->prepare(
+                             "SELECT MIN(measure_date) as measure_date 
+                              FROM {$trackerTable}
+                              WHERE user_id=%s",
+                             $user_id
+                     )
+                 );
+
+
+                 // Gets the total amount of days entered for everyone in the trial, add that on to the user's start time
+                 // to work out how many entries need padding at the end of their data set
+                 $allDataStartTime = strtotime($totalStartDateRow->measure_date);
                  $allDataEndTime = strtotime($totalEndDateRow->measure_date);
+                 $currentUserStartTime = strtotime($currentUserStart->measure_date);
+
+                 $totalElapsedTime = ($allDataEndTime - $allDataStartTime);
 
                  $endData = end($userData);
                  $endDataTimestamp = strtotime($endData->measure_date);
 
+                 $currentUserEndTime = $currentUserStartTime + $totalElapsedTime;
+
+
                  // Pad each of the values to correctly show averages
 
                  // Add a new entry with the final measure date required
-                 if($allDataEndTime > $endDataTimestamp){
+                 if($allDataEndTime > $endDataTimestamp || true){
                      $newLastEntry = new stdClass();
-                     $newLastEntry->measure_date = $totalEndDateRow->measure_date;
+                     $newLastEntry->measure_date = date('Y-m-d H:i:s', $currentUserEndTime);
                      $userData[] = $newLastEntry;
                  }
 
@@ -2901,7 +2924,6 @@ class GenesisTracker{
                  
                  $collated[$avgVal]['data'] = $newCollated;
              }
-
          }
          
          if($keyAsDate){
@@ -3002,6 +3024,8 @@ class GenesisTracker{
          // Update to include admins
         $averages = self::getCacheData(self::getOptionKey(self::averageDataKey));
 
+
+
         if($averages === null){
             $averages = self::generateAverageUsersGraphData(self::INCLUDE_ADMIN_USERS_IN_AVERAGES == false);
         }
@@ -3071,6 +3095,8 @@ class GenesisTracker{
              $averageData['data'] = array_values($averageData['data']);
          }
 
+
+
         return $averages;
      }
 
@@ -3096,6 +3122,8 @@ class GenesisTracker{
             GROUP BY (u.ID)
             HAVING max_measure_date >= DATE_ADD(CURRENT_DATE, INTERVAL - 1 MONTH)
             ORDER BY user_login ASC";
+
+        echo $sql;
 
         return $wpdb->get_results($sql);
     }
