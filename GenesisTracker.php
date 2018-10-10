@@ -125,7 +125,7 @@ class GenesisTracker{
         "vegetables" => array("name" => "Vegetables", "unit" => "portions", "male" => "Between 5 and 8", "female" => "Between 5 and 8"),
         "fruit" => array("name" => "Fruit", "unit" => "portions", "male" => "Aim for 1", "female" => "Aim for 1"),
         "fat" => array("name" => 'Fat', "unit" => "portions", "male" => "Maximum of 4", "female" => "Maximum of 3"),
-        "treat" => array("name" => "Treat", "unit" => "portions", "male" => "0", "female" => "0"),
+        "treat" => array("name" => "Treat", "unit" => "kcals", "male" => "0", "female" => "0"),
         "alcohol" => array("name" => "Alcohol", "unit" => "units", "male" => "0", "female" => "0")
     );
 
@@ -590,11 +590,11 @@ class GenesisTracker{
          if(strpos($registerUrl, $_SERVER['REQUEST_URI']) !== false){
              return true;
          }
-         
+
          if(self::isOnLoginPage() && isset($_GET['action']) && $_GET['action'] == 'register'){
              return true;
          }
-         
+
          return false;
      }
 
@@ -2085,7 +2085,7 @@ class GenesisTracker{
          if($form->getRawValue('record-food')){
              foreach(self::$_userMetaTargetFields as $targetKey => $target){
                  foreach(self::$_userTargetTimes as $timeKey => $time){
-                     $rules[$timeKey . "_" . $targetKey] = array('N', 'R', 'VALUE-GREATER-EQ[0]', 'VALUE-LESS-EQ[200]');
+                     $rules[$timeKey . "_" . $targetKey] = array('N', 'R', 'VALUE-GREATER-EQ[0]');
                  }
              }
          }
