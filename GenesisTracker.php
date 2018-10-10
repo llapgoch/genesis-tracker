@@ -3123,8 +3123,6 @@ class GenesisTracker{
             HAVING max_measure_date >= DATE_ADD(CURRENT_DATE, INTERVAL - 1 MONTH)
             ORDER BY user_login ASC";
 
-        echo $sql;
-
         return $wpdb->get_results($sql);
     }
      
