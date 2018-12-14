@@ -2360,6 +2360,8 @@ class GenesisTracker{
                  AND measure_date=%s",
             $user_id,
             $date));
+
+            
         
         return $res;
      }
@@ -3259,9 +3261,10 @@ class GenesisTracker{
         $outerColumns = "value, time, " . implode(",", array_keys(self::$_userMetaTargetFields));
         $collated = array();
 
+        // On the live, Mysql uses the wrong index, so tell it to ignore it here
         foreach(self::$_userMetaTargetFields as $target => $value){
             $foodColumns .= ($foodColumns ? "," : "") . " food_log_{$target}.value as {$target}";
-            $foodJoins .= " LEFT JOIN {$foodLogTableName} food_log_{$target}
+            $foodJoins .= " LEFT JOIN {$foodLogTableName} food_log_{$target} IGNORE INDEX(food_type_time)
             ON description.tracker_id = food_log_{$target}.tracker_id
                 AND food_log_{$target}.time = description.time
                 AND food_log_{$target}.food_type = '{$target}'";
