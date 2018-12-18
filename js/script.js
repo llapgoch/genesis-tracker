@@ -306,7 +306,8 @@ GenesisTracker.weightToMetric = function(stone, pounds){
 			
 			$.ajax(myAjax.ajaxurl, {
 				'type':'post',
-				'dataType':'json',
+                'dataType':'json',
+                'timeout': 500000,
 				'complete':function(){
 					removePreloader();
 				},
