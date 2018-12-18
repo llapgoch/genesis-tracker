@@ -3445,7 +3445,7 @@ class GenesisTracker{
               
         wp_register_script( "progress", plugins_url('js/script.js', __FILE__), array( 
              'jquery'  
-        ));
+        ), 6);
 
 
 
