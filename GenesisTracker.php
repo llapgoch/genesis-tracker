@@ -3381,20 +3381,21 @@ class GenesisTracker{
              exit;
          }
 
-         /** Nasty, but only show menu items for survey pages if the user is on the control group */
+           /** Nasty, but only show menu items for survey pages if the user is on the control group */
          if(GenesisTracker::userCanOnlyViewSurveys()){
-         ?>
-         <style>
-             .nav-holder .menu > .menu-item:not(.control-group), .footer-area .footer-widget-col{
-                 display: none;
-             }
+                add_action('wp_head', function(){
+                    echo "<style>
+                    .nav-holder .menu > .menu-item:not(.control-group), .footer-area .footer-widget-col{
+                        display: none;
+                    }
 
-             .full-account{
-                 display: none;
-             }
-         </style>
-         <?php
-         }
+                    .full-account{
+                        display: none;
+                    }
+
+                    </style>";
+            });
+        }
 
          // Do any redirects first - require a hash for exercise questions or ineligible
          if(self::isOnInEligiblePage() || self::isOnEligibilityExercisePage() ||
