@@ -1,0 +1,15 @@
+/* EXPORT ANSWERS FROM A PARTICULAR SURVEY */
+SELECT result.ID, u.user_email, u.ID as user_id, question.`question`, 
+	IF(question.`allow_user_answer`, resultanswer.`user_answer`, answer.`answer`) as answer
+FROM genwp_users u
+	JOIN genwp_surveys_result result
+		ON result.`user_id` = u.ID 
+			AND result.`survey_ID` = 201 /* SURVEY ID */
+	JOIN genwp_surveys_question question
+		ON question.`survey_ID` = result.`survey_ID`	
+	JOIN genwp_surveys_result_answer resultanswer
+		ON resultanswer.`result_ID` = result.ID
+		AND resultanswer.`question_ID` = question.ID
+	LEFT JOIN genwp_surveys_answer answer
+		ON answer.`ID` = resultanswer.`answer_ID`
+ORDER BY result.ID, question.id
