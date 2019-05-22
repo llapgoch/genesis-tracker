@@ -15,9 +15,9 @@ SELECT el.id, el.date_created, el.passcode, el.weight, el.height, el.age, el.bmi
 
 // IS NOT ELIGIBLE, WITH SURVEY DATA (POSTCODE, ETHNICITY, GENE)
 SELECT survey_result.result_ID, 
-	survey_postcode.user_answer AS eligibility_survey_postcode,	
-	survey_ethnicity_answer.answer AS eligibility_survey_ethnicity,
-	survey_carry_gene_answer.answer AS eligibility_survey_brca_gene,
+	IF(survey_postcode.user_answer IS NULL, "", survey_postcode.user_answer) AS eligibility_survey_postcode,	
+	IF(survey_ethnicity_answer.answer IS NULL, "", survey_ethnicity_answer.answer)  AS eligibility_survey_ethnicity,
+	IF(survey_carry_gene_answer.answer IS NULL, "", survey_carry_gene_answer.answer) AS eligibility_survey_brca_gene,
 	allData.* 
 	FROM (
 SELECT el.id, el.date_created, el.passcode, el.weight, el.height, el.age, el.bmi, 
