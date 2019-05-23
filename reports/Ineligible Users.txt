@@ -14,11 +14,11 @@ SELECT el.id, el.date_created, el.passcode, el.weight, el.height, el.age, el.bmi
 	ORDER BY el.id, q.`id`
 
 // IS NOT ELIGIBLE, WITH SURVEY DATA (POSTCODE, ETHNICITY, GENE)
-SELECT survey_result.result_ID, 
+SELECT 
+	allData.*,
 	IF(survey_postcode.user_answer IS NULL, "", survey_postcode.user_answer) AS eligibility_survey_postcode,	
 	IF(survey_ethnicity_answer.answer IS NULL, "", survey_ethnicity_answer.answer)  AS eligibility_survey_ethnicity,
-	IF(survey_carry_gene_answer.answer IS NULL, "", survey_carry_gene_answer.answer) AS eligibility_survey_brca_gene,
-	allData.* 
+	IF(survey_carry_gene_answer.answer IS NULL, "", survey_carry_gene_answer.answer) AS eligibility_survey_brca_gene
 	FROM (
 SELECT el.id, el.date_created, el.passcode, el.weight, el.height, el.age, el.bmi, 
 	IF(el.is_eligible = 1, 'Yes', 'No') is_eligible,
@@ -52,6 +52,7 @@ SELECT el.id, el.date_created, el.passcode, el.weight, el.height, el.age, el.bmi
 			AND survey_carry_gene.`question_ID` = 97 /* Carry Gene */
 	LEFT JOIN genwp_surveys_answer survey_carry_gene_answer
 		ON survey_carry_gene_answer.`ID` = survey_carry_gene.`answer_ID`
+
 
 
 
