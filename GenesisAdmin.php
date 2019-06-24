@@ -163,6 +163,8 @@ class GenesisAdmin{
 
     // Needs testing - for automatically sending four week and red flag emails
     public static function sendAllWeightEmails(){
+        // Automated Emails have been disabled
+        return;
         $logs = self::getUserLogDetails();
         $headers = GenesisTracker::getEmailHeaders();
 

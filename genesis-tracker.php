@@ -128,6 +128,8 @@ function new_interval($interval) {
 
 
 function send_reminder_email(){
+    // Emails have been turned off
+    return;
     GenesisTracker::sendReminderEmail();
 }
 
