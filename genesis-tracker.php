@@ -265,6 +265,8 @@ function new_interval($interval) {
 
 
 function send_reminder_email(){
+    // Emails have been turned off for 2DW
+    return;
     GenesisTracker::sendReminderEmail();
 }
 
@@ -1081,7 +1083,7 @@ function genesis_admin_page(){
 
 function genesis_admin_send_red_flag_email(){
     global $wpdb;
-    
+
     if(isset($_POST['user'])){
         $result = GenesisTracker::sendRedFlagEmail($_POST['user'], true);
         
@@ -1131,6 +1133,7 @@ function genesis_admin_user_show($user){
 
 function genesis_admin_send_four_weekly_email(){
     global $wpdb;
+
     if(!get_user_by('id', $_POST['user'])){
         wp_redirect(GenesisTracker::getAdminUrl());
         exit;

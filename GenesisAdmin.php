@@ -166,6 +166,9 @@ class GenesisAdmin{
         $logs = self::getUserLogDetails();
         $headers = GenesisTracker::getEmailHeaders();
 
+        // Emails have been disabled for 2DW
+        return;
+
         GenesisTracker::logMessage("Attempting send of four week emails");
 
         foreach($logs as $log){
