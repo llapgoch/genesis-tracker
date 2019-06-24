@@ -194,6 +194,8 @@ function new_interval($interval) {
 
 
 function send_reminder_email(){
+    // Emails have been disabled for 2DW
+    return;
     GenesisTracker::sendReminderEmail();
 }
 
